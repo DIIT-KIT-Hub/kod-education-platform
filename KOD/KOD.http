@@ -1,0 +1,6 @@
+@KOD_HostAddress = http://localhost:5192
+
+GET {{KOD_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

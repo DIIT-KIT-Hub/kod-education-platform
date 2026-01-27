@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="../Infrastructure/KOD.Infrastructure.csproj" />
+  <Project Path="../KOD.Application/KOD.Application.csproj" />
+  <Project Path="../KOD.Domain/KOD.Domain.csproj" />
+  <Project Path="KOD.API.csproj" />
+</Solution>
