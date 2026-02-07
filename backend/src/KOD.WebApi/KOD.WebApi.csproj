@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.AspNetCore.OpenApi" />
@@ -6,11 +6,11 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\..\KOD.Infrastructure\KOD.Infrastructure.csproj" />
+	  <Folder Include="Middleware\" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Folder Include="Middleware\" />
+	  <ProjectReference Include="..\KOD.Infrastructure\KOD.Infrastructure.csproj" />
 	</ItemGroup>
 
 </Project>

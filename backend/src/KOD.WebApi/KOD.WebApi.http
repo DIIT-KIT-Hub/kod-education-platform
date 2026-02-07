@@ -1,6 +1,6 @@
 @KOD.WebApi_HostAddress = http://localhost:5074
 
-GET {{KOD.WebApi_HostAddress}}/weatherforecast/
+GET {{KOD.WebApi_HostAddress}}/init/
 Accept: application/json
 
 ###

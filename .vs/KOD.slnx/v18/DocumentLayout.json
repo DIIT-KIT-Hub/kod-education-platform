@@ -1,0 +1,215 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\hlib.shpuryk\\Documents\\kod-education-platform\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{FBF5E84B-698F-4D07-999B-C98890B03576}|src\\KOD.WebApi\\KOD.WebApi.csproj|c:\\users\\hlib.shpuryk\\documents\\kod-education-platform\\src\\kod.webapi\\kod.webapi.http||{5703B403-55E7-4C63-8C88-A8F52C7A45C5}",
+      "RelativeMoniker": "D:0:0:{FBF5E84B-698F-4D07-999B-C98890B03576}|src\\KOD.WebApi\\KOD.WebApi.csproj|solutionrelative:src\\kod.webapi\\kod.webapi.http||{5703B403-55E7-4C63-8C88-A8F52C7A45C5}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{0A5ABC67-4300-47A3-AEAD-F3A49CB29E06}|KOD.Infrastructure\\KOD.Infrastructure.csproj|c:\\users\\hlib.shpuryk\\documents\\kod-education-platform\\kod.infrastructure\\persistence\\database\\postgresdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{0A5ABC67-4300-47A3-AEAD-F3A49CB29E06}|KOD.Infrastructure\\KOD.Infrastructure.csproj|solutionrelative:kod.infrastructure\\persistence\\database\\postgresdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{FBF5E84B-698F-4D07-999B-C98890B03576}|src\\KOD.WebApi\\KOD.WebApi.csproj|c:\\users\\hlib.shpuryk\\documents\\kod-education-platform\\src\\kod.webapi\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FBF5E84B-698F-4D07-999B-C98890B03576}|src\\KOD.WebApi\\KOD.WebApi.csproj|solutionrelative:src\\kod.webapi\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{0A5ABC67-4300-47A3-AEAD-F3A49CB29E06}|KOD.Infrastructure\\KOD.Infrastructure.csproj|c:\\users\\hlib.shpuryk\\documents\\kod-education-platform\\kod.infrastructure\\registration\\infrastructureextensions.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{0A5ABC67-4300-47A3-AEAD-F3A49CB29E06}|KOD.Infrastructure\\KOD.Infrastructure.csproj|solutionrelative:kod.infrastructure\\registration\\infrastructureextensions.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{FBF5E84B-698F-4D07-999B-C98890B03576}|src\\KOD.WebApi\\KOD.WebApi.csproj|c:\\users\\hlib.shpuryk\\documents\\kod-education-platform\\src\\kod.webapi\\controllers\\initcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FBF5E84B-698F-4D07-999B-C98890B03576}|src\\KOD.WebApi\\KOD.WebApi.csproj|solutionrelative:src\\kod.webapi\\controllers\\initcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{0A5ABC67-4300-47A3-AEAD-F3A49CB29E06}|KOD.Infrastructure\\KOD.Infrastructure.csproj|c:\\users\\hlib.shpuryk\\documents\\kod-education-platform\\kod.infrastructure\\kod.infrastructure.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
+      "RelativeMoniker": "D:0:0:{0A5ABC67-4300-47A3-AEAD-F3A49CB29E06}|KOD.Infrastructure\\KOD.Infrastructure.csproj|solutionrelative:kod.infrastructure\\kod.infrastructure.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{2912EDF8-27E5-4C5D-B34A-668EBA909AD8}|KOD.Application\\KOD.Application.csproj|c:\\users\\hlib.shpuryk\\documents\\kod-education-platform\\kod.application\\kod.application.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
+      "RelativeMoniker": "D:0:0:{2912EDF8-27E5-4C5D-B34A-668EBA909AD8}|KOD.Application\\KOD.Application.csproj|solutionrelative:kod.application\\kod.application.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{BB7A57BA-60F1-47F7-8DD1-A59A464DDC14}|KOD.Domain\\KOD.Domain.csproj|c:\\users\\hlib.shpuryk\\documents\\kod-education-platform\\kod.domain\\kod.domain.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
+      "RelativeMoniker": "D:0:0:{BB7A57BA-60F1-47F7-8DD1-A59A464DDC14}|KOD.Domain\\KOD.Domain.csproj|solutionrelative:kod.domain\\kod.domain.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{FBF5E84B-698F-4D07-999B-C98890B03576}|src\\KOD.WebApi\\KOD.WebApi.csproj|c:\\users\\hlib.shpuryk\\documents\\kod-education-platform\\src\\kod.webapi\\kod.webapi.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
+      "RelativeMoniker": "D:0:0:{FBF5E84B-698F-4D07-999B-C98890B03576}|src\\KOD.WebApi\\KOD.WebApi.csproj|solutionrelative:src\\kod.webapi\\kod.webapi.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{089100B1-113F-4E66-888A-E83F3999EAFD}|Solution Items{089100B1-113F-4E66-888A-E83F3999EAFD}|C:\\Users\\hlib.shpuryk\\Documents\\kod-education-platform\\.editorconfig||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{089100B1-113F-4E66-888A-E83F3999EAFD}|Solution Items{089100B1-113F-4E66-888A-E83F3999EAFD}|solutionrelative:.editorconfig||{3B902123-F8A7-4915-9F01-361F908088D0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{089100B1-113F-4E66-888A-E83F3999EAFD}|Solution Items{089100B1-113F-4E66-888A-E83F3999EAFD}|C:\\Users\\hlib.shpuryk\\Documents\\kod-education-platform\\Directory.Packages.props||{FA3CD31E-987B-443A-9B81-186104E8DAC1}",
+      "RelativeMoniker": "D:0:0:{089100B1-113F-4E66-888A-E83F3999EAFD}|Solution Items{089100B1-113F-4E66-888A-E83F3999EAFD}|solutionrelative:Directory.Packages.props||{FA3CD31E-987B-443A-9B81-186104E8DAC1}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{089100B1-113F-4E66-888A-E83F3999EAFD}|Solution Items{089100B1-113F-4E66-888A-E83F3999EAFD}|C:\\Users\\hlib.shpuryk\\Documents\\kod-education-platform\\Directory.Build.props||{FA3CD31E-987B-443A-9B81-186104E8DAC1}",
+      "RelativeMoniker": "D:0:0:{089100B1-113F-4E66-888A-E83F3999EAFD}|Solution Items{089100B1-113F-4E66-888A-E83F3999EAFD}|solutionrelative:Directory.Build.props||{FA3CD31E-987B-443A-9B81-186104E8DAC1}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "KOD.WebApi.http",
+              "DocumentMoniker": "C:\\Users\\hlib.shpuryk\\Documents\\kod-education-platform\\src\\KOD.WebApi\\KOD.WebApi.http",
+              "RelativeDocumentMoniker": "src\\KOD.WebApi\\KOD.WebApi.http",
+              "ToolTip": "C:\\Users\\hlib.shpuryk\\Documents\\kod-education-platform\\src\\KOD.WebApi\\KOD.WebApi.http",
+              "RelativeToolTip": "src\\KOD.WebApi\\KOD.WebApi.http",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003502|",
+              "WhenOpened": "2026-02-07T17:51:55.832Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\hlib.shpuryk\\Documents\\kod-education-platform\\src\\KOD.WebApi\\Program.cs",
+              "RelativeDocumentMoniker": "src\\KOD.WebApi\\Program.cs",
+              "ToolTip": "C:\\Users\\hlib.shpuryk\\Documents\\kod-education-platform\\src\\KOD.WebApi\\Program.cs",
+              "RelativeToolTip": "src\\KOD.WebApi\\Program.cs",
+              "ViewState": "AgIAAAwAAAAAAAAAAAAAABYAAAAXAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-28T19:04:33.269Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "InfrastructureExtensions.cs",
+              "DocumentMoniker": "C:\\Users\\hlib.shpuryk\\Documents\\kod-education-platform\\KOD.Infrastructure\\Registration\\InfrastructureExtensions.cs",
+              "RelativeDocumentMoniker": "KOD.Infrastructure\\Registration\\InfrastructureExtensions.cs",
+              "ToolTip": "C:\\Users\\hlib.shpuryk\\Documents\\kod-education-platform\\KOD.Infrastructure\\Registration\\InfrastructureExtensions.cs",
+              "RelativeToolTip": "KOD.Infrastructure\\Registration\\InfrastructureExtensions.cs",
+              "ViewState": "AgIAAAMAAAAAAAAAAAAwwAsAAAAyAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-28T18:58:58.398Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "PostgresDbContext.cs",
+              "DocumentMoniker": "C:\\Users\\hlib.shpuryk\\Documents\\kod-education-platform\\KOD.Infrastructure\\Persistence\\Database\\PostgresDbContext.cs",
+              "RelativeDocumentMoniker": "KOD.Infrastructure\\Persistence\\Database\\PostgresDbContext.cs",
+              "ToolTip": "C:\\Users\\hlib.shpuryk\\Documents\\kod-education-platform\\KOD.Infrastructure\\Persistence\\Database\\PostgresDbContext.cs",
+              "RelativeToolTip": "KOD.Infrastructure\\Persistence\\Database\\PostgresDbContext.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-28T18:58:05.09Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "InitController.cs",
+              "DocumentMoniker": "C:\\Users\\hlib.shpuryk\\Documents\\kod-education-platform\\src\\KOD.WebApi\\Controllers\\InitController.cs",
+              "RelativeDocumentMoniker": "src\\KOD.WebApi\\Controllers\\InitController.cs",
+              "ToolTip": "C:\\Users\\hlib.shpuryk\\Documents\\kod-education-platform\\src\\KOD.WebApi\\Controllers\\InitController.cs",
+              "RelativeToolTip": "src\\KOD.WebApi\\Controllers\\InitController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAIAAAAgAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-28T18:47:48.668Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": ".editorconfig",
+              "DocumentMoniker": "C:\\Users\\hlib.shpuryk\\Documents\\kod-education-platform\\.editorconfig",
+              "RelativeDocumentMoniker": ".editorconfig",
+              "ToolTip": "C:\\Users\\hlib.shpuryk\\Documents\\kod-education-platform\\.editorconfig",
+              "RelativeToolTip": ".editorconfig",
+              "ViewState": "AgIAAPYAAAAAAAAAAAAwwPsAAAARAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2026-01-28T18:44:37.836Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "KOD.Application.csproj",
+              "DocumentMoniker": "C:\\Users\\hlib.shpuryk\\Documents\\kod-education-platform\\KOD.Application\\KOD.Application.csproj",
+              "RelativeDocumentMoniker": "KOD.Application\\KOD.Application.csproj",
+              "ToolTip": "C:\\Users\\hlib.shpuryk\\Documents\\kod-education-platform\\KOD.Application\\KOD.Application.csproj",
+              "RelativeToolTip": "KOD.Application\\KOD.Application.csproj",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAAOAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2026-01-28T18:50:17.307Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "KOD.Infrastructure.csproj",
+              "DocumentMoniker": "C:\\Users\\hlib.shpuryk\\Documents\\kod-education-platform\\KOD.Infrastructure\\KOD.Infrastructure.csproj",
+              "RelativeDocumentMoniker": "KOD.Infrastructure\\KOD.Infrastructure.csproj",
+              "ToolTip": "C:\\Users\\hlib.shpuryk\\Documents\\kod-education-platform\\KOD.Infrastructure\\KOD.Infrastructure.csproj",
+              "RelativeToolTip": "KOD.Infrastructure\\KOD.Infrastructure.csproj",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2026-01-28T18:50:16.186Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "KOD.Domain.csproj",
+              "DocumentMoniker": "C:\\Users\\hlib.shpuryk\\Documents\\kod-education-platform\\KOD.Domain\\KOD.Domain.csproj",
+              "RelativeDocumentMoniker": "KOD.Domain\\KOD.Domain.csproj",
+              "ToolTip": "C:\\Users\\hlib.shpuryk\\Documents\\kod-education-platform\\KOD.Domain\\KOD.Domain.csproj",
+              "RelativeToolTip": "KOD.Domain\\KOD.Domain.csproj",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAhAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2026-01-28T18:50:09.807Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "KOD.WebApi.csproj",
+              "DocumentMoniker": "C:\\Users\\hlib.shpuryk\\Documents\\kod-education-platform\\src\\KOD.WebApi\\KOD.WebApi.csproj",
+              "RelativeDocumentMoniker": "src\\KOD.WebApi\\KOD.WebApi.csproj",
+              "ToolTip": "C:\\Users\\hlib.shpuryk\\Documents\\kod-education-platform\\src\\KOD.WebApi\\KOD.WebApi.csproj",
+              "RelativeToolTip": "src\\KOD.WebApi\\KOD.WebApi.csproj",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2026-01-28T18:45:27.478Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "Directory.Packages.props",
+              "DocumentMoniker": "C:\\Users\\hlib.shpuryk\\Documents\\kod-education-platform\\Directory.Packages.props",
+              "RelativeDocumentMoniker": "Directory.Packages.props",
+              "ToolTip": "C:\\Users\\hlib.shpuryk\\Documents\\kod-education-platform\\Directory.Packages.props",
+              "RelativeToolTip": "Directory.Packages.props",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAMAAAARAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003801|",
+              "WhenOpened": "2026-01-28T18:45:22.541Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "Directory.Build.props",
+              "DocumentMoniker": "C:\\Users\\hlib.shpuryk\\Documents\\kod-education-platform\\Directory.Build.props",
+              "RelativeDocumentMoniker": "Directory.Build.props",
+              "ToolTip": "C:\\Users\\hlib.shpuryk\\Documents\\kod-education-platform\\Directory.Build.props",
+              "RelativeToolTip": "Directory.Build.props",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAUAAAA1AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003801|",
+              "WhenOpened": "2026-01-28T18:44:17.466Z"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
