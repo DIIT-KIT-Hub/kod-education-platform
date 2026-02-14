@@ -1,0 +1,11 @@
+{
+  "Login": {
+    "title": "Вхід",
+    "email": "Пошта",
+    "password": "Пароль",
+    "login": "Увійти",
+    "sso": "Вхід через Outlook",
+    "forgotPassword": "Забули пароль?",
+    "copyright": "© 2026 Кабінет освітніх даних"
+  }
+}

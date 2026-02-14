@@ -1,0 +1,11 @@
+{
+  "Login": {
+    "title": "Login",
+    "email": "Email",
+    "password": "Password",
+    "login": "Sign in",
+    "sso": "Sign in with Outlook",
+    "forgotPassword": "Forgot password?",
+    "copyright": "© 2026 Educational data cabinet"
+  }
+}
