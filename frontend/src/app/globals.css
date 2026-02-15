@@ -1,0 +1,13 @@
+body {
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --color-blue: #1a6bb9;
+  --color-light-blue: #2378cb;
+  --color-white: #ffffff;
+  --color-red: #ff0000;
+  --color-gray: #7b939e;
+  --color-light-gray: #d9e7ee;
+}
