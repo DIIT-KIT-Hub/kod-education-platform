@@ -1,16 +1,24 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
+	<PropertyGroup>
+		<UserSecretsId>e280b2c6-3731-4b87-a635-0ad3d087dfa7</UserSecretsId>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+		<NoWarn>$(NoWarn);1591</NoWarn>
+	</PropertyGroup>
+
 	<ItemGroup>
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning" />
 		<PackageReference Include="Microsoft.AspNetCore.OpenApi" />
 		<PackageReference Include="Swashbuckle.AspNetCore" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Folder Include="Middleware\" />
+		<Folder Include="Middleware\" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\KOD.Infrastructure\KOD.Infrastructure.csproj" />
+		<ProjectReference Include="..\KOD.Infrastructure\KOD.Infrastructure.csproj" />
 	</ItemGroup>
 
 </Project>
