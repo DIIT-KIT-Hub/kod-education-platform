@@ -1,10 +1,8 @@
 ﻿using KOD.Application.Abstractions.Services.Emails;
-using KOD.Application.Result;
 using KOD.Infrastructure.Options.Emails;
 
 using MailKit.Net.Smtp;
 
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 
 using MimeKit;
@@ -38,15 +36,15 @@ internal sealed class EmailService : IEmailService
     #region Public methods
 
     /// <inheritdoc />
-    public async Task<ApiResult<bool>> SendEmailAsync(string to, string text)
+    public async Task SendEmailAsync(string to, string subject, string body)
     {
         try
         {
             using var email = new MimeMessage();
             email.From.Add(new MailboxAddress(_emailOptions.SenderName, _emailOptions.SenderEmail));
             email.To.Add(MailboxAddress.Parse(to));
-            email.Subject = "Kod platform notification";
-            email.Body = new TextPart(MimeKit.Text.TextFormat.Html) { Text = text };
+            email.Subject = subject;
+            email.Body = new TextPart(MimeKit.Text.TextFormat.Html) { Text = body };
 
             using var smtp = new SmtpClient();
             await smtp.ConnectAsync(_emailOptions.SmtpServer, _emailOptions.Port, MailKit.Security.SecureSocketOptions.StartTls);
@@ -54,12 +52,10 @@ internal sealed class EmailService : IEmailService
             await smtp.SendAsync(email);
             await smtp.DisconnectAsync(true);
         }
-        catch(Exception ex)
+        catch
         {
-            return ApiResult<bool>.Failure(StatusCodes.Status500InternalServerError, ex.Message);
+            throw;
         }
-
-        return ApiResult<bool>.Success(true);
     }
 
     #endregion

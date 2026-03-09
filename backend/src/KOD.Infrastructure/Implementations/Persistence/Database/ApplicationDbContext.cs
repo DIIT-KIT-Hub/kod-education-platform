@@ -1,6 +1,7 @@
 ﻿using KOD.Domain.Entities.Auth;
 using KOD.Domain.Entities.Otp;
 using KOD.Domain.Entities.Users;
+using KOD.Infrastructure.Implementations.Persistence.Configurations;
 
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -47,17 +48,7 @@ internal sealed class ApplicationDbContext : IdentityDbContext<ApplicationUser, 
     {
         base.OnModelCreating(builder);
 
-        builder.Entity<ApplicationUser>(entity => entity.Property(e => e.IsVerified).HasDefaultValue(false));
-
-        builder.Entity<RefreshToken>()
-            .HasOne(rt => rt.User)
-            .WithOne() 
-            .HasForeignKey<RefreshToken>(rt => rt.UserId)
-            .OnDelete(DeleteBehavior.Cascade);
-
-        builder.Entity<RefreshToken>()
-            .HasIndex(rt => rt.UserId)
-            .IsUnique();
+        builder.ApplyConfigurationsFromAssembly(typeof(ApplicationUserConfiguration).Assembly);
     }
 
     #endregion

@@ -32,14 +32,14 @@ namespace KOD.Infrastructure.Migrations
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     IsVerified = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
-                    UserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
-                    NormalizedUserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
-                    Email = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
-                    NormalizedEmail = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    UserName = table.Column<string>(type: "character varying(6)", maxLength: 6, nullable: true),
+                    NormalizedUserName = table.Column<string>(type: "character varying(6)", maxLength: 6, nullable: true),
+                    Email = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: true),
+                    NormalizedEmail = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: true),
                     EmailConfirmed = table.Column<bool>(type: "boolean", nullable: false),
-                    PasswordHash = table.Column<string>(type: "text", nullable: true),
-                    SecurityStamp = table.Column<string>(type: "text", nullable: true),
-                    ConcurrencyStamp = table.Column<string>(type: "text", nullable: true),
+                    PasswordHash = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    SecurityStamp = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    ConcurrencyStamp = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     PhoneNumber = table.Column<string>(type: "text", nullable: true),
                     PhoneNumberConfirmed = table.Column<bool>(type: "boolean", nullable: false),
                     TwoFactorEnabled = table.Column<bool>(type: "boolean", nullable: false),
@@ -177,7 +177,7 @@ namespace KOD.Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    Token = table.Column<string>(type: "text", nullable: false),
+                    Token = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: false),
                     ExpiresAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     UserId = table.Column<Guid>(type: "uuid", nullable: false)
                 },

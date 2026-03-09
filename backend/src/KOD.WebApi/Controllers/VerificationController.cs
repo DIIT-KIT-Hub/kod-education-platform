@@ -1,7 +1,6 @@
 ﻿using KOD.Application.Abstractions.Services.Identity;
 using KOD.Application.Abstractions.Services.Otp;
-using KOD.Application.DTOs.Auth;
-using KOD.WebApi.Extensions;
+using KOD.Application.DTOs.Users;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -47,25 +46,20 @@ public class VerificationController : ControllerBase
     /// <summary>
     /// Requests an OTP code for the specified username.
     /// </summary>
-    /// <param name="username">The username of the user requesting the OTP.</param>
+    /// <param name="email">The email of the user requesting the OTP.</param>
     /// <returns>An <see cref="IActionResult"/> containing the result of the OTP request.</returns>
     /// <response code="200">Successful otp request, returns boolean true.</response>
     /// <response code="404">Unsuccessful otp request, user not found.</response>
     /// <response code="409">Unsuccessful otp request, user already verified.</response>
     /// <response code="500">Unsuccessful otp request, internal server error.</response>
     [HttpPost("otp")]
-    public async Task<IActionResult> RequestOtpAsync(string username)
+    public async Task<IActionResult> RequestOtpAsync(string email)
     {
-        var userOtpResult = await _identityService.GetUserForOtpAsync(username);
+        var userDetails = await _identityService.GetUserOtpDetailsByEmailAsync(email);
 
-        if (!userOtpResult.IsSuccess)
-        {
-            return userOtpResult.ToActionResult();
-        }
+        await _otpService.RequestOtpCodeAsync(userDetails);
 
-        var requestOtpResult = await _otpService.RequestOtpCodeAsync(userOtpResult.Data!);
-
-        return requestOtpResult.ToActionResult();
+        return Ok();
     }
 
     /// <summary>
@@ -76,32 +70,31 @@ public class VerificationController : ControllerBase
     /// <response code="200">Successful confirm, returns boolean true.</response>
     /// <response code="400">Unsuccessful confirm, otp code is invalid.</response>
     /// <response code="401">Unsuccessful confirm, otp code is expired.</response>
-    /// <response code="404">Unsuccessful confirm, user not found.</response>
+    /// <response code="404">Unsuccessful confirm, otp code or user not found.</response>
     /// <response code="409">Unsuccessful confirm, user already verified.</response>
     /// <response code="500">Unsuccessful confirm, internal server error.</response>
     [HttpPost("confirm")]
     public async Task<IActionResult> ConfirmUserAsync(ConfirmUserDto confirmUserDto)
     {
-        var userOtpResult = await _identityService.GetUserForOtpAsync(confirmUserDto.Username);
+        var userDetails = await _identityService.GetUserOtpDetailsByEmailAsync(confirmUserDto.Email);
 
-        if (!userOtpResult.IsSuccess)
+        var checkOtpResult = await _otpService.CheckOtpCodeAsync(confirmUserDto.OtpCode, userDetails);
+
+        if (!checkOtpResult)
         {
-            return userOtpResult.ToActionResult();
+            return BadRequest("Otp code is invalid.");
         }
 
-        var userOtpCheckResult = await _otpService.CheckOtpCodeAsync(confirmUserDto.OtpCode, userOtpResult.Data!);
+        await _identityService.ConfirmUserAsync(confirmUserDto.Email, confirmUserDto.Password);
 
-        if (!userOtpCheckResult.IsSuccess)
-        {
-            return userOtpCheckResult.ToActionResult();
-        }
-
-        var confirmResult = await _identityService.ConfirmUserAsync(confirmUserDto.Username, confirmUserDto.Password);
-
-        return confirmResult.ToActionResult();
+        return Ok();
     }
 
     [HttpGet("admin-test")]
     [Authorize(Roles = "Admin")]
     public IActionResult AdminOnlyEndpoint() => Ok("You are Admin ✅");
+
+    [HttpGet("user-test")]
+    [Authorize(Roles = "User")]
+    public IActionResult UserOnlyEndpoint() => Ok("You are User ✅");
 }

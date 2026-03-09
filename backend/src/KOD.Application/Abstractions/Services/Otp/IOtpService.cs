@@ -1,5 +1,4 @@
-﻿using KOD.Application.DTOs.Otp;
-using KOD.Application.Result;
+﻿using KOD.Application.DTOs.Users;
 
 namespace KOD.Application.Abstractions.Services.Otp;
 
@@ -13,17 +12,22 @@ public interface IOtpService
     /// <summary>
     /// Requests a new OTP code for the specified user.
     /// </summary>
-    /// <param name="user">The user for whom the OTP code is requested.</param>
-    /// <returns>An <see cref="ApiResult{T}"/> indicating success or failure of the request.</returns>
-    Task<ApiResult<bool>> RequestOtpCodeAsync(UserOtpDto user);
+    /// <param name="user">The user details for whom the OTP code should be generated.</param>
+    /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+    /// <exception cref="KOD.Application.Exceptions.Users.UserVerifiedException">
+    /// Thrown if the user is already verified and does not require an OTP.
+    /// </exception>
+    Task RequestOtpCodeAsync(UserOtpDetailsDto user);
 
     /// <summary>
     /// Checks whether the provided OTP code is valid for the specified user.
     /// </summary>
-    /// <param name="otpCode">The OTP code to verify.</param>
-    /// <param name="user">The user for whom the OTP code is checked.</param>
-    /// <returns>An <see cref="ApiResult{T}"/> indicating whether the OTP code is valid.</returns>
-    Task<ApiResult<bool>> CheckOtpCodeAsync(string otpCode, UserOtpDto user);
+    /// <param name="otpCode">The OTP code provided by the user.</param>
+    /// <param name="user">The user details to validate the OTP against.</param>
+    /// <returns>
+    /// A <see cref="Task{Boolean}"/> that returns <c>true</c> if the OTP code is valid; otherwise, <c>false</c>.
+    /// </returns>
+    Task<bool> CheckOtpCodeAsync(string otpCode, UserOtpDetailsDto user);
 
     #endregion
 }

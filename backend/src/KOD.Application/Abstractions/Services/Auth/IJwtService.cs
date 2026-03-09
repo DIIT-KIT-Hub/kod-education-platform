@@ -1,7 +1,5 @@
-﻿using KOD.Application.DTOs.Auth;
-using KOD.Application.Result;
-using KOD.Domain.Entities.Auth;
-using KOD.Domain.Entities.Users;
+﻿using KOD.Application.DTOs.Tokens;
+using KOD.Domain.ValueObjects.Users;
 
 namespace KOD.Application.Abstractions.Services.Auth;
 
@@ -13,19 +11,21 @@ public interface IJwtService
     #region Public methods
 
     /// <summary>
-    /// Generates an access token for the specified user with the given roles.
+    /// Generates a JWT access token for the specified user.
     /// </summary>
-    /// <param name="user">The user for whom the access token is generated.</param>
-    /// <param name="roles">The roles assigned to the user.</param>
-    /// <returns>An <see cref="ApiResult{T}"/> containing the access token and its expiration time.</returns>
-    ApiResult<AccessTokenDto> GenerateAccessToken(ApplicationUser user, IEnumerable<string> roles);
+    /// <param name="userLoginDetails">The user's login details used to populate claims in the access token.</param>
+    /// <returns>
+    /// An <see cref="AccessTokenDto"/> containing the generated JWT access token and its expiration time.
+    /// </returns>
+    AccessTokenDto GenerateAccessToken(UserLoginDetails userLoginDetails);
 
     /// <summary>
-    /// Generates a refresh token for the specified user.
+    /// Generates a new refresh token.
     /// </summary>
-    /// <param name="user">The user for whom the refresh token is generated.</param>
-    /// <returns>An <see cref="ApiResult{T}"/> containing the refresh token.</returns>
-    ApiResult<RefreshToken> GenerateRefreshToken(ApplicationUser user);
+    /// <returns>
+    /// A <see cref="RefreshTokenDto"/> containing the refresh token string and its expiration time.
+    /// </returns>
+    RefreshTokenDto GenerateRefreshToken();
 
     #endregion
 }

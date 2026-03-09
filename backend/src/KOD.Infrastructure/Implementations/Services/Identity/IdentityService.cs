@@ -1,7 +1,8 @@
-﻿using KOD.Application.Abstractions.Persitence.Repositories.Identity;
-using KOD.Application.Abstractions.Services.Identity;
-using KOD.Application.DTOs.Otp;
-using KOD.Application.Result;
+﻿using KOD.Application.Abstractions.Services.Identity;
+using KOD.Application.DTOs.Users;
+using KOD.Application.Exceptions.Statuses;
+using KOD.Application.Mappings;
+using KOD.Domain.Repositories;
 
 namespace KOD.Infrastructure.Implementations.Services.Identity;
 
@@ -32,28 +33,30 @@ internal sealed class IdentityService : IIdentityService
     #region Public methods
 
     /// <inheritdoc />
-    public async Task<ApiResult<bool>> ConfirmUserAsync(string username, string password)
+    public async Task ConfirmUserAsync(string email, string password)
     {
-        var userResult = await _identityRepository.GetUserByUsernameAsync(username);
+        var user = await _identityRepository.GetUserByEmailAsync(email);
 
-        if (!userResult.IsSuccess)
+        if (user is null)
         {
-            return ApiResult<bool>.Failure(userResult.StatusCode, userResult.Message!);
+            throw new NotFoundException(nameof(user));
         }
 
-        var registrationResult = await _identityRepository.ConfirmUserAsync(userResult.Data!, password);
-
-        if (!registrationResult.IsSuccess)
-        {
-            return ApiResult<bool>.Failure(registrationResult.StatusCode, registrationResult.Message!);
-        }
-
-        return ApiResult<bool>.Success(true);
+        await _identityRepository.ConfirmUserAsync(user, password);
     }
 
     /// <inheritdoc />
-    public async Task<ApiResult<UserOtpDto>> GetUserForOtpAsync(string username)
-        => await _identityRepository.GetUserForOtpAsync(username);
+    public async Task<UserOtpDetailsDto> GetUserOtpDetailsByEmailAsync(string email)
+    {
+        var userOtpDetails = await _identityRepository.GetUserOtpDetailsByEmailAsync(email);
+
+        if (userOtpDetails is null)
+        {
+            throw new NotFoundException(nameof(userOtpDetails));
+        }
+
+        return userOtpDetails.ToDto();
+    }
 
     #endregion
 }

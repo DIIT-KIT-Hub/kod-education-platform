@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace KOD.Application.DTOs.Auth;
+﻿namespace KOD.Application.DTOs.Tokens;
 
 /// <summary>
 /// Data transfer object representing a refresh token request.

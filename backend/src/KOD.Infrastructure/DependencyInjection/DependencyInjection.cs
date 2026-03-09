@@ -1,12 +1,10 @@
-﻿using KOD.Application.Abstractions.Persitence.Repositories.Auth;
-using KOD.Application.Abstractions.Persitence.Repositories.Identity;
-using KOD.Application.Abstractions.Persitence.Repositories.Otp;
-using KOD.Application.Abstractions.Persitence.Transactions;
+﻿using KOD.Application.Abstractions.Persitence.Transactions;
 using KOD.Application.Abstractions.Services.Auth;
 using KOD.Application.Abstractions.Services.Emails;
 using KOD.Application.Abstractions.Services.Identity;
 using KOD.Application.Abstractions.Services.Otp;
 using KOD.Domain.Entities.Users;
+using KOD.Domain.Repositories;
 using KOD.Infrastructure.Implementations.Persistence.Database;
 using KOD.Infrastructure.Implementations.Persistence.Repositories.Auth;
 using KOD.Infrastructure.Implementations.Persistence.Repositories.Identity;

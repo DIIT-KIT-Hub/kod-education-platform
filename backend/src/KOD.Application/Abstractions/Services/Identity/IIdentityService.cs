@@ -1,5 +1,4 @@
-﻿using KOD.Application.DTOs.Otp;
-using KOD.Application.Result;
+﻿using KOD.Application.DTOs.Users;
 
 namespace KOD.Application.Abstractions.Services.Identity;
 
@@ -11,19 +10,27 @@ public interface IIdentityService
     #region Public methods
 
     /// <summary>
-    /// Confirms a user's credentials using their username and password.
+    /// Confirms a user's identity by verifying their email and password.
     /// </summary>
-    /// <param name="username">The username of the user to confirm.</param>
-    /// <param name="password">The password of the user to confirm.</param>
-    /// <returns>An <see cref="ApiResult{T}"/> indicating success or failure of the confirmation.</returns>
-    Task<ApiResult<bool>> ConfirmUserAsync(string username, string password);
+    /// <param name="email">The email address of the user to confirm.</param>
+    /// <param name="password">The password provided by the user for verification.</param>
+    /// <returns>A <see cref="Task"/> representing the asynchronous confirmation operation.</returns>
+    /// <exception cref="KOD.Domain.Exceptions.Auth.CredentialsException">
+    /// Thrown when the provided credentials are invalid.
+    /// </exception>
+    Task ConfirmUserAsync(string email, string password);
 
     /// <summary>
-    /// Retrieves a user for OTP operations by their username.
+    /// Retrieves OTP-related details for a user by their email.
     /// </summary>
-    /// <param name="username">The username of the user to retrieve.</param>
-    /// <returns>An <see cref="ApiResult{T}"/> containing the user's OTP data.</returns>
-    Task<ApiResult<UserOtpDto>> GetUserForOtpAsync(string username);
+    /// <param name="email">The email address of the user.</param>
+    /// <returns>
+    /// A <see cref="UserOtpDetailsDto"/> containing the user's ID, email, and verification status.
+    /// </returns>
+    /// <exception cref="KOD.Domain.Exceptions.Users.UserVerifiedException">
+    /// Thrown if the user is not verified or OTP cannot be generated.
+    /// </exception>
+    Task<UserOtpDetailsDto> GetUserOtpDetailsByEmailAsync(string email);
 
     #endregion
 }

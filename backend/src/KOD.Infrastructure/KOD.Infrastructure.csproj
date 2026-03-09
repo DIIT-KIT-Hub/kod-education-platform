@@ -5,10 +5,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Folder Include="Implementations\Persistence\Configurations\" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<PackageReference Include="MailKit" />
 		<PackageReference Include="Microsoft.AspNetCore.Identity" />
 		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" />

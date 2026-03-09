@@ -1,9 +1,10 @@
-﻿using KOD.Application.Abstractions.Persitence.Repositories.Auth;
-using KOD.Application.Result;
+﻿using KOD.Application.Exceptions;
 using KOD.Domain.Entities.Auth;
+using KOD.Domain.Repositories;
+using KOD.Domain.ValueObjects.Auth;
+using KOD.Domain.ValueObjects.Users;
 using KOD.Infrastructure.Implementations.Persistence.Database;
 
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
 namespace KOD.Infrastructure.Implementations.Persistence.Repositories.Auth;
@@ -35,24 +36,21 @@ internal sealed class AuthRepository : IAuthRepository
     #region Public methods
 
     /// <inheritdoc />
-    public async Task<ApiResult<RefreshToken>> GetRefreshTokenByValueAsync(string token)
-    {
-        var refreshToken = await _dbContext.RefreshTokens
-            .Include(r => r.User)
-            .FirstOrDefaultAsync(rt => rt.Token == token);
-
-        if (refreshToken == null || refreshToken.ExpiresAt <= DateTime.UtcNow)
-        {
-            return ApiResult<RefreshToken>.Failure(StatusCodes.Status400BadRequest, "Invalid or expired refresh token.");
-        }
-
-        return ApiResult<RefreshToken>.Success(refreshToken);
-    }
+    public async Task<RefreshTokenDetails?> GetRefreshTokenDetailsByValueAsync(string token)
+        => await _dbContext.RefreshTokens
+        .Where(rt => rt.Token == token)
+        .Select(rt => new RefreshTokenDetails(
+            rt.Token,
+            rt.ExpiresAt,
+            new UserIdentity(rt.User!.Id, rt.User.Email!)
+        ))
+        .FirstOrDefaultAsync();
 
     /// <inheritdoc />
-    public async Task<ApiResult<bool>> UpdateUserRefreshTokenAsync(RefreshToken refreshToken)
+    public async Task UpdateRefreshTokenAsync(RefreshToken refreshToken)
     {
-        var existingToken = await _dbContext.RefreshTokens.FirstOrDefaultAsync(rt => rt.UserId == refreshToken.UserId);
+        var existingToken = await _dbContext.RefreshTokens
+            .FirstOrDefaultAsync(rt => rt.UserId == refreshToken.UserId);
 
         if (existingToken != null)
         {
@@ -62,40 +60,24 @@ internal sealed class AuthRepository : IAuthRepository
         }
         else
         {
-            refreshToken.UserId = refreshToken.UserId;
             await _dbContext.RefreshTokens.AddAsync(refreshToken);
         }
 
-        var result = await _dbContext.SaveChangesAsync();
-
-        if (result != 1)
-        {
-            return ApiResult<bool>.Failure(StatusCodes.Status500InternalServerError, "Error occured during refresh token updating.");
-        }
-
-        return ApiResult<bool>.Success(true);
+        await _dbContext.SaveChangesAsync();
     }
 
     /// <inheritdoc />
-    public async Task<ApiResult<bool>> DeleteRefreshTokenAsync(string token)
+    public async Task DeleteRefreshTokenByValueAsync(string token)
     {
-        var refreshToken = await _dbContext.RefreshTokens.FirstOrDefaultAsync(rt => rt.Token == token);
+        var refreshToken = await _dbContext.RefreshTokens
+            .FirstOrDefaultAsync(rt => rt.Token == token);
 
-        if (refreshToken == null)
+        if (refreshToken != null)
         {
-            return ApiResult<bool>.Failure(StatusCodes.Status404NotFound, "Refresh token was not found.");
+            _dbContext.RefreshTokens.Remove(refreshToken);
+
+            await _dbContext.SaveChangesAsync();
         }
-
-        _dbContext.RefreshTokens.Remove(refreshToken);
-
-        var result = await _dbContext.SaveChangesAsync();
-
-        if (result != 1)
-        {
-            return ApiResult<bool>.Failure(StatusCodes.Status500InternalServerError, "Error occured during refresh token deleting.");
-        }
-
-        return ApiResult<bool>.Success(true);
     }
 
     #endregion

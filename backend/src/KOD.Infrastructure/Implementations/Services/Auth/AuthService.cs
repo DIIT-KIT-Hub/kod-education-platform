@@ -1,11 +1,12 @@
-﻿using KOD.Application.Abstractions.Persitence.Repositories.Auth;
-using KOD.Application.Abstractions.Persitence.Repositories.Identity;
-using KOD.Application.Abstractions.Services.Auth;
+﻿using KOD.Application.Abstractions.Services.Auth;
 using KOD.Application.DTOs.Auth;
-using KOD.Application.Result;
-using KOD.Domain.Entities.Users;
-
-using Microsoft.AspNetCore.Http;
+using KOD.Application.DTOs.Tokens;
+using KOD.Application.Exceptions.Statuses;
+using KOD.Application.Mappings;
+using KOD.Domain.Exceptions.Auth;
+using KOD.Domain.Mappings;
+using KOD.Domain.Repositories;
+using KOD.Domain.ValueObjects.Users;
 
 namespace KOD.Infrastructure.Implementations.Services.Auth;
 
@@ -53,70 +54,49 @@ internal sealed class AuthService : IAuthService
     #region Public methods
 
     /// <inheritdoc />
-    public async Task<ApiResult<TokenResponseDto>> LoginAsync(LoginRequestDto request)
+    public async Task<TokenResponseDto> LoginAsync(LoginRequestDto request)
     {
-        var userResult = await _identityRepository.GetUserByUsernameAsync(request.Username);
-        if (!userResult.IsSuccess)
+        var userDetails = await _identityRepository.GetUserLoginDetailsByEmailAsync(request.Email);
+
+        if (userDetails is null)
         {
-            return ApiResult<TokenResponseDto>.Failure(userResult.StatusCode, userResult.Message!);
+            throw new NotFoundException(nameof(userDetails));
         }
 
-        var user = userResult.Data!;
-        if (!user.IsVerified)
+        var user = userDetails.ToEntity();
+
+        var checkPasswordResult = await _identityRepository.CheckUserPasswordAsync(user, request.Password);
+        if (!checkPasswordResult)
         {
-            return ApiResult<TokenResponseDto>.Failure(StatusCodes.Status403Forbidden, "User is not verified.");
+            throw new CredentialsException("Login or password is probably mistaken.");
         }
 
-        var passwordResult = await _identityRepository.CheckUserPasswordAsync(user, request.Password);
-        if (!passwordResult.IsSuccess)
-        {
-            return ApiResult<TokenResponseDto>.Failure(passwordResult.StatusCode, passwordResult.Message!);
-        }
-
-        var userRolesResult = await _identityRepository.GetUserRolesAsync(user);
-        if (!userResult.IsSuccess)
-        {
-            return ApiResult<TokenResponseDto>.Failure(userResult.StatusCode, userResult.Message!);
-        }
-
-        var tokenResponseDto = await GenerateTokens(user, userRolesResult.Data!);
-        if (!tokenResponseDto.IsSuccess)
-        {
-            return ApiResult<TokenResponseDto>.Failure(tokenResponseDto.StatusCode, tokenResponseDto.Message!);
-        }
-
-        return ApiResult<TokenResponseDto>.Success(tokenResponseDto.Data);
+        return await GenerateTokens(userDetails);
     }
 
     /// <inheritdoc />
-    public async Task<ApiResult<TokenResponseDto>> RefreshTokenAsync(RefreshTokenRequestDto request)
+    public async Task<TokenResponseDto> RefreshTokenAsync(RefreshTokenRequestDto request)
     {
-        var refreshTokenResult = await _authRepository.GetRefreshTokenByValueAsync(request.RefreshToken);
-        if (!refreshTokenResult.IsSuccess)
+        var refreshTokenDetails = await _authRepository.GetRefreshTokenDetailsByValueAsync(request.RefreshToken);
+
+        if (refreshTokenDetails is null)
         {
-            return ApiResult<TokenResponseDto>.Failure(refreshTokenResult.StatusCode, refreshTokenResult.Message!);
+            throw new NotFoundException(nameof(refreshTokenDetails));
         }
 
-        var userRolesResult = await _identityRepository.GetUserRolesAsync(refreshTokenResult.Data!.User!);
-        if (!userRolesResult.IsSuccess)
+        var userDetails = await _identityRepository.GetUserLoginDetailsByEmailAsync(refreshTokenDetails.User.Email);
+
+        if (userDetails is null)
         {
-            return ApiResult<TokenResponseDto>.Failure(userRolesResult.StatusCode, userRolesResult.Message!);
+            throw new NotFoundException(nameof(userDetails));
         }
 
-        return await GenerateTokens(refreshTokenResult.Data!.User!, userRolesResult.Data!);
+        return await GenerateTokens(userDetails);
     }
 
     /// <inheritdoc />
-    public async Task<ApiResult<bool>> LogoutAsync(RefreshTokenRequestDto request)
-    {
-        var refreshTokenDeleteResult = await _authRepository.DeleteRefreshTokenAsync(request.RefreshToken);
-        if (!refreshTokenDeleteResult.IsSuccess)
-        {
-            return ApiResult<bool>.Failure(refreshTokenDeleteResult.StatusCode, refreshTokenDeleteResult.Message!);
-        }
-
-        return ApiResult<bool>.Success(true);
-    }
+    public async Task LogoutAsync(RefreshTokenRequestDto request) 
+        => await _authRepository.DeleteRefreshTokenByValueAsync(request.RefreshToken);
 
     #endregion
 
@@ -128,23 +108,14 @@ internal sealed class AuthService : IAuthService
     /// <param name="user">The user for whom the tokens are generated.</param>
     /// <param name="roles">The roles assigned to the user.</param>
     /// <returns>An <see cref="ApiResult{T}"/> containing the generated access and refresh tokens, or a failure result if updating the refresh token fails.</returns>
-    private async Task<ApiResult<TokenResponseDto>> GenerateTokens(ApplicationUser user, IEnumerable<string> roles)
+    private async Task<TokenResponseDto> GenerateTokens(UserLoginDetails userLoginDetails)
     {
-        var accessTokenResult = _jwtService.GenerateAccessToken(user, roles);
-        var refreshTokenResult = _jwtService.GenerateRefreshToken(user);
+        var accessToken = _jwtService.GenerateAccessToken(userLoginDetails);
+        var refreshToken = _jwtService.GenerateRefreshToken();
 
-        var refreshTokenUpdateResult = await _authRepository.UpdateUserRefreshTokenAsync(refreshTokenResult.Data!);
-        if (!refreshTokenUpdateResult.IsSuccess)
-        {
-            return ApiResult<TokenResponseDto>.Failure(refreshTokenUpdateResult.StatusCode, refreshTokenUpdateResult.Message!);
-        }
+        await _authRepository.UpdateRefreshTokenAsync(refreshToken.ToEntity(userLoginDetails.Id));
 
-        return ApiResult<TokenResponseDto>.Success(new TokenResponseDto(
-          accessTokenResult.Data!.Token,
-          accessTokenResult.Data!.ExpiresAt,
-          refreshTokenResult.Data!.Token,
-          refreshTokenResult.Data!.ExpiresAt
-          ));
+        return new TokenResponseDto(accessToken.Token, accessToken.ExpiresAt, refreshToken.Token, refreshToken.ExpiresAt);
     }
 
     #endregion

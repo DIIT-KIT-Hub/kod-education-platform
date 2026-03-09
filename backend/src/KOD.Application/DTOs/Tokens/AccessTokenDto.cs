@@ -1,4 +1,4 @@
-﻿namespace KOD.Application.DTOs.Auth;
+﻿namespace KOD.Application.DTOs.Tokens;
 
 /// <summary>
 /// Data transfer object representing an access token and its expiration time.

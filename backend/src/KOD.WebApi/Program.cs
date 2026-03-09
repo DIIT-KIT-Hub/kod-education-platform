@@ -1,6 +1,7 @@
 using System.Text;
 
 using KOD.Infrastructure.DependencyInjection;
+using KOD.WebApi.Middleware;
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -27,10 +28,10 @@ builder.Services.AddSwaggerGen(c =>
 
 builder.Services.Configure<IdentityOptions>(options =>
 {
-    options.Password.RequireDigit = false;
-    options.Password.RequiredLength = 4;
+    options.Password.RequireDigit = true;
+    options.Password.RequiredLength = 8;
     options.Password.RequireNonAlphanumeric = false;
-    options.Password.RequireUppercase = false;
+    options.Password.RequireUppercase = true;
     options.Password.RequireLowercase = false;
 });
 
@@ -58,6 +59,8 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddAuthorization();
 
 var app = builder.Build();
+
+app.UseMiddleware<GlobalExceptionMiddleware>();
 
 app.UseCors("AllowLocalhost3000");
 

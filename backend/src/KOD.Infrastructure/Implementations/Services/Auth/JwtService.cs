@@ -4,10 +4,8 @@ using System.Security.Cryptography;
 using System.Text;
 
 using KOD.Application.Abstractions.Services.Auth;
-using KOD.Application.DTOs.Auth;
-using KOD.Application.Result;
-using KOD.Domain.Entities.Auth;
-using KOD.Domain.Entities.Users;
+using KOD.Application.DTOs.Tokens;
+using KOD.Domain.ValueObjects.Users;
 using KOD.Infrastructure.Options.Auth;
 
 using Microsoft.Extensions.Options;
@@ -42,18 +40,17 @@ internal sealed class JwtService : IJwtService
     #region Public methods
 
     /// <inheritdoc />
-    public ApiResult<AccessTokenDto> GenerateAccessToken(ApplicationUser user, IEnumerable<string> roles)
+    public AccessTokenDto GenerateAccessToken(UserLoginDetails userLoginDetails)
     {
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtOptions.AccessTokenKey));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         var claims = new List<Claim>
         {
-            new(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-            new(JwtRegisteredClaimNames.UniqueName, user.UserName!)
+            new(JwtRegisteredClaimNames.Sub, userLoginDetails.Id.ToString()),
         };
 
-        claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
+        claims.AddRange(userLoginDetails.Roles.Select(role => new Claim(ClaimTypes.Role, role)));
 
         var expires = DateTime.UtcNow.AddMinutes(_jwtOptions.AccessTokenMinutes);
 
@@ -65,23 +62,15 @@ internal sealed class JwtService : IJwtService
             signingCredentials: creds
         );
 
-        return ApiResult<AccessTokenDto>
-            .Success(new AccessTokenDto(new JwtSecurityTokenHandler().WriteToken(token), expires));
+        return new AccessTokenDto(new JwtSecurityTokenHandler().WriteToken(token), expires);
     }
 
     /// <inheritdoc />
-    public ApiResult<RefreshToken> GenerateRefreshToken(ApplicationUser user)
+    public RefreshTokenDto GenerateRefreshToken()
     {
         var refreshTokenString = GenerateRefreshTokenString();
 
-        return ApiResult<RefreshToken>.Success(new RefreshToken()
-        {
-            Id = Guid.NewGuid(),
-            Token = refreshTokenString,
-            UserId = user.Id,
-            User = user,
-            ExpiresAt = DateTime.UtcNow.AddDays(_jwtOptions.RefreshTokenDays)
-        });
+        return new RefreshTokenDto(refreshTokenString, DateTime.UtcNow.AddDays(_jwtOptions.RefreshTokenDays));
     }
 
     #endregion

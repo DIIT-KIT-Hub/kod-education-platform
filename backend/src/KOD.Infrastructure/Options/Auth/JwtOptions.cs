@@ -13,11 +13,6 @@ internal sealed class JwtOptions
     public string AccessTokenKey { get; set; } = string.Empty;
 
     /// <summary>
-    /// Gets or sets the key used to sign refresh tokens.
-    /// </summary>
-    public string RefreshTokenKey { get; set; } = string.Empty;
-
-    /// <summary>
     /// Gets or sets the issuer of the tokens.
     /// </summary>
     public string Issuer { get; set; } = string.Empty;

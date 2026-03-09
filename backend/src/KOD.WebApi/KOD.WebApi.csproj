@@ -14,10 +14,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Folder Include="Middleware\" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<ProjectReference Include="..\KOD.Infrastructure\KOD.Infrastructure.csproj" />
 	</ItemGroup>
 

@@ -1,12 +1,13 @@
-﻿using KOD.Application.Abstractions.Persitence.Repositories.Identity;
+﻿using System.Globalization;
+
 using KOD.Application.Abstractions.Persitence.Transactions;
-using KOD.Application.DTOs.Otp;
-using KOD.Application.Result;
 using KOD.Domain.Entities.Identity;
 using KOD.Domain.Entities.Users;
+using KOD.Domain.Repositories;
+using KOD.Domain.ValueObjects.Users;
 
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace KOD.Infrastructure.Implementations.Persistence.Repositories.Identity;
 
@@ -47,101 +48,63 @@ internal sealed class IdentityRepository : IIdentityRepository
     #region Public methods
 
     /// <inheritdoc />
-    public async Task<ApiResult<ApplicationUser>> GetUserByUsernameAsync(string username)
+    public async Task<UserLoginDetails?> GetUserLoginDetailsByEmailAsync(string email)
     {
-        var user = await _userManager.FindByNameAsync(username);
+        var user = await GetUserByEmailAsync(email);
 
         if (user is null)
         {
-            return ApiResult<ApplicationUser>.Failure(StatusCodes.Status404NotFound, "User not found.");
+            return null;
         }
 
-        return ApiResult<ApplicationUser>.Success(user);
+        var userRoles = await GetUserRolesAsync(user);
+
+        return new UserLoginDetails(user.Id, user.PasswordHash!, user.IsVerified, userRoles);
     }
 
     /// <inheritdoc />
-    public async Task<ApiResult<IEnumerable<string>>> GetUserRolesAsync(ApplicationUser user)
-    {
-        var roles = await _userManager.GetRolesAsync(user);
-
-        if (roles.Count == 0)
-        {
-            return ApiResult<IEnumerable<string>>.Failure(StatusCodes.Status404NotFound, "User roles not found.");
-        }
-
-        return ApiResult<IEnumerable<string>>.Success(roles);
-    }
+    public async Task<ApplicationUser?> GetUserByEmailAsync(string email)
+        => await _userManager.FindByEmailAsync(email);
 
     /// <inheritdoc />
-    public async Task<ApiResult<bool>> ConfirmUserAsync(ApplicationUser user, string password)
+    public async Task<IEnumerable<string>> GetUserRolesAsync(ApplicationUser user)
+        => await _userManager.GetRolesAsync(user);
+
+    /// <inheritdoc />
+    public async Task ConfirmUserAsync(ApplicationUser user, string password)
     {
         await using var transaction = await _transactionManager.BeginTransactionAsync();
 
-        if (user.IsVerified)
-        {
-            return ApiResult<bool>.Failure(StatusCodes.Status400BadRequest, "User already verified.");
-        }
-
         user.IsVerified = true;
 
-        var result = await _userManager.UpdateAsync(user);
+        await _userManager.UpdateAsync(user);
 
-        if (!result.Succeeded)
+        await _userManager.AddPasswordAsync(user, password);
+
+        if (!await _userManager.IsInRoleAsync(user, Roles.User))
         {
-            return ApiResult<bool>.Failure(StatusCodes.Status500InternalServerError, "Error occurred during user verification updating.");
-        }
-
-        var passwordResult = await _userManager.AddPasswordAsync(user, password);
-
-        if (!passwordResult.Succeeded)
-        {
-            await transaction.RollbackAsync();
-            return ApiResult<bool>.Failure(StatusCodes.Status500InternalServerError, "Error occured during user password updating.");
-        }
-
-        if (!await _userManager.IsInRoleAsync(user, Roles.Admin))
-        {
-            var roleResult = await _userManager.AddToRoleAsync(user, Roles.Admin);
-            if (!roleResult.Succeeded)
-            {
-                await transaction.RollbackAsync();
-                return ApiResult<bool>.Failure(StatusCodes.Status500InternalServerError, "Error occured during user role updating.");
-            }
+            await _userManager.AddToRoleAsync(user, Roles.User);
         }
 
         await transaction.CommitAsync();
-        return ApiResult<bool>.Success(true);
     }
 
     /// <inheritdoc />
-    public async Task<ApiResult<UserOtpDto>> GetUserForOtpAsync(string username)
+    public async Task<UserOtpDetails?> GetUserOtpDetailsByEmailAsync(string email)
     {
-        var user = await _userManager.FindByNameAsync(username);
+        var normalizedEmail = email.ToUpper(CultureInfo.CurrentCulture);
 
-        if (user == null)
-        {
-            return ApiResult<UserOtpDto>.Failure(StatusCodes.Status404NotFound, "User not found.");
-        }
+        var userDetails = await _userManager.Users
+            .Where(x => x.NormalizedEmail == normalizedEmail)
+            .Select(x => new UserOtpDetails(x.Id, x.Email!, x.IsVerified))
+            .FirstOrDefaultAsync();
 
-        if (user.IsVerified)
-        {
-            return ApiResult<UserOtpDto>.Failure(StatusCodes.Status409Conflict, "User already verified.");
-        }
-
-        return ApiResult<UserOtpDto>.Success(new UserOtpDto(user.Id, user.Email!));
+        return userDetails;
     }
 
     /// <inheritdoc />
-    public async Task<ApiResult<bool>> CheckUserPasswordAsync(ApplicationUser user, string password)
-    {
-        var passwordValid = await _userManager.CheckPasswordAsync(user, password);
-        if (!passwordValid)
-        {
-            return ApiResult<bool>.Failure(StatusCodes.Status400BadRequest, "Login or password is incorrect.");
-        }
-
-        return ApiResult<bool>.Success(true);
-    }
+    public async Task<bool> CheckUserPasswordAsync(ApplicationUser user, string password)
+        => await _userManager.CheckPasswordAsync(user, password);
 
     #endregion
 }

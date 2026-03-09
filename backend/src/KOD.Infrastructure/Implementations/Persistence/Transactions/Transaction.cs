@@ -1,6 +1,5 @@
 ﻿using KOD.Application.Abstractions.Persitence.Transactions;
 
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace KOD.Infrastructure.Implementations.Persistence.Transactions;
@@ -19,25 +18,13 @@ internal sealed class Transaction : ITransaction
 
     #endregion
 
-    #region Public fields
-
-    /// <inheritdoc />
-    public DbContext DbContext { get; }
-
-    #endregion
-
     #region Constructors
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="Transaction"/> class with the specified DbContext and database transaction.
+    /// Initializes a new instance of the <see cref="Transaction"/> class with the specified database transaction.
     /// </summary>
-    /// <param name="dbContext">The database context associated with the transaction.</param>
     /// <param name="transaction">The underlying database transaction.</param>
-    public Transaction(DbContext dbContext, IDbContextTransaction transaction)
-    {
-        DbContext = dbContext;
-        _transaction = transaction;
-    }
+    public Transaction(IDbContextTransaction transaction) => _transaction = transaction;
 
     #endregion
 

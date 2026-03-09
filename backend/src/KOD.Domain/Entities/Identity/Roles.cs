@@ -13,9 +13,9 @@ public static class Roles
     public const string Admin = "Admin";
 
     /// <summary>
-    /// Represents the signer role.
+    /// Represents the user role.
     /// </summary>
-    public const string Signer = "Signer";
+    public const string User = "User";
 
     #endregion
 }

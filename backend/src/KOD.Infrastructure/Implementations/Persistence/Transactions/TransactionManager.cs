@@ -33,7 +33,7 @@ internal sealed class TransactionManager : ITransactionManager
     public async Task<ITransaction> BeginTransactionAsync()
     {
         var transaction = await _dbContext.Database.BeginTransactionAsync();
-        return new Transaction(_dbContext, transaction);
+        return new Transaction(transaction);
     }
 
     #endregion
