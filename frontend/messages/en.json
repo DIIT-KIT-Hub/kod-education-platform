@@ -6,6 +6,10 @@
     "login": "Sign in",
     "sso": "Sign in with Outlook",
     "forgotPassword": "Forgot password?",
-    "copyright": "© 2026 Educational data cabinet"
+    "copyright": "© 2026 Educational data cabinet",
+    "verification": "Not verificated yet?",
+    "invalid_email": "Please, enter a valid email address.",
+    "email_required": "Email is required.",
+    "password_required": "Password is required."
   }
 }

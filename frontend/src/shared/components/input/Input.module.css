@@ -1,0 +1,40 @@
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.field input {
+  padding: 8px;
+  box-sizing: border-box;
+  font-size: 1rem;
+  font-family: var(--font-mabry-regular);
+  border-radius: 5px;
+  border: 1px solid var(--color-blue);
+  outline: none;
+  transition: all 0.3s ease-in-out;
+}
+
+.field input:focus {
+  border: 1px solid var(--color-blue);
+}
+
+.inputError {
+  border: 1px solid var(--color-red) !important;
+}
+
+.error {
+  color: var(--color-red);
+  font-size: 14px;
+  font-family: var(--font-mabry-regular);
+  margin: 0;
+  animation: shake 0.3s ease-in-out;
+}
+
+@keyframes shake {
+  0% { transform: translateX(0); }
+  25% { transform: translateX(4px); }
+  50% { transform: translateX(0); }
+  75% { transform: translateX(4); }
+  100% { transform: translateX(0); }
+}
