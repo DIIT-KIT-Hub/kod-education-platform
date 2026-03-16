@@ -43,6 +43,13 @@
   background-color: var(--color-light-blue);
 }
 
+.form p {
+  font-size: 1rem;
+  font-family: var(--font-mabry-regular);
+  margin: 0;
+  color: var(--color-blue);
+}
+
 .sso {
   display: flex;
   flex-direction: column;
@@ -69,7 +76,7 @@
   cursor: pointer;
 }
 
-.forgotPassword {
+.additional {
   display: flex;
   justify-content: center;
   align-items: flex-end;
@@ -79,11 +86,17 @@
   box-sizing: border-box;
 }
 
-.forgotPassword p {
+.additional p {
   margin: 0;
   color: var(--color-blue);
   font-size: 1rem;
   font-family: var(--font-mabry-regular);
+  transition: all 0.3s ease-in-out;
+}
+
+.additional p:hover {
+  color: var(--color-light-blue);
+  cursor: pointer;
 }
 
 .copyright {

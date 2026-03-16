@@ -1,13 +1,24 @@
 {
-  "Login": {
-    "title": "Login",
+  "Authentication": {
+    "Login": {
+      "title": "Login",
+      "login": "Sign in",
+      "forgotPassword": "Forgot password?"
+    },
+    "Verification": {
+      "title": "Verification",
+      "notVerified": "Not verified yet?",
+      "verified": "Already verified?",
+      "enterEmail": "We will send a verification code to your email. Please enter it below.",
+      "requestOtp": "Request verification code"
+    }
+  },
+  "Global": { "copyright": "© 2026 Educational data cabinet" },
+  "User": {
     "email": "Email",
-    "password": "Password",
-    "login": "Sign in",
-    "sso": "Sign in with Outlook",
-    "forgotPassword": "Forgot password?",
-    "copyright": "© 2026 Educational data cabinet",
-    "verification": "Not verificated yet?",
+    "password": "Password"
+  },
+  "Validations": {
     "invalid_email": "Please, enter a valid email address.",
     "email_required": "Email is required.",
     "password_required": "Password is required."

@@ -1,13 +1,26 @@
 {
-  "Login": {
-    "title": "Вхід",
+  "Authentication": {
+    "Login": {
+      "title": "Вхід",
+      "login": "Увійти",
+      "forgotPassword": "Забули пароль?"
+    },
+    "Verification": {
+      "title": "Верифікація",
+      "notVerified": "Ще не верифіковані?",
+      "verified": "Вже верифіковані?",
+      "enterEmail": "Ми відправимо верифікаційний код на вашу електронну пошту. Будь ласка, введіть її.",
+      "requestOtp": "Надіслати код"
+    }
+  },
+  "Global": { "copyright": "© 2026 Кабінет освітніх даних" },
+  "User": {
     "email": "Пошта",
-    "password": "Пароль",
-    "login": "Увійти",
-    "sso": "Вхід через Outlook",
-    "forgotPassword": "Забули пароль?",
-    "copyright": "© 2026 Кабінет освітніх даних",
-    "verification": "Ще не верифіковані?",
-    "invalid_email": "Будь ласка, введіть валідну електронну пошту"
+    "password": "Пароль"
+  },
+  "Validations": {
+    "invalid_email": "Будь ласка, введіть валідну електронну пошту.",
+    "email_required": "Електронна пошта обов'язкова.",
+    "password_required": "Пароль обов'язковий."
   }
 }
