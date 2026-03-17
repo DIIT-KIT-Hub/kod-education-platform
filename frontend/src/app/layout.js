@@ -2,7 +2,7 @@ import "./globals.css";
 import localFont from "next/font/local";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
-import { ToastProvider } from "@/stores/toast/ToastContext";
+import { Toaster } from "react-hot-toast";
 
 const mabryProBold = localFont({
   src: "../../public/fonts/MabryPro-Bold.woff",
@@ -21,7 +21,14 @@ export default async function RootLayout({ children }) {
     <html lang={locale}>
       <body className={`${mabryProBold.variable} ${mabryProRegular.variable}`}>
         <NextIntlClientProvider messages={messages}>
-          <ToastProvider>{children}</ToastProvider>
+          <Toaster
+            position="top-center"
+            reverseOrder={false}
+            toastOptions={{
+              className: "toaster",
+            }}
+          />
+          {children}
         </NextIntlClientProvider>
       </body>
     </html>

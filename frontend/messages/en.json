@@ -10,7 +10,7 @@
       "notVerified": "Not verified yet?",
       "verified": "Already verified?",
       "enterEmail": "We will send a verification code to your email. Please enter it below.",
-      "requestOtp": "Request verification code"
+      "startVerification": "Start verification"
     }
   },
   "Global": { "copyright": "© 2026 Educational data cabinet" },
@@ -22,5 +22,10 @@
     "invalid_email": "Please, enter a valid email address.",
     "email_required": "Email is required.",
     "password_required": "Password is required."
+  },
+  "Info": {
+    "user_not_found": "User not found in the system. Please contact the administrator.",
+    "user_already_verified": "Your account is already verified. Please sign in.",
+    "server_error_occured": "Unfortunatelly, some server error occured."
   }
 }

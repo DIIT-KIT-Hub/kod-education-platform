@@ -18,7 +18,7 @@ async function fetcher(endpoint, options = {}) {
   }
 
   const response = await fetch(
-    `${process.env.ASP_NET_API_URL}${endpoint}`,
+    `${process.env.NEXT_PUBLIC_ASP_NET_API_URL}${endpoint}`,
     config,
   );
 

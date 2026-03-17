@@ -1,10 +1,12 @@
 import Input from "@/shared/components/input/Input";
 import React from "react";
+import styles from "./Form.module.css";
 import { validateLogin } from "../utils/validations";
 import { useForm } from "@/shared/hooks/forms/useForm";
 import { useTranslations } from "next-intl";
 
-function Login() {
+function LoginForm() {
+  const tlogin = useTranslations("Authentication.Login");
   const tuser = useTranslations("User");
   const { formData, errors, handleChange, handleSubmit } = useForm(
     {
@@ -14,8 +16,10 @@ function Login() {
     validateLogin,
   );
 
+  const onSubmit = async (data) => {};
+
   return (
-    <>
+    <form className={styles.form} onSubmit={handleSubmit(onSubmit)}>
       <Input
         name="email"
         type="text"
@@ -35,8 +39,10 @@ function Login() {
         error={errors.password}
         maxLength={8}
       />
-    </>
+
+      <button type="submit">{tlogin("login")}</button>
+    </form>
   );
 }
 
-export default Login;
+export default LoginForm;

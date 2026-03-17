@@ -24,7 +24,7 @@
 }
 
 .error {
-  color: var(--color-red);
+  color: var(--color-red) !important;
   font-size: 14px;
   font-family: var(--font-mabry-regular);
   margin: 0;
