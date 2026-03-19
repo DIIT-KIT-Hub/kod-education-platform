@@ -1,35 +1,32 @@
 import { validateEmail } from "@/shared/utils/validations";
 
-export const validateLogin = (data) => {
+export const createValidateLogin = (validations) => (data) => {
   let errors = {};
 
-  let email = data.email.trim();
+  console.log(validations);
 
-  if (email.length === 0) {
-    errors.email = "email_required";
+  const email = data.email.trim();
+  if (!email) {
+    errors.email = validations.emailRequired;
   } else if (!validateEmail(email)) {
-    errors.email = "invalid_email";
+    errors.email = validations.invalidEmail;
   }
 
-  let password = data.password.trim();
-
-  if (password.length === 0) {
-    errors.password = "password_required";
+  const password = data.password.trim();
+  if (!password) {
+    errors.password = validations.passwordRequired;
   }
 
   return errors;
 };
 
-export const validateEmailVerification = (data) => {
+export const createValidateEmailVerification = (validations) => (data) => {
   let errors = {};
-
-  let email = data.email.trim();
-
-  if (email.length === 0) {
-    errors.email = "email_required";
+  const email = data.email.trim();
+  if (!email) {
+    errors.email = validations.emailRequired;
   } else if (!validateEmail(email)) {
-    errors.email = "invalid_email";
+    errors.email = validations.invalidEmail;
   }
-
   return errors;
 };

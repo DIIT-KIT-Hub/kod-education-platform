@@ -1,8 +1,5 @@
-"use client";
-
 import React from "react";
 import styles from "./Input.module.css";
-import { useTranslations } from "next-intl";
 
 function Input({
   name,
@@ -12,10 +9,7 @@ function Input({
   onChange,
   error,
   maxLength,
-  t,
 }) {
-  const tvalidations = useTranslations("Validations");
-
   return (
     <div className={styles.field}>
       <input
@@ -28,7 +22,7 @@ function Input({
         className={error ? styles.inputError : ""}
       />
 
-      {error && <p className={styles.error}>{tvalidations(error)}</p>}
+      {error && <p className={styles.error}>{error}</p>}
     </div>
   );
 }

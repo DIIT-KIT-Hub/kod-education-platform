@@ -1,3 +1,10 @@
+.page {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+}
+
 .wrapper {
   width: 25%;
   min-width: 400px;
@@ -18,7 +25,7 @@
   margin: 0;
 }
 
-.form {
+.wrapper form {
   display: flex;
   flex-direction: column;
   gap: 15px;
@@ -26,7 +33,7 @@
   border-bottom: 1px solid var(--color-light-gray);
 }
 
-.form button {
+.wrapper form button {
   padding: 10px;
   box-sizing: border-box;
   background-color: var(--color-blue);
@@ -38,65 +45,16 @@
   transition: background-color 0.3s ease-in-out;
 }
 
-.form button:hover {
+.wrapper form button:hover {
   cursor: pointer;
   background-color: var(--color-light-blue);
 }
 
-.form p {
+.wrapper form p {
   font-size: 1rem;
   font-family: var(--font-mabry-regular);
   margin: 0;
   color: var(--color-blue);
-}
-
-.sso {
-  display: flex;
-  flex-direction: column;
-  margin-top: 20px;
-}
-
-.sso button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  padding: 10px;
-  box-sizing: border-box;
-  border: 1px solid var(--color-light-gray);
-  border-radius: 5px;
-  background-color: transparent;
-  font-size: 1rem;
-  font-family: var(--font-mabry-regular);
-  transition: border 0.3s ease-in-out;
-}
-
-.sso button:hover {
-  border-color: var(--color-blue);
-  cursor: pointer;
-}
-
-.additional {
-  display: flex;
-  justify-content: center;
-  align-items: flex-end;
-  gap: 10px;
-  flex: 1;
-  padding: 0 0 15px 0;
-  box-sizing: border-box;
-}
-
-.additional p {
-  margin: 0;
-  color: var(--color-blue);
-  font-size: 1rem;
-  font-family: var(--font-mabry-regular);
-  transition: all 0.3s ease-in-out;
-}
-
-.additional p:hover {
-  color: var(--color-light-blue);
-  cursor: pointer;
 }
 
 .copyright {
