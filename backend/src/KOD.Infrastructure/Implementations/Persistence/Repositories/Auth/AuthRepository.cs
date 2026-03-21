@@ -1,5 +1,4 @@
-﻿using KOD.Application.Exceptions;
-using KOD.Domain.Entities.Auth;
+﻿using KOD.Domain.Entities.Auth;
 using KOD.Domain.Repositories;
 using KOD.Domain.ValueObjects.Auth;
 using KOD.Domain.ValueObjects.Users;

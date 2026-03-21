@@ -1,4 +1,5 @@
 ﻿using KOD.Application.DTOs.Users;
+using KOD.Application.Results;
 
 namespace KOD.Application.Abstractions.Services.Identity;
 
@@ -18,7 +19,7 @@ public interface IIdentityService
     /// <exception cref="KOD.Domain.Exceptions.Auth.CredentialsException">
     /// Thrown when the provided credentials are invalid.
     /// </exception>
-    Task ConfirmUserAsync(string email, string password);
+    Task<Result<bool>> VerifyUserAsync(string email, string password);
 
     /// <summary>
     /// Retrieves OTP-related details for a user by their email.
@@ -30,7 +31,11 @@ public interface IIdentityService
     /// <exception cref="KOD.Domain.Exceptions.Users.UserVerifiedException">
     /// Thrown if the user is not verified or OTP cannot be generated.
     /// </exception>
-    Task<UserOtpDetailsDto> GetUserOtpDetailsByEmailAsync(string email);
+    Task<Result<UserOtpDetailsDto>> GetUserOtpDetailsByEmailAsync(string email);
+
+    Task<Result<bool>> CheckUserExistenceByEmailAsync(string email);
+
+    Task<Result<bool>> CheckUserVerificationByEmailAsync(string email);
 
     #endregion
 }

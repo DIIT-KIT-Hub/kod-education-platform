@@ -1,10 +1,6 @@
 ﻿using System.Net;
 using System.Text.Json;
 
-using KOD.Application.Exceptions.Statuses;
-using KOD.Domain.Exceptions.Auth;
-using KOD.Domain.Exceptions.Users;
-
 using Microsoft.AspNetCore.Mvc;
 
 namespace KOD.WebApi.Middleware;
@@ -81,42 +77,16 @@ internal sealed class GlobalExceptionMiddleware
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
     private Task HandleExceptionAsync(HttpContext context, Exception exception)
     {
-        HttpStatusCode statusCode;
-        string message;
-
-        switch (exception)
-        {
-            case NotFoundException:
-                statusCode = HttpStatusCode.NotFound;
-                message = exception.Message;
-                break;
-            case CredentialsException:
-                statusCode = HttpStatusCode.Unauthorized;
-                message = exception.Message;
-                break;
-            case UserVerifiedException:
-                statusCode = HttpStatusCode.Conflict;
-                message = exception.Message;
-                break;
-            case UserNotVerifiedException:
-                statusCode = HttpStatusCode.Unauthorized;
-                message = exception.Message;
-                break;
-            default:
-                statusCode = HttpStatusCode.InternalServerError;
-                message = "An unexpected server error occurred.";
-                break;
-        }
-
+        var statusCode = (int)HttpStatusCode.InternalServerError;
         _logger.LogError(exception, "Unhandled exception while processing request.");
 
-        context.Response.ContentType = "application/json";
-        context.Response.StatusCode = (int)statusCode;
+        context.Response.ContentType = "application/problem+json";
+        context.Response.StatusCode = statusCode;
 
         var problemDetails = new ProblemDetails
         {
-            Status = (int)statusCode,
-            Title = message,
+            Status = statusCode,
+            Title = "An unexpected server error occurred.",
             Detail = exception.StackTrace,
             Instance = context.Request.Path
         };

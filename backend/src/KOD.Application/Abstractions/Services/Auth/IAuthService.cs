@@ -1,5 +1,6 @@
 ﻿using KOD.Application.DTOs.Auth;
 using KOD.Application.DTOs.Tokens;
+using KOD.Application.Results;
 
 namespace KOD.Application.Abstractions.Services.Auth;
 
@@ -17,7 +18,7 @@ public interface IAuthService
     /// <returns>
     /// A <see cref="TokenResponseDto"/> containing the access token and refresh token if authentication succeeds.
     /// </returns>
-    Task<TokenResponseDto> LoginAsync(LoginRequestDto request);
+    Task<Result<TokenResponseDto>> LoginAsync(LoginRequestDto request);
 
     /// <summary>
     /// Refreshes an access token using a valid refresh token.
@@ -26,14 +27,14 @@ public interface IAuthService
     /// <returns>
     /// A <see cref="TokenResponseDto"/> containing a new access token and optionally a new refresh token.
     /// </returns>
-    Task<TokenResponseDto> RefreshTokenAsync(RefreshTokenRequestDto request);
+    Task<Result<TokenResponseDto>> RefreshTokenAsync(RefreshTokenRequestDto request);
 
     /// <summary>
     /// Logs out a user by invalidating the specified refresh token.
     /// </summary>
     /// <param name="request">The refresh token request containing the token to invalidate.</param>
     /// <returns>A <see cref="Task"/> representing the asynchronous logout operation.</returns>
-    Task LogoutAsync(RefreshTokenRequestDto request);
+    Task<Result> LogoutAsync(RefreshTokenRequestDto request);
 
     #endregion
 }

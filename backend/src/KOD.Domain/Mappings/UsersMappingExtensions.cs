@@ -23,7 +23,7 @@ public static class UsersMappingExtensions
         {
             Id = userLoginDetails.Id,
             PasswordHash = userLoginDetails.PasswordHash,
-            IsVerified = userLoginDetails.IsVerified
+            EmailConfirmed = userLoginDetails.EmailConfirmed
         };
 
     #endregion

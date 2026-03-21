@@ -35,14 +35,10 @@ internal sealed class OtpRepository : IOtpRepository
 
     /// <inheritdoc />
     public async Task<OtpCodeDetails?> GetOtpCodeDetailsByUserIdAsync(Guid userId)
-    {
-        var otpCode = await _dbContext.OtpCodes
-            .Where(o => o.UserId == userId)
-            .Select(o => new OtpCodeDetails(o.Code, o.ExpiresAt))
-            .FirstOrDefaultAsync();
-
-        return otpCode;
-    }
+        => await _dbContext.OtpCodes
+        .Where(o => o.UserId == userId)
+        .Select(o => new OtpCodeDetails(o.Code, o.ExpiresAt))
+        .FirstOrDefaultAsync();
 
     /// <inheritdoc />
     public async Task DeleteOtpCodeByUserIdAsync(Guid userId)

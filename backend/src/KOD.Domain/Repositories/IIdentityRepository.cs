@@ -35,7 +35,7 @@ public interface IIdentityRepository
     /// <param name="user">The <see cref="ApplicationUser"/> to confirm.</param>
     /// <param name="password">The password used for confirmation.</param>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-    Task ConfirmUserAsync(ApplicationUser user, string password);
+    Task VerifyUserAsync(ApplicationUser user, string password);
 
     /// <summary>
     /// Retrieves the OTP (One-Time Password) details associated with a user's email.
@@ -64,6 +64,8 @@ public interface IIdentityRepository
     /// <c>true</c> if the password is correct; otherwise, <c>false</c>.
     /// </returns>
     Task<bool> CheckUserPasswordAsync(ApplicationUser user, string password);
+
+  
 
     #endregion
 }

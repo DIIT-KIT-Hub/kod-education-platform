@@ -28,6 +28,11 @@ internal sealed class JwtOptions
     public int AccessTokenMinutes { get; set; }
 
     /// <summary>
+    /// Gets or sets the lifetime of verification tokens in minutes.
+    /// </summary>
+    public int VerificationTokenMinutes { get; set; }
+
+    /// <summary>
     /// Gets or sets the lifetime of refresh tokens in days.
     /// </summary>
     public int RefreshTokenDays { get; set; }

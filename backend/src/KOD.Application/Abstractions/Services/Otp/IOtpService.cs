@@ -1,4 +1,5 @@
 ﻿using KOD.Application.DTOs.Users;
+using KOD.Application.Results;
 
 namespace KOD.Application.Abstractions.Services.Otp;
 
@@ -17,7 +18,7 @@ public interface IOtpService
     /// <exception cref="KOD.Application.Exceptions.Users.UserVerifiedException">
     /// Thrown if the user is already verified and does not require an OTP.
     /// </exception>
-    Task RequestOtpCodeAsync(UserOtpDetailsDto user);
+    Task<Result<bool>> SendOtpCodeAsync(UserOtpDetailsDto user);
 
     /// <summary>
     /// Checks whether the provided OTP code is valid for the specified user.
@@ -27,7 +28,7 @@ public interface IOtpService
     /// <returns>
     /// A <see cref="Task{Boolean}"/> that returns <c>true</c> if the OTP code is valid; otherwise, <c>false</c>.
     /// </returns>
-    Task<bool> CheckOtpCodeAsync(string otpCode, UserOtpDetailsDto user);
+    Task<Result<bool>> CheckOtpCodeAsync(string otpCode, UserOtpDetailsDto user);
 
     #endregion
 }

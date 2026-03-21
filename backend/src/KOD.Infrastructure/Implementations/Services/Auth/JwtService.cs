@@ -25,6 +25,8 @@ internal sealed class JwtService : IJwtService
     /// </summary>
     private readonly JwtOptions _jwtOptions;
 
+    private readonly string[] _verificationRoles = ["Verification"];
+
     #endregion
 
     #region Constructors
@@ -41,18 +43,37 @@ internal sealed class JwtService : IJwtService
 
     /// <inheritdoc />
     public AccessTokenDto GenerateAccessToken(UserLoginDetails userLoginDetails)
+        => GenerateToken(userLoginDetails.Id, userLoginDetails.Roles, _jwtOptions.AccessTokenMinutes);
+
+    public AccessTokenDto GenerateVerificationToken() 
+        => GenerateToken(Guid.Empty, _verificationRoles, _jwtOptions.VerificationTokenMinutes);
+
+    /// <inheritdoc />
+    public RefreshTokenDto GenerateRefreshToken()
+    {
+        var refreshTokenString = GenerateRefreshTokenString();
+
+        return new RefreshTokenDto(refreshTokenString, DateTime.UtcNow.AddDays(_jwtOptions.RefreshTokenDays));
+    }
+
+    #endregion
+     
+    #region Private methods
+
+    private AccessTokenDto GenerateToken(Guid userId, IEnumerable<string> roles, int tokenMinutes)
     {
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtOptions.AccessTokenKey));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-        var claims = new List<Claim>
+        var claims = new List<Claim>();
+        if (userId != Guid.Empty)
         {
-            new(JwtRegisteredClaimNames.Sub, userLoginDetails.Id.ToString()),
-        };
+            claims.Add(new(JwtRegisteredClaimNames.Sub, userId.ToString()));
+        }
 
-        claims.AddRange(userLoginDetails.Roles.Select(role => new Claim(ClaimTypes.Role, role)));
+        claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
 
-        var expires = DateTime.UtcNow.AddMinutes(_jwtOptions.AccessTokenMinutes);
+        var expires = DateTime.UtcNow.AddMinutes(tokenMinutes);
 
         var token = new JwtSecurityToken(
             issuer: _jwtOptions.Issuer,
@@ -64,18 +85,6 @@ internal sealed class JwtService : IJwtService
 
         return new AccessTokenDto(new JwtSecurityTokenHandler().WriteToken(token), expires);
     }
-
-    /// <inheritdoc />
-    public RefreshTokenDto GenerateRefreshToken()
-    {
-        var refreshTokenString = GenerateRefreshTokenString();
-
-        return new RefreshTokenDto(refreshTokenString, DateTime.UtcNow.AddDays(_jwtOptions.RefreshTokenDays));
-    }
-
-    #endregion
-
-    #region Private methods
 
     /// <summary>
     /// Generates a cryptographically secure random refresh token string.

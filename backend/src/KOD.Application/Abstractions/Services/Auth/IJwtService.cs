@@ -19,6 +19,8 @@ public interface IJwtService
     /// </returns>
     AccessTokenDto GenerateAccessToken(UserLoginDetails userLoginDetails);
 
+    AccessTokenDto GenerateVerificationToken();
+
     /// <summary>
     /// Generates a new refresh token.
     /// </summary>

@@ -1,7 +1,7 @@
 ﻿using KOD.Application.Abstractions.Services.Identity;
 using KOD.Application.DTOs.Users;
-using KOD.Application.Exceptions.Statuses;
 using KOD.Application.Mappings;
+using KOD.Application.Results;
 using KOD.Domain.Repositories;
 
 namespace KOD.Infrastructure.Implementations.Services.Identity;
@@ -33,29 +33,55 @@ internal sealed class IdentityService : IIdentityService
     #region Public methods
 
     /// <inheritdoc />
-    public async Task ConfirmUserAsync(string email, string password)
+    public async Task<Result<bool>> VerifyUserAsync(string email, string password)
     {
         var user = await _identityRepository.GetUserByEmailAsync(email);
 
         if (user is null)
         {
-            throw new NotFoundException(nameof(user));
+            return Result<bool>.Failure(Errors.NotFound("User"));
         }
 
-        await _identityRepository.ConfirmUserAsync(user, password);
+        await _identityRepository.VerifyUserAsync(user, password);
+
+        return Result<bool>.Success(true);
     }
 
     /// <inheritdoc />
-    public async Task<UserOtpDetailsDto> GetUserOtpDetailsByEmailAsync(string email)
+    public async Task<Result<UserOtpDetailsDto>> GetUserOtpDetailsByEmailAsync(string email)
     {
         var userOtpDetails = await _identityRepository.GetUserOtpDetailsByEmailAsync(email);
 
         if (userOtpDetails is null)
         {
-            throw new NotFoundException(nameof(userOtpDetails));
+            return Result<UserOtpDetailsDto>.Failure(Errors.NotFound("User otp details"));
         }
 
-        return userOtpDetails.ToDto();
+        return Result<UserOtpDetailsDto>.Success(userOtpDetails.ToDto());
+    }
+
+    public async Task<Result<bool>> CheckUserExistenceByEmailAsync(string email)
+    {
+        var user = await _identityRepository.GetUserByEmailAsync(email);
+
+        return Result<bool>.Success(user is not null);
+    }
+
+    public async Task<Result<bool>> CheckUserVerificationByEmailAsync(string email)
+    {
+        var user = await _identityRepository.GetUserByEmailAsync(email);
+        
+        if(user is null)
+        {
+            return Result<bool>.Failure(Errors.NotFound("User"));
+        }
+
+        if (user.EmailConfirmed)
+        {
+            return Result<bool>.Failure(Errors.Conflict("User already verified."));
+        }
+
+        return Result<bool>.Success(user.EmailConfirmed);
     }
 
     #endregion

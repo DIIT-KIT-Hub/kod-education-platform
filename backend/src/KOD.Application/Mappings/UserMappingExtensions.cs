@@ -19,7 +19,7 @@ public static class UserMappingExtensions
     /// from the domain object.
     /// </returns>
     public static UserOtpDetailsDto ToDto(this UserOtpDetails userOtpDetails) 
-        => new UserOtpDetailsDto(userOtpDetails.Id, userOtpDetails.Email, userOtpDetails.IsVerified);
+        => new UserOtpDetailsDto(userOtpDetails.Id, userOtpDetails.Email, userOtpDetails.EmailConfirmed);
 
     #endregion
 }

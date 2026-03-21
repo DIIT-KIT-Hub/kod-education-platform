@@ -7,12 +7,5 @@ namespace KOD.Domain.Entities.Users;
 /// </summary>
 public sealed class ApplicationUser : IdentityUser<Guid>
 {
-    #region Public fields
 
-    /// <summary>
-    /// Gets or sets a value indicating whether the user is verified.
-    /// </summary>
-    public bool IsVerified { get; set; }
-
-    #endregion
 }
