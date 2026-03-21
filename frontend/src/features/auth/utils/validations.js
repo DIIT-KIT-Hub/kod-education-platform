@@ -3,8 +3,6 @@ import { validateEmail } from "@/shared/utils/validations";
 export const createValidateLogin = (validations) => (data) => {
   let errors = {};
 
-  console.log(validations);
-
   const email = data.email.trim();
   if (!email) {
     errors.email = validations.emailRequired;
@@ -28,5 +26,19 @@ export const createValidateEmailVerification = (validations) => (data) => {
   } else if (!validateEmail(email)) {
     errors.email = validations.invalidEmail;
   }
+  return errors;
+};
+
+export const createValidateOtpVerification = (validations) => (data) => {
+  let errors = {};
+
+  const otp = data.otpCode.trim();
+
+  if (!otp) {
+    errors.otp = validations.otpRequired;
+  } else if (otp.length !== 6) {
+    errors.otp = validations.otpLengthInvalid;
+  }
+
   return errors;
 };

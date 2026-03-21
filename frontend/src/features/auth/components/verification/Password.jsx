@@ -7,28 +7,28 @@ function Password({ translations, password, handleChange }) {
     {
       key: "uppercase",
       validate: (pw) => /[A-Z]/.test(pw),
-      text: translations.passwordRules.uppercase,
+      text: translations.rules.uppercase,
     },
     {
       key: "digit",
       validate: (pw) => /[0-9]/.test(pw),
-      text: translations.passwordRules.digit,
+      text: translations.rules.digit,
     },
     {
       key: "allowedChars",
       validate: (pw) => (pw.length > 0 ? /^[A-Za-z0-9]*$/.test(pw) : undefined),
-      text: translations.passwordRules.allowedChars,
+      text: translations.rules.allowedChars,
     },
     {
       key: "length",
       validate: (pw) => pw.length === 8,
-      text: translations.passwordRules.length,
+      text: translations.rules.length,
     },
   ];
 
   return (
     <>
-      <p>{translations.enterPassword}</p>
+      <p>{translations.title}</p>
       <Input
         name="password"
         type="password"
@@ -38,7 +38,7 @@ function Password({ translations, password, handleChange }) {
         maxLength={8}
       />
       <div className={styles.rules}>
-        <p>{translations.passwordRules.title}</p>
+        <p>{translations.rules.title}</p>
         <ul>
           {rules.map((rule) => {
             const valid = rule.validate(password);

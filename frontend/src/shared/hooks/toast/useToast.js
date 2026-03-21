@@ -1,9 +1,6 @@
-import { useTranslations } from "use-intl";
 import toast from "react-hot-toast";
 
 export const useToast = () => {
-  const tinfo = useTranslations("Info");
-
   const success = (message) => {
     toast.success(tinfo(message));
   };
@@ -22,5 +19,13 @@ export const useToast = () => {
     toast.error(tinfo("server_error_occured"));
   };
 
-  return { success, error, warning, serverError };
+  const promise = (asyncFunction, messages = {}) => {
+    return toast.promise(asyncFunction, {
+      loading: messages.loading,
+      success: messages.success,
+      error: (err) => err.message,
+    });
+  };
+
+  return { success, error, warning, serverError, promise };
 };

@@ -1,47 +1,44 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import styles from "./Otp.module.css";
+import Error from "../error/Error";
 
-function Otp({ translations }) {
-  const [otp, setOtp] = useState(new Array(6).fill(""));
-  const [timer, setTimer] = useState(5);
+function Otp({ translations, otpValue = "", handleOtpChange, error }) {
+  const [otp, setOtp] = useState(
+    otpValue.split("").concat(new Array(6 - otpValue.length).fill("")),
+  );
+
+  const [timer, setTimer] = useState(300);
   const [canResend, setCanResend] = useState(false);
   const inputsRef = useRef([]);
 
   useEffect(() => {
     let interval;
-
     if (timer > 0) {
-      interval = setInterval(() => {
-        setTimer((prev) => prev - 1);
-      }, 1000);
+      interval = setInterval(() => setTimer((prev) => prev - 1), 1000);
     } else {
       setCanResend(true);
       clearInterval(interval);
     }
-
     return () => clearInterval(interval);
   }, [timer]);
 
   const formatTime = () => {
     const minutes = Math.floor(timer / 60);
     const seconds = timer % 60;
-
     return `${minutes}:${seconds < 10 ? `0${seconds}` : seconds}`;
   };
 
   const handleChange = (element, index) => {
-    if (isNaN(element.value)) {
-      return false;
-    }
+    if (isNaN(element.value)) return false;
 
     const newOtp = [...otp];
     newOtp[index] = element.value.substring(element.value.length - 1);
     setOtp(newOtp);
 
-    if (element.value && index < 5) {
-      inputsRef.current[index + 1].focus();
-    }
+    if (element.value && index < 5) inputsRef.current[index + 1].focus();
+
+    handleOtpChange(newOtp.join(""));
   };
 
   const handleKeyDown = (e, index) => {
@@ -55,14 +52,13 @@ function Otp({ translations }) {
       setTimer(300);
       setCanResend(false);
       setOtp(new Array(6).fill(""));
-      console.log("OTP Sent again");
+      handleOtpChange("");
     }
   };
 
   return (
     <>
       <p>{translations.title}</p>
-
       <div className={styles.otpInputs}>
         {otp.map((data, index) => (
           <input
@@ -77,7 +73,7 @@ function Otp({ translations }) {
           />
         ))}
       </div>
-
+      {error && <Error error={error} />}
       <div className={styles.timerSection}>
         {timer > 0 ? (
           <p className={styles.notReceived}>

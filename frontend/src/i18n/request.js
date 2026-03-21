@@ -11,13 +11,13 @@ export default getRequestConfig(async ({ requestLocale }) => {
   return {
     locale,
     messages: {
-      Global: (await import(`../../messages/global/${locale}.json`)).default,
-      Auth: (await import(`../../messages/auth/${locale}.json`))
+      AuthLayout: (await import(`../../messages/auth/layout/${locale}.json`))
         .default,
-      Validations: (await import(`../../messages/validations/${locale}.json`))
-        .default,
-      Inputs: (await import(`../../messages/inputs/${locale}.json`))
-        .default,
+      Login: (await import(`../../messages/auth/login/${locale}.json`)).default,
+      Verification: (
+        await import(`../../messages/auth/verification/${locale}.json`)
+      ).default,
+      Inputs: (await import(`../../messages/inputs/${locale}.json`)).default,
     },
   };
 });

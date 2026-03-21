@@ -1,6 +1,7 @@
 import { useState } from "react";
 
 export const useForm = (initialValues, validate) => {
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState(initialValues);
   const [errors, setErrors] = useState({});
 
@@ -13,7 +14,7 @@ export const useForm = (initialValues, validate) => {
   };
 
   const handleSubmit = (callback) => {
-    return (e) => {
+    return async (e) => {
       e.preventDefault();
       setErrors({});
 
@@ -24,11 +25,18 @@ export const useForm = (initialValues, validate) => {
         return;
       }
 
-      callback(formData);
+      try {
+        setIsLoading(true);
+
+        await callback(formData);
+      } finally {
+        setIsLoading(false);
+      }
     };
   };
 
   return {
+    isLoading,
     formData,
     errors,
     setErrors,

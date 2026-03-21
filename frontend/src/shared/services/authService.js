@@ -23,3 +23,24 @@ export async function checkUserVerificationByEmailAsync(email) {
     throw error;
   }
 }
+
+export async function requestOtpByEmailAsync(email) {
+  try {
+    const response = await api.get(`/verification/otp?email=${email}`);
+
+    return response;
+  } catch (error) {
+    throw error;
+  }
+}
+
+export async function verifyUserAsync(data) {
+  console.log(data)
+  try {
+    const response = await api.post("/verification/confirm", data);
+
+    return response;
+  } catch (error) {
+    throw error;
+  }
+}

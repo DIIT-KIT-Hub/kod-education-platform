@@ -4,9 +4,7 @@ import { getTranslations } from "next-intl/server";
 import Additional from "@/features/auth/components/Additional";
 
 async function AuthLayout({ children }) {
-  const tLogin = await getTranslations("Auth.Login");
-  const tVerification = await getTranslations("Auth.Verification");
-  const tGlobal = await getTranslations("Global");
+  const tLayout = await getTranslations("AuthLayout.data");
 
   return (
     <section className={styles.page}>
@@ -14,13 +12,13 @@ async function AuthLayout({ children }) {
         {children}
         <Additional
           translations={{
-            forgotPassword: tLogin("forgotPassword"),
-            verified: tVerification("verified"),
-            notVerified: tLogin("notVerified"),
+            forgotPassword: tLayout("forgotPassword"),
+            verified: tLayout("verified"),
+            notVerified: tLayout("notVerified"),
           }}
         />
         <div className={styles.copyright}>
-          <p>{tGlobal("copyright")}</p>
+          <p>{tLayout("copyright")}</p>
         </div>
       </div>
     </section>

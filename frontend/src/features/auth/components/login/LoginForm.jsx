@@ -1,8 +1,7 @@
 "use client";
 
-import Input from "@/shared/components/input/Input";
 import React from "react";
-
+import Input from "@/shared/components/input/Input";
 import { createValidateLogin } from "../../utils/validations";
 import { useForm } from "@/shared/hooks/forms/useForm";
 
@@ -12,7 +11,10 @@ function LoginForm({ translations }) {
       email: "",
       password: "",
     },
-    createValidateLogin(translations.validations),
+    createValidateLogin({
+      ...translations.inputs.email.validations,
+      ...translations.inputs.password.validations,
+    }),
   );
 
   const onSubmit = async (data) => {};
@@ -22,7 +24,7 @@ function LoginForm({ translations }) {
       <Input
         name="email"
         type="text"
-        placeholder={translations.email}
+        placeholder={translations.inputs.email.placeholder}
         value={formData.email}
         onChange={handleChange}
         error={errors.email}
@@ -31,13 +33,13 @@ function LoginForm({ translations }) {
       <Input
         name="password"
         type="password"
-        placeholder={translations.password}
+        placeholder={translations.inputs.password.placeholder}
         value={formData.password}
         onChange={handleChange}
         error={errors.password}
         maxLength={8}
       />
-      <button type="submit">{translations.signIn}</button>
+      <button type="submit">{translations.login.signIn}</button>
     </form>
   );
 }

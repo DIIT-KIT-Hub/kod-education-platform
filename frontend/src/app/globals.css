@@ -21,3 +21,25 @@ body {
   background-color: var(--color-white);
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
 }
+
+button {
+  padding: 10px;
+  box-sizing: border-box;
+  background-color: var(--color-blue);
+  border: 0;
+  border-radius: 5px;
+  color: var(--color-white);
+  font-size: 1rem;
+  font-family: var(--font-mabry-bold);
+  transition: background-color 0.3s ease-in-out;
+}
+
+button:hover {
+  cursor: pointer;
+  background-color: var(--color-light-blue);
+}
+
+button:disabled {
+  pointer-events: none;
+  background-color: var(--color-light-gray) !important;
+}

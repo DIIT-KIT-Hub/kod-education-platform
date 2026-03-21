@@ -1,5 +1,6 @@
 import React from "react";
 import styles from "./Input.module.css";
+import Error from "../error/Error";
 
 function Input({
   name,
@@ -22,7 +23,7 @@ function Input({
         className={error ? styles.inputError : ""}
       />
 
-      {error && <p className={styles.error}>{error}</p>}
+      {error && <Error error={error} />}
     </div>
   );
 }

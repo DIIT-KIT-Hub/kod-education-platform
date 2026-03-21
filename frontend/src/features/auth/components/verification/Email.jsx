@@ -4,7 +4,7 @@ import Input from "@/shared/components/input/Input";
 function Email({ translations, email, handleChange, error }) {
   return (
     <>
-      <p>{translations.enterEmail}</p>
+      <p>{translations.title}</p>
       <Input
         name="email"
         type="text"
