@@ -35,9 +35,9 @@ export const createValidateOtpVerification = (validations) => (data) => {
   const otp = data.otpCode.trim();
 
   if (!otp) {
-    errors.otp = validations.otpRequired;
+    errors.otpCode = validations.otpRequired;
   } else if (otp.length !== 6) {
-    errors.otp = validations.otpLengthInvalid;
+    errors.otpCode = validations.otpLengthInvalid;
   }
 
   return errors;

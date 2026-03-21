@@ -35,6 +35,8 @@ export const useForm = (initialValues, validate) => {
     };
   };
 
+  const reset = () => setFormData(initialValues);
+
   return {
     isLoading,
     formData,
@@ -42,5 +44,6 @@ export const useForm = (initialValues, validate) => {
     setErrors,
     handleChange,
     handleSubmit,
+    reset,
   };
 };

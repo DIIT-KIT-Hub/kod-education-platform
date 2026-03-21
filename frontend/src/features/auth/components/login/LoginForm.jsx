@@ -2,25 +2,14 @@
 
 import React from "react";
 import Input from "@/shared/components/input/Input";
-import { createValidateLogin } from "../../utils/validations";
-import { useForm } from "@/shared/hooks/forms/useForm";
+import { useLoginFlow } from "../../hooks/useLoginFlow";
 
 function LoginForm({ translations }) {
-  const { formData, errors, handleChange, handleSubmit } = useForm(
-    {
-      email: "",
-      password: "",
-    },
-    createValidateLogin({
-      ...translations.inputs.email.validations,
-      ...translations.inputs.password.validations,
-    }),
-  );
-
-  const onSubmit = async (data) => {};
+  const { formData, errors, isLoading, handleChange, handleSubmit } =
+    useLoginFlow(translations);
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
+    <form onSubmit={handleSubmit}>
       <Input
         name="email"
         type="text"
@@ -39,7 +28,9 @@ function LoginForm({ translations }) {
         error={errors.password}
         maxLength={8}
       />
-      <button type="submit">{translations.login.signIn}</button>
+      <button type="submit" disabled={isLoading}>
+        {translations.login.signIn}
+      </button>
     </form>
   );
 }

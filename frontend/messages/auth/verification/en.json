@@ -33,8 +33,12 @@
     "errors": {
       "userNotFound": "User not found in the system. Please contact the administrator.",
       "userAlreadyVerified": "Your account is already verified. Please sign in.",
-      "otpNotSent": "Sorry, otp was not sent.",
+      "tokenGenerationError": "Failed to generate verification token. Please try again later.",
+      "otpNotSent": "Failed to send the verification code. Please try again.",
+      "otpCodeInvalid": "The code you entered is incorrect. Please check it and try again.",
+      "otpCodeExpired": "The verification code has expired. Please request a new one.",
       "verificationFailed": "Something went wrong during verification. Please try again later.",
+      "incorrectVerificationToken": "The verification session has expired or is invalid. Please start over.",
       "server_error_occured": "Unfortunatelly, some server error occured."
     }
   }
