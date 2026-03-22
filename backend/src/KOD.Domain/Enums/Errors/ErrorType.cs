@@ -1,5 +1,8 @@
 ﻿namespace KOD.Domain.Enums.Errors;
 
+/// <summary>
+/// Represents types of errors that can occur in the application.
+/// </summary>
 public enum ErrorType
 {
     None = 0,

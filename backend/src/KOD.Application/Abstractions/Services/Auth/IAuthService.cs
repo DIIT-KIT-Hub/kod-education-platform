@@ -15,26 +15,22 @@ public interface IAuthService
     /// Authenticates a user with the provided credentials and returns tokens.
     /// </summary>
     /// <param name="request">The login request containing the user's credentials.</param>
-    /// <returns>
-    /// A <see cref="TokenResponseDto"/> containing the access token and refresh token if authentication succeeds.
-    /// </returns>
+    /// <returns>A <see cref="TokenResponseDto"/> containing the access token and refresh token if authentication succeeds.</returns>
     Task<Result<TokenResponseDto>> LoginAsync(LoginRequestDto request);
 
     /// <summary>
     /// Refreshes an access token using a valid refresh token.
     /// </summary>
     /// <param name="request">The refresh token request containing the current refresh token.</param>
-    /// <returns>
-    /// A <see cref="TokenResponseDto"/> containing a new access token and optionally a new refresh token.
-    /// </returns>
+    /// <returns>A <see cref="TokenResponseDto"/> containing a new access token and optionally a new refresh token.</returns>
     Task<Result<TokenResponseDto>> RefreshTokenAsync(RefreshTokenRequestDto request);
 
     /// <summary>
     /// Logs out a user by invalidating the specified refresh token.
     /// </summary>
     /// <param name="request">The refresh token request containing the token to invalidate.</param>
-    /// <returns>A <see cref="Task"/> representing the asynchronous logout operation.</returns>
-    Task<Result> LogoutAsync(RefreshTokenRequestDto request);
+    /// <returns>A result indicating whether the logout was successful.</returns>
+    Task<Result<bool>> LogoutAsync(RefreshTokenRequestDto request);
 
     #endregion
 }

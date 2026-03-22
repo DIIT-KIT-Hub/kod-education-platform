@@ -30,6 +30,9 @@ public class VerificationController : ControllerBase
     /// </summary>
     private readonly IOtpService _otpService;
 
+    /// <summary>
+    /// The JWT service used to generate verification tokens.
+    /// </summary>
     private readonly IJwtService _jwtService;
 
     #endregion
@@ -51,6 +54,17 @@ public class VerificationController : ControllerBase
 
     #endregion
 
+    #region Endpoints
+
+    /// <summary>
+    /// Generates a verification token for a user by email.
+    /// </summary>
+    /// <param name="email">The email address of the user requesting verification.</param>
+    /// <returns>Returns a verification access token if the user exists and is not yet verified.</returns>
+    /// <response code="200">Verification token successfully generated.</response>
+    /// <response code="404">User with the specified email was not found.</response>
+    /// <response code="409">User is already verified.</response>
+    /// <response code="500">Internal server error.</response>
     [HttpGet("token")]
     public async Task<IActionResult> GenerateVerificationToken(string email)
     {
@@ -105,11 +119,5 @@ public class VerificationController : ControllerBase
         return (await _identityService.VerifyUserAsync(confirmUserDto.Email, confirmUserDto.Password)).ToActionResult();
     }
 
-    [HttpGet("admin-test")]
-    [Authorize(Roles = "Admin")]
-    public IActionResult AdminOnlyEndpoint() => Ok("You are Admin ✅");
-
-    [HttpGet("user-test")]
-    [Authorize(Roles = "User")]
-    public IActionResult UserOnlyEndpoint() => Ok("You are User ✅");
+    #endregion
 }

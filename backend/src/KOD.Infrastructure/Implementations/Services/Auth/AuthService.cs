@@ -99,11 +99,11 @@ internal sealed class AuthService : IAuthService
     }
 
     /// <inheritdoc />
-    public async Task<Result> LogoutAsync(RefreshTokenRequestDto request)
+    public async Task<Result<bool>> LogoutAsync(RefreshTokenRequestDto request)
     {
         await _authRepository.DeleteRefreshTokenByValueAsync(request.RefreshToken);
 
-        return Result.Success();
+        return Result<bool>.Success(true);
     }
 
     #endregion

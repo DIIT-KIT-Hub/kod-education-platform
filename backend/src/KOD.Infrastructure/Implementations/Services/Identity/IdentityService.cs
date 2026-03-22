@@ -60,13 +60,20 @@ internal sealed class IdentityService : IIdentityService
         return Result<UserOtpDetailsDto>.Success(userOtpDetails.ToDto());
     }
 
+    /// <inheritdoc />
     public async Task<Result<bool>> CheckUserExistenceByEmailAsync(string email)
     {
         var user = await _identityRepository.GetUserByEmailAsync(email);
 
-        return Result<bool>.Success(user is not null);
+        if(user is null)
+        {
+            return Result<bool>.Failure(Errors.NotFound("User"));
+        }
+
+        return Result<bool>.Success(true);
     }
 
+    /// <inheritdoc />
     public async Task<Result<bool>> CheckUserVerificationByEmailAsync(string email)
     {
         var user = await _identityRepository.GetUserByEmailAsync(email);

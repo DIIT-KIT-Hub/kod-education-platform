@@ -25,6 +25,9 @@ internal sealed class JwtService : IJwtService
     /// </summary>
     private readonly JwtOptions _jwtOptions;
 
+    /// <summary>
+    /// Roles assigned to verification tokens (used when user ID is not present).
+    /// </summary>
     private readonly string[] _verificationRoles = ["Verification"];
 
     #endregion
@@ -45,6 +48,7 @@ internal sealed class JwtService : IJwtService
     public AccessTokenDto GenerateAccessToken(UserLoginDetails userLoginDetails)
         => GenerateToken(userLoginDetails.Id, userLoginDetails.Roles, _jwtOptions.AccessTokenMinutes);
 
+    /// <inheritdoc />
     public AccessTokenDto GenerateVerificationToken() 
         => GenerateToken(Guid.Empty, _verificationRoles, _jwtOptions.VerificationTokenMinutes);
 
@@ -57,9 +61,16 @@ internal sealed class JwtService : IJwtService
     }
 
     #endregion
-     
+
     #region Private methods
 
+    /// <summary>
+    /// Generates a JWT access token with the specified user ID, roles, and expiration time.
+    /// </summary>
+    /// <param name="userId">The user's ID (use Guid.Empty for verification tokens).</param>
+    /// <param name="roles">The roles to include in the token.</param>
+    /// <param name="tokenMinutes">Token lifetime in minutes.</param>
+    /// <returns>An <see cref="AccessTokenDto"/> containing the JWT and expiration.</returns>
     private AccessTokenDto GenerateToken(Guid userId, IEnumerable<string> roles, int tokenMinutes)
     {
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtOptions.AccessTokenKey));

@@ -75,7 +75,7 @@ internal sealed class OtpService : IOtpService
         }
         catch
         {
-            return Result<bool>.Failure(Errors.Failure("Failed to send OTP code"));
+            return Result<bool>.Failure(Errors.Failure("Failed to send OTP code."));
         }
     }
 
@@ -93,12 +93,12 @@ internal sealed class OtpService : IOtpService
         {
             await _otpRepository.DeleteOtpCodeByUserIdAsync(user.Id);
 
-            return Result<bool>.Failure(Errors.Gone("OTP code has expired"));
+            return Result<bool>.Failure(Errors.Gone("OTP code has expired."));
         }
 
         if (otpDetails.Code != otpCode)
         {
-            return Result<bool>.Failure(Errors.Validation("Invalid OTP code"));
+            return Result<bool>.Failure(Errors.Validation("Invalid OTP code."));
         }
 
         return Result<bool>.Success(true);
