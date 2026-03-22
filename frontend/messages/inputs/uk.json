@@ -1,3 +1,23 @@
 {
-    
+  "data": {
+    "email": {
+      "placeholder": "Електронна пошта",
+      "validations": {
+        "invalidEmail": "Будь ласка, введіть коректну адресу електронної пошти.",
+        "emailRequired": "Електронна пошта є обов'язковою."
+      }
+    },
+    "password": {
+      "placeholder": "Пароль",
+      "validations": {
+        "passwordRequired": "Пароль є обов'язковим."
+      }
+    },
+    "otp": {
+      "validations": {
+        "otpRequired": "Код підтвердження є обов'язковим.",
+        "otpLengthInvalid": "Код підтвердження повинен містити 6 символів."
+      }
+    }
+  }
 }

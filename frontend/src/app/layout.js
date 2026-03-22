@@ -1,8 +1,8 @@
 import "./globals.css";
 import localFont from "next/font/local";
-import { NextIntlClientProvider } from "next-intl";
-import { getMessages } from "next-intl/server";
 import { Toaster } from "react-hot-toast";
+import { getLocale } from "next-intl/server";
+import { NextIntlClientProvider } from "next-intl";
 
 const mabryProBold = localFont({
   src: "../../public/fonts/MabryPro-Bold.woff",
@@ -15,12 +15,12 @@ const mabryProRegular = localFont({
 });
 
 export default async function RootLayout({ children }) {
-  const { locale, messages } = await getMessages();
+  const locale = await getLocale();
 
   return (
     <html lang={locale}>
       <body className={`${mabryProBold.variable} ${mabryProRegular.variable}`}>
-        <NextIntlClientProvider messages={messages}>
+        <NextIntlClientProvider locale={locale}>
           <Toaster
             position="top-center"
             reverseOrder={false}

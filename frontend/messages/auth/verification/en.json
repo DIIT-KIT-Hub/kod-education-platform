@@ -38,8 +38,7 @@
       "otpCodeInvalid": "The code you entered is incorrect. Please check it and try again.",
       "otpCodeExpired": "The verification code has expired. Please request a new one.",
       "verificationFailed": "Something went wrong during verification. Please try again later.",
-      "incorrectVerificationToken": "The verification session has expired or is invalid. Please start over.",
-      "server_error_occured": "Unfortunatelly, some server error occured."
+      "incorrectVerificationToken": "The verification session has expired or is invalid. Please start over."
     }
   }
 }
