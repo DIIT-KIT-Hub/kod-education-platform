@@ -5,8 +5,7 @@ using KOD.Application.Abstractions.Persitence.Transactions;
 using KOD.Application.Abstractions.Services.Emails;
 using KOD.Application.Abstractions.Services.Otp;
 using KOD.Application.DTOs.Users;
-using KOD.Application.Exceptions.Statuses;
-using KOD.Domain.Exceptions.Auth;
+using KOD.Application.Results;
 using KOD.Domain.Repositories;
 
 namespace KOD.Infrastructure.Implementations.Services.Otp;
@@ -56,41 +55,53 @@ internal sealed class OtpService : IOtpService
     #region Public methods
 
     /// <inheritdoc />
-    public async Task RequestOtpCodeAsync(UserOtpDetailsDto user)
+    public async Task<Result<bool>> SendOtpCodeAsync(UserOtpDetailsDto user)
     {
         await using var transaction = await _transactionManager.BeginTransactionAsync();
 
-        var otpCode = GenerateOtp();
+        try
+        {
+            var otpCode = GenerateOtp();
 
-        await _otpRepository.DeleteOtpCodeByUserIdAsync(user.Id);
+            await _otpRepository.DeleteOtpCodeByUserIdAsync(user.Id);
 
-        await _otpRepository.AddOtpCodeAsync(otpCode, user.Id);
+            await _otpRepository.AddOtpCodeAsync(otpCode, user.Id);
 
-        await _emailService.SendEmailAsync(user.Email, "Verification code", otpCode);
+            await _emailService.SendEmailAsync(user.Email, "Verification code", otpCode);
 
-        await transaction.CommitAsync();
+            await transaction.CommitAsync();
+
+            return Result<bool>.Success(true);
+        }
+        catch
+        {
+            return Result<bool>.Failure(Errors.Failure("Failed to send OTP code."));
+        }
     }
 
     /// <inheritdoc />
-    public async Task<bool> CheckOtpCodeAsync(string otpCode, UserOtpDetailsDto user)
+    public async Task<Result<bool>> CheckOtpCodeAsync(string otpCode, UserOtpDetailsDto user)
     {
-        try
+        var otpDetails = await _otpRepository.GetOtpCodeDetailsByUserIdAsync(user.Id);
+
+        if (otpDetails is null)
         {
-            var otp = await _otpRepository.GetOtpCodeDetailsByUserIdAsync(user.Id);
-
-            if (otp is null)
-            {
-                throw new NotFoundException(nameof(otp));
-            }
-
-            return otpCode == otp.Code;
+            return Result<bool>.Failure(Errors.NotFound("Otp details"));
         }
-        catch (CredentialsException)
+
+        if (otpDetails.ExpiresAt <= DateTime.UtcNow)
         {
             await _otpRepository.DeleteOtpCodeByUserIdAsync(user.Id);
 
-            throw;
+            return Result<bool>.Failure(Errors.Gone("OTP code has expired."));
         }
+
+        if (otpDetails.Code != otpCode)
+        {
+            return Result<bool>.Failure(Errors.Validation("Invalid OTP code."));
+        }
+
+        return Result<bool>.Success(true);
     }
 
     #endregion

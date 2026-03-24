@@ -1,4 +1,5 @@
 ﻿using KOD.Application.DTOs.Users;
+using KOD.Application.Results;
 
 namespace KOD.Application.Abstractions.Services.Identity;
 
@@ -14,23 +15,29 @@ public interface IIdentityService
     /// </summary>
     /// <param name="email">The email address of the user to confirm.</param>
     /// <param name="password">The password provided by the user for verification.</param>
-    /// <returns>A <see cref="Task"/> representing the asynchronous confirmation operation.</returns>
-    /// <exception cref="KOD.Domain.Exceptions.Auth.CredentialsException">
-    /// Thrown when the provided credentials are invalid.
-    /// </exception>
-    Task ConfirmUserAsync(string email, string password);
+    /// <returns>A result indicating whether the user was successfully verified.</returns>
+    Task<Result<bool>> VerifyUserAsync(string email, string password);
 
     /// <summary>
     /// Retrieves OTP-related details for a user by their email.
     /// </summary>
     /// <param name="email">The email address of the user.</param>
-    /// <returns>
-    /// A <see cref="UserOtpDetailsDto"/> containing the user's ID, email, and verification status.
-    /// </returns>
-    /// <exception cref="KOD.Domain.Exceptions.Users.UserVerifiedException">
-    /// Thrown if the user is not verified or OTP cannot be generated.
-    /// </exception>
-    Task<UserOtpDetailsDto> GetUserOtpDetailsByEmailAsync(string email);
+    /// <returns>A result containing <see cref="UserOtpDetailsDto"/> with user data required for OTP operations.</returns>
+    Task<Result<UserOtpDetailsDto>> GetUserOtpDetailsByEmailAsync(string email);
+
+    /// <summary>
+    /// Checks whether a user exists by email.
+    /// </summary>
+    /// <param name="email">The email address to check.</param>
+    /// <returns>A result indicating whether the user exists.</returns>
+    Task<Result<bool>> CheckUserExistenceByEmailAsync(string email);
+
+    /// <summary>
+    /// Checks whether a user is already verified.
+    /// </summary>
+    /// <param name="email">The email address to check.</param>
+    /// <returns>A result indicating whether the user is verified.</returns>
+    Task<Result<bool>> CheckUserVerificationByEmailAsync(string email);
 
     #endregion
 }

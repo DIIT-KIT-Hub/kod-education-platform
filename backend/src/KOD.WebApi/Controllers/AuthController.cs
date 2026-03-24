@@ -1,6 +1,7 @@
 ﻿using KOD.Application.Abstractions.Services.Auth;
 using KOD.Application.DTOs.Auth;
 using KOD.Application.DTOs.Tokens;
+using KOD.WebApi.Extensions.Results;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -47,7 +48,7 @@ public class AuthController : ControllerBase
     /// <response code="500">Unsuccessful login, internal server error.</response>
     [HttpPost("login")]
     public async Task<IActionResult> LoginAsync(LoginRequestDto request)
-        => Ok(await _authService.LoginAsync(request));
+        => (await _authService.LoginAsync(request)).ToActionResult();
 
     /// <summary>
     /// Refreshes an access token using a valid refresh token.
@@ -59,8 +60,8 @@ public class AuthController : ControllerBase
     /// <response code="404">Unsuccessful refresh, refresh token or user not found.</response>
     /// <response code="500">Unsuccessful refresh, internal server error.</response>
     [HttpPost("refresh")]
-    public async Task<IActionResult> RefreshAsync(RefreshTokenRequestDto request)
-        => Ok(await _authService.RefreshTokenAsync(request));
+    public async Task<IActionResult> RefreshTokenAsync(RefreshTokenRequestDto request)
+        => (await _authService.RefreshTokenAsync(request)).ToActionResult();
 
     /// <summary>
     /// Logs out a user by invalidating the provided refresh token.
@@ -72,12 +73,8 @@ public class AuthController : ControllerBase
     /// <response code="500">Unsuccessful logout, internal server error.</response>
     [Authorize]
     [HttpPost("logout")]  
-    public async Task<IActionResult> LogoutAsync(RefreshTokenRequestDto request)
-    {
-        await _authService.LogoutAsync(request);
-
-        return Ok();
-    }
+    public async Task<IActionResult> LogoutAsync(RefreshTokenRequestDto request) 
+        => (await _authService.LogoutAsync(request)).ToActionResult();
 
     #endregion
 }

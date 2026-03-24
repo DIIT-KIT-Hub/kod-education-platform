@@ -59,7 +59,7 @@ internal sealed class IdentityRepository : IIdentityRepository
 
         var userRoles = await GetUserRolesAsync(user);
 
-        return new UserLoginDetails(user.Id, user.PasswordHash!, user.IsVerified, userRoles);
+        return new UserLoginDetails(user.Id, user.PasswordHash!, user.EmailConfirmed, userRoles);
     }
 
     /// <inheritdoc />
@@ -71,11 +71,11 @@ internal sealed class IdentityRepository : IIdentityRepository
         => await _userManager.GetRolesAsync(user);
 
     /// <inheritdoc />
-    public async Task ConfirmUserAsync(ApplicationUser user, string password)
+    public async Task VerifyUserAsync(ApplicationUser user, string password)
     {
         await using var transaction = await _transactionManager.BeginTransactionAsync();
 
-        user.IsVerified = true;
+        user.EmailConfirmed = true;
 
         await _userManager.UpdateAsync(user);
 
@@ -94,17 +94,16 @@ internal sealed class IdentityRepository : IIdentityRepository
     {
         var normalizedEmail = email.ToUpper(CultureInfo.CurrentCulture);
 
-        var userDetails = await _userManager.Users
+        return await _userManager.Users
             .Where(x => x.NormalizedEmail == normalizedEmail)
-            .Select(x => new UserOtpDetails(x.Id, x.Email!, x.IsVerified))
+            .Select(x => new UserOtpDetails(x.Id, x.Email!, x.EmailConfirmed))
             .FirstOrDefaultAsync();
-
-        return userDetails;
     }
 
     /// <inheritdoc />
     public async Task<bool> CheckUserPasswordAsync(ApplicationUser user, string password)
         => await _userManager.CheckPasswordAsync(user, password);
+
 
     #endregion
 }

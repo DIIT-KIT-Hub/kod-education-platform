@@ -1,9 +1,8 @@
 ﻿using KOD.Application.Abstractions.Services.Auth;
 using KOD.Application.DTOs.Auth;
 using KOD.Application.DTOs.Tokens;
-using KOD.Application.Exceptions.Statuses;
 using KOD.Application.Mappings;
-using KOD.Domain.Exceptions.Auth;
+using KOD.Application.Results;
 using KOD.Domain.Mappings;
 using KOD.Domain.Repositories;
 using KOD.Domain.ValueObjects.Users;
@@ -54,13 +53,18 @@ internal sealed class AuthService : IAuthService
     #region Public methods
 
     /// <inheritdoc />
-    public async Task<TokenResponseDto> LoginAsync(LoginRequestDto request)
+    public async Task<Result<TokenResponseDto>> LoginAsync(LoginRequestDto request)
     {
         var userDetails = await _identityRepository.GetUserLoginDetailsByEmailAsync(request.Email);
 
         if (userDetails is null)
         {
-            throw new NotFoundException(nameof(userDetails));
+            return Result<TokenResponseDto>.Failure(Errors.NotFound("User details"));
+        }
+
+        if (!userDetails.EmailConfirmed)
+        {
+            return Result<TokenResponseDto>.Failure(Errors.Unauthorized("User not verified"));
         }
 
         var user = userDetails.ToEntity();
@@ -68,35 +72,39 @@ internal sealed class AuthService : IAuthService
         var checkPasswordResult = await _identityRepository.CheckUserPasswordAsync(user, request.Password);
         if (!checkPasswordResult)
         {
-            throw new CredentialsException("Login or password is probably mistaken.");
+            return Result<TokenResponseDto>.Failure(Errors.Validation("Login or password is probably mistaken."));
         }
 
-        return await GenerateTokens(userDetails);
+        return Result<TokenResponseDto>.Success(await GenerateTokens(userDetails));
     }
 
     /// <inheritdoc />
-    public async Task<TokenResponseDto> RefreshTokenAsync(RefreshTokenRequestDto request)
+    public async Task<Result<TokenResponseDto>> RefreshTokenAsync(RefreshTokenRequestDto request)
     {
         var refreshTokenDetails = await _authRepository.GetRefreshTokenDetailsByValueAsync(request.RefreshToken);
 
         if (refreshTokenDetails is null)
         {
-            throw new NotFoundException(nameof(refreshTokenDetails));
+            return Result<TokenResponseDto>.Failure(Errors.NotFound("Refresh token details"));
         }
 
         var userDetails = await _identityRepository.GetUserLoginDetailsByEmailAsync(refreshTokenDetails.User.Email);
 
         if (userDetails is null)
         {
-            throw new NotFoundException(nameof(userDetails));
+            return Result<TokenResponseDto>.Failure(Errors.NotFound("User details"));
         }
 
-        return await GenerateTokens(userDetails);
+        return Result<TokenResponseDto>.Success(await GenerateTokens(userDetails));
     }
 
     /// <inheritdoc />
-    public async Task LogoutAsync(RefreshTokenRequestDto request) 
-        => await _authRepository.DeleteRefreshTokenByValueAsync(request.RefreshToken);
+    public async Task<Result<bool>> LogoutAsync(RefreshTokenRequestDto request)
+    {
+        await _authRepository.DeleteRefreshTokenByValueAsync(request.RefreshToken);
+
+        return Result<bool>.Success(true);
+    }
 
     #endregion
 

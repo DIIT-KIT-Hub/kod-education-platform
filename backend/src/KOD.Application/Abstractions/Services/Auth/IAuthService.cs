@@ -1,5 +1,6 @@
 ﻿using KOD.Application.DTOs.Auth;
 using KOD.Application.DTOs.Tokens;
+using KOD.Application.Results;
 
 namespace KOD.Application.Abstractions.Services.Auth;
 
@@ -14,26 +15,22 @@ public interface IAuthService
     /// Authenticates a user with the provided credentials and returns tokens.
     /// </summary>
     /// <param name="request">The login request containing the user's credentials.</param>
-    /// <returns>
-    /// A <see cref="TokenResponseDto"/> containing the access token and refresh token if authentication succeeds.
-    /// </returns>
-    Task<TokenResponseDto> LoginAsync(LoginRequestDto request);
+    /// <returns>A <see cref="TokenResponseDto"/> containing the access token and refresh token if authentication succeeds.</returns>
+    Task<Result<TokenResponseDto>> LoginAsync(LoginRequestDto request);
 
     /// <summary>
     /// Refreshes an access token using a valid refresh token.
     /// </summary>
     /// <param name="request">The refresh token request containing the current refresh token.</param>
-    /// <returns>
-    /// A <see cref="TokenResponseDto"/> containing a new access token and optionally a new refresh token.
-    /// </returns>
-    Task<TokenResponseDto> RefreshTokenAsync(RefreshTokenRequestDto request);
+    /// <returns>A <see cref="TokenResponseDto"/> containing a new access token and optionally a new refresh token.</returns>
+    Task<Result<TokenResponseDto>> RefreshTokenAsync(RefreshTokenRequestDto request);
 
     /// <summary>
     /// Logs out a user by invalidating the specified refresh token.
     /// </summary>
     /// <param name="request">The refresh token request containing the token to invalidate.</param>
-    /// <returns>A <see cref="Task"/> representing the asynchronous logout operation.</returns>
-    Task LogoutAsync(RefreshTokenRequestDto request);
+    /// <returns>A result indicating whether the logout was successful.</returns>
+    Task<Result<bool>> LogoutAsync(RefreshTokenRequestDto request);
 
     #endregion
 }

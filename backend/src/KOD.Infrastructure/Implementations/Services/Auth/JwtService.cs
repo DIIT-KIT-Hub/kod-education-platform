@@ -25,6 +25,11 @@ internal sealed class JwtService : IJwtService
     /// </summary>
     private readonly JwtOptions _jwtOptions;
 
+    /// <summary>
+    /// Roles assigned to verification tokens (used when user ID is not present).
+    /// </summary>
+    private readonly string[] _verificationRoles = ["Verification"];
+
     #endregion
 
     #region Constructors
@@ -41,29 +46,11 @@ internal sealed class JwtService : IJwtService
 
     /// <inheritdoc />
     public AccessTokenDto GenerateAccessToken(UserLoginDetails userLoginDetails)
-    {
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtOptions.AccessTokenKey));
-        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+        => GenerateToken(userLoginDetails.Id, userLoginDetails.Roles, _jwtOptions.AccessTokenMinutes);
 
-        var claims = new List<Claim>
-        {
-            new(JwtRegisteredClaimNames.Sub, userLoginDetails.Id.ToString()),
-        };
-
-        claims.AddRange(userLoginDetails.Roles.Select(role => new Claim(ClaimTypes.Role, role)));
-
-        var expires = DateTime.UtcNow.AddMinutes(_jwtOptions.AccessTokenMinutes);
-
-        var token = new JwtSecurityToken(
-            issuer: _jwtOptions.Issuer,
-            audience: _jwtOptions.Audience,
-            claims: claims,
-            expires: expires,
-            signingCredentials: creds
-        );
-
-        return new AccessTokenDto(new JwtSecurityTokenHandler().WriteToken(token), expires);
-    }
+    /// <inheritdoc />
+    public AccessTokenDto GenerateVerificationToken() 
+        => GenerateToken(Guid.Empty, _verificationRoles, _jwtOptions.VerificationTokenMinutes);
 
     /// <inheritdoc />
     public RefreshTokenDto GenerateRefreshToken()
@@ -76,6 +63,39 @@ internal sealed class JwtService : IJwtService
     #endregion
 
     #region Private methods
+
+    /// <summary>
+    /// Generates a JWT access token with the specified user ID, roles, and expiration time.
+    /// </summary>
+    /// <param name="userId">The user's ID (use Guid.Empty for verification tokens).</param>
+    /// <param name="roles">The roles to include in the token.</param>
+    /// <param name="tokenMinutes">Token lifetime in minutes.</param>
+    /// <returns>An <see cref="AccessTokenDto"/> containing the JWT and expiration.</returns>
+    private AccessTokenDto GenerateToken(Guid userId, IEnumerable<string> roles, int tokenMinutes)
+    {
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtOptions.AccessTokenKey));
+        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+        var claims = new List<Claim>();
+        if (userId != Guid.Empty)
+        {
+            claims.Add(new(JwtRegisteredClaimNames.Sub, userId.ToString()));
+        }
+
+        claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
+
+        var expires = DateTime.UtcNow.AddMinutes(tokenMinutes);
+
+        var token = new JwtSecurityToken(
+            issuer: _jwtOptions.Issuer,
+            audience: _jwtOptions.Audience,
+            claims: claims,
+            expires: expires,
+            signingCredentials: creds
+        );
+
+        return new AccessTokenDto(new JwtSecurityTokenHandler().WriteToken(token), expires);
+    }
 
     /// <summary>
     /// Generates a cryptographically secure random refresh token string.

@@ -1,0 +1,42 @@
+.otpInputs {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.input {
+  width: 45px;
+  height: 50px;
+  text-align: center;
+  font-size: 1rem;
+  border: 2px solid var(--color-light-gray);
+  border-radius: 5px;
+  outline: none;
+  transition: border-color 0.3s ease-in-out;
+}
+
+.input:focus {
+  border-color: var(--color-blue);
+}
+
+.timerSection {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.notReceived {
+  color: var(--color-gray) !important;
+}
+
+.resend {
+  white-space: nowrap;
+  color: var(--color-blue) !important;
+  font-size: 1rem;
+  transition: all 0.3s ease-in-out;
+}
+
+.resend:hover {
+  cursor: pointer;
+  color: var(--color-light-blue);
+}

@@ -39,9 +39,6 @@ internal sealed class ApplicationUserConfiguration : IEntityTypeConfiguration<Ap
 
         builder.Property(u => u.ConcurrencyStamp)
             .HasMaxLength(256);
-
-        builder.Property(u => u.IsVerified)
-               .HasDefaultValue(false);
     }
 
     #endregion

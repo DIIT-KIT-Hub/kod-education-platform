@@ -16,7 +16,8 @@ builder.Services.AddControllers();
 builder.Services.AddCors(options => options.AddPolicy("AllowLocalhost3000",
         policy => policy.WithOrigins("http://localhost:3000")
                   .AllowAnyHeader()
-                  .AllowAnyMethod()));
+                  .AllowAnyMethod()
+                  .AllowCredentials()));
 
 builder.Services.AddOpenApi();
 builder.Services.AddSwaggerGen(c =>

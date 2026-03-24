@@ -1,0 +1,23 @@
+{
+  "data": {
+    "email": {
+      "placeholder": "Email",
+      "validations": {
+        "invalidEmail": "Please, enter a valid email address.",
+        "emailRequired": "Email is required."
+      }
+    },
+    "password": {
+      "placeholder": "Password",
+      "validations": {
+        "passwordRequired": "Password is required."
+      }
+    },
+    "otp": {
+      "validations": {
+        "otpRequired": "OTP is required.",
+        "otpLengthInvalid": "OTP must be 6 symbols."
+      }
+    }
+  }
+}

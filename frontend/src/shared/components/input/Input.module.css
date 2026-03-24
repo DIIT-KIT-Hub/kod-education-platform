@@ -1,0 +1,25 @@
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.field input {
+  padding: 8px;
+  box-sizing: border-box;
+  font-size: 1rem;
+  font-family: var(--font-mabry-regular);
+  border-radius: 5px;
+  border: 1px solid var(--color-blue);
+  outline: none;
+  transition: all 0.3s ease-in-out;
+}
+
+.field input:focus {
+  border: 1px solid var(--color-blue);
+}
+
+.inputError {
+  border: 1px solid var(--color-red) !important;
+}
+
