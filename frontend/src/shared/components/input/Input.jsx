@@ -6,8 +6,7 @@ function Input({
   name,
   type = "text",
   placeholder,
-  value,
-  onChange,
+  defaultValue,
   error,
   maxLength,
 }) {
@@ -17,8 +16,7 @@ function Input({
         name={name}
         type={type}
         placeholder={placeholder}
-        value={value}
-        onChange={onChange}
+        defaultValue={defaultValue}
         maxLength={maxLength}
         className={error ? styles.inputError : ""}
       />

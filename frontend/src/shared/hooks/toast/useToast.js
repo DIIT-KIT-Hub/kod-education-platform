@@ -2,17 +2,19 @@ import toast from "react-hot-toast";
 
 export const useToast = () => {
   const success = (message) => {
-    toast.success(tinfo(message));
+    toast.success(message);
   };
 
   const error = (message) => {
-    toast.error(tinfo(message));
+    toast.error(message);
   };
 
-  const warning = (message) => {
-    toast(tinfo(message), {
-      icon: "⚠️",
-    });
+  const loading = (message) => {
+    return toast.loading(message);
+  };
+
+  const dismiss = (toastId) => {
+    toast.dismiss(toastId);
   };
 
   const serverError = () => {
@@ -27,5 +29,5 @@ export const useToast = () => {
     });
   };
 
-  return { success, error, warning, serverError, promise };
+  return { success, error, loading, dismiss, serverError, promise };
 };

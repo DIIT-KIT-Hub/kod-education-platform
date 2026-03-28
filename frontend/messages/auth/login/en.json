@@ -4,8 +4,9 @@
     "signIn": "Sign in",
     "invalidCredentials": "Invalid email or password.",
     "notVerified": "Please verify your email address to continue.",
-    "checkingLogin": "Checking your account...",
-    "checkingLoginSuccess": "Login successful. Feel free to use the system.",
-    "loginFailed": "Could not sign in. Please try again."
+    "notFound": "User not found in the system. Please contact the administrator.",
+    "checkingLogin": "Verifying your data...",
+    "checkingLoginSuccess": "Login successful. Welcome to the system!",
+    "loginFailed": "Could not sign in. Please try again later."
   }
 }
