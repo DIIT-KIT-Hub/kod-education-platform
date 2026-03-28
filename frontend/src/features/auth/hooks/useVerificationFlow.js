@@ -6,7 +6,7 @@ import { sendOtpForVerificationAsync } from "@/shared/services/otpService";
 import {
   createValidateEmailVerification,
   createValidateOtpVerification,
-} from "../utils/validations";
+} from "../utils/verification/validations";
 
 import {
   generateVerificationTokenAsync,
@@ -14,11 +14,6 @@ import {
 } from "../services/verificationService";
 import Cookies from "js-cookie";
 
-export const VERIFICATION_STEP = {
-  EMAIL: "EMAIL",
-  PASSWORD: "PASSWORD",
-  OTP: "OTP",
-};
 
 export function useVerificationFlow(translations) {
   const router = useRouter();
@@ -53,39 +48,7 @@ export function useVerificationFlow(translations) {
       },
     );
 
-  const onEmailSubmit = async (email) => {
-    const fetchTokenFlow = async () => {
-      try {
-        return await generateVerificationTokenAsync(email);
-      } catch (error) {
-        console.error(error);
-
-        if (error.status === 404) {
-          throw new Error(translations.verification.errors.userNotFound);
-        }
-
-        if (error.status === 409) {
-          throw new Error(translations.verification.errors.userAlreadyVerified);
-        }
-
-        throw new Error(translations.verification.errors.tokenGenerationError);
-      }
-    };
-
-    const response = await promise(fetchTokenFlow(), {
-      loading: translations.verification.email.checkingUser,
-      success: translations.verification.email.checkingUserSuccess,
-    });
-
-    Cookies.set("verification_token", response.token, {
-      expires: new Date(response.expiresAt),
-      path: "/",
-      secure: true,
-      sameSite: "strict",
-    });
-
-    setStep(VERIFICATION_STEP.PASSWORD);
-  };
+  
 
   const onPasswordSubmit = async (email) => {
     const checkPasswordFlow = async () => {

@@ -1,15 +1,24 @@
 import { validateEmail } from "@/shared/utils/validations";
+import { getTranslations } from "next-intl/server";
 
-export const createValidateEmailVerification = (validations) => (data) => {
+export async function validateEmailStep(email) {
+  const tEmailValidations = await getTranslations(
+    "Inputs.data.email.validations",
+  );
+
   let errors = {};
-  const email = data.email.trim();
+
   if (!email) {
-    errors.email = validations.emailRequired;
+    errors.email = tEmailValidations("emailRequired");
   } else if (!validateEmail(email)) {
-    errors.email = validations.invalidEmail;
+    errors.email = tEmailValidations("invalidEmail");
   }
-  return errors;
-};
+
+  return {
+    errors,
+    isValid: Object.keys(errors).length === 0,
+  };
+}
 
 export const createValidateOtpVerification = (validations) => (data) => {
   let errors = {};

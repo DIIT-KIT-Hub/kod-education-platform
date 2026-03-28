@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Suspense } from "react";
 import styles from "./layout.module.css";
 import { getTranslations } from "next-intl/server";
 import Additional from "@/features/auth/components/Additional";
@@ -10,6 +10,7 @@ async function AuthLayout({ children }) {
     <section className={styles.page}>
       <div className={styles.wrapper}>
         {children}
+
         <Additional
           translations={{
             forgotPassword: tLayout("forgotPassword"),
@@ -17,6 +18,7 @@ async function AuthLayout({ children }) {
             notVerified: tLayout("notVerified"),
           }}
         />
+
         <div className={styles.copyright}>
           <p>{tLayout("copyright")}</p>
         </div>

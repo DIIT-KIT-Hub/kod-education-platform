@@ -1,39 +1,25 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Email from "./Email";
 import Password from "./Password";
 import Otp from "@/shared/components/otp/Otp";
-import {
-  useVerificationFlow,
-  VERIFICATION_STEP,
-} from "../../hooks/useVerificationFlow";
+
+const VERIFICATION_STEP = {
+  EMAIL: "EMAIL",
+  PASSWORD: "PASSWORD",
+  OTP: "OTP",
+};
 
 function VerificationForm({ translations }) {
-  const {
-    step,
-    formData,
-    errors,
-    isLoading,
-    buttonText,
-    handleChange,
-    handleSubmit,
-  } = useVerificationFlow(translations);
+  const [step, setStep] = useState(VERIFICATION_STEP.EMAIL);
 
   return (
-    <form onSubmit={handleSubmit}>
+    <>
       {step === VERIFICATION_STEP.EMAIL && (
-        <Email
-          translations={{
-            title: translations.verification.email.title,
-            email: translations.inputs.email.placeholder,
-          }}
-          email={formData.email}
-          handleChange={handleChange}
-          error={errors.email}
-        />
+        <Email translations={translations} />
       )}
-      {step === VERIFICATION_STEP.PASSWORD && (
+      {/* {step === VERIFICATION_STEP.PASSWORD && (
         <Password
           translations={translations.verification.password}
           password={formData.password}
@@ -49,11 +35,8 @@ function VerificationForm({ translations }) {
           }
           error={errors.otpCode}
         />
-      )}
-      <button type="submit" disabled={isLoading}>
-        {buttonText}
-      </button>
-    </form>
+      )} */}
+    </>
   );
 }
 
