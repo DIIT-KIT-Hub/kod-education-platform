@@ -1,17 +1,22 @@
-import { validateEmail } from "@/shared/utils/validations";
+import {
+  validateDigit,
+  validateEmail,
+  validateLength,
+  validatePasswordAllowedChars,
+  validateUppercase,
+} from "@/shared/utils/validations";
 import { getTranslations } from "next-intl/server";
+import { cookies } from "next/headers";
 
-export async function validateEmailStep(email) {
-  const tEmailValidations = await getTranslations(
-    "Inputs.data.email.validations",
-  );
+async function validateEmailStep(email) {
+  const t = await getTranslations("Inputs.data.email.validations");
 
   let errors = {};
 
   if (!email) {
-    errors.email = tEmailValidations("emailRequired");
+    errors.email = t("emailRequired");
   } else if (!validateEmail(email)) {
-    errors.email = tEmailValidations("invalidEmail");
+    errors.email = t("invalidEmail");
   }
 
   return {
@@ -20,16 +25,95 @@ export async function validateEmailStep(email) {
   };
 }
 
-export const createValidateOtpVerification = (validations) => (data) => {
+async function validatePasswordStep(password) {
+  const t = await getTranslations("Inputs.data.password.validations");
+
   let errors = {};
 
-  const otp = data.otpCode.trim();
-
-  if (!otp) {
-    errors.otpCode = validations.otpRequired;
-  } else if (otp.length !== 6) {
-    errors.otpCode = validations.otpLengthInvalid;
+  if (!password) {
+    errors.password = t("passwordRequired");
+  } else if (!validateUppercase(password)) {
+    errors.password = t("uppercase");
+  } else if (!validateDigit(password)) {
+    errors.password = t("digit");
+  } else if (!validatePasswordAllowedChars(password)) {
+    errors.password = t("allowedChars");
+  } else if (!validateLength(password, 8, 32)) {
+    errors.password = t("length");
   }
 
-  return errors;
-};
+  return {
+    errors,
+    isValid: Object.keys(errors).length === 0,
+  };
+}
+
+async function validateOtpStep(otpCode) {
+  const t = await getTranslations("Inputs.data.otp.validations");
+  let errors = {};
+
+  if (!otpCode) {
+    errors.otpCode = t("otpRequired");
+  } else if (otpCode.length !== 6) {
+    errors.otpCode = t("otpLengthInvalid");
+  }
+
+  return {
+    errors,
+    isValid: Object.keys(errors).length === 0,
+  };
+}
+
+async function validateVerificationToken() {
+  const cookieStore = await cookies();
+
+  const verificationToken = cookieStore.get("verification_token")?.value;
+
+  let errors = {};
+
+  const t = await getTranslations("Verification.data.errors");
+  if (!verificationToken) {
+    errors.token = t("incorrectVerificationToken");
+  }
+
+  return {
+    errors,
+    isValid: Object.keys(errors).length === 0,
+  };
+}
+
+export async function validateAllSteps(data, steps) {
+  if (steps.includes("email")) {
+    const validationResult = await validateEmailStep(data.email);
+
+    if (!validationResult.isValid) {
+      return validationResult;
+    }
+  }
+
+  if (steps.includes("password") || steps.includes("otpCode")) {
+    const validationResult = await validateVerificationToken();
+
+    if (!validationResult.isValid) {
+      return validationResult;
+    }
+  }
+
+  if (steps.includes("password")) {
+    const validationResult = await validatePasswordStep(data.password);
+
+    if (!validationResult.isValid) {
+      return validationResult;
+    }
+  }
+
+  if (steps.includes("otpCode")) {
+    const validationResult = await validateOtpStep(data.otpCode);
+
+    if (!validationResult.isValid) {
+      return validationResult;
+    }
+  }
+
+  return { errors: {}, isValid: true };
+}

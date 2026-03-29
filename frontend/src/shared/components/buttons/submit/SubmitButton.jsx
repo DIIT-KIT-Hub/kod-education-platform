@@ -2,7 +2,7 @@ import { useToast } from "@/shared/hooks/toast/useToast";
 import React, { useEffect, useRef } from "react";
 import { useFormStatus } from "react-dom";
 
-function SubmitButton({ text, loadingText }) {
+function SubmitButton({ text, loadingText, disabled = false }) {
   const { pending } = useFormStatus();
   const { loading, dismiss } = useToast();
 
@@ -26,7 +26,7 @@ function SubmitButton({ text, loadingText }) {
   }, [pending]);
 
   return (
-    <button type="submit" disabled={pending}>
+    <button type="submit" disabled={pending || disabled}>
       {text}
     </button>
   );

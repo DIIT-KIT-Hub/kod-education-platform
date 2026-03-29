@@ -1,5 +1,6 @@
 import { api } from "@/shared/api/fetchInstance";
-import Cookies from "js-cookie";
+
+import { cookies } from "next/headers";
 
 export async function generateVerificationTokenAsync(email) {
   try {
@@ -13,7 +14,8 @@ export async function generateVerificationTokenAsync(email) {
 
 export async function verifyUserAsync(data) {
   try {
-    const token = Cookies.get("verification_token");
+    const cookieStore = await cookies();
+    const token = cookieStore.get("verification_token")?.value;
 
     const response = await api.post("/verification/verify", data, {
       headers: {

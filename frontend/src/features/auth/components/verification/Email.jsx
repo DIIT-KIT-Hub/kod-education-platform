@@ -14,10 +14,10 @@ const initialState = {
   timestamp: 0,
 };
 
-function Email({ translations }) {
+function Email({ translations, onNext }) {
   const [state, formAction] = useActionState(emailStepAction, initialState);
 
-  const { error } = useToast();
+  const { success, error } = useToast();
 
   const router = useRouter();
 
@@ -27,6 +27,11 @@ function Email({ translations }) {
     }
 
     switch (state.status) {
+      case 200: {
+        success(translations.verification.email.checkingUserSuccess);
+        onNext({ email: state.inputs.values.email });
+        break;
+      }
       case 400: {
         break;
       }

@@ -13,15 +13,8 @@
     },
     "password": {
       "title": "Create a password to continue verification.",
-      "rules": {
-        "title": "Password must contain:",
-        "uppercase": "At least one uppercase letter (A-Z)",
-        "digit": "At least one number (0-9)",
-        "allowedChars": "Only Latin letters and digits",
-        "length": "Exactly 8 characters"
-      },
-      "otpPreparing": "Preparing OTP to send to your email...",
-      "otpSent": "OTP has been sent!"
+      "checkingOtp": "Preparing OTP to send to your email...",
+      "checkingOtpSuccess": "OTP has been sent!"
     },
     "otp": {
       "title": "Enter the 6-digit code sent to your email to verify your identity.",

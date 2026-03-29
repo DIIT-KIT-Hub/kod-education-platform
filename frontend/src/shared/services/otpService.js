@@ -1,9 +1,11 @@
-import Cookies from "js-cookie";
 import { api } from "../api/fetchInstance";
+import { cookies } from "next/headers";
 
 export async function sendOtpForVerificationAsync(email) {
   try {
-    const token = Cookies.get("verification_token");
+    const cookieStore = await cookies();
+
+    const token = cookieStore.get("verification_token")?.value;
 
     const response = await api.get(`/otp/send?email=${email}`, {
       headers: {
