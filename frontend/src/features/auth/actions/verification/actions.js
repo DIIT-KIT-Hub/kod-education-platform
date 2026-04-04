@@ -5,33 +5,19 @@ import {
   generateVerificationTokenAsync,
   verifyUserAsync,
 } from "../../services/verificationService";
-import { validateAllSteps } from "../../utils/verification/validations";
+import {
+  validateAllSteps,
+  validateEmailStep,
+  validatePasswordStep,
+} from "../../utils/verification/validations";
 import { sendOtpForVerificationAsync } from "@/shared/services/otpService";
+import { getCookie, setCookie } from "@/shared/services/cookieService";
 
-export async function emailStepAction(prevState, formData) {
-  const email = formData.get("email")?.trim() || "";
-
-  const { errors, isValid } = await validateAllSteps({ email: email }, [
-    "email",
-  ]);
-
-  if (!isValid) {
-    return {
-      inputs: {
-        errors: errors,
-        values: { email: email },
-      },
-      status: 400,
-      timestamp: Date.now(),
-    };
-  }
-
+async function emailStepAction(email) {
   try {
     const response = await generateVerificationTokenAsync(email);
 
-    const cookieStore = await cookies();
-
-    cookieStore.set("verification_token", response.token, {
+    await setCookie("verification_token", response.token, {
       expires: new Date(response.expiresAt),
       path: "/",
       secure: true,
@@ -40,10 +26,10 @@ export async function emailStepAction(prevState, formData) {
 
     return {
       inputs: {
-        errors: {},
-        values: { email: email },
+        email: { value: email, error: "" },
       },
       status: 200,
+      step: 2,
       timestamp: Date.now(),
     };
   } catch (error) {
@@ -51,16 +37,16 @@ export async function emailStepAction(prevState, formData) {
 
     return {
       inputs: {
-        errors: {},
-        values: { email: email },
+        email: { value: email, error: "" },
       },
-      status: error.status,
+      status: error?.status || 500,
+      step: 1,
       timestamp: Date.now(),
     };
   }
 }
 
-export async function passwordStepAction(prevState, formData) {
+async function passwordStepAction(prevState, formData) {
   const email = formData.get("email")?.trim() || "";
   const password = formData.get("password")?.trim() || "";
 
@@ -113,6 +99,91 @@ export async function passwordStepAction(prevState, formData) {
       status: error.status,
       timestamp: Date.now(),
     };
+  }
+}
+
+export async function verificationAction(prevState, formData) {
+  let email = "";
+
+  if (prevState.step === 1) {
+    email = formData.get("email")?.trim() || "";
+  } else {
+    email = prevState.inputs.email.value;
+  }
+
+  const { errors: emailErrors, isValid: emailIsValid } =
+    await validateEmailStep(email);
+
+  if (!emailIsValid) {
+    return {
+      ...prevState,
+      inputs: {
+        ...prevState.inputs,
+        email: { value: email, error: emailErrors.email },
+      },
+      status: 400,
+      step: 1,
+      timestamp: Date.now(),
+    };
+  }
+
+  if (prevState.step === 1) {
+    const emailResult = await emailStepAction(email);
+
+    return {
+      ...prevState,
+      inputs: {
+        ...prevState.inputs,
+        email: {
+          value: email,
+          error: "",
+        },
+      },
+      status: emailResult.status,
+      step: emailResult.status === 200 ? 2 : 1,
+      timestamp: emailResult.timestamp,
+    };
+  }
+
+  let password = "";
+
+  if (prevState.step === 2) {
+    password = formData.get("password")?.trim() || "";
+  } else {
+    password = prevState.inputs.password.value;
+  }
+
+  if (prevState.step === 2) {
+    const verificationToken = getCookie("verification_token");
+
+    if (!verificationToken) {
+      return {
+        ...prevState,
+        inputs: {
+          ...prevState.inputs,
+          password: { value: password, error: "" },
+        },
+        status: 401,
+        step: 2,
+        timestamp: Date.now(),
+      };
+    }
+
+    const { errors: passwordErrors, isValid: passwordIsValid } =
+      await validatePasswordStep(password);
+
+    if (!passwordIsValid) {
+      return {
+        ...prevState,
+        inputs: {
+          ...prevState.inputs,
+          password: { value: password, error: passwordErrors.password },
+        },
+        status: 400,
+        step: 2,
+        timestamp: Date.now(),
+      };
+    }
   }
 }
 

@@ -1,15 +1,13 @@
 import { useToast } from "@/shared/hooks/toast/useToast";
 import React, { useEffect, useRef } from "react";
-import { useFormStatus } from "react-dom";
 
-function SubmitButton({ text, loadingText, disabled = false }) {
-  const { pending } = useFormStatus();
+function SubmitButton({ text, loadingText, isPending, disabled = false }) {
   const { loading, dismiss } = useToast();
 
   const toastIdRef = useRef(null);
 
   useEffect(() => {
-    if (pending) {
+    if (isPending) {
       toastIdRef.current = loading(loadingText);
     } else {
       if (toastIdRef.current) {
@@ -23,10 +21,10 @@ function SubmitButton({ text, loadingText, disabled = false }) {
         dismiss(toastIdRef.current);
       }
     };
-  }, [pending]);
+  }, [isPending]);
 
   return (
-    <button type="submit" disabled={pending || disabled}>
+    <button type="submit" disabled={isPending || disabled}>
       {text}
     </button>
   );

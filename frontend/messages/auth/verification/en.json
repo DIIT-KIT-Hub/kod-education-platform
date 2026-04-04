@@ -2,18 +2,18 @@
   "data": {
     "title": "Verification",
     "button": {
-      "proceedOtp": "Proceed to OTP",
       "verify": "Verify"
     },
     "email": {
-      "startVerification": "Start verification",
       "title": "Provide your email to begin verification. You will set your password next.",
-      "checkingUser": "Checking your email...",
+      "startVerification": "Start verification",
+      "checkingUser": "Verifying your email...",
       "checkingUserSuccess": "Your account has been found. Please, proceed to create a password."
     },
     "password": {
       "title": "Create a password to continue verification.",
-      "checkingOtp": "Preparing OTP to send to your email...",
+      "proceedOtp": "Proceed to OTP",
+      "checkingOtp": "Verifying your pasword...",
       "checkingOtpSuccess": "OTP has been sent!"
     },
     "otp": {

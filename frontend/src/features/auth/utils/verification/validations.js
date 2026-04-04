@@ -8,7 +8,7 @@ import {
 import { getTranslations } from "next-intl/server";
 import { cookies } from "next/headers";
 
-async function validateEmailStep(email) {
+export async function validateEmailStep(email) {
   const t = await getTranslations("Inputs.data.email.validations");
 
   let errors = {};
@@ -25,7 +25,7 @@ async function validateEmailStep(email) {
   };
 }
 
-async function validatePasswordStep(password) {
+export async function validatePasswordStep(password) {
   const t = await getTranslations("Inputs.data.password.validations");
 
   let errors = {};
