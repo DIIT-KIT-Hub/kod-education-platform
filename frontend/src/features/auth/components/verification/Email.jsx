@@ -1,14 +1,14 @@
 import React from "react";
 import Input from "@/shared/components/input/Input";
 
-function Email({ state, translations }) {
+function Email({ state, t }) {
   return (
     <>
-      <p>{translations.verification.email.title}</p>
+      <p>{t.title}</p>
       <Input
         name="email"
         type="text"
-        placeholder={translations.inputs.email.placeholder}
+        placeholder={t.placeholder}
         defaultValue={state.value}
         error={state.error}
         maxLength={32}

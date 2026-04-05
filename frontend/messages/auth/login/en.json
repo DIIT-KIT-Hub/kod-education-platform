@@ -1,12 +1,12 @@
 {
-  "data": {
-    "title": "Login",
-    "signIn": "Sign in",
+  "title": "Login",
+  "signIn": "Sign in",
+  "verifying": "Verifying your data...",
+  "success": "Login successful. Welcome to the system!",
+  "errors": {
+    "userNotFound": "User not found in the system. Please contact the administrator.",
     "invalidCredentials": "Invalid email or password.",
     "notVerified": "Please verify your email address to continue.",
-    "notFound": "User not found in the system. Please contact the administrator.",
-    "checkingLogin": "Verifying your data...",
-    "checkingLoginSuccess": "Login successful. Welcome to the system!",
     "loginFailed": "Could not sign in. Please try again later."
   }
 }

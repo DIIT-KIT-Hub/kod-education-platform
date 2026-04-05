@@ -1,37 +1,32 @@
 {
-  "data": {
-    "title": "Verification",
-    "button": {
-      "verify": "Verify"
-    },
-    "email": {
-      "title": "Provide your email to begin verification. You will set your password next.",
-      "startVerification": "Start verification",
-      "checkingUser": "Verifying your email...",
-      "checkingUserSuccess": "Your account has been found. Please, proceed to create a password."
-    },
-    "password": {
-      "title": "Create a password to continue verification.",
-      "proceedOtp": "Proceed to OTP",
-      "checkingOtp": "Verifying your pasword...",
-      "checkingOtpSuccess": "OTP has been sent!"
-    },
-    "otp": {
-      "title": "Enter the 6-digit code sent to your email to verify your identity.",
-      "notReceived": "Did not receive the code? Resend in:",
-      "resend": "Resend code",
-      "verifying": "Verifying your information, please wait...",
-      "verified": "Verification successful! You can now log in."
-    },
-    "errors": {
-      "userNotFound": "User not found in the system. Please contact the administrator.",
-      "userAlreadyVerified": "Your account is already verified. Please sign in.",
-      "tokenGenerationError": "Failed to generate verification token. Please try again later.",
-      "otpNotSent": "Failed to send the verification code. Please try again.",
-      "otpCodeInvalid": "The code you entered is incorrect. Please check it and try again.",
-      "otpCodeExpired": "The verification code has expired. Please request a new one.",
-      "verificationFailed": "Something went wrong during verification. Please try again later.",
-      "incorrectVerificationToken": "The verification session has expired or is invalid. Please start over."
-    }
+  "title": "Verification",
+  "email": {
+    "title": "Provide your email to begin verification. You will set your password next.",
+    "button": "Start verification",
+    "verifying": "Verifying your email...",
+    "success": "Your account has been found. Please, proceed to create a password."
+  },
+  "password": {
+    "title": "Create a password to continue verification.",
+    "button": "Proceed to OTP",
+    "verifying": "Verifying your pasword...",
+    "success": "OTP has been sent!"
+  },
+  "otp": {
+    "title": "Enter the 6-digit code sent to your email to verify your identity.",
+    "button": "Verify",
+    "verifying": "Verifying your information, please wait...",
+    "success": "Verification successful! You can now log in.",
+    "notReceived": "Did not receive the code? Resend in:",
+    "resend": "Resend code"
+  },
+  "errors": {
+    "userAlreadyVerified": "Your account is already verified. Please sign in.",
+    "tokenGenerationError": "Failed to generate verification token. Please try again later.",
+    "otpNotSent": "Failed to send the verification code. Please try again later.",
+    "otpCodeInvalid": "The code you entered is incorrect. Please check it and try again.",
+    "otpCodeExpired": "The verification code has expired. Please request a new one.",
+    "verificationFailed": "Something went wrong during verification. Please try again later.",
+    "incorrectVerificationToken": "The verification session has expired or is invalid. Please start over."
   }
 }

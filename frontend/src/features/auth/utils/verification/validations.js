@@ -6,15 +6,14 @@ import {
   validateUppercase,
 } from "@/shared/utils/validations";
 import { getTranslations } from "next-intl/server";
-import { cookies } from "next/headers";
 
 export async function validateEmailStep(email) {
-  const t = await getTranslations("Inputs.data.email.validations");
+  const t = await getTranslations("Inputs.email.validations");
 
   let errors = {};
 
   if (!email) {
-    errors.email = t("emailRequired");
+    errors.email = t("required");
   } else if (!validateEmail(email)) {
     errors.email = t("invalidEmail");
   }
@@ -26,12 +25,12 @@ export async function validateEmailStep(email) {
 }
 
 export async function validatePasswordStep(password) {
-  const t = await getTranslations("Inputs.data.password.validations");
+  const t = await getTranslations("Inputs.password.validations");
 
   let errors = {};
 
   if (!password) {
-    errors.password = t("passwordRequired");
+    errors.password = t("required");
   } else if (!validateUppercase(password)) {
     errors.password = t("uppercase");
   } else if (!validateDigit(password)) {
@@ -48,72 +47,18 @@ export async function validatePasswordStep(password) {
   };
 }
 
-async function validateOtpStep(otpCode) {
+export async function validateOtpStep(otpCode) {
   const t = await getTranslations("Inputs.data.otp.validations");
   let errors = {};
 
   if (!otpCode) {
-    errors.otpCode = t("otpRequired");
+    errors.otpCode = t("required");
   } else if (otpCode.length !== 6) {
-    errors.otpCode = t("otpLengthInvalid");
+    errors.otpCode = t("length");
   }
 
   return {
     errors,
     isValid: Object.keys(errors).length === 0,
   };
-}
-
-async function validateVerificationToken() {
-  const cookieStore = await cookies();
-
-  const verificationToken = cookieStore.get("verification_token")?.value;
-
-  let errors = {};
-
-  const t = await getTranslations("Verification.data.errors");
-  if (!verificationToken) {
-    errors.token = t("incorrectVerificationToken");
-  }
-
-  return {
-    errors,
-    isValid: Object.keys(errors).length === 0,
-  };
-}
-
-export async function validateAllSteps(data, steps) {
-  if (steps.includes("email")) {
-    const validationResult = await validateEmailStep(data.email);
-
-    if (!validationResult.isValid) {
-      return validationResult;
-    }
-  }
-
-  if (steps.includes("password") || steps.includes("otpCode")) {
-    const validationResult = await validateVerificationToken();
-
-    if (!validationResult.isValid) {
-      return validationResult;
-    }
-  }
-
-  if (steps.includes("password")) {
-    const validationResult = await validatePasswordStep(data.password);
-
-    if (!validationResult.isValid) {
-      return validationResult;
-    }
-  }
-
-  if (steps.includes("otpCode")) {
-    const validationResult = await validateOtpStep(data.otpCode);
-
-    if (!validationResult.isValid) {
-      return validationResult;
-    }
-  }
-
-  return { errors: {}, isValid: true };
 }

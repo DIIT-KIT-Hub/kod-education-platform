@@ -17,7 +17,7 @@ const initialState = {
   timestamp: 0,
 };
 
-function LoginForm({ translations }) {
+function LoginForm({ t }) {
   const [state, formAction] = useActionState(loginAction, initialState);
 
   const router = useRouter();
@@ -31,23 +31,23 @@ function LoginForm({ translations }) {
 
     switch (state.status) {
       case 400: {
-        error(translations.login.invalidCredentials);
+        error(t.login.errors.invalidCredentials);
         break;
       }
       case 401: {
         router.push("/auth/verification");
-        error(translations.login.notVerified);
+        error(t.login.errors.notVerified);
         break;
       }
       case 404: {
-        error(translations.login.notFound);
+        error(t.login.errors.notFound);
         break;
       }
       case 422: {
         break;
       }
       default: {
-        error(translations.login.loginFailed);
+        error(t.login.errors.loginFailed);
         break;
       }
     }
@@ -58,7 +58,7 @@ function LoginForm({ translations }) {
       <Input
         name="email"
         type="text"
-        placeholder={translations.inputs.email.placeholder}
+        placeholder={t.inputs.email.placeholder}
         defaultValue={state?.inputs?.values?.email}
         error={state?.inputs?.errors?.email}
         maxLength={32}
@@ -66,14 +66,14 @@ function LoginForm({ translations }) {
       <Input
         name="password"
         type="password"
-        placeholder={translations.inputs.password.placeholder}
+        placeholder={t.inputs.password.placeholder}
         defaultValue={state?.inputs?.values?.password}
         error={state?.inputs?.errors?.password}
         maxLength={8}
       />
       <SubmitButton
-        text={translations.login.signIn}
-        loadingText={translations.login.checkingLogin}
+        text={t.login.signIn}
+        loadingText={t.login.verifying}
       />
     </form>
   );

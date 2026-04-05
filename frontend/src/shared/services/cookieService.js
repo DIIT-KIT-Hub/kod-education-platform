@@ -11,3 +11,9 @@ export async function setCookie(name, value, options) {
 
   cookieStore.set(name, value, options);
 }
+
+export async function removeCookie(name) {
+  const cookieStore = await cookies();
+
+  cookieStore.delete(name);
+}

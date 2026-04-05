@@ -13,14 +13,14 @@ const initialState = {
   inputs: {
     email: { value: "", error: "" },
     password: { value: "", error: "" },
-    otp: { value: "", error: "" },
+    otpCode: { value: "", error: "" },
   },
   status: 0,
   step: 1,
   timestamp: Date.now(),
 };
 
-function VerificationForm({ translations }) {
+function VerificationForm({ t }) {
   const router = useRouter();
 
   const { success, error } = useToast();
@@ -30,14 +30,54 @@ function VerificationForm({ translations }) {
     initialState,
   );
 
+  const handlers = {
+    1: {
+      400: () => {},
+      404: () => error(t.verification.errors.userNotFound),
+      409: () => {
+        error(t.verification.errors.userAlreadyVerified);
+        router.push("/auth/login");
+      },
+    },
+    2: {
+      400: () => {},
+      401: () => {
+        error(t.verification.errors.incorrectVerificationToken);
+        setTimeout(() => {
+          window.location.reload();
+        }, 3000);
+      },
+    },
+    3: {
+      400: () => error(t.verification.errors.otpCodeInvalid),
+      401: () => {
+        error(t.verification.errors.incorrectVerificationToken);
+
+        setTimeout(() => {
+          window.location.reload();
+        }, 500);
+      },
+      410: () => error(t.verification.errors.errors.otpCodeExpired),
+    },
+    success: {
+      2: () => success(t.verification.email.success),
+      3: () => success(t.verification.password.success),
+      0: () => {
+        success(t.verification.otp.success);
+        router.push("/");
+      },
+    },
+    fallback: () => error("zcvxvcxcv"),
+  };
+
   const getButtonText = () => {
     switch (state.step) {
       case 1:
-        return translations.verification.email.startVerification;
+        return t.verification.email.button;
       case 2:
-        return translations.verification.password.proceedOtp;
+        return t.verification.password.button;
       case 3:
-        return translations.verification.otp.verify;
+        return t.verification.otp.button;
       default:
         return "";
     }
@@ -46,46 +86,32 @@ function VerificationForm({ translations }) {
   const getButtonLoadingText = () => {
     switch (state.step) {
       case 1:
-        return translations.verification.email.checkingUser;
+        return t.verification.email.verifying;
       case 2:
-        return translations.verification.password.checkingOtp;
+        return t.verification.password.verifying;
       case 3:
-        return translations.verification.otp.verifying;
+        return t.verification.otp.verifying;
       default:
         return "";
     }
   };
 
   useEffect(() => {
-    if (state.status === 0) {
+    if (!state.status) {
       return;
     }
 
-    if (state.status === 200 && state.step === 2) {
-      success(translations.verification.email.checkingUserSuccess);
+    if (state.status === 200) {
+      handlers.success[state.step]?.();
       return;
     }
 
-    if (state.step === 1) {
-      switch (state.status) {
-        case 400: {
-          break;
-        }
-        case 404: {
-          error(translations.verification.errors.userNotFound);
-          break;
-        }
-        case 409: {
-          error(translations.verification.errors.userAlreadyVerified);
+    const stepHandler = handlers[state.step]?.[state.status];
 
-          router.push("/auth/login");
-          break;
-        }
-        default: {
-          error(translations.verification.errors.tokenGenerationError);
-          break;
-        }
-      }
+    if (stepHandler) {
+      stepHandler();
+    } else {
+      handlers.fallback();
     }
   }, [state.timestamp]);
 
@@ -99,7 +125,10 @@ function VerificationForm({ translations }) {
             status: state.status,
             timestamp: state.timestamp,
           }}
-          translations={translations}
+          t={{
+            title: t.verification.email.title,
+            placeholder: t.inputs.email.placeholder,
+          }}
         />
       )}
       {state.step === 2 && (
@@ -110,16 +139,23 @@ function VerificationForm({ translations }) {
             status: state.status,
             timestamp: state.timestamp,
           }}
-          translations={translations}
+          t={{
+            title: t.verification.password.title,
+            password: t.inputs.password,
+          }}
         />
       )}
-      {/* {step === VERIFICATION_STEP.OTP && (
+      {state.step === 3 && (
         <Otp
-          translations={translations}
-          email={formData.email}
-          password={formData.password}
+          state={{
+            value: state.inputs.otpCode.value,
+            error: state.inputs.otpCode.error,
+            status: state.status,
+            timestamp: state.timestamp,
+          }}
+          t={translations.verification.otp}
         />
-      )} */}
+      )}
       <SubmitButton
         text={getButtonText()}
         loadingText={getButtonLoadingText()}
