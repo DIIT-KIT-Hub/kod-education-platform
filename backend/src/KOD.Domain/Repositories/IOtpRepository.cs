@@ -29,7 +29,7 @@ public interface IOtpRepository
     /// <param name="otpCode">The OTP code to store.</param>
     /// <param name="userId">The unique identifier of the user the OTP belongs to.</param>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-    Task AddOtpCodeAsync(string otpCode, Guid userId);
+    Task<DateTime> AddOtpCodeAsync(string otpCode, Guid userId);
 
     #endregion
 }

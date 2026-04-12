@@ -54,19 +54,22 @@ internal sealed class OtpRepository : IOtpRepository
     }
 
     /// <inheritdoc />
-    public async Task AddOtpCodeAsync(string otpCode, Guid userId)
+    public async Task<DateTime> AddOtpCodeAsync(string otpCode, Guid userId)
     {
+        var expiresAt = DateTime.UtcNow.AddMinutes(1);
         var otp = new OtpCode()
         {
             Id = Guid.NewGuid(),
             Code = otpCode,
             UserId = userId,
-            ExpiresAt = DateTime.UtcNow.AddMinutes(5)
+            ExpiresAt = expiresAt
         };
 
         await _dbContext.OtpCodes.AddAsync(otp);
 
         await _dbContext.SaveChangesAsync();
+
+        return expiresAt;
     }
 
     #endregion

@@ -55,7 +55,7 @@ internal sealed class OtpService : IOtpService
     #region Public methods
 
     /// <inheritdoc />
-    public async Task<Result<bool>> SendOtpCodeAsync(UserOtpDetailsDto user)
+    public async Task<Result<DateTime>> SendOtpCodeAsync(UserOtpDetailsDto user)
     {
         await using var transaction = await _transactionManager.BeginTransactionAsync();
 
@@ -65,17 +65,17 @@ internal sealed class OtpService : IOtpService
 
             await _otpRepository.DeleteOtpCodeByUserIdAsync(user.Id);
 
-            await _otpRepository.AddOtpCodeAsync(otpCode, user.Id);
+            var expiresAt = await _otpRepository.AddOtpCodeAsync(otpCode, user.Id);
 
             await _emailService.SendEmailAsync(user.Email, "Verification code", otpCode);
 
             await transaction.CommitAsync();
 
-            return Result<bool>.Success(true);
+            return Result<DateTime>.Success(expiresAt);
         }
         catch
         {
-            return Result<bool>.Failure(Errors.Failure("Failed to send OTP code."));
+            return Result<DateTime>.Failure(Errors.Failure("Failed to send OTP code."));
         }
     }
 
