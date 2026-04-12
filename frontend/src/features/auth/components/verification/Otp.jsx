@@ -1,67 +1,99 @@
 "use client";
-import React, { useEffect, useRef, useState } from "react";
+
+import React, { useEffect, useRef, useState, useMemo } from "react";
 import styles from "./Otp.module.css";
 import Error from "../../../../shared/components/error/Error";
 
-function Otp({ state, t }) {
+function Otp({ state, t, setOtpExpired }) {
   const [otp, setOtp] = useState(new Array(6).fill(""));
-
-  const [timer, setTimer] = useState(300);
-  const [canResend, setCanResend] = useState(false);
   const inputsRef = useRef([]);
 
+  // ми оновлюємо тільки "now", а не timer
+  const [now, setNow] = useState(Date.now());
+
+  // старт таймера
   useEffect(() => {
-    let interval;
-    if (timer > 0) {
-      interval = setInterval(() => setTimer((prev) => prev - 1), 1000);
-    } else {
-      setCanResend(true);
-      clearInterval(interval);
-    }
+    const interval = setInterval(() => {
+      setNow(Date.now());
+    }, 1000);
+
     return () => clearInterval(interval);
-  }, [timer]);
+  }, []);
+
+  // залишок часу
+  const timer = useMemo(() => {
+    if (!state.expiresAt) return 0;
+
+    return Math.floor((new Date(state.expiresAt).getTime() - now) / 1000);
+  }, [state.expiresAt, now]);
+
+  const isExpired = timer <= 0;
+
+  // якщо expired → чистимо OTP і фокусимо перший інпут
+  useEffect(() => {
+    if (!state.expiresAt) return;
+
+    if (isExpired) {
+      setOtp(new Array(6).fill(""));
+      setOtpExpired(true);
+
+      requestAnimationFrame(() => {
+        inputsRef.current?.[0]?.focus();
+      });
+    }
+  }, [isExpired, state.expiresAt, setOtpExpired]);
 
   const formatTime = () => {
-    const minutes = Math.floor(timer / 60);
-    const seconds = timer % 60;
+    const safe = Math.max(timer, 0);
+    const minutes = Math.floor(safe / 60);
+    const seconds = safe % 60;
+
     return `${minutes}:${seconds < 10 ? `0${seconds}` : seconds}`;
   };
 
   const handleChange = (element, index) => {
-    if (isNaN(element.value)) return false;
+    if (isExpired) return;
+
+    const value = element.value;
+
+    if (!/^\d*$/.test(value)) return;
 
     const newOtp = [...otp];
-    newOtp[index] = element.value.substring(element.value.length - 1);
+    newOtp[index] = value.slice(-1);
+
     setOtp(newOtp);
 
-    if (element.value && index < 5) inputsRef.current[index + 1].focus();
+    if (value && index < 5) {
+      inputsRef.current[index + 1]?.focus();
+    }
   };
 
   const handleKeyDown = (e, index) => {
     if (e.key === "Backspace" && !otp[index] && index > 0) {
-      inputsRef.current[index - 1].focus();
-    }
-  };
-
-  const handleResend = () => {
-    if (canResend) {
-      setTimer(300);
-      setCanResend(false);
-      setOtp(new Array(6).fill(""));
+      inputsRef.current[index - 1]?.focus();
     }
   };
 
   return (
     <>
       <p>{t.title}</p>
+
       <input type="hidden" name="otpCode" value={otp.join("")} />
+
+      <input
+        type="hidden"
+        name="intent"
+        value={isExpired ? "resend" : "verify"}
+      />
+
       <div className={styles.otpInputs}>
         {otp.map((data, index) => (
           <input
             key={index}
             type="text"
-            maxLength="1"
+            maxLength={1}
             value={data}
+            disabled={isExpired}
             ref={(el) => (inputsRef.current[index] = el)}
             onChange={(e) => handleChange(e.target, index)}
             onKeyDown={(e) => handleKeyDown(e, index)}
@@ -69,17 +101,16 @@ function Otp({ state, t }) {
           />
         ))}
       </div>
+
       {state.error && <Error error={state.error} />}
+
       <div className={styles.timerSection}>
-        {timer > 0 ? (
-          <p className={styles.notReceived}>
-            {t.notReceived}{" "}
-            <strong>{formatTime()}</strong>
+        {!isExpired ? (
+          <p>
+            {t.notReceived} <strong>{formatTime()}</strong>
           </p>
         ) : (
-          <p className={styles.resend} onClick={handleResend}>
-            {t.resend}
-          </p>
+          <p className={styles.resend}>{t.otpCodeExpired}</p>
         )}
       </div>
     </>

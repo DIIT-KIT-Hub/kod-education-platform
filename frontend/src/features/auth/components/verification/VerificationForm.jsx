@@ -18,9 +18,12 @@ const initialState = {
   status: 0,
   step: 1,
   timestamp: Date.now(),
+  expiresAt: null,
+  intent: null,
 };
 
 function VerificationForm({ t }) {
+  const [otpExpired, setOtpExpired] = useState(false);
   const router = useRouter();
 
   const { success, error } = useToast();
@@ -43,9 +46,10 @@ function VerificationForm({ t }) {
       400: () => {},
       401: () => {
         error(t.verification.errors.incorrectVerificationToken);
+
         setTimeout(() => {
           window.location.reload();
-        }, 3000);
+        }, 1000);
       },
     },
     3: {
@@ -55,16 +59,21 @@ function VerificationForm({ t }) {
 
         setTimeout(() => {
           window.location.reload();
-        }, 500);
+        }, 3000);
       },
-      410: () => error(t.verification.errors.errors.otpCodeExpired),
+      410: () => {
+        error(t.verification.errors.otpCodeExpired);
+
+        setOtpExpired(true);
+      },
+      422: () => {},
     },
     success: {
       2: () => success(t.verification.email.success),
       3: () => success(t.verification.password.success),
       0: () => {
         success(t.verification.otp.success);
-        router.push("/");
+        router.push("/auth/login");
       },
     },
     fallback: () => error("zcvxvcxcv"),
@@ -77,7 +86,7 @@ function VerificationForm({ t }) {
       case 2:
         return t.verification.password.button;
       case 3:
-        return t.verification.otp.button;
+        return t.verification.otp.buttonVerify;
       default:
         return "";
     }
@@ -101,6 +110,11 @@ function VerificationForm({ t }) {
       return;
     }
 
+    if (state.intent === "resend" && state.status === 200) {
+      success(t.verification.otp.resend);
+      return;
+    }
+
     if (state.status === 200) {
       handlers.success[state.step]?.();
       return;
@@ -114,6 +128,12 @@ function VerificationForm({ t }) {
       handlers.fallback();
     }
   }, [state.timestamp]);
+
+  useEffect(() => {
+    if (state.expiresAt) {
+      setOtpExpired(false);
+    }
+  }, [state.expiresAt]);
 
   return (
     <form action={formAction}>
@@ -152,13 +172,22 @@ function VerificationForm({ t }) {
             error: state.inputs.otpCode.error,
             status: state.status,
             timestamp: state.timestamp,
+            expiresAt: state.expiresAt,
           }}
-          t={translations.verification.otp}
+          t={{
+            title: t.verification.otp.title,
+            notReceived: t.verification.otp.notReceived,
+            otpCodeExpired: t.verification.otp.otpCodeExpired,
+            resend: t.verification.otp.resend,
+          }}
+          setOtpExpired={setOtpExpired}
         />
       )}
       <SubmitButton
-        text={getButtonText()}
-        loadingText={getButtonLoadingText()}
+        text={otpExpired ? t.verification.otp.buttonResend : getButtonText()}
+        loadingText={
+          otpExpired ? t.verification.otp.resending : getButtonLoadingText()
+        }
         isPending={isPending}
       />
     </form>

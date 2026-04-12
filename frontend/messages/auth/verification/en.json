@@ -14,18 +14,21 @@
   },
   "otp": {
     "title": "Enter the 6-digit code sent to your email to verify your identity.",
-    "button": "Verify",
+    "buttonVerify": "Verify",
     "verifying": "Verifying your information, please wait...",
-    "success": "Verification successful! You can now log in.",
+    "success": "Verification successful! You can now sign in.",
     "notReceived": "Did not receive the code? Resend in:",
-    "resend": "Resend code"
+    "otpCodeExpired": "The verification code has expired. Please request a new one.",
+    "buttonResend": "Resend code",
+    "resending": "Resending otp, please wait...",
+    "resend": "A new verification code has been sent to your email. Please check your inbox."
   },
   "errors": {
+    "userNotFound": "User not found in the system. Please, contact your administrator.",
     "userAlreadyVerified": "Your account is already verified. Please sign in.",
     "tokenGenerationError": "Failed to generate verification token. Please try again later.",
     "otpNotSent": "Failed to send the verification code. Please try again later.",
     "otpCodeInvalid": "The code you entered is incorrect. Please check it and try again.",
-    "otpCodeExpired": "The verification code has expired. Please request a new one.",
     "verificationFailed": "Something went wrong during verification. Please try again later.",
     "incorrectVerificationToken": "The verification session has expired or is invalid. Please start over."
   }

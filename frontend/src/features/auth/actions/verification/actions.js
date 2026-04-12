@@ -35,7 +35,7 @@ function getFormValues(prevState, formData) {
   };
 }
 
-function buildState(prevState, { inputs, status, step }) {
+function buildState(prevState, { inputs, status, step, expiresAt, intent }) {
   return {
     ...prevState,
     inputs: {
@@ -45,6 +45,8 @@ function buildState(prevState, { inputs, status, step }) {
     status,
     step,
     timestamp: Date.now(),
+    expiresAt: expiresAt ?? prevState.expiresAt,
+    intent: intent ?? null,
   };
 }
 
@@ -84,16 +86,6 @@ async function handleEmailStep(prevState, email) {
 }
 
 async function handlePasswordStep(prevState, email, password) {
-  const token = getCookie("verification_token");
-
-  if (!token) {
-    return buildState(prevState, {
-      inputs: { password: { value: password, error: "" } },
-      status: 401,
-      step: 2,
-    });
-  }
-
   const { errors, isValid } = await validatePasswordStep(password);
 
   if (!isValid) {
@@ -105,12 +97,13 @@ async function handlePasswordStep(prevState, email, password) {
   }
 
   try {
-    await sendOtpForVerificationAsync(email);
+    const expiresAt = await sendOtpForVerificationAsync(email);
 
     return buildState(prevState, {
       inputs: { password: { value: password, error: "" } },
       status: 200,
       step: 3,
+      expiresAt: expiresAt,
     });
   } catch (e) {
     return buildState(prevState, {
@@ -122,22 +115,12 @@ async function handlePasswordStep(prevState, email, password) {
 }
 
 async function handleOtpStep(prevState, email, password, otpCode) {
-  const token = getCookie("verification_token");
-
-  if (!token) {
-    return buildState(prevState, {
-      inputs: { otpCode: { value: otpCode, error: "" } },
-      status: 401,
-      step: 3,
-    });
-  }
-
   const { errors, isValid } = await validateOtpStep(otpCode);
 
   if (!isValid) {
     return buildState(prevState, {
       inputs: { otpCode: { value: otpCode, error: errors.otpCode } },
-      status: 400,
+      status: 422,
       step: 3,
     });
   }
@@ -161,7 +144,22 @@ async function handleOtpStep(prevState, email, password, otpCode) {
 }
 
 export async function verificationAction(prevState, formData) {
+  const intent = formData.get("intent");
   const { email, password, otpCode } = getFormValues(prevState, formData);
+
+  if (prevState.step === 3 && intent === "resend") {
+    const expiresAt = await sendOtpForVerificationAsync(email);
+
+    return buildState(prevState, {
+      status: 200,
+      step: 3,
+      expiresAt,
+      intent: "resend",
+      inputs: {
+        otpCode: { value: "", error: "" },
+      },
+    });
+  }
 
   switch (prevState.step) {
     case 1:

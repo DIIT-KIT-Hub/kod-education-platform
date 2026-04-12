@@ -23,18 +23,21 @@ async function page() {
       },
       otp: {
         title: tVerification("otp.title"),
-        button: tVerification("otp.button"),
+        buttonVerify: tVerification("otp.buttonVerify"),
+        buttonResend: tVerification("otp.buttonResend"),
         verifying: tVerification("otp.verifying"),
         success: tVerification("otp.success"),
         notReceived: tVerification("otp.notReceived"),
+        otpCodeExpired: tVerification("otp.otpCodeExpired"),
+        resending: tVerification("otp.resending"),
         resend: tVerification("otp.resend"),
       },
       errors: {
+        userNotFound: tVerification("errors.userNotFound"),
         userAlreadyVerified: tVerification("errors.userAlreadyVerified"),
         tokenGenerationError: tVerification("errors.tokenGenerationError"),
         otpNotSent: tVerification("errors.otpNotSent"),
         otpCodeInvalid: tVerification("errors.otpCodeInvalid"),
-        otpCodeExpired: tVerification("errors.otpCodeExpired"),
         verificationFailed: tVerification("errors.verificationFailed"),
         incorrectVerificationToken: tVerification(
           "errors.incorrectVerificationToken",

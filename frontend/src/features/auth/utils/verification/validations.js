@@ -48,7 +48,7 @@ export async function validatePasswordStep(password) {
 }
 
 export async function validateOtpStep(otpCode) {
-  const t = await getTranslations("Inputs.data.otp.validations");
+  const t = await getTranslations("Inputs.otp.validations");
   let errors = {};
 
   if (!otpCode) {
