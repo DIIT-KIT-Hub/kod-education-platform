@@ -1,6 +1,8 @@
+// CSR
 "use client";
 
-import React, { useActionState, useEffect, useState } from "react";
+// Imports
+import { useActionState, useEffect, useState } from "react";
 import Email from "./Email";
 import Password from "./Password";
 import Otp from "@/features/auth/components/verification/Otp";
@@ -9,6 +11,7 @@ import { verificationAction } from "../../actions/verification/actions";
 import { useRouter } from "@/i18n/routing";
 import { useToast } from "@/shared/hooks/toast/useToast";
 
+// Initial form state
 const initialState = {
   inputs: {
     email: { value: "", error: "" },
@@ -22,6 +25,27 @@ const initialState = {
   intent: null,
 };
 
+/**
+ * Multi-step verification form component.
+ *
+ * Handles a complete authentication/verification flow consisting of:
+ * - Email step
+ * - Password step
+ * - OTP verification step
+ *
+ * Features:
+ * - Step-based rendering
+ * - Server action integration via useActionState
+ * - Toast notifications for success/error states
+ * - OTP expiration handling and resend flow
+ * - Automatic navigation on success
+ * - Status-based error handler mapping per step
+ *
+ * @param {Object} props - Component props
+ * @param {Object} props.t - Translation object containing all localized strings
+ *
+ * @returns {JSX.Element} Rendered multi-step verification form
+ */
 function VerificationForm({ t }) {
   const [otpExpired, setOtpExpired] = useState(false);
   const router = useRouter();
@@ -36,9 +60,9 @@ function VerificationForm({ t }) {
   const handlers = {
     1: {
       400: () => {},
-      404: () => error(t.verification.errors.userNotFound),
+      404: () => error(t.verification.email.errors.userNotFound),
       409: () => {
-        error(t.verification.errors.userAlreadyVerified);
+        error(t.verification.email.errors.userAlreadyVerified);
         router.push("/auth/login");
       },
     },
@@ -53,16 +77,16 @@ function VerificationForm({ t }) {
       },
     },
     3: {
-      400: () => error(t.verification.errors.otpCodeInvalid),
+      400: () => error(t.verification.otp.errors.otpCodeInvalid),
       401: () => {
         error(t.verification.errors.incorrectVerificationToken);
 
         setTimeout(() => {
           window.location.reload();
-        }, 3000);
+        }, 1000);
       },
       410: () => {
-        error(t.verification.errors.otpCodeExpired);
+        error(t.verification.otp.errors.otpCodeExpired);
 
         setOtpExpired(true);
       },
@@ -76,7 +100,7 @@ function VerificationForm({ t }) {
         router.push("/auth/login");
       },
     },
-    fallback: () => error("zcvxvcxcv"),
+    fallback: () => error(t.verification.errors.verificationFailed),
   };
 
   const getButtonText = () => {
@@ -194,4 +218,5 @@ function VerificationForm({ t }) {
   );
 }
 
+// Component export
 export default VerificationForm;

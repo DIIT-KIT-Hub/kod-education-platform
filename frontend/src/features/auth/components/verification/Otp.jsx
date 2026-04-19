@@ -1,17 +1,38 @@
+// CSR
 "use client";
 
-import React, { useEffect, useRef, useState, useMemo } from "react";
+// Imports
+import { useEffect, useRef, useState, useMemo } from "react";
 import styles from "./Otp.module.css";
 import Error from "../../../../shared/components/error/Error";
 
+/**
+ * OTP verification step component.
+ *
+ * Handles:
+ * - 6-digit OTP input management
+ * - Auto-focus between inputs
+ * - Countdown timer for OTP expiration
+ * - Automatic reset on expiration
+ * - Hidden form fields for submission
+ *
+ * @param {Object} props - Component props
+ * @param {Object} props.state - External OTP state
+ * @param {string} [props.state.error] - OTP validation error message
+ * @param {string|Date} props.state.expiresAt - OTP expiration timestamp
+ * @param {Object} props.t - Translation object
+ * @param {string} props.t.title - Step title
+ * @param {string} props.t.notReceived - Text for resend countdown
+ * @param {string} props.t.otpCodeExpired - Text shown when OTP expires
+ * @param {(expired: boolean) => void} props.setOtpExpired - Setter for expiration state
+ *
+ * @returns {JSX.Element} Rendered OTP verification UI
+ */
 function Otp({ state, t, setOtpExpired }) {
   const [otp, setOtp] = useState(new Array(6).fill(""));
+  const [now, setNow] = useState(Date.now());
   const inputsRef = useRef([]);
 
-  // ми оновлюємо тільки "now", а не timer
-  const [now, setNow] = useState(Date.now());
-
-  // старт таймера
   useEffect(() => {
     const interval = setInterval(() => {
       setNow(Date.now());
@@ -20,7 +41,6 @@ function Otp({ state, t, setOtpExpired }) {
     return () => clearInterval(interval);
   }, []);
 
-  // залишок часу
   const timer = useMemo(() => {
     if (!state.expiresAt) return 0;
 
@@ -29,7 +49,6 @@ function Otp({ state, t, setOtpExpired }) {
 
   const isExpired = timer <= 0;
 
-  // якщо expired → чистимо OTP і фокусимо перший інпут
   useEffect(() => {
     if (!state.expiresAt) return;
 
@@ -117,4 +136,5 @@ function Otp({ state, t, setOtpExpired }) {
   );
 }
 
+// Component export
 export default Otp;

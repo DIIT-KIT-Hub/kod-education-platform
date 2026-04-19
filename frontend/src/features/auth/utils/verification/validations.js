@@ -1,3 +1,4 @@
+// Imports
 import {
   validateDigit,
   validateEmail,
@@ -7,10 +8,21 @@ import {
 } from "@/shared/utils/validations";
 import { getTranslations } from "next-intl/server";
 
+/**
+ * Validates email input for the email step.
+ *
+ * Rules:
+ * - Field is required
+ * - Must match valid email format
+ *
+ * @param {string} email - Email input value
+ * @returns {Promise<{errors: Object, isValid: boolean}>}
+ * Validation result containing errors and validity flag
+ */
 export async function validateEmailStep(email) {
   const t = await getTranslations("Inputs.email.validations");
 
-  let errors = {};
+  const errors = {};
 
   if (!email) {
     errors.email = t("required");
@@ -24,10 +36,24 @@ export async function validateEmailStep(email) {
   };
 }
 
+/**
+ * Validates password input for the password step.
+ *
+ * Rules:
+ * - Required field
+ * - Must contain at least one uppercase letter
+ * - Must contain at least one digit
+ * - Must contain only allowed characters (A–Z, a–z, 0–9)
+ * - Must be between 8 and 32 characters
+ *
+ * @param {string} password - Password input value
+ * @returns {Promise<{errors: Object, isValid: boolean}>}
+ * Validation result containing errors and validity flag
+ */
 export async function validatePasswordStep(password) {
   const t = await getTranslations("Inputs.password.validations");
 
-  let errors = {};
+  const errors = {};
 
   if (!password) {
     errors.password = t("required");
@@ -47,9 +73,20 @@ export async function validatePasswordStep(password) {
   };
 }
 
+/**
+ * Validates OTP code input for verification step.
+ *
+ * Rules:
+ * - Required field
+ * - Must be exactly 6 characters long
+ *
+ * @param {string} otpCode - OTP code input value
+ * @returns {Promise<{errors: Object, isValid: boolean}>}
+ * Validation result containing errors and validity flag
+ */
 export async function validateOtpStep(otpCode) {
   const t = await getTranslations("Inputs.otp.validations");
-  let errors = {};
+  const errors = {};
 
   if (!otpCode) {
     errors.otpCode = t("required");

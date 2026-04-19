@@ -1,6 +1,21 @@
+// Imports
+import { useEffect, useRef } from "react";
 import { useToast } from "@/shared/hooks/toast/useToast";
-import React, { useEffect, useRef } from "react";
 
+/**
+ * Submit button component with built-in loading toast handling.
+ *
+ * Displays a loading toast while a form is in pending state and
+ * automatically dismisses it when the state changes.
+ *
+ * @param {Object} props - Component props
+ * @param {string} props.text - Button label text
+ * @param {string} props.loadingText - Text shown in loading toast
+ * @param {boolean} props.isPending - Indicates if form submission is in progress
+ * @param {boolean} [props.disabled=false] - Manually disables the button
+ *
+ * @returns {JSX.Element} Rendered submit button
+ */
 function SubmitButton({ text, loadingText, isPending, disabled = false }) {
   const { loading, dismiss } = useToast();
 
@@ -30,4 +45,5 @@ function SubmitButton({ text, loadingText, isPending, disabled = false }) {
   );
 }
 
+// Component export
 export default SubmitButton;

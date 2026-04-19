@@ -1,11 +1,37 @@
+// SSR
 "use server";
 
-import { cookies } from "next/headers";
+// Imports
 import { loginAsync } from "../../services/authService";
 import { validateLogin } from "../../utils/login/validations";
 import { redirect } from "@/i18n/routing";
 import { getLocale } from "next-intl/server";
+import { setCookie } from "@/shared/services/cookieService";
 
+/**
+ * Server action for user login.
+ *
+ * Handles full authentication flow:
+ * - Extracts email and password from FormData
+ * - Validates input data
+ * - Calls authentication API
+ * - Stores access and refresh tokens in cookies
+ * - Redirects user on successful login
+ *
+ * On validation failure:
+ * - Returns field-level errors (422 status)
+ *
+ * On authentication failure:
+ * - Returns API error status and preserves input values
+ *
+ * On success:
+ * - Sets secure HTTP-only cookies
+ * - Redirects user to home page based on locale
+ *
+ * @param {Object} prevState - Previous form state (unused but required by useActionState)
+ * @param {FormData} formData - Submitted form data
+ * @returns {Promise<Object|void>} Returns validation error state or redirects on success
+ */
 export async function loginAction(prevState, formData) {
   const loginData = {
     email: formData.get("email")?.trim() || "",
@@ -31,9 +57,7 @@ export async function loginAction(prevState, formData) {
   try {
     const response = await loginAsync(loginData);
 
-    const cookieStore = await cookies();
-
-    cookieStore.set("access_token", response.accessToken, {
+    await setCookie("access_token", response.accessToken, {
       expires: new Date(response.accessTokenExpiresAt),
       path: "/",
       secure: true,
@@ -41,7 +65,7 @@ export async function loginAction(prevState, formData) {
       sameSite: "strict",
     });
 
-    cookieStore.set("refresh_token", response.refreshToken, {
+    await setCookie("refresh_token", response.refreshToken, {
       expires: new Date(response.refreshTokenExpiresAt),
       path: "/",
       secure: true,

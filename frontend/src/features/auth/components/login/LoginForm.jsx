@@ -1,24 +1,49 @@
+// CSR
 "use client";
 
-import React, { useActionState, useEffect } from "react";
+// Imports
+import { useActionState, useEffect } from "react";
 import Input from "@/shared/components/input/Input";
 import { loginAction } from "../../actions/login/actions";
 import SubmitButton from "@/shared/components/buttons/submit/SubmitButton";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/shared/hooks/toast/useToast";
 
+// Initial form state
 const initialState = {
-  success: false,
-  inputs: {
-    errors: {},
-    values: {},
-  },
+  email: { value: "", error: "" },
+  password: { value: "", error: "" },
   status: 0,
-  timestamp: 0,
+  timestamp: Date.now(),
 };
 
+/**
+ * Login form component for user authentication.
+ *
+ * Handles:
+ * - Email and password input fields
+ * - Server action submission via useActionState
+ * - Error handling based on HTTP status codes
+ * - Navigation to verification flow for unverified users
+ * - Toast notifications for login feedback
+ *
+ * Status handling:
+ * - 400: Invalid credentials
+ * - 401: User not verified (redirects to verification page)
+ * - 404: User not found
+ * - 422: Validation error (handled silently by field errors)
+ * - default: Generic login failure
+ *
+ * @param {Object} props - Component props
+ * @param {Object} props.t - Translation object containing localized strings
+ *
+ * @returns {JSX.Element} Rendered login form
+ */
 function LoginForm({ t }) {
-  const [state, formAction] = useActionState(loginAction, initialState);
+  const [state, formAction, isPending] = useActionState(
+    loginAction,
+    initialState,
+  );
 
   const router = useRouter();
 
@@ -35,12 +60,12 @@ function LoginForm({ t }) {
         break;
       }
       case 401: {
-        router.push("/auth/verification");
         error(t.login.errors.notVerified);
+        router.push("/auth/verification");
         break;
       }
       case 404: {
-        error(t.login.errors.notFound);
+        error(t.login.errors.userNotFound);
         break;
       }
       case 422: {
@@ -69,14 +94,16 @@ function LoginForm({ t }) {
         placeholder={t.inputs.password.placeholder}
         defaultValue={state?.inputs?.values?.password}
         error={state?.inputs?.errors?.password}
-        maxLength={8}
+        maxLength={32}
       />
       <SubmitButton
         text={t.login.signIn}
         loadingText={t.login.verifying}
+        isPending={isPending}
       />
     </form>
   );
 }
 
+// Component export
 export default LoginForm;

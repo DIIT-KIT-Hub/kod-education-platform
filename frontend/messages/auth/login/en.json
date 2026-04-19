@@ -1,12 +1,12 @@
 {
   "title": "Login",
-  "signIn": "Sign in",
-  "verifying": "Verifying your data...",
-  "success": "Login successful. Welcome to the system!",
+  "signIn": "Sign In",
+  "verifying": "Verifying your credentials...",
+  "success": "You have successfully signed in. Welcome to the system.",
   "errors": {
-    "userNotFound": "User not found in the system. Please contact the administrator.",
-    "invalidCredentials": "Invalid email or password.",
-    "notVerified": "Please verify your email address to continue.",
-    "loginFailed": "Could not sign in. Please try again later."
+    "userNotFound": "No account was found with the provided credentials. Please contact your administrator.",
+    "invalidCredentials": "The email address or password you entered is incorrect. Please try again.",
+    "notVerified": "Your account has not been verified. Please complete the verification process to continue.",
+    "loginFailed": "An error occurred during sign-in. Please try again later."
   }
 }

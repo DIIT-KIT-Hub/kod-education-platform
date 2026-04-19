@@ -1,7 +1,22 @@
-import LoginForm from "@/features/auth/components/login/LoginForm";
+// Imports
 import { getTranslations } from "next-intl/server";
-import React from "react";
+import LoginForm from "@/features/auth/components/login/LoginForm";
 
+/**
+ * Login page (Server Component).
+ *
+ * This page initializes the authentication login flow UI.
+ *
+ * Responsibilities:
+ * - Loads localized translations for login page and input fields
+ * - Structures translation object for LoginForm component
+ * - Renders login form with proper i18n content
+ * - Serves as entry point for user authentication (email/password login)
+ *
+ * This is a server-rendered Next.js page using next-intl for localization.
+ *
+ * @returns {JSX.Element} Login page with localized authentication form
+ */
 async function page() {
   const tLogin = await getTranslations("Login");
   const tInputs = await getTranslations("Inputs");
@@ -37,4 +52,5 @@ async function page() {
   );
 }
 
+// Page export
 export default page;

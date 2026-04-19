@@ -1,7 +1,22 @@
-import VerificationForm from "@/features/auth/components/verification/VerificationForm";
+// Imports
 import { getTranslations } from "next-intl/server";
-import React from "react";
+import VerificationForm from "@/features/auth/components/verification/VerificationForm";
 
+/**
+ * Verification page (Server Component).
+ *
+ * This page initializes the full multi-step verification flow UI.
+ *
+ * Responsibilities:
+ * - Loads all required translations for verification flow and inputs
+ * - Structures translation object for nested authentication steps
+ * - Renders VerificationForm with localized content
+ * - Serves as entry point for email → password → OTP verification flow
+ *
+ * This is a server-rendered Next.js page using next-intl for i18n.
+ *
+ * @returns {JSX.Element} Verification page with localized form
+ */
 async function page() {
   const tVerification = await getTranslations("Verification");
   const tInputs = await getTranslations("Inputs");
@@ -14,12 +29,24 @@ async function page() {
         button: tVerification("email.button"),
         verifying: tVerification("email.verifying"),
         success: tVerification("email.success"),
+        errors: {
+          userNotFound: tVerification("email.errors.userNotFound"),
+          userAlreadyVerified: tVerification(
+            "email.errors.userAlreadyVerified",
+          ),
+          tokenGenerationError: tVerification(
+            "email.errors.tokenGenerationError",
+          ),
+        },
       },
       password: {
         title: tVerification("password.title"),
         button: tVerification("password.button"),
         verifying: tVerification("password.verifying"),
         success: tVerification("password.success"),
+        errors: {
+          otpNotSent: tVerification("password.errors.otpNotSent"),
+        },
       },
       otp: {
         title: tVerification("otp.title"),
@@ -31,13 +58,12 @@ async function page() {
         otpCodeExpired: tVerification("otp.otpCodeExpired"),
         resending: tVerification("otp.resending"),
         resend: tVerification("otp.resend"),
+        errors: {
+          otpNotResent: tVerification("otp.errors.otpNotResent"),
+          otpCodeInvalid: tVerification("otp.errors.otpCodeInvalid"),
+        },
       },
       errors: {
-        userNotFound: tVerification("errors.userNotFound"),
-        userAlreadyVerified: tVerification("errors.userAlreadyVerified"),
-        tokenGenerationError: tVerification("errors.tokenGenerationError"),
-        otpNotSent: tVerification("errors.otpNotSent"),
-        otpCodeInvalid: tVerification("errors.otpCodeInvalid"),
         verificationFailed: tVerification("errors.verificationFailed"),
         incorrectVerificationToken: tVerification(
           "errors.incorrectVerificationToken",
@@ -76,4 +102,5 @@ async function page() {
   );
 }
 
+// Page export
 export default page;

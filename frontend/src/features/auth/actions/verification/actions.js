@@ -1,5 +1,7 @@
+// SSR
 "use server";
 
+// Imports
 import {
   generateVerificationTokenAsync,
   verifyUserAsync,
@@ -10,12 +12,22 @@ import {
   validatePasswordStep,
 } from "../../utils/verification/validations";
 import { sendOtpForVerificationAsync } from "@/shared/services/otpService";
-import {
-  getCookie,
-  removeCookie,
-  setCookie,
-} from "@/shared/services/cookieService";
+import { removeCookie, setCookie } from "@/shared/services/cookieService";
 
+/**
+ * Extracts form values based on current verification step.
+ *
+ * Ensures that only relevant fields are updated per step,
+ * while preserving previously entered values from state.
+ *
+ * @param {Object} prevState - Previous form state
+ * @param {Object} formData - Submitted form data
+ * @returns {{
+ *  email: string,
+ *  password: string,
+ *  otpCode: string
+ * }} Normalized form values
+ */
 function getFormValues(prevState, formData) {
   return {
     email:
@@ -35,6 +47,21 @@ function getFormValues(prevState, formData) {
   };
 }
 
+/**
+ * Builds a new immutable verification form state.
+ *
+ * Preserves previous state while updating only changed fields.
+ *
+ * @param {Object} prevState - Previous state object
+ * @param {Object} params - State update payload
+ * @param {Object} params.inputs - Updated input values and errors
+ * @param {number} params.status - HTTP-like status code
+ * @param {number} params.step - Current verification step
+ * @param {number|null} [params.expiresAt] - OTP expiration timestamp
+ * @param {string|null} [params.intent] - Action intent (e.g. resend, verify)
+ *
+ * @returns {Object} Updated state object
+ */
 function buildState(prevState, { inputs, status, step, expiresAt, intent }) {
   return {
     ...prevState,
@@ -50,6 +77,19 @@ function buildState(prevState, { inputs, status, step, expiresAt, intent }) {
   };
 }
 
+/**
+ * Handles email step validation and token generation.
+ *
+ * Flow:
+ * - Validates email format
+ * - Generates verification token
+ * - Stores token in cookies
+ * - Advances to password step on success
+ *
+ * @param {Object} prevState - Previous form state
+ * @param {string} email - User email
+ * @returns {Promise<Object>} Updated state
+ */
 async function handleEmailStep(prevState, email) {
   const { errors, isValid } = await validateEmailStep(email);
 
@@ -85,6 +125,19 @@ async function handleEmailStep(prevState, email) {
   }
 }
 
+/**
+ * Handles password step validation and OTP generation.
+ *
+ * Flow:
+ * - Validates password strength
+ * - Sends OTP to user email
+ * - Moves to OTP step on success
+ *
+ * @param {Object} prevState - Previous form state
+ * @param {string} email - User email
+ * @param {string} password - User password
+ * @returns {Promise<Object>} Updated state
+ */
 async function handlePasswordStep(prevState, email, password) {
   const { errors, isValid } = await validatePasswordStep(password);
 
@@ -114,6 +167,21 @@ async function handlePasswordStep(prevState, email, password) {
   }
 }
 
+/**
+ * Handles OTP verification step.
+ *
+ * Flow:
+ * - Validates OTP format
+ * - Verifies user with email + password + OTP
+ * - Removes verification token on success
+ * - Completes verification flow
+ *
+ * @param {Object} prevState - Previous form state
+ * @param {string} email - User email
+ * @param {string} password - User password
+ * @param {string} otpCode - OTP code
+ * @returns {Promise<Object>} Updated state
+ */
 async function handleOtpStep(prevState, email, password, otpCode) {
   const { errors, isValid } = await validateOtpStep(otpCode);
 
@@ -143,22 +211,45 @@ async function handleOtpStep(prevState, email, password, otpCode) {
   }
 }
 
+/**
+ * Server action handling full multi-step verification flow.
+ *
+ * Supports:
+ * - Email step (token generation)
+ * - Password step (OTP sending)
+ * - OTP step (final verification)
+ * - OTP resend flow
+ *
+ * Flow is controlled by `step` and `intent` fields.
+ *
+ * @param {Object} prevState - Previous form state
+ * @param {FormData} formData - Submitted form data
+ * @returns {Promise<Object>} Updated verification state
+ */
 export async function verificationAction(prevState, formData) {
   const intent = formData.get("intent");
   const { email, password, otpCode } = getFormValues(prevState, formData);
 
   if (prevState.step === 3 && intent === "resend") {
-    const expiresAt = await sendOtpForVerificationAsync(email);
+    try {
+      const expiresAt = await sendOtpForVerificationAsync(email);
 
-    return buildState(prevState, {
-      status: 200,
-      step: 3,
-      expiresAt,
-      intent: "resend",
-      inputs: {
-        otpCode: { value: "", error: "" },
-      },
-    });
+      return buildState(prevState, {
+        status: 200,
+        step: 3,
+        expiresAt,
+        intent: "resend",
+        inputs: {
+          otpCode: { value: "", error: "" },
+        },
+      });
+    } catch (e) {
+      return buildState(prevState, {
+        inputs: { otpCode: { value: otpCode, error: "" } },
+        status: e?.status || 500,
+        step: 3,
+      });
+    }
   }
 
   switch (prevState.step) {
