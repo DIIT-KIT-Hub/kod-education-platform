@@ -13,6 +13,7 @@ import {
 } from "../../utils/verification/validations";
 import { sendOtpForVerificationAsync } from "@/shared/services/otpService";
 import { removeCookie, setCookie } from "@/shared/services/cookieService";
+import { VERIFICATION_STEP } from "../../utils/constants/constants";
 
 /**
  * Extracts form values based on current verification step.
@@ -31,17 +32,17 @@ import { removeCookie, setCookie } from "@/shared/services/cookieService";
 function getFormValues(prevState, formData) {
   return {
     email:
-      prevState.step === 1
+      prevState.step === VERIFICATION_STEP.EMAIL
         ? formData.get("email")?.trim() || ""
         : prevState.inputs.email.value,
 
     password:
-      prevState.step === 2
+      prevState.step === VERIFICATION_STEP.PASSWORD
         ? formData.get("password")?.trim() || ""
         : prevState.inputs.password.value,
 
     otpCode:
-      prevState.step === 3
+      prevState.step === VERIFICATION_STEP.OTP
         ? formData.get("otpCode")?.trim() || ""
         : prevState.inputs.otpCode.value,
   };
@@ -97,7 +98,7 @@ async function handleEmailStep(prevState, email) {
     return buildState(prevState, {
       inputs: { email: { value: email, error: errors.email } },
       status: 400,
-      step: 1,
+      step: VERIFICATION_STEP.EMAIL,
     });
   }
 
@@ -114,13 +115,13 @@ async function handleEmailStep(prevState, email) {
     return buildState(prevState, {
       inputs: { email: { value: email, error: "" } },
       status: 200,
-      step: 2,
+      step: VERIFICATION_STEP.PASSWORD,
     });
   } catch (e) {
     return buildState(prevState, {
       inputs: { email: { value: email, error: "" } },
       status: e?.status || 500,
-      step: 1,
+      step: VERIFICATION_STEP.OTP,
     });
   }
 }
@@ -145,7 +146,7 @@ async function handlePasswordStep(prevState, email, password) {
     return buildState(prevState, {
       inputs: { password: { value: password, error: errors.password } },
       status: 400,
-      step: 2,
+      step: VERIFICATION_STEP.PASSWORD,
     });
   }
 
@@ -155,14 +156,14 @@ async function handlePasswordStep(prevState, email, password) {
     return buildState(prevState, {
       inputs: { password: { value: password, error: "" } },
       status: 200,
-      step: 3,
+      step: VERIFICATION_STEP.OTP,
       expiresAt: expiresAt,
     });
   } catch (e) {
     return buildState(prevState, {
       inputs: { password: { value: password, error: "" } },
       status: e?.status || 500,
-      step: 2,
+      step: VERIFICATION_STEP.PASSWORD,
     });
   }
 }
@@ -189,7 +190,7 @@ async function handleOtpStep(prevState, email, password, otpCode) {
     return buildState(prevState, {
       inputs: { otpCode: { value: otpCode, error: errors.otpCode } },
       status: 422,
-      step: 3,
+      step: VERIFICATION_STEP.OTP,
     });
   }
 
@@ -200,13 +201,13 @@ async function handleOtpStep(prevState, email, password, otpCode) {
     return buildState(prevState, {
       inputs: { otpCode: { value: otpCode, error: "" } },
       status: 200,
-      step: 0,
+      step: VERIFICATION_STEP.NONE,
     });
   } catch (e) {
     return buildState(prevState, {
       inputs: { otpCode: { value: otpCode, error: "" } },
       status: e?.status || 500,
-      step: 3,
+      step: VERIFICATION_STEP.OTP,
     });
   }
 }
@@ -230,13 +231,13 @@ export async function verificationAction(prevState, formData) {
   const intent = formData.get("intent");
   const { email, password, otpCode } = getFormValues(prevState, formData);
 
-  if (prevState.step === 3 && intent === "resend") {
+  if (prevState.step === VERIFICATION_STEP.OTP && intent === "resend") {
     try {
       const expiresAt = await sendOtpForVerificationAsync(email);
 
       return buildState(prevState, {
         status: 200,
-        step: 3,
+        step: VERIFICATION_STEP.OTP,
         expiresAt,
         intent: "resend",
         inputs: {
@@ -247,7 +248,7 @@ export async function verificationAction(prevState, formData) {
       return buildState(prevState, {
         inputs: { otpCode: { value: otpCode, error: "" } },
         status: e?.status || 500,
-        step: 3,
+        step: VERIFICATION_STEP.OTP,
       });
     }
   }

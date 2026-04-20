@@ -10,6 +10,7 @@ import SubmitButton from "@/shared/components/buttons/submit/SubmitButton";
 import { verificationAction } from "../../actions/verification/actions";
 import { useRouter } from "@/i18n/routing";
 import { useToast } from "@/shared/hooks/toast/useToast";
+import { VERIFICATION_STEP } from "../../utils/constants/constants";
 
 // Initial form state
 const initialState = {
@@ -19,7 +20,7 @@ const initialState = {
     otpCode: { value: "", error: "" },
   },
   status: 0,
-  step: 1,
+  step: VERIFICATION_STEP.EMAIL,
   timestamp: Date.now(),
   expiresAt: null,
   intent: null,
@@ -118,11 +119,11 @@ function VerificationForm({ t }) {
 
   const getButtonLoadingText = () => {
     switch (state.step) {
-      case 1:
+      case VERIFICATION_STEP.EMAIL:
         return t.verification.email.verifying;
-      case 2:
+      case VERIFICATION_STEP.PASSWORD:
         return t.verification.password.verifying;
-      case 3:
+      case VERIFICATION_STEP.OTP:
         return t.verification.otp.verifying;
       default:
         return "";
@@ -161,7 +162,7 @@ function VerificationForm({ t }) {
 
   return (
     <form action={formAction}>
-      {state.step === 1 && (
+      {state.step === VERIFICATION_STEP.EMAIL && (
         <Email
           state={{
             value: state.inputs.email.value,
@@ -175,7 +176,7 @@ function VerificationForm({ t }) {
           }}
         />
       )}
-      {state.step === 2 && (
+      {state.step === VERIFICATION_STEP.PASSWORD && (
         <Password
           state={{
             value: state.inputs.password.value,
@@ -189,7 +190,7 @@ function VerificationForm({ t }) {
           }}
         />
       )}
-      {state.step === 3 && (
+      {state.step === VERIFICATION_STEP.OTP && (
         <Otp
           state={{
             value: state.inputs.otpCode.value,
