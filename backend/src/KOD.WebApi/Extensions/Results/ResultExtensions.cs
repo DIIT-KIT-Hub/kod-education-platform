@@ -42,6 +42,7 @@ internal static class ResultExtensions
         {
             ErrorType.Validation => new BadRequestObjectResult(error),
             ErrorType.NotFound => new NotFoundObjectResult(error),
+            ErrorType.Gone => new ObjectResult(error) { StatusCode = 410 },
             ErrorType.Unauthorized => new UnauthorizedObjectResult(error),
             ErrorType.Forbidden => new ObjectResult(error) { StatusCode = 403 },
             ErrorType.Conflict => new ConflictObjectResult(error),

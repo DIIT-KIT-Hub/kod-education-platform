@@ -15,7 +15,7 @@ public interface IOtpService
     /// </summary>
     /// <param name="user">The user details for whom the OTP code should be generated.</param>
     /// <returns>A result indicating whether the OTP code was successfully sent.</returns>
-    Task<Result<bool>> SendOtpCodeAsync(UserOtpDetailsDto user);
+    Task<Result<DateTime>> SendOtpCodeAsync(UserOtpDetailsDto user);
 
     /// <summary>
     /// Checks whether the provided OTP code is valid for the specified user.

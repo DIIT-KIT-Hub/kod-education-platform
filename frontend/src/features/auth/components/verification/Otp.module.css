@@ -25,18 +25,12 @@
   align-items: center;
 }
 
-.notReceived {
+.timerSection p {
   color: var(--color-gray) !important;
 }
 
-.resend {
-  white-space: nowrap;
-  color: var(--color-blue) !important;
-  font-size: 1rem;
-  transition: all 0.3s ease-in-out;
-}
-
-.resend:hover {
-  cursor: pointer;
-  color: var(--color-light-blue);
+.input:disabled {
+  opacity: 0.5;
+  pointer-events: none;
+  background-color: var(--color-light-gray) !important;
 }

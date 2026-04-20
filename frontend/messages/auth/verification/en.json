@@ -1,44 +1,42 @@
 {
-  "data": {
-    "title": "Verification",
-    "button": {
-      "startVerification": "Start verification",
-      "proceedOtp": "Proceed to OTP",
-      "verify": "Verify"
-    },
-    "email": {
-      "title": "Provide your email to begin verification. You will set your password next.",
-      "checkingUser": "Checking your account...",
-      "checkingUserSuccess": "Your account has been found. Please, proceed to create a password."
-    },
-    "password": {
-      "title": "Create a password to continue verification.",
-      "rules": {
-        "title": "Password must contain:",
-        "uppercase": "At least one uppercase letter (A-Z)",
-        "digit": "At least one number (0-9)",
-        "allowedChars": "Only Latin letters and digits",
-        "length": "Exactly 8 characters"
-      },
-      "otpPreparing": "Preparing OTP to send to your email...",
-      "otpSent": "OTP has been sent!"
-    },
-    "otp": {
-      "title": "Enter the 6-digit code sent to your email to verify your identity.",
-      "notReceived": "Did not receive the code? Resend in:",
-      "resend": "Resend code",
-      "verifying": "Verifying your information, please wait...",
-      "verified": "Verification successful! You can now log in."
-    },
+  "title": "Verification",
+  "email": {
+    "title": "Please provide your email address to begin the verification process. You will be prompted to create a password in the next step.",
+    "button": "Start verification",
+    "verifying": "Verifying your email address...",
+    "success": "Your account has been located. Please proceed to create a password.",
     "errors": {
-      "userNotFound": "User not found in the system. Please contact the administrator.",
-      "userAlreadyVerified": "Your account is already verified. Please sign in.",
-      "tokenGenerationError": "Failed to generate verification token. Please try again later.",
-      "otpNotSent": "Failed to send the verification code. Please try again.",
-      "otpCodeInvalid": "The code you entered is incorrect. Please check it and try again.",
-      "otpCodeExpired": "The verification code has expired. Please request a new one.",
-      "verificationFailed": "Something went wrong during verification. Please try again later.",
-      "incorrectVerificationToken": "The verification session has expired or is invalid. Please start over."
+      "userNotFound": "No account was found with the provided email address. Please contact your administrator.",
+      "userAlreadyVerified": "This account has already been verified. Please sign in.",
+      "tokenGenerationError": "Unable to generate a verification token at this time. Please try again later."
     }
+  },
+  "password": {
+    "title": "Please create a secure password to continue the verification process.",
+    "button": "Continue to OTP",
+    "verifying": "Processing your password...",
+    "success": "A one-time verification code has been sent to your email address.",
+    "errors": {
+      "otpNotSent": "Unable to send the verification code. Please try again later."
+    }
+  },
+  "otp": {
+    "title": "Enter the 6-digit verification code sent to your email address.",
+    "buttonVerify": "Verify code",
+    "verifying": "Verifying your information. Please wait...",
+    "success": "Verification completed successfully. You may now sign in.",
+    "notReceived": "Did not receive the code? You can request a new one in:",
+    "otpCodeExpired": "The verification code has expired. Please request a new code.",
+    "buttonResend": "Resend code",
+    "resending": "Resending the verification code. Please wait...",
+    "resend": "A new verification code has been sent to your email address. Please check your inbox.",
+    "errors": {
+      "otpNotResent": "Unable to resend the verification code. Please try again later.",
+      "otpCodeInvalid": "The entered verification code is invalid. Please check the code and try again."
+    }
+  },
+  "errors": {
+    "verificationFailed": "An error occurred during the verification process. Please try again later.",
+    "incorrectVerificationToken": "The verification session is invalid or has expired. Please restart the process."
   }
 }
