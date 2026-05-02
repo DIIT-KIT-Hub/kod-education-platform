@@ -5,13 +5,13 @@ using System.Text;
 
 using KOD.Application.Abstractions.Services.Auth;
 using KOD.Application.DTOs.Tokens;
-using KOD.Domain.ValueObjects.Users;
+using KOD.Domain.Entities.Users;
 using KOD.Infrastructure.Options.Auth;
 
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
-namespace KOD.Infrastructure.Implementations.Services.Auth;
+namespace KOD.Infrastructure.Implementations.Services.Jwt;
 
 /// <summary>
 /// Implements <see cref="IJwtService"/> for generating JWT access and refresh tokens.
@@ -25,10 +25,8 @@ internal sealed class JwtService : IJwtService
     /// </summary>
     private readonly JwtOptions _jwtOptions;
 
-    /// <summary>
-    /// Roles assigned to verification tokens (used when user ID is not present).
-    /// </summary>
-    private readonly string[] _verificationRoles = ["Verification"];
+   
+    private readonly string _verificationRole = "Verification";
 
     #endregion
 
@@ -46,11 +44,11 @@ internal sealed class JwtService : IJwtService
 
     /// <inheritdoc />
     public AccessTokenDto GenerateAccessToken(UserLoginDetails userLoginDetails)
-        => GenerateToken(userLoginDetails.Id, userLoginDetails.Roles, _jwtOptions.AccessTokenMinutes);
+        => GenerateToken(userLoginDetails.Id, userLoginDetails.Role!, userLoginDetails.Permissions!, _jwtOptions.AccessTokenMinutes);
 
     /// <inheritdoc />
     public AccessTokenDto GenerateVerificationToken() 
-        => GenerateToken(Guid.Empty, _verificationRoles, _jwtOptions.VerificationTokenMinutes);
+        => GenerateToken(Guid.Empty, _verificationRole, [], _jwtOptions.VerificationTokenMinutes);
 
     /// <inheritdoc />
     public RefreshTokenDto GenerateRefreshToken()
@@ -71,7 +69,7 @@ internal sealed class JwtService : IJwtService
     /// <param name="roles">The roles to include in the token.</param>
     /// <param name="tokenMinutes">Token lifetime in minutes.</param>
     /// <returns>An <see cref="AccessTokenDto"/> containing the JWT and expiration.</returns>
-    private AccessTokenDto GenerateToken(Guid userId, IEnumerable<string> roles, int tokenMinutes)
+    private AccessTokenDto GenerateToken(Guid userId, string role, IEnumerable<string> permissions, int tokenMinutes)
     {
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtOptions.AccessTokenKey));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
@@ -82,7 +80,9 @@ internal sealed class JwtService : IJwtService
             claims.Add(new(JwtRegisteredClaimNames.Sub, userId.ToString()));
         }
 
-        claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
+        claims.AddRange(new Claim("role", role));
+
+        claims.AddRange(permissions.Select(p => new Claim("permissions", p)));
 
         var expires = DateTime.UtcNow.AddMinutes(tokenMinutes);
 

@@ -1,5 +1,5 @@
 ﻿using KOD.Application.DTOs.Tokens;
-using KOD.Domain.ValueObjects.Users;
+using KOD.Domain.Entities.Users;
 
 namespace KOD.Application.Abstractions.Services.Auth;
 

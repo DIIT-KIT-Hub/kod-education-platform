@@ -1,10 +1,14 @@
-﻿using KOD.Application.Abstractions.Services.Auth;
+﻿using System.Security.Claims;
+
+using KOD.Application.Abstractions.Services.Auth;
 using KOD.Application.DTOs.Auth;
 using KOD.Application.DTOs.Tokens;
+using KOD.Application.Results;
 using KOD.WebApi.Extensions.Results;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.JsonWebTokens;
 
 namespace KOD.WebApi.Controllers;
 
@@ -36,6 +40,21 @@ public class AuthController : ControllerBase
 
     #region Endpoints
 
+    [Authorize]
+    [HttpGet("me")]
+    public async Task<IActionResult> GetUserAuthInfoAsync()
+    {
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+
+        if(userIdClaim == null)
+        {
+            return Result<UserAuthInfoDto>.Failure(Errors.NotFound(nameof(userIdClaim))).ToActionResult();
+        }
+
+        var userId = Guid.Parse(userIdClaim.Value);
+
+        return (await _authService.GetUserAuthInfoAsync(userId)).ToActionResult(); 
+    }
     /// <summary>
     /// Authenticates a user and returns access and refresh tokens.
     /// </summary>
@@ -72,8 +91,8 @@ public class AuthController : ControllerBase
     /// <response code="404">Unsuccessful logout, refresh token not found.</response>
     /// <response code="500">Unsuccessful logout, internal server error.</response>
     [Authorize]
-    [HttpPost("logout")]  
-    public async Task<IActionResult> LogoutAsync(RefreshTokenRequestDto request) 
+    [HttpPost("logout")]
+    public async Task<IActionResult> LogoutAsync(RefreshTokenRequestDto request)
         => (await _authService.LogoutAsync(request)).ToActionResult();
 
     #endregion

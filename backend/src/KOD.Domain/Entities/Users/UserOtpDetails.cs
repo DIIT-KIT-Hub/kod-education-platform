@@ -1,4 +1,4 @@
-﻿namespace KOD.Domain.ValueObjects.Users;
+﻿namespace KOD.Domain.Entities.Users;
 
 /// <summary>
 /// Represents user information required for OTP verification. Contains the user identifier, email, and verification status.

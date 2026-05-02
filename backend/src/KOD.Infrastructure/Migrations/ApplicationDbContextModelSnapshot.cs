@@ -17,7 +17,7 @@ namespace KOD.Infrastructure.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.3")
+                .HasAnnotation("ProductVersion", "10.0.7")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -134,6 +134,24 @@ namespace KOD.Infrastructure.Migrations
                         .HasDatabaseName("UserNameIndex");
 
                     b.ToTable("AspNetUsers", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("46b56073-6b0f-4238-ae89-a81073a4774e"),
+                            AccessFailedCount = 0,
+                            ConcurrencyStamp = "46b56073-6b0f-4238-ae89-a81073a4774e",
+                            Email = "root@gmail.com",
+                            EmailConfirmed = true,
+                            LockoutEnabled = false,
+                            NormalizedEmail = "root@GMAIL.COM",
+                            NormalizedUserName = "000000",
+                            PasswordHash = "AQAAAAIAAYagAAAAEOvATbb65SPv1K+5yitp18adBYw/x9n42A/iGobWqqTs4Hb7S+8vDHHTMSj3bsGCNA==",
+                            PhoneNumberConfirmed = false,
+                            SecurityStamp = "46b56073-6b0f-4238-ae89-a81073a4774e",
+                            TwoFactorEnabled = false,
+                            UserName = "000000"
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<System.Guid>", b =>
@@ -161,6 +179,22 @@ namespace KOD.Infrastructure.Migrations
                         .HasDatabaseName("RoleNameIndex");
 
                     b.ToTable("AspNetRoles", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("a953e99c-2320-4616-b741-b770f2d6bd17"),
+                            ConcurrencyStamp = "4c9c0dc2-19c5-4da3-8fed-b4bf14f153e6",
+                            Name = "Admin",
+                            NormalizedName = "ADMIN"
+                        },
+                        new
+                        {
+                            Id = new Guid("9597b2ae-8059-4b51-beff-c0b295e8a5fa"),
+                            ConcurrencyStamp = "bcb0c814-244c-4f23-ae5c-481fc035b615",
+                            Name = "User",
+                            NormalizedName = "USER"
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
@@ -185,6 +219,43 @@ namespace KOD.Infrastructure.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("AspNetRoleClaims", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            ClaimType = "permission",
+                            ClaimValue = "Users.Module",
+                            RoleId = new Guid("a953e99c-2320-4616-b741-b770f2d6bd17")
+                        },
+                        new
+                        {
+                            Id = 2,
+                            ClaimType = "permission",
+                            ClaimValue = "Users.Create",
+                            RoleId = new Guid("a953e99c-2320-4616-b741-b770f2d6bd17")
+                        },
+                        new
+                        {
+                            Id = 3,
+                            ClaimType = "permission",
+                            ClaimValue = "Users.Read",
+                            RoleId = new Guid("a953e99c-2320-4616-b741-b770f2d6bd17")
+                        },
+                        new
+                        {
+                            Id = 4,
+                            ClaimType = "permission",
+                            ClaimValue = "Users.Update",
+                            RoleId = new Guid("a953e99c-2320-4616-b741-b770f2d6bd17")
+                        },
+                        new
+                        {
+                            Id = 5,
+                            ClaimType = "permission",
+                            ClaimValue = "Users.Delete",
+                            RoleId = new Guid("a953e99c-2320-4616-b741-b770f2d6bd17")
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<System.Guid>", b =>
@@ -245,6 +316,13 @@ namespace KOD.Infrastructure.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("AspNetUserRoles", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            UserId = new Guid("46b56073-6b0f-4238-ae89-a81073a4774e"),
+                            RoleId = new Guid("a953e99c-2320-4616-b741-b770f2d6bd17")
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<System.Guid>", b =>

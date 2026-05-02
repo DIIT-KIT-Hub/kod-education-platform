@@ -1,4 +1,4 @@
-﻿using KOD.Domain.ValueObjects.Otp;
+﻿using KOD.Domain.Entities.Otp;
 
 namespace KOD.Domain.Repositories;
 

@@ -4,6 +4,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
 namespace KOD.Infrastructure.Migrations
 {
     /// <inheritdoc />
@@ -31,7 +33,6 @@ namespace KOD.Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    IsVerified = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
                     UserName = table.Column<string>(type: "character varying(6)", maxLength: 6, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "character varying(6)", maxLength: 6, nullable: true),
                     Email = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: true),
@@ -191,6 +192,37 @@ namespace KOD.Infrastructure.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
+
+            migrationBuilder.InsertData(
+                table: "AspNetRoles",
+                columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
+                values: new object[,]
+                {
+                    { new Guid("9597b2ae-8059-4b51-beff-c0b295e8a5fa"), "bcb0c814-244c-4f23-ae5c-481fc035b615", "User", "USER" },
+                    { new Guid("a953e99c-2320-4616-b741-b770f2d6bd17"), "4c9c0dc2-19c5-4da3-8fed-b4bf14f153e6", "Admin", "ADMIN" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "AspNetUsers",
+                columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "Email", "EmailConfirmed", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "SecurityStamp", "TwoFactorEnabled", "UserName" },
+                values: new object[] { new Guid("46b56073-6b0f-4238-ae89-a81073a4774e"), 0, "46b56073-6b0f-4238-ae89-a81073a4774e", "root@gmail.com", true, false, null, "root@GMAIL.COM", "000000", "AQAAAAIAAYagAAAAEOvATbb65SPv1K+5yitp18adBYw/x9n42A/iGobWqqTs4Hb7S+8vDHHTMSj3bsGCNA==", null, false, "46b56073-6b0f-4238-ae89-a81073a4774e", false, "000000" });
+
+            migrationBuilder.InsertData(
+                table: "AspNetRoleClaims",
+                columns: new[] { "Id", "ClaimType", "ClaimValue", "RoleId" },
+                values: new object[,]
+                {
+                    { 1, "permission", "Users.Module", new Guid("a953e99c-2320-4616-b741-b770f2d6bd17") },
+                    { 2, "permission", "Users.Create", new Guid("a953e99c-2320-4616-b741-b770f2d6bd17") },
+                    { 3, "permission", "Users.Read", new Guid("a953e99c-2320-4616-b741-b770f2d6bd17") },
+                    { 4, "permission", "Users.Update", new Guid("a953e99c-2320-4616-b741-b770f2d6bd17") },
+                    { 5, "permission", "Users.Delete", new Guid("a953e99c-2320-4616-b741-b770f2d6bd17") }
+                });
+
+            migrationBuilder.InsertData(
+                table: "AspNetUserRoles",
+                columns: new[] { "RoleId", "UserId" },
+                values: new object[] { new Guid("a953e99c-2320-4616-b741-b770f2d6bd17"), new Guid("46b56073-6b0f-4238-ae89-a81073a4774e") });
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",

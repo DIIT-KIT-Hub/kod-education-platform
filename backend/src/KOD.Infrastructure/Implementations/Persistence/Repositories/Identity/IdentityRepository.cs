@@ -4,7 +4,6 @@ using KOD.Application.Abstractions.Persitence.Transactions;
 using KOD.Domain.Entities.Identity;
 using KOD.Domain.Entities.Users;
 using KOD.Domain.Repositories;
-using KOD.Domain.ValueObjects.Users;
 
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -28,6 +27,8 @@ internal sealed class IdentityRepository : IIdentityRepository
     /// </summary>
     private readonly UserManager<ApplicationUser> _userManager;
 
+    private readonly RoleManager<IdentityRole<Guid>> _roleManager;
+
     #endregion
 
     #region Constructors
@@ -37,10 +38,11 @@ internal sealed class IdentityRepository : IIdentityRepository
     /// </summary>
     /// <param name="transactionManager">The transaction manager.</param>
     /// <param name="userManager">The user manager for handling user operations.</param>
-    public IdentityRepository(ITransactionManager transactionManager, UserManager<ApplicationUser> userManager)
+    public IdentityRepository(ITransactionManager transactionManager, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole<Guid>> roleManager)
     {
         _transactionManager = transactionManager;
         _userManager = userManager;
+        _roleManager = roleManager;
     }
 
     #endregion
@@ -57,9 +59,18 @@ internal sealed class IdentityRepository : IIdentityRepository
             return null;
         }
 
-        var userRoles = await GetUserRolesAsync(user);
+        var role = await GetUserRoleAsync(user);
 
-        return new UserLoginDetails(user.Id, user.PasswordHash!, user.EmailConfirmed, userRoles);
+        var permissions = await GetUserPermissionsAsync(user);
+
+        return new UserLoginDetails()
+        {
+            Id = user.Id,
+            PasswordHash = user.PasswordHash,
+            EmailConfirmed = user.EmailConfirmed,
+            Role = role,
+            Permissions = permissions
+        };
     }
 
     /// <inheritdoc />
@@ -67,8 +78,43 @@ internal sealed class IdentityRepository : IIdentityRepository
         => await _userManager.FindByEmailAsync(email);
 
     /// <inheritdoc />
-    public async Task<IEnumerable<string>> GetUserRolesAsync(ApplicationUser user)
-        => await _userManager.GetRolesAsync(user);
+    public async Task<string> GetUserRoleAsync(ApplicationUser user)
+        => (await _userManager.GetRolesAsync(user)).FirstOrDefault() ?? string.Empty;
+
+    public async Task<IEnumerable<string>> GetUserPermissionsAsync(ApplicationUser user)
+    {
+        var roles = await _userManager.GetRolesAsync(user);
+
+        var permissions = new List<string>();
+
+        foreach (var roleName in roles)
+        {
+            var role = await _roleManager.FindByNameAsync(roleName);
+
+            if (role is null)
+            {
+                continue;
+            }
+
+            var roleClaims = await _roleManager.GetClaimsAsync(role);
+
+            permissions.AddRange(
+                roleClaims
+                    .Where(c => c.Type == "permission")
+                    .Select(c => c.Value)
+            );
+        }
+
+        var userClaims = await _userManager.GetClaimsAsync(user);
+
+        permissions.AddRange(
+            userClaims
+                .Where(c => c.Type == "permission")
+                .Select(c => c.Value)
+        );
+
+        return [.. permissions.Distinct()];
+    }
 
     /// <inheritdoc />
     public async Task VerifyUserAsync(ApplicationUser user, string password)
@@ -104,6 +150,21 @@ internal sealed class IdentityRepository : IIdentityRepository
     public async Task<bool> CheckUserPasswordAsync(ApplicationUser user, string password)
         => await _userManager.CheckPasswordAsync(user, password);
 
+    public async Task<UserAuthInfo?> GetUserAuthInfoAsync(Guid userId)
+    {
+        var user = await _userManager.FindByIdAsync(userId.ToString());
+
+        if (user == null)
+        {
+            return null;
+        }
+
+        var role = await GetUserRoleAsync(user);
+
+        var permissions = await GetUserPermissionsAsync(user);
+
+        return new UserAuthInfo() { Id = userId, Role = role, Permissions = permissions };
+    }
 
     #endregion
 }

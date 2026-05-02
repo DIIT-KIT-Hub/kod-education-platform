@@ -1,13 +1,11 @@
-﻿using KOD.Application.Abstractions.Services.Auth;
-using KOD.Application.DTOs.Auth;
+﻿using KOD.Application.DTOs.Auth;
 using KOD.Application.DTOs.Tokens;
 using KOD.Application.Mappings;
 using KOD.Application.Results;
-using KOD.Domain.Mappings;
+using KOD.Domain.Entities.Users;
 using KOD.Domain.Repositories;
-using KOD.Domain.ValueObjects.Users;
 
-namespace KOD.Infrastructure.Implementations.Services.Auth;
+namespace KOD.Application.Abstractions.Services.Auth;
 
 /// <summary>
 /// Implements <see cref="IAuthService"/> for handling authentication operations such as login, token refresh, and logout.
@@ -51,6 +49,18 @@ internal sealed class AuthService : IAuthService
     #endregion
 
     #region Public methods
+
+    public async Task<Result<UserAuthInfoDto>> GetUserAuthInfoAsync(Guid userId)
+    {
+        var userAuthInfo = await _identityRepository.GetUserAuthInfoAsync(userId);
+
+        if(userAuthInfo is null)
+        {
+            return Result<UserAuthInfoDto>.Failure(Errors.NotFound("User auth info"));
+        }
+
+        return Result<UserAuthInfoDto>.Success(userAuthInfo.ToDto());
+    }
 
     /// <inheritdoc />
     public async Task<Result<TokenResponseDto>> LoginAsync(LoginRequestDto request)

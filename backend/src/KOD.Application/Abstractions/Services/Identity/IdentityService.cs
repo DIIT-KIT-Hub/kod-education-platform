@@ -1,10 +1,9 @@
-﻿using KOD.Application.Abstractions.Services.Identity;
-using KOD.Application.DTOs.Users;
+﻿using KOD.Application.DTOs.Users;
 using KOD.Application.Mappings;
 using KOD.Application.Results;
 using KOD.Domain.Repositories;
 
-namespace KOD.Infrastructure.Implementations.Services.Identity;
+namespace KOD.Application.Abstractions.Services.Identity;
 
 /// <summary>
 /// Implements <see cref="IIdentityService"/> for managing user identity operations such as confirmation and OTP retrieval.

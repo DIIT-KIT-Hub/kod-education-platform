@@ -1,5 +1,6 @@
 using System.Text;
 
+using KOD.Application.DependencyInjection;
 using KOD.Infrastructure.DependencyInjection;
 using KOD.WebApi.Middleware;
 
@@ -9,6 +10,7 @@ using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 
 builder.Services.AddControllers();

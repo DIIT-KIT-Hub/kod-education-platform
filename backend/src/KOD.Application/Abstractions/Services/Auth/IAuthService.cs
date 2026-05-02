@@ -11,6 +11,8 @@ public interface IAuthService
 {
     #region Public methods
 
+    Task<Result<UserAuthInfoDto>> GetUserAuthInfoAsync(Guid userId);
+
     /// <summary>
     /// Authenticates a user with the provided credentials and returns tokens.
     /// </summary>

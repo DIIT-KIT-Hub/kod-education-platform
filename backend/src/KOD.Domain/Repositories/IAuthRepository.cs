@@ -1,5 +1,4 @@
 ﻿using KOD.Domain.Entities.Auth;
-using KOD.Domain.ValueObjects.Auth;
 
 namespace KOD.Domain.Repositories;
 

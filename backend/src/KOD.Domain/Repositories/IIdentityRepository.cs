@@ -1,5 +1,4 @@
 ﻿using KOD.Domain.Entities.Users;
-using KOD.Domain.ValueObjects.Users;
 
 namespace KOD.Domain.Repositories;
 
@@ -53,7 +52,9 @@ public interface IIdentityRepository
     /// <returns>
     /// A collection of role names (<see cref="string"/>) associated with the user.
     /// </returns>
-    Task<IEnumerable<string>> GetUserRolesAsync(ApplicationUser user);
+    Task<string> GetUserRoleAsync(ApplicationUser user);
+
+    Task<IEnumerable<string>> GetUserPermissionsAsync(ApplicationUser user);
 
     /// <summary>
     /// Checks whether the provided password is correct for the given user.
@@ -65,7 +66,7 @@ public interface IIdentityRepository
     /// </returns>
     Task<bool> CheckUserPasswordAsync(ApplicationUser user, string password);
 
-  
+    Task<UserAuthInfo?> GetUserAuthInfoAsync(Guid userId);
 
     #endregion
 }
