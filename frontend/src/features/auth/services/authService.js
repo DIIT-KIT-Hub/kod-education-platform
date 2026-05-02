@@ -1,5 +1,20 @@
 // Imports
 import { api } from "@/shared/api/fetchInstance";
+import { getCookie } from "@/shared/services/cookieService";
+
+export async function getUserAuthInfoAsync() {
+  try {
+    const accessToken = await getCookie("access_token");
+
+    return await api.get("/auth/me", {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+  } catch (error) {
+    throw error;
+  }
+}
 
 /**
  * Authenticates a user with email and password.

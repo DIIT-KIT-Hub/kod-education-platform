@@ -50,6 +50,7 @@ export default getRequestConfig(async ({ requestLocale }) => {
         await import(`../../messages/auth/verification/${locale}.json`)
       ).default,
       Inputs: (await import(`../../messages/inputs/${locale}.json`)).default,
+      Dashboard: (await import(`../../messages/dashboard/${locale}.json`)).default,
     },
   };
 });

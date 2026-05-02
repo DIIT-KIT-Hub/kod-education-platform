@@ -121,7 +121,7 @@ async function handleEmailStep(prevState, email) {
     return buildState(prevState, {
       inputs: { email: { value: email, error: "" } },
       status: e?.status || 500,
-      step: VERIFICATION_STEP.OTP,
+      step: VERIFICATION_STEP.EMAIL,
     });
   }
 }
@@ -254,13 +254,13 @@ export async function verificationAction(prevState, formData) {
   }
 
   switch (prevState.step) {
-    case 1:
+    case VERIFICATION_STEP.EMAIL:
       return handleEmailStep(prevState, email);
 
-    case 2:
+    case VERIFICATION_STEP.PASSWORD:
       return handlePasswordStep(prevState, email, password);
 
-    case 3:
+    case VERIFICATION_STEP.OTP:
       return handleOtpStep(prevState, email, password, otpCode);
 
     default:
