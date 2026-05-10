@@ -1,6 +1,18 @@
+// SSR
+"use server";
+
+// Imports
 import { getCookie } from "@/shared/services/cookieService";
 import { getUserAuthInfoAsync } from "../../services/authService";
 
+/**
+ * Static configuration of application routes with required permissions.
+ *
+ * Each route defines:
+ * - path: URL path of the page
+ * - permission: required permission to access the route
+ * - labelKey: translation key for sidebar label
+ */
 export const ROUTES_CONFIG = [
   {
     path: "/",
@@ -24,6 +36,29 @@ export const ROUTES_CONFIG = [
   },
 ];
 
+/**
+ * Retrieves authenticated user system information and builds
+ * permission-based navigation structure.
+ *
+ * Flow:
+ * - Reads access token from cookies
+ * - Fetches user auth info from backend
+ * - Builds route list based on role/permissions
+ *
+ * Rules:
+ * - Admin users receive all routes
+ * - Non-admin users receive filtered routes based on permissions
+ *
+ * @async
+ * @function getAuthSystemInfoAsync
+ *
+ * @returns {Promise<{
+ *   role: string,
+ *   permissions: string[],
+ *   routes: Array<{path: string, permission: string, labelKey: string}>
+ * } | null>}
+ * Returns authenticated user system info or null if unauthorized/error.
+ */
 export async function getAuthSystemInfoAsync() {
   const accessToken = await getCookie("access_token");
 

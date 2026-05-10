@@ -2,6 +2,20 @@
 import { api } from "@/shared/api/fetchInstance";
 import { getCookie } from "@/shared/services/cookieService";
 
+/**
+ * Retrieves authenticated user information from the backend.
+ *
+ * Flow:
+ * - Reads access token from cookies
+ * - Sends authenticated request to `/auth/me`
+ * - Returns user role and permissions
+ *
+ * @async
+ * @function getUserAuthInfoAsync
+ *
+ * @returns {Promise<any>} User authentication info (role, permissions, etc.)
+ * @throws {Error} Throws error if request fails or user is unauthorized
+ */
 export async function getUserAuthInfoAsync() {
   try {
     const accessToken = await getCookie("access_token");

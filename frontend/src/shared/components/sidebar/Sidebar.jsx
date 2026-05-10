@@ -1,10 +1,32 @@
+// CSR
 "use client";
 
+// Imports
 import React, { useState } from "react";
 import styles from "./Sidebar.module.css";
 import { Link } from "@/i18n/routing";
 
-export default function Sidebar({ routes }) {
+/**
+ * Sidebar navigation component for the application layout.
+ *
+ * Responsibilities:
+ * - Renders navigation links based on provided routes
+ * - Manages open/close state of sidebar
+ * - Supports internationalized routing
+ *
+ * This component is purely presentational and relies on
+ * pre-filtered routes (permission-based filtering happens server-side).
+ *
+ * @component
+ *
+ * @param {Object} props - Component props
+ * @param {Array<Object>} props.routes - List of navigation routes
+ * @param {string} props.routes[].path - Route path
+ * @param {string} props.routes[].label - Display label for route
+ *
+ * @returns {JSX.Element} Rendered sidebar navigation
+ */
+function Sidebar({ routes }) {
   const [isOpen, setIsOpen] = useState(true);
 
   const toggleSidebar = () => setIsOpen(!isOpen);
@@ -35,3 +57,6 @@ export default function Sidebar({ routes }) {
     </nav>
   );
 }
+
+// Sidebar export
+export default Sidebar;
