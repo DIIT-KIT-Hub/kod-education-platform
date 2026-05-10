@@ -50,6 +50,7 @@ internal sealed class AuthService : IAuthService
 
     #region Public methods
 
+    /// <inheritdoc />
     public async Task<Result<UserAuthInfoDto>> GetUserAuthInfoAsync(Guid userId)
     {
         var userAuthInfo = await _identityRepository.GetUserAuthInfoAsync(userId);

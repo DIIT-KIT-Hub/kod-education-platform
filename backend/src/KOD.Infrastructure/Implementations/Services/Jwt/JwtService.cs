@@ -25,7 +25,9 @@ internal sealed class JwtService : IJwtService
     /// </summary>
     private readonly JwtOptions _jwtOptions;
 
-   
+    /// <summary>
+    /// The name of the role used for users in the verification process.
+    /// </summary>
     private readonly string _verificationRole = "Verification";
 
     #endregion

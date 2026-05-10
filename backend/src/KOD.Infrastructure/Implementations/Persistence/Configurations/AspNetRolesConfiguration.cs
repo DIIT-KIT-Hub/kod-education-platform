@@ -8,8 +8,17 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace KOD.Infrastructure.Implementations.Persistence.Configurations;
 
+/// <summary>
+/// Seeds default ASP.NET Identity roles into the database.
+/// </summary>
 internal sealed class AspNetRolesConfiguration : IEntityTypeConfiguration<IdentityRole<Guid>>
 {
+    #region Public methods
+
+    /// <summary>
+    /// Configures the IdentityRole entity and seeds predefined roles.
+    /// </summary>
+    /// <param name="builder">The builder used to configure the entity type.</param>
     public void Configure(EntityTypeBuilder<IdentityRole<Guid>> builder)
     {
         IdentityRole<Guid>[] roles = [
@@ -31,4 +40,6 @@ internal sealed class AspNetRolesConfiguration : IEntityTypeConfiguration<Identi
 
         builder.HasData(roles);
     }
+
+    #endregion
 }

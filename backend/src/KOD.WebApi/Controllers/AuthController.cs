@@ -40,6 +40,16 @@ public class AuthController : ControllerBase
 
     #region Endpoints
 
+    /// <summary>
+    /// Retrieves authentication and authorization information for the currently authenticated user.
+    /// </summary>
+    /// <remarks>
+    /// Requires the user to be authenticated. The user ID is extracted from the JWT claims.
+    /// </remarks>
+    /// <returns>
+    /// An <see cref="IActionResult"/> containing a <see cref="UserAuthInfoDto"/> if the user exists;
+    /// otherwise, an appropriate error response.
+    /// </returns>
     [Authorize]
     [HttpGet("me")]
     public async Task<IActionResult> GetUserAuthInfoAsync()
@@ -55,6 +65,7 @@ public class AuthController : ControllerBase
 
         return (await _authService.GetUserAuthInfoAsync(userId)).ToActionResult(); 
     }
+
     /// <summary>
     /// Authenticates a user and returns access and refresh tokens.
     /// </summary>

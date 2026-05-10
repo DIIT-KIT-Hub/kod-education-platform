@@ -6,8 +6,17 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace KOD.Infrastructure.Implementations.Persistence.Configurations;
 
+/// <summary>
+/// Seeds initial role claims (permissions) for ASP.NET Identity roles.
+/// </summary>
 internal sealed class AspNetRoleClaimsConfiguration : IEntityTypeConfiguration<IdentityRoleClaim<Guid>>
 {
+    #region Public methods
+
+    /// <summary>
+    /// Configures the entity type and seeds default role-based permissions.
+    /// </summary>
+    /// <param name="builder">The builder used to configure the entity type.</param>
     public void Configure(EntityTypeBuilder<IdentityRoleClaim<Guid>> builder)
     {
         var adminRoleId = Guid.Parse("a953e99c-2320-4616-b741-b770f2d6bd17");
@@ -25,4 +34,6 @@ internal sealed class AspNetRoleClaimsConfiguration : IEntityTypeConfiguration<I
             new IdentityRoleClaim<Guid> { Id = 8, RoleId = adminRoleId, ClaimType = type, ClaimValue = UserModulePermissions.Delete },
         ]);
     }
+
+    #endregion
 }

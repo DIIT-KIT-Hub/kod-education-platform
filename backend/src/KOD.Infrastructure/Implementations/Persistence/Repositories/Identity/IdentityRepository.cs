@@ -27,6 +27,9 @@ internal sealed class IdentityRepository : IIdentityRepository
     /// </summary>
     private readonly UserManager<ApplicationUser> _userManager;
 
+    /// <summary>
+    /// The ASP.NET Core Identity role manager for <see cref="IdentityRole{TKey}"/>.
+    /// </summary>
     private readonly RoleManager<IdentityRole<Guid>> _roleManager;
 
     #endregion
@@ -38,6 +41,7 @@ internal sealed class IdentityRepository : IIdentityRepository
     /// </summary>
     /// <param name="transactionManager">The transaction manager.</param>
     /// <param name="userManager">The user manager for handling user operations.</param>
+    /// <param name="roleManager">The role manager for handling role operations.</param>
     public IdentityRepository(ITransactionManager transactionManager, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole<Guid>> roleManager)
     {
         _transactionManager = transactionManager;
@@ -81,6 +85,7 @@ internal sealed class IdentityRepository : IIdentityRepository
     public async Task<string> GetUserRoleAsync(ApplicationUser user)
         => (await _userManager.GetRolesAsync(user)).FirstOrDefault() ?? string.Empty;
 
+    /// <inheritdoc />
     public async Task<IEnumerable<string>> GetUserPermissionsAsync(ApplicationUser user)
     {
         var roles = await _userManager.GetRolesAsync(user);
@@ -150,6 +155,7 @@ internal sealed class IdentityRepository : IIdentityRepository
     public async Task<bool> CheckUserPasswordAsync(ApplicationUser user, string password)
         => await _userManager.CheckPasswordAsync(user, password);
 
+    /// <inheritdoc />
     public async Task<UserAuthInfo?> GetUserAuthInfoAsync(Guid userId)
     {
         var user = await _userManager.FindByIdAsync(userId.ToString());
