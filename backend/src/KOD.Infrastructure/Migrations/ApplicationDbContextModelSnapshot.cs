@@ -144,7 +144,7 @@ namespace KOD.Infrastructure.Migrations
                             Email = "root@gmail.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
-                            NormalizedEmail = "root@GMAIL.COM",
+                            NormalizedEmail = "ROOT@GMAIL.COM",
                             NormalizedUserName = "000000",
                             PasswordHash = "AQAAAAIAAYagAAAAEOvATbb65SPv1K+5yitp18adBYw/x9n42A/iGobWqqTs4Hb7S+8vDHHTMSj3bsGCNA==",
                             PhoneNumberConfirmed = false,
@@ -225,33 +225,54 @@ namespace KOD.Infrastructure.Migrations
                         {
                             Id = 1,
                             ClaimType = "permission",
-                            ClaimValue = "Users.Module",
+                            ClaimValue = "Home.Create",
                             RoleId = new Guid("a953e99c-2320-4616-b741-b770f2d6bd17")
                         },
                         new
                         {
                             Id = 2,
                             ClaimType = "permission",
-                            ClaimValue = "Users.Create",
+                            ClaimValue = "Home.Read",
                             RoleId = new Guid("a953e99c-2320-4616-b741-b770f2d6bd17")
                         },
                         new
                         {
                             Id = 3,
                             ClaimType = "permission",
-                            ClaimValue = "Users.Read",
+                            ClaimValue = "Home.Update",
                             RoleId = new Guid("a953e99c-2320-4616-b741-b770f2d6bd17")
                         },
                         new
                         {
                             Id = 4,
                             ClaimType = "permission",
-                            ClaimValue = "Users.Update",
+                            ClaimValue = "Home.Delete",
                             RoleId = new Guid("a953e99c-2320-4616-b741-b770f2d6bd17")
                         },
                         new
                         {
                             Id = 5,
+                            ClaimType = "permission",
+                            ClaimValue = "Users.Create",
+                            RoleId = new Guid("a953e99c-2320-4616-b741-b770f2d6bd17")
+                        },
+                        new
+                        {
+                            Id = 6,
+                            ClaimType = "permission",
+                            ClaimValue = "Users.Read",
+                            RoleId = new Guid("a953e99c-2320-4616-b741-b770f2d6bd17")
+                        },
+                        new
+                        {
+                            Id = 7,
+                            ClaimType = "permission",
+                            ClaimValue = "Users.Update",
+                            RoleId = new Guid("a953e99c-2320-4616-b741-b770f2d6bd17")
+                        },
+                        new
+                        {
+                            Id = 8,
                             ClaimType = "permission",
                             ClaimValue = "Users.Delete",
                             RoleId = new Guid("a953e99c-2320-4616-b741-b770f2d6bd17")

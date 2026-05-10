@@ -205,18 +205,21 @@ namespace KOD.Infrastructure.Migrations
             migrationBuilder.InsertData(
                 table: "AspNetUsers",
                 columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "Email", "EmailConfirmed", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "SecurityStamp", "TwoFactorEnabled", "UserName" },
-                values: new object[] { new Guid("46b56073-6b0f-4238-ae89-a81073a4774e"), 0, "46b56073-6b0f-4238-ae89-a81073a4774e", "root@gmail.com", true, false, null, "root@GMAIL.COM", "000000", "AQAAAAIAAYagAAAAEOvATbb65SPv1K+5yitp18adBYw/x9n42A/iGobWqqTs4Hb7S+8vDHHTMSj3bsGCNA==", null, false, "46b56073-6b0f-4238-ae89-a81073a4774e", false, "000000" });
+                values: new object[] { new Guid("46b56073-6b0f-4238-ae89-a81073a4774e"), 0, "46b56073-6b0f-4238-ae89-a81073a4774e", "root@gmail.com", true, false, null, "ROOT@GMAIL.COM", "000000", "AQAAAAIAAYagAAAAEOvATbb65SPv1K+5yitp18adBYw/x9n42A/iGobWqqTs4Hb7S+8vDHHTMSj3bsGCNA==", null, false, "46b56073-6b0f-4238-ae89-a81073a4774e", false, "000000" });
 
             migrationBuilder.InsertData(
                 table: "AspNetRoleClaims",
                 columns: new[] { "Id", "ClaimType", "ClaimValue", "RoleId" },
                 values: new object[,]
                 {
-                    { 1, "permission", "Users.Module", new Guid("a953e99c-2320-4616-b741-b770f2d6bd17") },
-                    { 2, "permission", "Users.Create", new Guid("a953e99c-2320-4616-b741-b770f2d6bd17") },
-                    { 3, "permission", "Users.Read", new Guid("a953e99c-2320-4616-b741-b770f2d6bd17") },
-                    { 4, "permission", "Users.Update", new Guid("a953e99c-2320-4616-b741-b770f2d6bd17") },
-                    { 5, "permission", "Users.Delete", new Guid("a953e99c-2320-4616-b741-b770f2d6bd17") }
+                    { 1, "permission", "Home.Create", new Guid("a953e99c-2320-4616-b741-b770f2d6bd17") },
+                    { 2, "permission", "Home.Read", new Guid("a953e99c-2320-4616-b741-b770f2d6bd17") },
+                    { 3, "permission", "Home.Update", new Guid("a953e99c-2320-4616-b741-b770f2d6bd17") },
+                    { 4, "permission", "Home.Delete", new Guid("a953e99c-2320-4616-b741-b770f2d6bd17") },
+                    { 5, "permission", "Users.Create", new Guid("a953e99c-2320-4616-b741-b770f2d6bd17") },
+                    { 6, "permission", "Users.Read", new Guid("a953e99c-2320-4616-b741-b770f2d6bd17") },
+                    { 7, "permission", "Users.Update", new Guid("a953e99c-2320-4616-b741-b770f2d6bd17") },
+                    { 8, "permission", "Users.Delete", new Guid("a953e99c-2320-4616-b741-b770f2d6bd17") }
                 });
 
             migrationBuilder.InsertData(
