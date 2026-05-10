@@ -3,18 +3,23 @@ import { getUserAuthInfoAsync } from "../../services/authService";
 
 export const ROUTES_CONFIG = [
   {
+    path: "/",
+    permission: "Home.Read",
+    labelKey: "sidebar.home",
+  },
+  {
     path: "/users",
-    permission: "Users.Module",
+    permission: "Users.Read",
     labelKey: "sidebar.users",
   },
   {
     path: "/settings",
-    permission: "Settings.Module",
+    permission: "Settings.Read",
     labelKey: "sidebar.settings",
   },
   {
     path: "/documents",
-    permission: "Documents.Module",
+    permission: "Documents.Read",
     labelKey: "sidebar.documents",
   },
 ];

@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import styles from "./Sidebar.module.css";
+import { Link } from "@/i18n/routing";
 
 export default function Sidebar({ routes }) {
   const [isOpen, setIsOpen] = useState(true);
@@ -26,9 +27,9 @@ export default function Sidebar({ routes }) {
 
       <div className={styles.links}>
         {routes.map((route, index) => (
-          <a key={index} href={route.path}>
+          <Link key={index} href={route.path}>
             {route.label}
-          </a>
+          </Link>
         ))}
       </div>
     </nav>

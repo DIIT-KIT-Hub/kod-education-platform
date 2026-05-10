@@ -1,5 +1,6 @@
 {
   "sidebar": {
+    "home": "Home",
     "users": "Users",
     "settings": "Settings",
     "documents": "Documents"
