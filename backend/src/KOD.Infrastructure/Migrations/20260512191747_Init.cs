@@ -205,7 +205,7 @@ namespace KOD.Infrastructure.Migrations
             migrationBuilder.InsertData(
                 table: "AspNetUsers",
                 columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "Email", "EmailConfirmed", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "SecurityStamp", "TwoFactorEnabled", "UserName" },
-                values: new object[] { new Guid("46b56073-6b0f-4238-ae89-a81073a4774e"), 0, "46b56073-6b0f-4238-ae89-a81073a4774e", "root@gmail.com", true, false, null, "ROOT@GMAIL.COM", "000000", "AQAAAAIAAYagAAAAEOvATbb65SPv1K+5yitp18adBYw/x9n42A/iGobWqqTs4Hb7S+8vDHHTMSj3bsGCNA==", null, false, "46b56073-6b0f-4238-ae89-a81073a4774e", false, "000000" });
+                values: new object[] { new Guid("46b56073-6b0f-4238-ae89-a81073a4774e"), 0, "46b56073-6b0f-4238-ae89-a81073a4774e", "root@gmail.com", true, false, null, "ROOT@GMAIL.COM", "000000", null, null, false, "46b56073-6b0f-4238-ae89-a81073a4774e", false, "000000" });
 
             migrationBuilder.InsertData(
                 table: "AspNetRoleClaims",

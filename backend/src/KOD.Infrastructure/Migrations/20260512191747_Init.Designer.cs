@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace KOD.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260510114643_Init")]
+    [Migration("20260512191747_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -149,7 +149,6 @@ namespace KOD.Infrastructure.Migrations
                             LockoutEnabled = false,
                             NormalizedEmail = "ROOT@GMAIL.COM",
                             NormalizedUserName = "000000",
-                            PasswordHash = "AQAAAAIAAYagAAAAEOvATbb65SPv1K+5yitp18adBYw/x9n42A/iGobWqqTs4Hb7S+8vDHHTMSj3bsGCNA==",
                             PhoneNumberConfirmed = false,
                             SecurityStamp = "46b56073-6b0f-4238-ae89-a81073a4774e",
                             TwoFactorEnabled = false,
