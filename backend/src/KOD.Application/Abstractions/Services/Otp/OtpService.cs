@@ -3,12 +3,11 @@ using System.Security.Cryptography;
 
 using KOD.Application.Abstractions.Persitence.Transactions;
 using KOD.Application.Abstractions.Services.Emails;
-using KOD.Application.Abstractions.Services.Otp;
 using KOD.Application.DTOs.Users;
 using KOD.Application.Results;
 using KOD.Domain.Repositories;
 
-namespace KOD.Infrastructure.Implementations.Services.Otp;
+namespace KOD.Application.Abstractions.Services.Otp;
 
 /// <summary>
 /// Implements <see cref="IOtpService"/> for managing OTP codes and sending them via email.

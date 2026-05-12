@@ -12,6 +12,16 @@ public interface IAuthService
     #region Public methods
 
     /// <summary>
+    /// Retrieves authentication and authorization information for the specified user.
+    /// </summary>
+    /// <param name="userId">The unique identifier of the user.</param>
+    /// <returns>
+    /// A <see cref="Result{T}"/> containing a <see cref="UserAuthInfoDto"/> with the user's
+    /// roles and permissions if the user exists; otherwise, a failure result.
+    /// </returns>
+    Task<Result<UserAuthInfoDto>> GetUserAuthInfoAsync(Guid userId);
+
+    /// <summary>
     /// Authenticates a user with the provided credentials and returns tokens.
     /// </summary>
     /// <param name="request">The login request containing the user's credentials.</param>

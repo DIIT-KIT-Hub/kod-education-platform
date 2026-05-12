@@ -1,8 +1,6 @@
 ﻿using KOD.Application.Abstractions.Persitence.Transactions;
 using KOD.Application.Abstractions.Services.Auth;
 using KOD.Application.Abstractions.Services.Emails;
-using KOD.Application.Abstractions.Services.Identity;
-using KOD.Application.Abstractions.Services.Otp;
 using KOD.Domain.Entities.Users;
 using KOD.Domain.Repositories;
 using KOD.Infrastructure.Implementations.Persistence.Database;
@@ -10,10 +8,8 @@ using KOD.Infrastructure.Implementations.Persistence.Repositories.Auth;
 using KOD.Infrastructure.Implementations.Persistence.Repositories.Identity;
 using KOD.Infrastructure.Implementations.Persistence.Repositories.Otp;
 using KOD.Infrastructure.Implementations.Persistence.Transactions;
-using KOD.Infrastructure.Implementations.Services.Auth;
 using KOD.Infrastructure.Implementations.Services.Emails;
-using KOD.Infrastructure.Implementations.Services.Identity;
-using KOD.Infrastructure.Implementations.Services.Otp;
+using KOD.Infrastructure.Implementations.Services.Jwt;
 using KOD.Infrastructure.Options.Auth;
 using KOD.Infrastructure.Options.Emails;
 
@@ -100,10 +96,7 @@ public static class DependencyInjection
     {
         services.AddScoped<IJwtService, JwtService>();
         services.AddScoped<ITransactionManager, TransactionManager>();
-        services.AddScoped<IIdentityService, IdentityService>();
         services.AddScoped<IEmailService, EmailService>();
-        services.AddScoped<IOtpService, OtpService>();
-        services.AddScoped<IAuthService, AuthService>();
     }
 
     #endregion

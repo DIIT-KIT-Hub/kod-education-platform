@@ -59,7 +59,7 @@ function VerificationForm({ t }) {
   );
 
   const handlers = {
-    1: {
+    [VERIFICATION_STEP.EMAIL]: {
       400: () => {},
       404: () => error(t.verification.email.errors.userNotFound),
       409: () => {
@@ -67,7 +67,7 @@ function VerificationForm({ t }) {
         router.push("/auth/login");
       },
     },
-    2: {
+    [VERIFICATION_STEP.PASSWORD]: {
       400: () => {},
       401: () => {
         error(t.verification.errors.incorrectVerificationToken);
@@ -77,7 +77,7 @@ function VerificationForm({ t }) {
         }, 1000);
       },
     },
-    3: {
+    [VERIFICATION_STEP.OTP]: {
       400: () => error(t.verification.otp.errors.otpCodeInvalid),
       401: () => {
         error(t.verification.errors.incorrectVerificationToken);
@@ -94,9 +94,9 @@ function VerificationForm({ t }) {
       422: () => {},
     },
     success: {
-      2: () => success(t.verification.email.success),
-      3: () => success(t.verification.password.success),
-      0: () => {
+      [VERIFICATION_STEP.PASSWORD]: () => success(t.verification.email.success),
+      [VERIFICATION_STEP.OTP]: () => success(t.verification.password.success),
+      [VERIFICATION_STEP.NONE]: () => {
         success(t.verification.otp.success);
         router.push("/auth/login");
       },
@@ -106,11 +106,11 @@ function VerificationForm({ t }) {
 
   const getButtonText = () => {
     switch (state.step) {
-      case 1:
+      case VERIFICATION_STEP.EMAIL:
         return t.verification.email.button;
-      case 2:
+      case VERIFICATION_STEP.PASSWORD:
         return t.verification.password.button;
-      case 3:
+      case VERIFICATION_STEP.OTP:
         return t.verification.otp.buttonVerify;
       default:
         return "";

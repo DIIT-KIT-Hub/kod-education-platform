@@ -1,6 +1,5 @@
 ﻿using KOD.Domain.Entities.Otp;
 using KOD.Domain.Repositories;
-using KOD.Domain.ValueObjects.Otp;
 using KOD.Infrastructure.Implementations.Persistence.Database;
 
 using Microsoft.EntityFrameworkCore;

@@ -1,4 +1,4 @@
-﻿namespace KOD.Domain.ValueObjects.Users;
+﻿namespace KOD.Domain.Entities.Users;
 
 /// <summary>
 /// Represents a lightweight identity of a user, containing only the essential identification data.

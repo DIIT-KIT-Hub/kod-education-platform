@@ -1,5 +1,4 @@
 ﻿using KOD.Domain.Entities.Users;
-using KOD.Domain.ValueObjects.Users;
 
 namespace KOD.Domain.Repositories;
 
@@ -53,7 +52,16 @@ public interface IIdentityRepository
     /// <returns>
     /// A collection of role names (<see cref="string"/>) associated with the user.
     /// </returns>
-    Task<IEnumerable<string>> GetUserRolesAsync(ApplicationUser user);
+    Task<string> GetUserRoleAsync(ApplicationUser user);
+
+    /// <summary>
+    /// Retrieves all permissions assigned to the specified user.
+    /// </summary>
+    /// <param name="user">The <see cref="ApplicationUser"/> whose permissions are being retrieved.</param>
+    /// <returns>
+    /// A collection of permission names (<see cref="string"/>) associated with the user.
+    /// </returns>
+    Task<IEnumerable<string>> GetUserPermissionsAsync(ApplicationUser user);
 
     /// <summary>
     /// Checks whether the provided password is correct for the given user.
@@ -65,7 +73,14 @@ public interface IIdentityRepository
     /// </returns>
     Task<bool> CheckUserPasswordAsync(ApplicationUser user, string password);
 
-  
+    /// <summary>
+    /// Retrieves consolidated authentication information for a user by their unique identifier.
+    /// </summary>
+    /// <param name="userId">The unique identifier of the user.</param>
+    /// <returns>
+    /// A <see cref="UserAuthInfo"/> object containing role and permissions if the user exists; otherwise, <c>null</c>.
+    /// </returns>
+    Task<UserAuthInfo?> GetUserAuthInfoAsync(Guid userId);
 
     #endregion
 }

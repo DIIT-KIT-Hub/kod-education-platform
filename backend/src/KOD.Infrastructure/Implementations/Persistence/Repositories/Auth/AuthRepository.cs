@@ -1,7 +1,6 @@
 ﻿using KOD.Domain.Entities.Auth;
+using KOD.Domain.Entities.Users;
 using KOD.Domain.Repositories;
-using KOD.Domain.ValueObjects.Auth;
-using KOD.Domain.ValueObjects.Users;
 using KOD.Infrastructure.Implementations.Persistence.Database;
 
 using Microsoft.EntityFrameworkCore;

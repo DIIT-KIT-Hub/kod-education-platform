@@ -1,6 +1,6 @@
-﻿using KOD.Domain.ValueObjects.Users;
+﻿using KOD.Domain.Entities.Users;
 
-namespace KOD.Domain.ValueObjects.Auth;
+namespace KOD.Domain.Entities.Auth;
 
 /// <summary>
 /// Represents the details of a refresh token, including its value, expiration time, and associated user identity.
