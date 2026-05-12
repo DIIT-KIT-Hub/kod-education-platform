@@ -1,4 +1,5 @@
 ﻿using KOD.Domain.Constants;
+using KOD.Infrastructure.Implementations.Persistence.Constants;
 
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -19,7 +20,7 @@ internal sealed class AspNetRoleClaimsConfiguration : IEntityTypeConfiguration<I
     /// <param name="builder">The builder used to configure the entity type.</param>
     public void Configure(EntityTypeBuilder<IdentityRoleClaim<Guid>> builder)
     {
-        var adminRoleId = Guid.Parse("a953e99c-2320-4616-b741-b770f2d6bd17");
+        var adminRoleId = ConfigurationConstants.AdminRoleId;
         const string type = "permission";
 
         builder.HasData([

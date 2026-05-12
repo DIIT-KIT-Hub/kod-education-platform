@@ -1,4 +1,5 @@
 ﻿using KOD.Domain.Entities.Users;
+using KOD.Infrastructure.Implementations.Persistence.Constants;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -40,16 +41,13 @@ internal sealed class ApplicationUserConfiguration : IEntityTypeConfiguration<Ap
         builder.Property(u => u.ConcurrencyStamp)
             .HasMaxLength(256);
 
-        builder.HasData();
-
         var rootUser = new ApplicationUser
         {
-            Id = Guid.Parse("46b56073-6b0f-4238-ae89-a81073a4774e"),
+            Id = ConfigurationConstants.RootUserId,
             UserName = "000000",
             NormalizedUserName = "000000",
             Email = "root@gmail.com",
             NormalizedEmail = "ROOT@GMAIL.COM",
-            PasswordHash= "AQAAAAIAAYagAAAAEOvATbb65SPv1K+5yitp18adBYw/x9n42A/iGobWqqTs4Hb7S+8vDHHTMSj3bsGCNA==",
             EmailConfirmed = true,
             SecurityStamp = "46b56073-6b0f-4238-ae89-a81073a4774e",
             ConcurrencyStamp = "46b56073-6b0f-4238-ae89-a81073a4774e",
