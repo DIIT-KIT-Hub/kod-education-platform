@@ -1,30 +1,75 @@
+:root {
+  --color-page: #f1f6fc;
+  --c-accent: #0b63ce;
+  --c-accent-hover: #0a56b3;
+  --c-accent-active: #094a9b;
+  --c-accent-soft: #e2eefc;
+  --c-accent-softer: #f0f7ff;
+  --c-on-accent: #ffffff;
+
+  --fs-2xs: 0.6875rem; /* 11px — мітки, eyebrow */
+  --fs-xs: 0.75rem; /* 12px */
+  --fs-sm: 0.8125rem; /* 13px — таблиці, підписи */
+  --fs-base: 0.9375rem; /* 15px — основний текст UI */
+  --fs-md: 1.0625rem; /* 17px */
+  --fs-lg: 1.3125rem; /* 21px */
+  --fs-xl: 1.75rem; /* 28px */
+  --fs-2xl: 2.25rem; /* 36px */
+  --fs-3xl: 2.875rem; /* 46px */
+
+  --lh-tight: 1.15;
+  --lh-snug: 1.35;
+  --lh-normal: 1.55;
+  --lh-relaxed: 1.7;
+
+  --fw-regular: 400;
+  --fw-medium: 500;
+  --fw-semibold: 600;
+  --fw-bold: 700;
+  --fw-extrabold: 800;
+
+  --sp-0: 0;
+  --sp-1: 0.25rem;
+  --sp-2: 0.5rem;
+  --sp-3: 0.75rem;
+  --sp-4: 1rem;
+  --sp-5: 1.25rem;
+  --sp-6: 1.5rem;
+  --sp-8: 2rem;
+  --sp-10: 2.5rem;
+  --sp-12: 3rem;
+  --sp-16: 4rem;
+  --sp-20: 5rem;
+  --sp-24: 6rem;
+
+  --tracking-tight: -0.02em;
+  --tracking-normal: 0;
+  --tracking-wide: 0.04em;
+  --tracking-widest: 0.12em;
+}
+
 *,
 *::before,
 *::after {
   box-sizing: border-box;
+}
+
+* {
   margin: 0;
   padding: 0;
 }
 
-html {
-  -webkit-text-size-adjust: 100%;
-  -moz-text-size-adjust: 100%;
-  text-size-adjust: 100%;
-  color-scheme: light dark;
-}
-
 body {
-  min-height: 100vh;
-  line-height: 1.6;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  min-height: 100dvh;
+  background-color: var(--color-page);
+  font-family: var(--font-inter), system-ui, sans-serif;
 }
 
 img,
 picture,
+svg,
 video,
-canvas,
-svg {
+canvas {
   display: block;
   max-width: 100%;
 }
@@ -38,9 +83,10 @@ select {
 }
 
 button {
-  cursor: pointer;
   background: none;
   border: none;
+  padding: 0;
+  cursor: pointer;
 }
 
 a {
@@ -48,69 +94,34 @@ a {
   text-decoration: none;
 }
 
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: var(--fw-bold);
+  line-height: var(--lh-tight);
+  letter-spacing: var(--tracking-tight);
+  text-wrap: balance;
+}
+
+p,
+li {
+  text-wrap: pretty;
+}
+
 ul,
 ol {
   list-style: none;
+  padding: 0;
 }
 
 table {
   border-collapse: collapse;
-  border-spacing: 0;
+  width: 100%;
 }
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  font-size: inherit;
-  font-weight: inherit;
-}
-
-p,
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  overflow-wrap: break-word;
-}
-
-#__next,
-#root {
-  isolation: isolate;
-}
-
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-  --surface: #f5f5f5;
-  --surface-hover: #e5e5e5;
-  --border-color: #e0e0e0;
-  --text-secondary: #6b7280;
-  --accent: #2563eb;
-  --accent-hover: #1d4ed8;
-  --danger: #dc2626;
-  --success: #16a34a;
-}
-
-[data-theme="dark"] {
-  --background: #0a0a0a;
-  --foreground: #ededed;
-  --surface: #1a1a1a;
-  --surface-hover: #262626;
-  --border-color: #2e2e2e;
-  --text-secondary: #a1a1aa;
-  --accent: #3b82f6;
-  --accent-hover: #60a5fa;
-  --danger: #ef4444;
-  --success: #22c55e;
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-inter), system-ui, sans-serif;
+:focus {
+  outline: none;
 }
