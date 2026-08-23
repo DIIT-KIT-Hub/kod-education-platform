@@ -1,0 +1,184 @@
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+}
+
+.label {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.4;
+  color: var(--color-text, #1a1d21);
+}
+
+.required {
+  margin-left: 2px;
+  color: var(--color-danger, #d92d20);
+}
+
+.control {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+/* ---------- Іконка зліва ---------- */
+
+.icon {
+  position: absolute;
+  left: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px; /* react-icons масштабуються від font-size (size: 1em) */
+  line-height: 0;
+  color: var(--color-text-muted, #98a2b3);
+  pointer-events: none; /* клік по іконці фокусить інпут під нею */
+  transition: color 0.15s ease;
+}
+
+/* іконка підсвічується разом із рамкою */
+.control:focus-within .icon {
+  color: var(--color-accent, #2563eb);
+}
+
+.controlError .icon,
+.controlError:focus-within .icon {
+  color: var(--color-danger, #d92d20);
+}
+
+/* ---------- Поле ---------- */
+
+.input {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 14px;
+  font: inherit;
+  font-size: 15px;
+  line-height: 1.4;
+  color: var(--color-text, #1a1d21);
+  background: var(--color-surface, #fff);
+  border: 1px solid var(--color-border, #d5d9e0);
+  border-radius: 10px;
+  outline: none;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    background-color 0.15s ease;
+  appearance: none;
+}
+
+.input::placeholder {
+  color: var(--color-text-muted, #98a2b3);
+}
+
+.input:hover:not(:disabled):not(:focus) {
+  border-color: var(--color-border-strong, #b8bfcc);
+}
+
+.input:focus-visible {
+  border-color: var(--color-accent, #2563eb);
+  box-shadow: 0 0 0 3px var(--color-accent-ring, rgba(37, 99, 235, 0.15));
+}
+
+.input:disabled {
+  color: var(--color-text-muted, #98a2b3);
+  background: var(--color-surface-muted, #f5f6f8);
+  cursor: not-allowed;
+}
+
+.input:-webkit-autofill {
+  -webkit-text-fill-color: var(--color-text, #1a1d21);
+  box-shadow: 0 0 0 1000px var(--color-surface, #fff) inset;
+}
+
+/* відступи під слоти */
+.hasIcon {
+  padding-left: 44px;
+}
+
+.hasSuffix {
+  padding-right: 46px;
+}
+
+.textarea {
+  min-height: 108px;
+  padding-top: 12px;
+  resize: vertical;
+  line-height: 1.55;
+}
+
+/* у textarea іконка тримається зверху, а не по центру */
+.textarea ~ .icon,
+.control:has(.textarea) .icon {
+  top: 13px;
+  align-items: flex-start;
+}
+
+.inputError {
+  border-color: var(--color-danger, #d92d20);
+}
+
+.inputError:focus-visible {
+  border-color: var(--color-danger, #d92d20);
+  box-shadow: 0 0 0 3px var(--color-danger-ring, rgba(217, 45, 32, 0.15));
+}
+
+/* ---------- Слот справа ---------- */
+
+.suffix {
+  position: absolute;
+  right: 6px;
+  display: flex;
+  align-items: center;
+  font-size: 18px;
+  line-height: 0;
+  color: var(--color-text-muted, #98a2b3);
+}
+
+.toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  font-size: 18px;
+  line-height: 0;
+  color: var(--color-text-muted, #98a2b3);
+  background: none;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition:
+    color 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.toggle:hover {
+  color: var(--color-text, #1a1d21);
+  background: var(--color-surface-muted, #f5f6f8);
+}
+
+.toggle:focus-visible {
+  outline: 2px solid var(--color-accent, #2563eb);
+  outline-offset: 2px;
+}
+
+/* ---------- Підказка й помилка ---------- */
+
+.hint,
+.error {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.hint {
+  color: var(--color-text-muted, #667085);
+}
+
+.error {
+  color: var(--color-danger, #d92d20);
+}

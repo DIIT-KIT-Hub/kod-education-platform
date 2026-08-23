@@ -1,0 +1,18 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  max-width: 460px;
+}
+
+.title {
+  font-size: var(--fs-2xl);
+  font-weight: var(--fw-extrabold);
+  letter-spacing: -0.03em;
+  line-height: var(--lh-tight);
+}
+.subtitle {
+  margin-top: var(--sp-2);
+  font-size: var(--fs-base);
+  color: var(--c-ink-muted);
+  line-height: var(--lh-normal);
+}

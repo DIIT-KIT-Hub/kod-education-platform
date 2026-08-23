@@ -7,7 +7,8 @@
 
 .formSide {
   display: flex;
-  flex-direction: column;
+  justify-content: center;
+  align-items: center;
   padding: var(--sp-8);
 }
 
@@ -42,7 +43,7 @@
 
 .asideInner {
   position: relative;
-  max-width: 460px;
+  max-width: 550px;
 }
 
 .asideEyebrow {

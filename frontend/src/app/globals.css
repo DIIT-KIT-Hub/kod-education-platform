@@ -1,5 +1,19 @@
 :root {
-  --color-page: #f1f6fc;
+  --c-page: #f1f6fc;
+  --c-surface: #ffffff;
+  --c-surface-raised: #ffffff;
+  --c-surface-sunken: #e9f1fb;
+  --c-surface-hover: #f3f8fe;
+
+  --c-ink: #0c1724;
+  --c-ink-soft: #37485e;
+  --c-ink-muted: #64768d;
+  --c-ink-faint: #93a3b7;
+  --c-ink-inverse: #ffffff;
+
+  --c-line: #dbe6f3;
+  --c-line-strong: #c2d3e8;
+
   --c-accent: #0b63ce;
   --c-accent-hover: #0a56b3;
   --c-accent-active: #094a9b;
@@ -7,15 +21,36 @@
   --c-accent-softer: #f0f7ff;
   --c-on-accent: #ffffff;
 
-  --fs-2xs: 0.6875rem; /* 11px — мітки, eyebrow */
-  --fs-xs: 0.75rem; /* 12px */
-  --fs-sm: 0.8125rem; /* 13px — таблиці, підписи */
-  --fs-base: 0.9375rem; /* 15px — основний текст UI */
-  --fs-md: 1.0625rem; /* 17px */
-  --fs-lg: 1.3125rem; /* 21px */
-  --fs-xl: 1.75rem; /* 28px */
-  --fs-2xl: 2.25rem; /* 36px */
-  --fs-3xl: 2.875rem; /* 46px */
+  --c-success: #1a7f52;
+  --c-success-soft: #e3f5ec;
+  --c-warning: #a86412;
+  --c-warning-soft: #fdf1de;
+  --c-danger: #c22f2f;
+  --c-danger-hover: #a72727;
+  --c-danger-soft: #fdeaea;
+  --c-info: #0b63ce;
+  --c-info-soft: #e2eefc;
+
+  --c-overlay: rgb(12 23 36 / 0.45);
+  --c-focus-ring: rgb(11 99 206 / 0.35);
+  --c-skeleton: #e4edf8;
+  --c-skeleton-shine: #f2f8ff;
+
+  --shadow-xs: 0 1px 2px rgb(12 23 36 / 0.06);
+  --shadow-sm: 0 1px 3px rgb(12 23 36 / 0.07), 0 1px 2px rgb(12 23 36 / 0.04);
+  --shadow-md: 0 4px 14px rgb(12 23 36 / 0.08), 0 1px 3px rgb(12 23 36 / 0.05);
+  --shadow-lg: 0 16px 40px rgb(12 23 36 / 0.14), 0 2px 8px rgb(12 23 36 / 0.06);
+  --shadow-pop: 0 8px 28px rgb(12 23 36 / 0.16);
+
+  --fs-2xs: 0.6875rem;
+  --fs-xs: 0.75rem;
+  --fs-sm: 0.8125rem;
+  --fs-base: 0.9375rem;
+  --fs-md: 1.0625rem;
+  --fs-lg: 1.3125rem;
+  --fs-xl: 1.75rem;
+  --fs-2xl: 2.25rem;
+  --fs-3xl: 2.875rem;
 
   --lh-tight: 1.15;
   --lh-snug: 1.35;
@@ -27,6 +62,11 @@
   --fw-semibold: 600;
   --fw-bold: 700;
   --fw-extrabold: 800;
+
+  --tracking-tight: -0.02em;
+  --tracking-normal: 0;
+  --tracking-wide: 0.04em;
+  --tracking-widest: 0.12em;
 
   --sp-0: 0;
   --sp-1: 0.25rem;
@@ -42,10 +82,44 @@
   --sp-20: 5rem;
   --sp-24: 6rem;
 
-  --tracking-tight: -0.02em;
-  --tracking-normal: 0;
-  --tracking-wide: 0.04em;
-  --tracking-widest: 0.12em;
+  --radius-xs: 3px;
+  --radius-sm: 5px;
+  --radius-md: 7px;
+  --radius-lg: 10px;
+  --radius-xl: 14px;
+  --radius-pill: 999px;
+
+  --border-hairline: 1px;
+
+  --control-h-sm: 32px;
+  --control-h-md: 40px;
+  --control-h-lg: 48px;
+
+  --sidebar-w: 260px;
+  --sidebar-w-collapsed: 68px;
+  --topbar-h: 60px;
+  --container-max: 1360px;
+  --content-max: 78ch;
+
+  --ease-out: cubic-bezier(0.2, 0.7, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-spring: cubic-bezier(0.34, 1.4, 0.5, 1);
+
+  --dur-instant: 90ms;
+  --dur-fast: 140ms;
+  --dur-normal: 200ms;
+  --dur-slow: 280ms;
+  --dur-slower: 420ms;
+
+  --z-base: 0;
+  --z-sticky: 100;
+  --z-sidebar: 200;
+  --z-dropdown: 300;
+  --z-overlay: 400;
+  --z-modal: 500;
+  --z-toast: 600;
+
+  color-scheme: light;
 }
 
 *,
@@ -61,7 +135,7 @@
 
 body {
   min-height: 100dvh;
-  background-color: var(--color-page);
+  background-color: var(--c-page);
   font-family: var(--font-inter), system-ui, sans-serif;
 }
 
@@ -124,4 +198,15 @@ table {
 
 :focus {
   outline: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
