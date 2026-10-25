@@ -1,0 +1,10 @@
+<div class="@CssClass" role="@(Tone == Tone.Danger ? "alert" : "status")">
+    <Icon Name="@(Icon ?? DefaultIcon)" />
+    <div class="ds-alert__body">
+        @if (Title is not null)
+        {
+            <p class="ds-alert__title">@Title</p>
+        }
+        @ChildContent
+    </div>
+</div>

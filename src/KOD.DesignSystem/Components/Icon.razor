@@ -1,0 +1,7 @@
+<svg class="@CssClass" aria-hidden="@(Title is null ? "true" : "false")" focusable="false" role="@(Title is null ? null : "img")">
+    @if (Title is not null)
+    {
+        <title>@Title</title>
+    }
+    <use href="@($"{DesignTokens.IconSprite}#{Name}")" />
+</svg>

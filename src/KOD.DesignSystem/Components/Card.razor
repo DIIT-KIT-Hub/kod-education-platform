@@ -1,0 +1,37 @@
+@if (Href is not null)
+{
+    <a href="@Href" class="@CssClass" @attributes="AdditionalAttributes">@Body</a>
+}
+else
+{
+    <section class="@CssClass" @attributes="AdditionalAttributes">@Body</section>
+}
+
+@code {
+    /// <summary>
+    /// Renders the header, content and footer.
+    /// </summary>
+    private RenderFragment Body => @<text>
+        @if (Title is not null || HeaderActions is not null)
+        {
+            <header class="ds-card__header">
+                <div>
+                    @if (Title is not null)
+                    {
+                        <h2 class="ds-card__title">@Title</h2>
+                    }
+                    @if (Subtitle is not null)
+                    {
+                        <p class="ds-card__subtitle">@Subtitle</p>
+                    }
+                </div>
+                @HeaderActions
+            </header>
+        }
+        @ChildContent
+        @if (Footer is not null)
+        {
+            <footer class="ds-card__footer">@Footer</footer>
+        }
+    </text>;
+}

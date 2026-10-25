@@ -1,0 +1,33 @@
+# Build output
+bin/
+obj/
+artifacts/
+publish/
+TestResults/
+*.binlog
+
+# IDEs
+.vs/
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.user
+*.suo
+*.DotSettings.user
+
+# Runtime data (uploaded documents, logs, data protection keys)
+App_Data/
+src/KOD.Web/wwwroot/uploads/
+*.log
+
+# Local secrets
+appsettings.*.local.json
+.env
+.env.*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Local tooling
+.claude/

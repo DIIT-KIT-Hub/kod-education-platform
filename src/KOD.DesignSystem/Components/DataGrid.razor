@@ -1,0 +1,85 @@
+@typeparam TItem
+
+<CascadingValue TValue="DataGrid<TItem>" IsFixed="true" Value="this">
+    @{
+        StartCollectingColumns();
+    }
+    @Columns
+    <Defer>@RenderGrid</Defer>
+</CascadingValue>
+
+@code {
+    /// <summary>
+    /// Renders the table (or the empty state) and the pagination.
+    /// </summary>
+    private RenderFragment RenderGrid => @<text>
+        @{
+            FinishCollectingColumns();
+        }
+        @if (Items.Count == 0)
+        {
+            <div class="ds-grid">
+                @if (EmptyContent is not null)
+                {
+                    @EmptyContent
+                }
+                else
+                {
+                    <EmptyState Icon="@EmptyIcon" Title="@EmptyTitle" Text="@EmptyText" />
+                }
+            </div>
+        }
+        else
+        {
+            <div class="ds-grid">
+                <table class="ds-table">
+                    @if (Caption is not null)
+                    {
+                        <caption class="ds-visually-hidden">@Caption</caption>
+                    }
+                    <thead>
+                        <tr>
+                            @foreach (var column in _columns)
+                            {
+                                <th scope="col" class="@column.CellClass" aria-sort="@AriaSort(column)">
+                                    @if (column.SortKey is not null)
+                                    {
+                                        <a href="@SortHref(column)">
+                                            @column.Title
+                                            <Icon Name="@SortIcon(column)" Size="IconSize.Small" />
+                                        </a>
+                                    }
+                                    else if (!column.Actions)
+                                    {
+                                        @column.Title
+                                    }
+                                    else
+                                    {
+                                        <span class="ds-visually-hidden">@column.Title</span>
+                                    }
+                                </th>
+                            }
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Items)
+                        {
+                            <tr>
+                                @foreach (var column in _columns)
+                                {
+                                    <td data-label="@column.Title" data-primary="@(column.Primary ? "true" : null)" class="@column.CellClass">
+                                        @column.ChildContent(item)
+                                    </td>
+                                }
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        @if (ShowPagination && TotalCount > 0)
+        {
+            <Pagination Page="Page" PageSize="PageSize" TotalCount="TotalCount" />
+        }
+    </text>;
+}

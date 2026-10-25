@@ -1,0 +1,68 @@
+@inherits LayoutComponentBase
+
+<a class="app-skip" href="#main">Перейти до змісту</a>
+
+<div class="app-shell">
+    <aside class="app-sidebar" aria-label="Головне меню">
+        <a class="app-brand" href="/">
+            <span class="app-brand__mark" aria-hidden="true">К</span>
+            <span class="app-brand__text">
+                <strong>КОД</strong>
+                <small>Кабінет освітніх даних</small>
+            </span>
+        </a>
+        <NavMenu Items="Items" />
+        <div class="app-sidebar__footer">
+            <UserMenu />
+        </div>
+    </aside>
+
+    <header class="app-topbar">
+        <a class="app-brand app-brand--compact" href="/">
+            <span class="app-brand__mark" aria-hidden="true">К</span>
+            <strong>КОД</strong>
+        </a>
+        <div class="ds-row">
+            <button type="button" class="ds-btn ds-btn--ghost ds-btn--icon ds-btn--sm" data-theme-toggle aria-label="Змінити тему">
+                <Icon Name="moon" Class="app-theme-dark" />
+                <Icon Name="sun" Class="app-theme-light" />
+            </button>
+            <button type="button" class="ds-btn ds-btn--ghost ds-btn--icon ds-btn--sm" popovertarget="app-drawer" aria-label="Меню">
+                <Icon Name="menu" />
+            </button>
+        </div>
+    </header>
+
+    <div id="app-drawer" class="app-drawer" popover>
+        <div class="app-drawer__header">
+            <span class="ds-strong">Меню</span>
+            <button type="button" class="ds-btn ds-btn--ghost ds-btn--icon ds-btn--sm" popovertarget="app-drawer" popovertargetaction="hide" aria-label="Закрити меню">
+                <Icon Name="x" />
+            </button>
+        </div>
+        <NavMenu Items="Items" />
+        <UserMenu />
+    </div>
+
+    <main id="main" class="app-main" tabindex="-1">
+        <div class="app-page">
+            @Body
+        </div>
+    </main>
+
+    <nav class="app-tabbar" aria-label="Швидка навігація">
+        @foreach (var item in Items.Where(static i => i.ShowInTabBar).Take(5))
+        {
+            <NavLink class="app-tabbar__item" href="@item.Href" Match="@(item.Href == "/" ? NavLinkMatch.All : NavLinkMatch.Prefix)">
+                <Icon Name="@item.Icon" />
+                <span>@item.Text</span>
+            </NavLink>
+        }
+    </nav>
+</div>
+
+<div id="blazor-error-ui" class="app-error-ui" data-nosnippet>
+    <Icon Name="triangle-alert" />
+    <span>Сталася помилка. Оновіть сторінку.</span>
+    <a href="." class="reload ds-btn ds-btn--sm ds-btn--secondary">Оновити</a>
+</div>

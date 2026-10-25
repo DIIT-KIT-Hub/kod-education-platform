@@ -1,0 +1,82 @@
+@page "/admin/roles/new"
+@page "/admin/roles/{Id:guid}"
+@attribute [RequirePermission(Permissions.Roles.Manage)]
+@rendermode InteractiveServer
+
+<PageHeader Title="@(Existing?.Name ?? "Нова роль")" Subtitle="@(Existing?.IsAdministrator == true ? "Системний адміністратор завжди має всі дозволи." : "Позначте дозволи, які надає роль.")"
+            Breadcrumbs="@([new("Адміністрування", "/admin"), new("Ролі", "/admin/roles"), new(Existing is null ? "Нова" : "Налаштування")])">
+    <ChildContent>
+        @if (Existing is not null)
+        {
+            <div class="ds-cluster">
+                <Badge Tone="Tone.Dashed"><span class="ds-mono">@Existing.Code</span></Badge>
+                <Badge>Користувачів: @Existing.UserCount</Badge>
+            </div>
+        }
+    </ChildContent>
+</PageHeader>
+
+@if (Loaded)
+{
+    @if (ErrorMessage is not null)
+    {
+        <Alert Tone="Tone.Danger">@ErrorMessage</Alert>
+    }
+
+    <EditForm Model="Model" OnValidSubmit="SaveAsync" class="ds-split ds-split--wide-aside">
+        <DataAnnotationsValidator />
+        <Card Title="Дозволи">
+            <div class="perm-matrix">
+                @foreach (var group in Permissions.All.GroupBy(static p => p.Module))
+                {
+                    <section class="perm-module">
+                        <span class="perm-module__title"><Icon Name="@Display.IconOf(group.Key)" /> @Display.Text(group.Key)</span>
+                        <div class="perm-module__items">
+                            @foreach (var permission in group)
+                            {
+                                <label class="ds-check">
+                                    <input type="checkbox" checked="@Model.Permissions.Contains(permission.Code)" disabled="@ReadOnly"
+                                           @onchange="e => Toggle(permission.Code, e.Value is true)" />
+                                    <span class="ds-check__text">
+                                        <span>@permission.Title</span>
+                                        <span class="ds-check__hint">@permission.Description</span>
+                                    </span>
+                                </label>
+                            }
+                        </div>
+                    </section>
+                }
+            </div>
+        </Card>
+
+        <div class="ds-stack ds-stack--lg">
+            <Card Title="Роль">
+                <div class="ds-form">
+                    @if (Existing is null)
+                    {
+                        <Field Label="Код" For="role-code" Required Hint="Латиниця, цифри, «-». Використовується в імпорті.">
+                            <InputText id="role-code" @bind-Value="Model.Code" class="ds-input ds-mono" maxlength="64" placeholder="lab-assistant" />
+                            <ValidationMessage For="() => Model.Code" />
+                        </Field>
+                    }
+                    <Field Label="Назва" For="role-name" Required>
+                        <InputText id="role-name" @bind-Value="Model.Name" class="ds-input" maxlength="128" />
+                        <ValidationMessage For="() => Model.Name" />
+                    </Field>
+                    <Field Label="Опис" For="role-description">
+                        <InputTextArea id="role-description" @bind-Value="Model.Description" class="ds-textarea" maxlength="512" rows="3" />
+                    </Field>
+                </div>
+            </Card>
+            <Card Variant="CardVariant.Muted">
+                <div class="ds-stack">
+                    <Button Type="submit" Block Icon="save" Disabled="Busy">Зберегти</Button>
+                    @if (Existing is { IsSystem: false })
+                    {
+                        <Button Variant="ButtonVariant.Danger" Block Icon="trash-2" Disabled="@(Busy || Existing.UserCount > 0)" OnClick="DeleteAsync">Видалити роль</Button>
+                    }
+                </div>
+            </Card>
+        </div>
+    </EditForm>
+}

@@ -1,0 +1,61 @@
+@page "/admin/units/new"
+@page "/admin/units/{Id:guid}"
+@attribute [RequirePermission(Permissions.Structure.Manage)]
+@rendermode InteractiveServer
+
+<PageHeader Title="@(Id is null ? "Новий підрозділ" : Model.Name)"
+            Breadcrumbs="@([new("Адміністрування", "/admin"), new("Структура", "/admin/units"), new(Id is null ? "Новий" : "Редагування")])" />
+
+@if (Loaded)
+{
+    @if (ErrorMessage is not null)
+    {
+        <Alert Tone="Tone.Danger">@ErrorMessage</Alert>
+    }
+
+    <EditForm Model="Model" OnValidSubmit="SaveAsync" class="ds-split ds-split--wide-aside">
+        <DataAnnotationsValidator />
+        <Card>
+            <div class="ds-form-grid">
+                <Field Label="Повна назва" For="unit-name" Required Class="ds-span-full">
+                    <InputText id="unit-name" @bind-Value="Model.Name" class="ds-input" maxlength="256" />
+                    <ValidationMessage For="() => Model.Name" />
+                </Field>
+                <Field Label="Скорочена назва" For="unit-short">
+                    <InputText id="unit-short" @bind-Value="Model.ShortName" class="ds-input" maxlength="64" />
+                </Field>
+                <Field Label="Код" For="unit-code" Required Hint="Латиниця, цифри, «-», «_». Використовується в імпорті.">
+                    <InputText id="unit-code" @bind-Value="Model.Code" class="ds-input ds-mono" maxlength="32" />
+                    <ValidationMessage For="() => Model.Code" />
+                </Field>
+                <Field Label="Тип" For="unit-type">
+                    <InputSelect id="unit-type" @bind-Value="Model.Type" class="ds-select">
+                        @foreach (var type in Enum.GetValues<OrganizationUnitType>())
+                        {
+                            <option value="@type">@Display.Text(type)</option>
+                        }
+                    </InputSelect>
+                </Field>
+                <Field Label="Батьківський підрозділ" For="unit-parent">
+                    <InputSelect id="unit-parent" @bind-Value="Model.ParentId" class="ds-select">
+                        <option value="">— (кореневий заклад)</option>
+                        @foreach (var unit in Units.Where(u => u.Id != Id))
+                        {
+                            <option value="@unit.Id">@(new string(' ', unit.Depth * 2))@unit.Name</option>
+                        }
+                    </InputSelect>
+                </Field>
+                <Field Label="Порядок відображення" For="unit-order">
+                    <InputNumber id="unit-order" @bind-Value="Model.SortOrder" class="ds-input" />
+                </Field>
+                <label class="ds-check">
+                    <InputCheckbox @bind-Value="Model.IsActive" />
+                    <span class="ds-check__text"><span>Активний</span><span class="ds-check__hint">Неактивні підрозділи зберігаються для історії документів.</span></span>
+                </label>
+            </div>
+        </Card>
+        <Card Variant="CardVariant.Muted">
+            <Button Type="submit" Block Icon="save" Disabled="Busy">Зберегти</Button>
+        </Card>
+    </EditForm>
+}

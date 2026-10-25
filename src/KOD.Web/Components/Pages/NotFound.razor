@@ -1,0 +1,10 @@
+@page "/not-found"
+@attribute [AllowAnonymous]
+@layout MainLayout
+
+<PageHeader Title="Сторінку не знайдено" />
+<Card>
+    <EmptyState Icon="search" Title="Такої сторінки не існує" Text="Можливо, посилання застаріло або містить помилку.">
+        <Button Href="/" Icon="house">На головну</Button>
+    </EmptyState>
+</Card>

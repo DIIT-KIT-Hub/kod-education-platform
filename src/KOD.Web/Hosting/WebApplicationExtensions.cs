@@ -1,0 +1,98 @@
+using KOD.Infrastructure.Files;
+using KOD.Infrastructure.Persistence.Seeding;
+using KOD.Web.Components;
+using KOD.Web.Identity;
+using KOD.Web.Security;
+using KOD.Web.Signing;
+using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Options;
+using Scalar.AspNetCore;
+
+namespace KOD.Web.Hosting;
+
+/// <summary>
+/// Configures the HTTP pipeline and endpoints.
+/// </summary>
+internal static class WebApplicationExtensions
+{
+    /// <param name="app">The web application.</param>
+    extension(WebApplication app)
+    {
+        /// <summary>
+        /// Applies database migrations and seeds the initial data.
+        /// </summary>
+        /// <returns>A task that completes when the database is ready.</returns>
+        public async Task InitializeDatabaseAsync()
+        {
+            await using var scope = app.Services.CreateAsyncScope();
+            await scope.ServiceProvider.GetRequiredService<DatabaseInitializer>().InitializeAsync(app.Lifetime.ApplicationStopping);
+        }
+
+        /// <summary>
+        /// Configures middleware and maps endpoints.
+        /// </summary>
+        /// <returns>The web application.</returns>
+        public WebApplication UseWebPipeline()
+        {
+            if (app.Environment.IsDevelopment())
+            {
+                // HTML pages keep the developer exception page; the API still answers with problem details.
+                app.UseWhen(
+                    static context => context.Request.Path.StartsWithSegments("/api", StringComparison.OrdinalIgnoreCase),
+                    static branch => branch.UseExceptionHandler());
+            }
+            else
+            {
+                app.UseExceptionHandler("/error", createScopeForErrors: true);
+                app.UseHsts();
+            }
+
+            app.UseMiddleware<SecurityHeadersMiddleware>();
+            app.UseWhen(
+                static context => !context.Request.Path.StartsWithSegments("/api", StringComparison.OrdinalIgnoreCase),
+                static branch => branch.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true));
+            app.UseHttpsRedirection();
+            app.UseRequestLocalization();
+            app.UsePublicUploads();
+
+            app.UseRouting();
+            app.UseAuthentication();
+            app.UseAuthorization();
+            app.UseRateLimiter();
+            app.UseMiddleware<PasswordChangeEnforcementMiddleware>();
+            app.UseAntiforgery();
+
+            app.MapStaticAssets().AllowAnonymous();
+            app.MapControllers();
+            app.MapEuSignProxy();
+            app.MapAccountEndpoints();
+            app.MapRazorComponents<App>()
+                .AddInteractiveServerRenderMode();
+
+            if (app.Environment.IsDevelopment())
+            {
+                app.MapOpenApi().AllowAnonymous();
+                app.MapScalarApiReference(static options => options.WithTitle("КОД REST API")).AllowAnonymous();
+            }
+
+            return app;
+        }
+
+        /// <summary>
+        /// Serves runtime uploads (news covers) from <c>wwwroot/uploads</c>; build-time assets are served by <c>MapStaticAssets</c>.
+        /// </summary>
+        private void UsePublicUploads()
+        {
+            var storage = app.Services.GetRequiredService<IOptions<StorageOptions>>().Value;
+            var folder = storage.PublicUploadsFolder.Trim('/');
+            var root = Path.Combine(app.Environment.WebRootPath, folder);
+            Directory.CreateDirectory(root);
+            app.UseStaticFiles(new StaticFileOptions
+            {
+                FileProvider = new PhysicalFileProvider(root),
+                RequestPath = $"/{folder}",
+                ServeUnknownFileTypes = false,
+            });
+        }
+    }
+}

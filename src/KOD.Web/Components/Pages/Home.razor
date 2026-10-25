@@ -1,0 +1,114 @@
+@page "/"
+@attribute [StreamRendering]
+
+<PageTitle>Головна · КОД</PageTitle>
+
+<div class="ds-stack ds-stack--xl">
+    <section class="home-hero">
+        <p class="ds-text-sm ds-strong">@Greeting</p>
+        <h1>@FirstName</h1>
+        <p>Документи, які очікують на ваш підпис, новини закладу та швидкий доступ до сервісів — в одному місці.</p>
+        <div class="ds-cluster">
+            @if (User.HasPermission(Permissions.Documents.Create))
+            {
+                <Button Href="/documents/new" Icon="file-plus">Новий документ</Button>
+            }
+            @if (User.HasPermission(Permissions.Signing.Use))
+            {
+                <Button Href="/signing" Variant="ButtonVariant.Secondary" Icon="signature">Підписати файл</Button>
+            }
+        </div>
+    </section>
+
+    @if (Summary is null)
+    {
+        <div class="ds-cols ds-cols--stats">
+            @for (var i = 0; i < 4; i++)
+            {
+                <div class="ds-skeleton" style="height:9rem;border-radius:1.5rem"></div>
+            }
+        </div>
+    }
+    else
+    {
+        @if (User.HasPermission(Permissions.Documents.View))
+        {
+            <section class="ds-cols ds-cols--stats ds-stagger" aria-label="Показники">
+                <StatCard Label="Очікують мого підпису" Value="@Summary.AwaitingMyDecision.ToString(Display.Culture)" Icon="signature" Href="/documents?scope=AwaitingMe" Inverse="Summary.AwaitingMyDecision > 0" />
+                <StatCard Label="Мої чернетки" Value="@Summary.MyDrafts.ToString(Display.Culture)" Icon="pencil" Href="/documents?scope=Authored&status=Draft" />
+                <StatCard Label="Мої на підписанні" Value="@Summary.MyInSigning.ToString(Display.Culture)" Icon="hourglass" Href="/documents?scope=Authored&status=InSigning" />
+                <StatCard Label="Підписано цього місяця" Value="@Summary.SignedThisMonth.ToString(Display.Culture)" Icon="badge-check" Href="/documents?scope=Authored&status=Signed" />
+            </section>
+        }
+
+        <div class="ds-split ds-split--wide-aside">
+            @if (User.HasPermission(Permissions.Documents.View))
+            {
+                <Card Title="Очікують мого підпису" Subtitle="Документи, де зараз ваша черга">
+                    <HeaderActions>
+                        <Button Href="/documents?scope=AwaitingMe" Variant="ButtonVariant.Ghost" Size="ControlSize.Small" IconEnd="arrow-right">Усі</Button>
+                    </HeaderActions>
+                    <ChildContent>
+                        @if (Summary.Awaiting.Count == 0)
+                        {
+                            <EmptyState Icon="circle-check" Title="Усе підписано" Text="Нових документів на підпис немає." />
+                        }
+                        else
+                        {
+                            <ul class="ds-list ds-stagger">
+                                @foreach (var document in Summary.Awaiting)
+                                {
+                                    <li>
+                                        <a class="ds-list__item" href="@($"/documents/{document.Id}")">
+                                            <span class="ds-stat__icon"><Icon Name="file-text" /></span>
+                                            <span class="ds-list__body">
+                                                <span class="ds-list__title">@document.Title</span>
+                                                <span class="ds-list__meta">№ @document.RegistrationNumber · @Display.Text(document.Kind) · @document.AuthorName</span>
+                                            </span>
+                                            <Icon Name="chevron-right" Class="ds-muted" />
+                                        </a>
+                                    </li>
+                                }
+                            </ul>
+                        }
+                    </ChildContent>
+                </Card>
+            }
+
+            @if (User.HasPermission(Permissions.News.View))
+            {
+                <Card Title="Новини" Subtitle="Останні оголошення закладу">
+                    <HeaderActions>
+                        <Button Href="/news" Variant="ButtonVariant.Ghost" Size="ControlSize.Small" IconEnd="arrow-right">Усі</Button>
+                    </HeaderActions>
+                    <ChildContent>
+                        @if (Summary.LatestNews.Count == 0)
+                        {
+                            <EmptyState Icon="newspaper" Title="Новин поки немає" />
+                        }
+                        else
+                        {
+                            <ul class="ds-list ds-stagger">
+                                @foreach (var article in Summary.LatestNews)
+                                {
+                                    <li>
+                                        <a class="ds-list__item" href="@($"/news/{article.Slug}")">
+                                            <span class="ds-list__body">
+                                                <span class="ds-list__title">@article.Title</span>
+                                                <span class="ds-list__meta">@Display.Text(article.Category) · @Display.Date(article.PublishedAt)</span>
+                                            </span>
+                                            @if (article.IsPinned)
+                                            {
+                                                <Icon Name="pin" Size="IconSize.Small" />
+                                            }
+                                        </a>
+                                    </li>
+                                }
+                            </ul>
+                        }
+                    </ChildContent>
+                </Card>
+            }
+        </div>
+    }
+</div>

@@ -1,0 +1,96 @@
+@page "/news/manage/new"
+@page "/news/manage/{Id:guid}"
+@attribute [RequirePermission(Permissions.News.Manage)]
+@rendermode InteractiveServer
+
+<PageHeader Title="@(Id is null ? "Нова публікація" : "Редагування публікації")"
+            Breadcrumbs="@([new("Новини", "/news"), new("Керування", "/news/manage"), new(Id is null ? "Нова" : "Редагування")])">
+    <Actions>
+        @if (Existing?.PublishedAt is not null)
+        {
+            <Button Href="@($"/news/{Existing.Slug}")" Variant="ButtonVariant.Secondary" Icon="eye">Переглянути</Button>
+        }
+    </Actions>
+</PageHeader>
+
+@if (Loaded)
+{
+    <EditForm Model="Model" OnValidSubmit="SaveAsync" class="ds-split ds-split--wide-aside">
+        <DataAnnotationsValidator />
+        <div class="ds-stack ds-stack--lg">
+            @if (ErrorMessage is not null)
+            {
+                <Alert Tone="Tone.Danger">@ErrorMessage</Alert>
+            }
+            <Card>
+                <div class="ds-form">
+                    <Field Label="Заголовок" For="news-title" Required>
+                        <InputText id="news-title" @bind-Value="Model.Title" class="ds-input" maxlength="200" />
+                        <ValidationMessage For="() => Model.Title" />
+                    </Field>
+                    <Field Label="Анонс" For="news-summary" Required Hint="1–2 речення для картки новини.">
+                        <InputTextArea id="news-summary" @bind-Value="Model.Summary" class="ds-textarea" maxlength="500" rows="3" />
+                        <ValidationMessage For="() => Model.Summary" />
+                    </Field>
+                    <Field Label="Текст (Markdown)" For="news-body" Required Hint="Підтримуються заголовки (##), списки, посилання, цитати (>), таблиці. HTML не підтримується з міркувань безпеки.">
+                        <InputTextArea id="news-body" @bind-Value="Model.Body" class="ds-textarea ds-mono" rows="16" />
+                        <ValidationMessage For="() => Model.Body" />
+                    </Field>
+                </div>
+            </Card>
+        </div>
+
+        <div class="ds-stack ds-stack--lg">
+            <Card Title="Публікація">
+                <div class="ds-form">
+                    <Field Label="Категорія" For="news-category">
+                        <InputSelect id="news-category" @bind-Value="Model.Category" class="ds-select">
+                            @foreach (var category in Enum.GetValues<NewsCategory>())
+                            {
+                                <option value="@category">@Display.Text(category)</option>
+                            }
+                        </InputSelect>
+                    </Field>
+                    <label class="ds-check">
+                        <InputCheckbox @bind-Value="Model.Publish" />
+                        <span class="ds-check__text"><span>Опубліковано</span><span class="ds-check__hint">Новину бачать усі працівники.</span></span>
+                    </label>
+                    <label class="ds-check">
+                        <InputCheckbox @bind-Value="Model.IsPinned" />
+                        <span class="ds-check__text"><span>Закріпити зверху</span></span>
+                    </label>
+                </div>
+            </Card>
+
+            <Card Title="Обкладинка">
+                @if (Existing?.CoverImageUrl is not null && !Model.RemoveCover && CoverFile is null)
+                {
+                    <img class="article__cover" src="@Existing.CoverImageUrl" alt="" />
+                    <label class="ds-check">
+                        <InputCheckbox @bind-Value="Model.RemoveCover" />
+                        <span>Прибрати обкладинку</span>
+                    </label>
+                }
+                <label class="ds-dropzone">
+                    <InputFile OnChange="SelectCover" accept="image/png,image/jpeg,image/webp" />
+                    <span class="ds-dropzone__title">@(CoverFile?.Name ?? "Оберіть зображення")</span>
+                    <span class="ds-dropzone__hint">PNG, JPEG або WebP до 5 МБ, бажано 16:9.</span>
+                </label>
+            </Card>
+
+            <Card Variant="CardVariant.Muted">
+                <div class="ds-stack">
+                    <Button Type="submit" Block Icon="save" Disabled="Busy">Зберегти</Button>
+                    @if (Id is not null)
+                    {
+                        <Button Variant="ButtonVariant.Danger" Block Icon="trash-2" Disabled="Busy" OnClick="DeleteAsync">Видалити</Button>
+                    }
+                </div>
+            </Card>
+        </div>
+    </EditForm>
+}
+else
+{
+    <div class="app-loading"><span class="ds-spinner"></span></div>
+}

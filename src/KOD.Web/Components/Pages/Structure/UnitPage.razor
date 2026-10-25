@@ -1,0 +1,81 @@
+@page "/structure/{Id:guid}"
+@attribute [RequirePermission(Permissions.Structure.View)]
+@attribute [StreamRendering]
+
+@if (Unit is null)
+{
+    <PageHeader Title="Підрозділ" Breadcrumbs="@([new("Структура", "/structure"), new("Підрозділ")])" />
+    <Card><EmptyState Icon="network" Title="Підрозділ не знайдено" /></Card>
+}
+else
+{
+    <PageHeader Title="@Unit.Name" Subtitle="@Display.Text(Unit.Type)" Breadcrumbs="@Breadcrumbs">
+        <ChildContent>
+            <div class="ds-cluster">
+                <Badge Tone="Tone.Dashed">@Unit.Code</Badge>
+                @if (Unit.ShortName is not null)
+                {
+                    <Badge>@Unit.ShortName</Badge>
+                }
+                @if (!Unit.IsActive)
+                {
+                    <Badge Tone="Tone.Danger">Неактивний</Badge>
+                }
+            </div>
+        </ChildContent>
+        <Actions>
+            @if (CanManage)
+            {
+                <Button Href="@($"/admin/units/{Unit.Id}")" Variant="ButtonVariant.Secondary" Icon="pencil">Редагувати</Button>
+            }
+        </Actions>
+    </PageHeader>
+
+    <div class="ds-stack ds-stack--lg">
+        @if (Unit.Children.Count > 0)
+        {
+            <section class="ds-cols ds-stagger" aria-label="Вкладені підрозділи">
+                @foreach (var child in Unit.Children)
+                {
+                    <Card Href="@($"/structure/{child.Id}")">
+                        <div class="ds-row">
+                            <span class="ds-stat__icon"><Icon Name="@Display.IconOf(child.Type)" /></span>
+                            <div class="ds-stack ds-stack--sm">
+                                <span class="ds-strong">@child.Name</span>
+                                <span class="ds-text-sm ds-muted">@Display.Text(child.Type) · працівників: @child.StaffCount</span>
+                            </div>
+                        </div>
+                    </Card>
+                }
+            </section>
+        }
+
+        <div>
+            <h2 class="ds-card__title" style="margin-bottom:1rem">Працівники</h2>
+            <GridToolbar Search="@Search" Placeholder="Пошук працівника" />
+            @if (Staff is not null)
+            {
+                <DataGrid TItem="UnitStaffItem" Items="Staff.Items" Page="Staff.Page" PageSize="Staff.PageSize" TotalCount="Staff.TotalCount"
+                          Caption="Працівники підрозділу" EmptyIcon="users" EmptyTitle="Працівників не знайдено" EmptyText="@null">
+                    <Columns>
+                        <GridColumn TItem="UnitStaffItem" Title="Працівник" Primary>
+                            <div class="ds-row">
+                                <Avatar Name="@context.FullName" Size="ControlSize.Small" />
+                                <span class="ds-strong">@context.FullName</span>
+                            </div>
+                        </GridColumn>
+                        <GridColumn TItem="UnitStaffItem" Title="Посада">
+                            @context.Position
+                            @if (!context.IsPrimary)
+                            {
+                                <span class="ds-text-xs ds-muted"> (сумісництво)</span>
+                            }
+                        </GridColumn>
+                        <GridColumn TItem="UnitStaffItem" Title="E-mail"><a class="ds-link" href="@($"mailto:{context.Email}")">@context.Email</a></GridColumn>
+                        <GridColumn TItem="UnitStaffItem" Title="Телефон">@(context.PhoneNumber ?? "—")</GridColumn>
+                    </Columns>
+                </DataGrid>
+            }
+        </div>
+    </div>
+}

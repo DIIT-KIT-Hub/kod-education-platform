@@ -1,0 +1,24 @@
+<li class="@CssClass">
+    <span class="ds-timeline__marker">
+        @if (State == TimelineState.Done)
+        {
+            <Icon Name="check" Size="IconSize.Small" />
+        }
+        else if (State == TimelineState.Failed)
+        {
+            <Icon Name="x" Size="IconSize.Small" />
+        }
+        else
+        {
+            @Marker
+        }
+    </span>
+    <div class="ds-timeline__content">
+        <span class="ds-timeline__title">@Title</span>
+        @if (Meta is not null)
+        {
+            <span class="ds-timeline__meta">@Meta</span>
+        }
+        @ChildContent
+    </div>
+</li>

@@ -1,0 +1,54 @@
+@page "/profile/security"
+
+<PageHeader Title="Безпека" Subtitle="Пароль, двофакторна автентифікація та резервні коди." />
+<ProfileTabs Current="security" />
+
+@if (Profile is not null)
+{
+    <div class="ds-cols ds-stagger">
+        <Card Title="Пароль" Subtitle="Регулярно змінюйте пароль і не використовуйте його в інших сервісах.">
+            <Footer>
+                <Button Href="/account/change-password?returnUrl=%2Fprofile%2Fsecurity" Icon="key-round">Змінити пароль</Button>
+            </Footer>
+        </Card>
+
+        <Card Title="Двофакторна автентифікація" Subtitle="Код із застосунку-автентифікатора при кожному вході.">
+            <div class="ds-cluster">
+                @if (Profile.TwoFactorEnabled)
+                {
+                    <Badge Tone="Tone.Inverse" Icon="shield-check">Увімкнено</Badge>
+                }
+                else
+                {
+                    <Badge Tone="Tone.Danger" Icon="shield-alert">Не налаштовано</Badge>
+                }
+            </div>
+            <p class="ds-text-sm ds-muted">Змінили телефон? Попросіть адміністратора скинути автентифікатор — під час наступного входу ви прив'яжете новий.</p>
+        </Card>
+
+        <Card Title="Резервні коди" Subtitle="Для входу без телефону. Кожен код діє один раз.">
+            <ChildContent>
+                <p><span class="ds-stat__value">@Profile.RecoveryCodesLeft</span> <span class="ds-muted">кодів залишилось</span></p>
+                @if (Codes is not null)
+                {
+                    <div class="secret-box">
+                        <span class="ds-strong">Нові коди — збережіть їх зараз, вони більше не відображатимуться:</span>
+                        <ul class="ds-codes">
+                            @foreach (var recoveryCode in Codes)
+                            {
+                                <li>@recoveryCode</li>
+                            }
+                        </ul>
+                        <button type="button" class="ds-btn ds-btn--secondary ds-btn--sm" data-copy="@string.Join(Environment.NewLine, Codes)"><Icon Name="copy" /> <span>Скопіювати</span></button>
+                    </div>
+                }
+            </ChildContent>
+            <Footer>
+                <form method="post" @formname="regenerate-codes" @onsubmit="RegenerateAsync" data-confirm="Згенерувати нові коди? Старі перестануть діяти.">
+                    <AntiforgeryToken />
+                    <Button Type="submit" Variant="ButtonVariant.Secondary" Icon="refresh-cw">Нові коди</Button>
+                </form>
+            </Footer>
+        </Card>
+    </div>
+}

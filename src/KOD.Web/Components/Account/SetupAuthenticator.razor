@@ -1,0 +1,64 @@
+@page "/account/setup-authenticator"
+@attribute [AllowAnonymous]
+
+<PageTitle>Підключення автентифікатора · КОД</PageTitle>
+
+@if (RecoveryCodes is not null)
+{
+    <header class="auth-card__header">
+        <span class="sign-result__icon"><Icon Name="shield-check" Size="IconSize.ExtraLarge" /></span>
+        <h1>Автентифікатор підключено</h1>
+        <p>Збережіть резервні коди в надійному місці. Вони знадобляться, якщо ви втратите доступ до телефону. Кожен код діє один раз.</p>
+    </header>
+    <ul class="ds-codes ds-stagger">
+        @foreach (var recoveryCode in RecoveryCodes)
+        {
+            <li>@recoveryCode</li>
+        }
+    </ul>
+    <div class="ds-cluster">
+        <button type="button" class="ds-btn ds-btn--secondary" data-copy="@string.Join(Environment.NewLine, RecoveryCodes)">
+            <Icon Name="copy" /> <span>Скопіювати коди</span>
+        </button>
+        <Button Href="@ContinueHref" IconEnd="arrow-right">Перейти до кабінету</Button>
+    </div>
+}
+else
+{
+    <header class="auth-card__header">
+        <h1>Захистіть вхід</h1>
+        <p>Для кожного облікового запису обов'язкова двофакторна автентифікація. Прив'яжіть застосунок-автентифікатор — це займе хвилину.</p>
+    </header>
+
+    <ol class="auth-steps">
+        <li><span>Встановіть <strong>Google Authenticator</strong>, <strong>Microsoft Authenticator</strong> або інший TOTP-застосунок.</span></li>
+        <li>
+            <div class="ds-stack ds-stack--sm">
+                <span>Відскануйте QR-код або введіть ключ вручну:</span>
+                @if (QrSvg is not null)
+                {
+                    <div class="auth-qr" role="img" aria-label="QR-код для автентифікатора">@((MarkupString)QrSvg)</div>
+                }
+                <div class="ds-row ds-row--wrap">
+                    <code class="ds-code">@SharedKey</code>
+                    <button type="button" class="ds-btn ds-btn--ghost ds-btn--sm" data-copy="@SharedKeyRaw"><Icon Name="copy" /> <span>Копіювати</span></button>
+                </div>
+            </div>
+        </li>
+        <li><span>Введіть 6-значний код, який показує застосунок.</span></li>
+    </ol>
+
+    @if (ErrorMessage is not null)
+    {
+        <Alert Tone="Tone.Danger">@ErrorMessage</Alert>
+    }
+
+    <EditForm Model="Input" method="post" OnValidSubmit="EnrollAsync" FormName="setup-authenticator" class="ds-form" Enhance data-busy-on-submit>
+        <DataAnnotationsValidator />
+        <Field Label="Код з застосунку" For="enroll-code">
+            <InputText id="enroll-code" @bind-Value="Input.Code" class="ds-input ds-input--code" autocomplete="one-time-code" inputmode="numeric" maxlength="7" placeholder="000000" />
+            <ValidationMessage For="() => Input.Code" />
+        </Field>
+        <Button Type="submit" Size="ControlSize.Large" Block Icon="shield-check">Підтвердити та увійти</Button>
+    </EditForm>
+}

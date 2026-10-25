@@ -1,0 +1,45 @@
+@page "/news/{Slug}"
+@attribute [RequirePermission(Permissions.News.View)]
+
+@if (Article is null)
+{
+    <PageHeader Title="Новину не знайдено" Breadcrumbs="@([new("Новини", "/news"), new("Новина")])" />
+    <Card>
+        <EmptyState Icon="newspaper" Title="Новину не знайдено" Text="Можливо, її було видалено або знято з публікації.">
+            <Button Href="/news" Icon="arrow-left">До новин</Button>
+        </EmptyState>
+    </Card>
+}
+else
+{
+    <article class="article">
+        <PageHeader Title="@Article.Title" Breadcrumbs="@([new("Новини", "/news"), new(Display.Text(Article.Category), $"/news?category={Article.Category}")])">
+            <ChildContent>
+                <div class="ds-cluster ds-muted ds-text-sm">
+                    <Badge>@Display.Text(Article.Category)</Badge>
+                    @if (Article.PublishedAt is null)
+                    {
+                        <Badge Tone="Tone.Dashed">Чернетка</Badge>
+                    }
+                    <span>@Display.Date(Article.PublishedAt ?? Article.UpdatedAt)</span>
+                    <span>·</span>
+                    <span>@Article.AuthorName</span>
+                </div>
+            </ChildContent>
+            <Actions>
+                @if (CanManage)
+                {
+                    <Button Href="@($"/news/manage/{Article.Id}")" Variant="ButtonVariant.Secondary" Icon="pencil">Редагувати</Button>
+                }
+            </Actions>
+        </PageHeader>
+        @if (Article.CoverImageUrl is not null)
+        {
+            <img class="article__cover ds-animate-scale" src="@Article.CoverImageUrl" alt="" />
+        }
+        <p class="article__lead">@Article.Summary</p>
+        <div class="prose ds-animate-in">@((MarkupString)Article.BodyHtml)</div>
+        <hr />
+        <Button Href="/news" Variant="ButtonVariant.Ghost" Icon="arrow-left">Усі новини</Button>
+    </article>
+}

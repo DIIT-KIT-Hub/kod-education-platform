@@ -1,0 +1,16 @@
+@page "/signing"
+@attribute [RequirePermission(Permissions.Signing.Use)]
+
+<PageHeader Title="Підписання файлів" Subtitle="Накладіть кваліфікований електронний підпис на будь-який файл. Підпис створюється у вашому браузері — файл і ключ нікуди не передаються." />
+
+<Tabs Label="Інструменти підпису">
+    <TabLink Href="/signing" Active Icon="signature">Підписати</TabLink>
+    <TabLink Href="/signing/verify" Icon="badge-check">Перевірити</TabLink>
+</Tabs>
+
+<div class="ds-split ds-split--wide-aside">
+    <Card>
+        <SigningHost Mode="sign" />
+    </Card>
+    <SigningInfo />
+</div>

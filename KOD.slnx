@@ -1,0 +1,22 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path=".gitattributes" />
+    <File Path=".gitignore" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Packages.props" />
+    <File Path="global.json" />
+    <File Path="README.md" />
+    <File Path="stylecop.json" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/KOD.Domain/KOD.Domain.csproj" />
+    <Project Path="src/KOD.Application/KOD.Application.csproj" />
+    <Project Path="src/KOD.Infrastructure/KOD.Infrastructure.csproj" />
+    <Project Path="src/KOD.DesignSystem/KOD.DesignSystem.csproj" />
+    <Project Path="src/KOD.Web/KOD.Web.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/KOD.UnitTests/KOD.UnitTests.csproj" />
+  </Folder>
+</Solution>

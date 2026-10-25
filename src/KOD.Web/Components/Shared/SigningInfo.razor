@@ -1,0 +1,25 @@
+<div class="ds-stack ds-stagger">
+    <Card Title="Що підтримується" Variant="CardVariant.Muted">
+        <dl class="ds-dl">
+            <dt>Ключі</dt>
+            <dd>Файлові: Key-6.dat, *.pfx / *.p12, *.pk8, *.jks (ПриватБанк), *.zs2 — усіх кваліфікованих надавачів</dd>
+            <dt>Формати</dt>
+            <dd>CAdES (зовнішній і внутрішній), XAdES, PAdES (PDF), ASiC-S, ASiC-E</dd>
+            <dt>Рівні</dt>
+            <dd>B-B (базовий), B-T (з позначкою часу), B-LT (з даними перевірки), B-LTA (архівний)</dd>
+            <dt>Надавачі</dt>
+            <dd>«Дія», ДПС, ПриватБанк, monobank, Вчасно, DepositSign та інші з переліку ЦЗО</dd>
+        </dl>
+    </Card>
+    <Card Title="Безпека">
+        <ul class="ds-list">
+            <li class="ds-list__item"><Icon Name="lock" /><span class="ds-list__body">Ключ і пароль обробляються лише у вашому браузері (Web Worker) і ніколи не надсилаються на сервер.</span></li>
+            <li class="ds-list__item"><Icon Name="shield-check" /><span class="ds-list__body">Використовується офіційна бібліотека ІІТ «Користувач ЦСК» (EUSignCP-JS).</span></li>
+            <li class="ds-list__item"><Icon Name="network" /><span class="ds-list__body">До серверів надавачів передаються лише публічні запити: перевірка статусу сертифіката та позначка часу.</span></li>
+        </ul>
+    </Card>
+    <Alert Tone="Tone.Outline" Title="Апаратні та хмарні ключі">
+        Поточна версія бібліотеки підтримує лише файлові ключі. Токени (Алмаз-1К, Кристал-1), хмарні ключі та «Дія.Підпис»
+        потребують окремих компонентів надавачів — підключіть їх, коли вони будуть потрібні закладу.
+    </Alert>
+</div>

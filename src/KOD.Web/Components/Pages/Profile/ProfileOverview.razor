@@ -1,0 +1,106 @@
+@page "/profile"
+
+<PageHeader Title="Мій профіль" Subtitle="Особисті дані, посади та доступні можливості." />
+<ProfileTabs Current="overview" />
+
+@if (Profile is not null)
+{
+    <div class="ds-split">
+        <div class="ds-stack ds-stack--lg ds-stagger">
+            <Card>
+                <div class="ds-row ds-row--wrap">
+                    <Avatar Name="@Profile.FullName" Size="ControlSize.Large" />
+                    <div class="ds-stack ds-stack--sm">
+                        <h2 class="ds-card__title">@Profile.FullName</h2>
+                        <span class="ds-muted">@Profile.Email</span>
+                        <div class="ds-cluster">
+                            @if (Profile.TwoFactorEnabled)
+                            {
+                                <Badge Tone="Tone.Inverse" Icon="shield-check">2FA увімкнено</Badge>
+                            }
+                            <Badge Tone="Tone.Dashed">Останній вхід: @Display.DateTime(Profile.LastSignInAt)</Badge>
+                        </div>
+                    </div>
+                </div>
+            </Card>
+
+            <Card Title="Посади">
+                @if (Profile.Positions.Count == 0)
+                {
+                    <EmptyState Icon="briefcase" Title="Посади не призначено" Text="Зверніться до відділу кадрів." />
+                }
+                else
+                {
+                    <ul class="ds-list">
+                        @foreach (var position in Profile.Positions)
+                        {
+                            <li>
+                                <a class="ds-list__item" href="@($"/structure/{position.UnitId}")">
+                                    <span class="ds-stat__icon"><Icon Name="briefcase" /></span>
+                                    <span class="ds-list__body">
+                                        <span class="ds-list__title">@position.DisplayTitle</span>
+                                        <span class="ds-list__meta">@position.UnitName · роль «@position.RoleName»</span>
+                                    </span>
+                                    @if (position.IsPrimary)
+                                    {
+                                        <Badge Tone="Tone.Outline">Основна</Badge>
+                                    }
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                }
+            </Card>
+
+            <Card Title="Доступні модулі">
+                <div class="ds-cols">
+                    @foreach (var module in Profile.Modules)
+                    {
+                        <div class="ds-row">
+                            <span class="ds-stat__icon"><Icon Name="@Display.IconOf(module)" /></span>
+                            <span class="ds-strong">@Display.Text(module)</span>
+                        </div>
+                    }
+                </div>
+                <details>
+                    <summary class="ds-link ds-text-sm">Усі мої дозволи (@Profile.Permissions.Count)</summary>
+                    <ul class="ds-list">
+                        @foreach (var permission in Profile.Permissions)
+                        {
+                            <li class="ds-list__item">
+                                <Icon Name="check" Size="IconSize.Small" />
+                                <span class="ds-list__body">
+                                    <span class="ds-list__title">@permission.Title</span>
+                                    <span class="ds-list__meta">@permission.Description</span>
+                                </span>
+                            </li>
+                        }
+                    </ul>
+                </details>
+            </Card>
+        </div>
+
+        <Card Title="Контакти">
+            @if (Saved)
+            {
+                <Alert Tone="Tone.Inverse">Телефон збережено.</Alert>
+            }
+            @if (ErrorMessage is not null)
+            {
+                <Alert Tone="Tone.Danger">@ErrorMessage</Alert>
+            }
+            <EditForm Model="Contact" FormName="profile-contact" OnValidSubmit="SaveAsync" class="ds-form" Enhance>
+                <DataAnnotationsValidator />
+                <Field Label="Електронна пошта">
+                    <input class="ds-input" value="@Profile.Email" disabled />
+                </Field>
+                <Field Label="Телефон" For="profile-phone">
+                    <InputText id="profile-phone" @bind-Value="Contact.PhoneNumber" class="ds-input" placeholder="+380…" autocomplete="tel" />
+                    <ValidationMessage For="() => Contact.PhoneNumber" />
+                </Field>
+                <Button Type="submit" Variant="ButtonVariant.Secondary" Icon="save">Зберегти</Button>
+            </EditForm>
+            <p class="ds-text-sm ds-muted">ПІБ та посади змінює відділ кадрів.</p>
+        </Card>
+    </div>
+}

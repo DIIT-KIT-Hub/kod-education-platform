@@ -1,0 +1,39 @@
+@page "/account/login"
+@attribute [AllowAnonymous]
+
+<PageTitle>Вхід · КОД</PageTitle>
+
+<div class="auth-mobile-brand"><span class="app-brand__mark">К</span> КОД</div>
+<header class="auth-card__header">
+    <h1>Вхід до кабінету</h1>
+    <p>Увійдіть за обліковим записом, виданим адміністратором закладу.</p>
+</header>
+
+@if (ErrorMessage is not null)
+{
+    <Alert Tone="Tone.Danger">@ErrorMessage</Alert>
+}
+
+<EditForm Model="Input" method="post" OnValidSubmit="SignInAsync" FormName="login" class="ds-form" Enhance data-busy-on-submit>
+    <DataAnnotationsValidator />
+    <Field Label="Електронна пошта" For="login-email">
+        <InputText id="login-email" @bind-Value="Input.Email" class="ds-input" autocomplete="username" inputmode="email" placeholder="name@university.edu.ua" autofocus />
+        <ValidationMessage For="() => Input.Email" />
+    </Field>
+    <Field Label="Пароль" For="login-password">
+        <InputText id="login-password" type="password" @bind-Value="Input.Password" class="ds-input" autocomplete="current-password" />
+        <ValidationMessage For="() => Input.Password" />
+    </Field>
+    <label class="ds-check">
+        <InputCheckbox @bind-Value="Input.RememberMe" />
+        <span class="ds-check__text">
+            <span>Запам'ятати мене на цьому пристрої</span>
+            <span class="ds-check__hint">Не використовуйте на спільних комп'ютерах.</span>
+        </span>
+    </label>
+    <Button Type="submit" Size="ControlSize.Large" Block IconEnd="arrow-right">Продовжити</Button>
+</EditForm>
+
+<p class="ds-text-sm ds-muted">
+    Реєстрація в системі не передбачена. Якщо ви не маєте облікового запису або забули пароль — зверніться до відділу кадрів чи системного адміністратора.
+</p>

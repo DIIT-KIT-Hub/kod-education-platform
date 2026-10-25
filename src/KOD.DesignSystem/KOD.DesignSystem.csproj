@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+  <PropertyGroup>
+    <RootNamespace>KOD.DesignSystem</RootNamespace>
+    <!-- Static web assets are served at _content/KOD.DesignSystem/... -->
+    <StaticWebAssetBasePath>_content/KOD.DesignSystem</StaticWebAssetBasePath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+</Project>

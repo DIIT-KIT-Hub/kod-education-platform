@@ -1,0 +1,36 @@
+<PageTitle>@($"{Title} · {Product}")</PageTitle>
+
+<header class="ds-page-header">
+    <div class="ds-page-header__text">
+        @if (Breadcrumbs is { Count: > 0 })
+        {
+            <nav aria-label="Навігаційний ланцюжок">
+                <ol class="ds-breadcrumbs">
+                    @foreach (var item in Breadcrumbs)
+                    {
+                        <li>
+                            @if (item.Href is not null)
+                            {
+                                <a href="@item.Href">@item.Text</a>
+                            }
+                            else
+                            {
+                                <span aria-current="page">@item.Text</span>
+                            }
+                        </li>
+                    }
+                </ol>
+            </nav>
+        }
+        <h1 tabindex="-1">@Title</h1>
+        @if (Subtitle is not null)
+        {
+            <p class="ds-page-header__subtitle">@Subtitle</p>
+        }
+        @ChildContent
+    </div>
+    @if (Actions is not null)
+    {
+        <div class="ds-page-header__actions">@Actions</div>
+    }
+</header>

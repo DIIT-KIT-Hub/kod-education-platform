@@ -1,0 +1,17 @@
+<dialog id="@Id" class="@(Wide ? "ds-dialog ds-dialog--wide" : "ds-dialog")" aria-labelledby="@($"{Id}-title")">
+    <div class="ds-dialog__inner">
+        <div class="ds-dialog__header">
+            <div class="ds-stack ds-stack--sm">
+                <h2 id="@($"{Id}-title")" class="ds-card__title">@Title</h2>
+                @if (Description is not null)
+                {
+                    <p class="ds-muted">@Description</p>
+                }
+            </div>
+            <button type="button" class="ds-btn ds-btn--ghost ds-btn--icon ds-btn--sm" data-dialog-close aria-label="Закрити">
+                <Icon Name="x" />
+            </button>
+        </div>
+        @ChildContent
+    </div>
+</dialog>

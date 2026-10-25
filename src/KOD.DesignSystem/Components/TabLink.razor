@@ -1,0 +1,11 @@
+<a href="@Href" class="ds-tab" aria-current="@(Active ? "page" : null)">
+    @if (Icon is not null)
+    {
+        <Icon Name="@Icon" Size="IconSize.Small" />
+    }
+    @ChildContent
+    @if (Count is > 0)
+    {
+        <span class="ds-tab__count">@Count</span>
+    }
+</a>

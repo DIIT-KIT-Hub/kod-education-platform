@@ -1,0 +1,27 @@
+@page "/structure"
+@attribute [RequirePermission(Permissions.Structure.View)]
+
+<PageHeader Title="Структура закладу" Subtitle="Інститути, факультети, кафедри та адміністративні підрозділи.">
+    <Actions>
+        @if (CanManage)
+        {
+            <Button Href="/admin/units" Variant="ButtonVariant.Secondary" Icon="settings">Керувати структурою</Button>
+        }
+    </Actions>
+</PageHeader>
+
+<Card>
+    @if (Tree.Count == 0)
+    {
+        <EmptyState Icon="network" Title="Структуру ще не заповнено" />
+    }
+    else
+    {
+        <ul class="ds-tree ds-stagger">
+            @foreach (var node in Tree)
+            {
+                <UnitTreeBranch Node="node" Expanded />
+            }
+        </ul>
+    }
+</Card>

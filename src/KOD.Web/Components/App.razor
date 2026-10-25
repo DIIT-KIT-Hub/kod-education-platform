@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#000000" />
+    <meta name="description" content="Кабінет освітніх даних — електронний документообіг закладу вищої освіти." />
+    <meta name="csrf-token" content="@CsrfToken" />
+    <base href="/" />
+    <script src="@Assets[DesignTokens.ThemeScript]"></script>
+    @foreach (var font in DesignTokens.Fonts)
+    {
+        <link rel="preload" href="@Assets[font]" as="font" type="font/woff2" crossorigin />
+    }
+    <ResourcePreloader />
+    <link rel="stylesheet" href="@Assets[DesignTokens.Stylesheet]" />
+    <link rel="stylesheet" href="@Assets["css/app.css"]" />
+    <link rel="icon" type="image/svg+xml" href="@Assets["favicon.svg"]" />
+    <HeadOutlet />
+</head>
+<body>
+    <Routes />
+    <script src="@Assets["_framework/blazor.web.js"]"></script>
+    <script src="@Assets[DesignTokens.Script]"></script>
+    <script src="@Assets["js/app.js"]" type="module"></script>
+</body>
+</html>

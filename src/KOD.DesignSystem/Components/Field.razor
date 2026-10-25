@@ -1,0 +1,17 @@
+<div class="ds-field @Class">
+    @if (Label is not null)
+    {
+        <label class="ds-label" for="@For">
+            @Label
+            @if (Required)
+            {
+                <span class="ds-label__required" aria-hidden="true">*</span>
+            }
+        </label>
+    }
+    @ChildContent
+    @if (Hint is not null)
+    {
+        <span class="ds-hint">@Hint</span>
+    }
+</div>

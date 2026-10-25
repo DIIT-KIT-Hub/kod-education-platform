@@ -1,0 +1,29 @@
+@inherits LayoutComponentBase
+
+<div class="auth-shell">
+    <section class="auth-hero" aria-hidden="true">
+        <div class="auth-hero__brand">
+            <span class="app-brand__mark">К</span>
+            <strong>КОД</strong>
+        </div>
+        <div class="auth-hero__text">
+            <h2>Кабінет<br />освітніх даних</h2>
+            <p>Електронний документообіг закладу вищої освіти з кваліфікованим електронним підписом.</p>
+        </div>
+        <ul class="auth-hero__features ds-stagger">
+            <li><Icon Name="shield-check" /> Двофакторний вхід через автентифікатор</li>
+            <li><Icon Name="signature" /> Підпис у браузері — ключ не залишає пристрій</li>
+            <li><Icon Name="network" /> Інститути, факультети, кафедри та відділи</li>
+        </ul>
+    </section>
+    <main class="auth-main">
+        <div class="auth-card ds-animate-in">
+            @Body
+        </div>
+        <button type="button" class="ds-btn ds-btn--ghost ds-btn--sm auth-theme" data-theme-toggle>
+            <Icon Name="moon" Class="app-theme-dark" />
+            <Icon Name="sun" Class="app-theme-light" />
+            <span>Тема</span>
+        </button>
+    </main>
+</div>

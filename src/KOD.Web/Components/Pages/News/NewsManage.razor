@@ -1,0 +1,47 @@
+@page "/news/manage"
+@attribute [RequirePermission(Permissions.News.Manage)]
+@attribute [StreamRendering]
+
+<PageHeader Title="Керування новинами" Subtitle="Чернетки та опубліковані матеріали."
+            Breadcrumbs="@([new("Новини", "/news"), new("Керування")])">
+    <Actions>
+        <Button Href="/news/manage/new" Icon="plus">Нова публікація</Button>
+    </Actions>
+</PageHeader>
+
+<GridToolbar Search="@Search" Placeholder="Заголовок або анонс" />
+
+@if (Result is not null)
+{
+    <DataGrid TItem="NewsListItem" Items="Result.Items" Page="Result.Page" PageSize="Result.PageSize" TotalCount="Result.TotalCount"
+              SortBy="@SortBy" Descending="Descending" Caption="Новини" EmptyIcon="newspaper" EmptyTitle="Публікацій ще немає">
+        <Columns>
+            <GridColumn TItem="NewsListItem" Title="Заголовок" SortKey="title" Primary>
+                <a class="ds-table__primary" href="@($"/news/manage/{context.Id}")">@context.Title</a>
+                <span class="ds-table__secondary">@Display.Text(context.Category)</span>
+            </GridColumn>
+            <GridColumn TItem="NewsListItem" Title="Статус">
+                <div class="ds-cluster">
+                    @if (context.PublishedAt is null)
+                    {
+                        <Badge Tone="Tone.Dashed">Чернетка</Badge>
+                    }
+                    else
+                    {
+                        <Badge Tone="Tone.Inverse" Icon="check">Опубліковано</Badge>
+                    }
+                    @if (context.IsPinned)
+                    {
+                        <Badge Icon="pin">Закріплено</Badge>
+                    }
+                </div>
+            </GridColumn>
+            <GridColumn TItem="NewsListItem" Title="Опубліковано" Class="ds-nowrap">@Display.DateTime(context.PublishedAt)</GridColumn>
+            <GridColumn TItem="NewsListItem" Title="Змінено" SortKey="updated" Class="ds-nowrap">@Display.DateTime(context.UpdatedAt)</GridColumn>
+            <GridColumn TItem="NewsListItem" Title="Автор">@context.AuthorName</GridColumn>
+            <GridColumn TItem="NewsListItem" Title="Дії" Actions>
+                <Button Href="@($"/news/manage/{context.Id}")" Variant="ButtonVariant.Ghost" Size="ControlSize.Small" Icon="pencil">Редагувати</Button>
+            </GridColumn>
+        </Columns>
+    </DataGrid>
+}

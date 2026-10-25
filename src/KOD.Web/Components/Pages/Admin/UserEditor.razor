@@ -1,0 +1,202 @@
+@page "/admin/users/new"
+@page "/admin/users/{Id:guid}"
+@attribute [RequirePermission(Permissions.Users.View)]
+@rendermode InteractiveServer
+
+<PageHeader Title="@(Details?.FullName ?? "Новий користувач")"
+            Subtitle="@(Details is null ? "Обліковий запис створюється з тимчасовим паролем; під час першого входу користувач змінить його та прив'яже автентифікатор." : Details.Email)"
+            Breadcrumbs="@([new("Адміністрування", "/admin"), new("Користувачі", "/admin/users"), new(Details is null ? "Новий" : "Обліковий запис")])">
+    <ChildContent>
+        @if (Details is not null)
+        {
+            <div class="ds-cluster">
+                @if (Details.IsActive)
+                {
+                    <Badge Tone="Tone.Inverse">Активний</Badge>
+                }
+                else
+                {
+                    <Badge Tone="Tone.Danger" Icon="ban">Заблоковано</Badge>
+                }
+                <Badge Tone="@(Details.TwoFactorEnabled ? Tone.Outline : Tone.Dashed)" Icon="shield-check">@(Details.TwoFactorEnabled ? "2FA увімкнено" : "2FA не налаштовано")</Badge>
+                @if (Details.MustChangePassword)
+                {
+                    <Badge Tone="Tone.Dashed" Icon="key-round">Тимчасовий пароль</Badge>
+                }
+                <Badge Tone="Tone.Dashed">Сесій: @Details.ActiveSessions</Badge>
+            </div>
+        }
+    </ChildContent>
+</PageHeader>
+
+@if (!Loaded)
+{
+    <div class="app-loading"><span class="ds-spinner"></span></div>
+}
+else
+{
+    @if (Credentials is not null)
+    {
+        <div class="secret-box" style="margin-bottom:1.5rem">
+            <span class="ds-strong">Тимчасовий пароль для @Credentials.Email (показується один раз):</span>
+            <span class="secret-box__value">@Credentials.TemporaryPassword</span>
+            <div class="ds-cluster">
+                <button type="button" class="ds-btn ds-btn--secondary ds-btn--sm" data-copy="@($"Логін: {Credentials.Email}\nТимчасовий пароль: {Credentials.TemporaryPassword}")"><Icon Name="copy" /> <span>Скопіювати</span></button>
+                <span class="ds-text-sm ds-muted">Передайте його користувачу захищеним каналом. Під час першого входу пароль потрібно змінити.</span>
+            </div>
+        </div>
+    }
+
+    @if (Message is not null)
+    {
+        <Alert Tone="Tone.Inverse">@Message</Alert>
+    }
+    @if (ErrorMessage is not null)
+    {
+        <Alert Tone="Tone.Danger">@ErrorMessage</Alert>
+    }
+
+    <EditForm Model="Model" OnValidSubmit="SaveAsync" class="ds-split ds-split--wide-aside">
+        <DataAnnotationsValidator />
+        <div class="ds-stack ds-stack--lg">
+            <Card Title="Особисті дані">
+                <fieldset disabled="@(!CanManage)" class="ds-form-grid" style="border:0;padding:0;margin:0">
+                    <Field Label="Прізвище" For="u-last" Required>
+                        <InputText id="u-last" @bind-Value="Model.LastName" class="ds-input" maxlength="64" />
+                        <ValidationMessage For="() => Model.LastName" />
+                    </Field>
+                    <Field Label="Ім'я" For="u-first" Required>
+                        <InputText id="u-first" @bind-Value="Model.FirstName" class="ds-input" maxlength="64" />
+                        <ValidationMessage For="() => Model.FirstName" />
+                    </Field>
+                    <Field Label="По батькові" For="u-middle">
+                        <InputText id="u-middle" @bind-Value="Model.MiddleName" class="ds-input" maxlength="64" />
+                    </Field>
+                    <Field Label="Телефон" For="u-phone">
+                        <InputText id="u-phone" @bind-Value="Model.PhoneNumber" class="ds-input" maxlength="32" placeholder="+380…" />
+                    </Field>
+                    <Field Label="Електронна пошта (логін)" For="u-email" Required Class="ds-span-full">
+                        <InputText id="u-email" @bind-Value="Model.Email" class="ds-input" maxlength="256" inputmode="email" />
+                        <ValidationMessage For="() => Model.Email" />
+                    </Field>
+                </fieldset>
+            </Card>
+
+            <Card Title="Посади" Subtitle="Роль посади визначає дозволи; підрозділ — область доступу до документів.">
+                <HeaderActions>
+                    @if (CanManage)
+                    {
+                        <Button Variant="ButtonVariant.Secondary" Size="ControlSize.Small" Icon="plus" OnClick="AddPosition">Додати посаду</Button>
+                    }
+                </HeaderActions>
+                <ChildContent>
+                    @if (Model.Positions.Count == 0)
+                    {
+                        <EmptyState Icon="briefcase" Title="Посад не призначено" Text="Без посади користувач не матиме доступу до модулів." />
+                    }
+                    @foreach (var position in Model.Positions)
+                    {
+                        <div class="position-row" @key="position">
+                            <Field Label="Підрозділ">
+                                <select class="ds-select" disabled="@(!CanManage)" value="@position.UnitId" @onchange="e => position.UnitId = Guid.TryParse(e.Value?.ToString(), out var id) ? id : Guid.Empty">
+                                    <option value="@Guid.Empty">Оберіть…</option>
+                                    @foreach (var unit in Units)
+                                    {
+                                        <option value="@unit.Id">@(new string(' ', unit.Depth * 2))@unit.Name</option>
+                                    }
+                                </select>
+                            </Field>
+                            <Field Label="Роль">
+                                <select class="ds-select" disabled="@(!CanManage)" value="@position.RoleId" @onchange="e => position.RoleId = Guid.TryParse(e.Value?.ToString(), out var id) ? id : Guid.Empty">
+                                    <option value="@Guid.Empty">Оберіть…</option>
+                                    @foreach (var role in Roles)
+                                    {
+                                        <option value="@role.Id">@role.Name</option>
+                                    }
+                                </select>
+                            </Field>
+                            <Field Label="Назва посади">
+                                <input class="ds-input" disabled="@(!CanManage)" value="@position.Title" @onchange="e => position.Title = e.Value?.ToString()" placeholder="напр. доцент" maxlength="128" />
+                            </Field>
+                            <label class="ds-check">
+                                <input type="radio" name="primary-position" checked="@position.IsPrimary" disabled="@(!CanManage)" @onchange="() => SetPrimary(position)" />
+                                <span>Основна</span>
+                            </label>
+                            @if (CanManage)
+                            {
+                                <button type="button" class="ds-btn ds-btn--ghost ds-btn--icon ds-btn--sm" aria-label="Прибрати посаду" @onclick="() => Model.Positions.Remove(position)"><Icon Name="trash-2" /></button>
+                            }
+                        </div>
+                    }
+                </ChildContent>
+            </Card>
+
+            @if (CanManageRoles)
+            {
+                <Card Title="Індивідуальні дозволи" Subtitle="Надати або заборонити окремі дозволи поверх ролей посад.">
+                    <div class="perm-matrix">
+                        @foreach (var group in Permissions.All.GroupBy(static p => p.Module))
+                        {
+                            <section class="perm-module">
+                                <span class="perm-module__title"><Icon Name="@Display.IconOf(group.Key)" /> @Display.Text(group.Key)</span>
+                                <div class="perm-module__items">
+                                    @foreach (var permission in group)
+                                    {
+                                        <Field Label="@permission.Title" Hint="@(Effective.Contains(permission.Code) ? "діє зараз" : null)">
+                                            <select class="ds-select ds-select--sm" value="@OverrideOf(permission.Code)" @onchange="e => SetOverride(permission.Code, e.Value?.ToString())">
+                                                <option value="inherit">За ролями</option>
+                                                <option value="grant">Надати</option>
+                                                <option value="deny">Заборонити</option>
+                                            </select>
+                                        </Field>
+                                    }
+                                </div>
+                            </section>
+                        }
+                    </div>
+                </Card>
+            }
+        </div>
+
+        <div class="ds-stack ds-stack--lg">
+            @if (CanManage)
+            {
+                <Card Variant="CardVariant.Muted">
+                    <div class="ds-stack">
+                        <Button Type="submit" Block Icon="save" Disabled="Busy">@(Id is null ? "Створити обліковий запис" : "Зберегти зміни")</Button>
+                        @if (Busy)
+                        {
+                            <div class="ds-progress ds-progress--indeterminate"><div class="ds-progress__bar"></div></div>
+                        }
+                    </div>
+                </Card>
+            }
+
+            @if (Details is not null)
+            {
+                <Card Title="Безпека облікового запису">
+                    <div class="ds-stack">
+                        @if (CanManage)
+                        {
+                            <Button Variant="@(Details.IsActive ? ButtonVariant.Danger : ButtonVariant.Primary)" Block Icon="@(Details.IsActive ? "ban" : "check")" Disabled="Busy" OnClick="ToggleActiveAsync">
+                                @(Details.IsActive ? "Заблокувати" : "Розблокувати")
+                            </Button>
+                        }
+                        @if (CanSecurity)
+                        {
+                            <Button Variant="ButtonVariant.Secondary" Block Icon="key-round" Disabled="Busy" OnClick="ResetPasswordAsync">Видати тимчасовий пароль</Button>
+                            <Button Variant="ButtonVariant.Secondary" Block Icon="smartphone" Disabled="Busy" OnClick="ResetAuthenticatorAsync">Скинути автентифікатор</Button>
+                            <Button Variant="ButtonVariant.Secondary" Block Icon="log-out" Disabled="Busy" OnClick="RevokeSessionsAsync">Завершити всі сесії</Button>
+                        }
+                    </div>
+                    <dl class="ds-dl">
+                        <dt>Створено</dt>
+                        <dd>@Display.DateTime(Details.CreatedAt)</dd>
+                        <dt>Останній вхід</dt>
+                        <dd>@Display.DateTime(Details.LastSignInAt)</dd>
+                    </dl>
+                </Card>
+            }
+        </div>
+    </EditForm>
+}

@@ -1,0 +1,32 @@
+@if (Href is not null)
+{
+    <a href="@Href" class="@CssClass" aria-disabled="@(Disabled ? "true" : null)" @attributes="AdditionalAttributes">
+        @Content
+    </a>
+}
+else
+{
+    <button type="@Type" class="@CssClass" disabled="@Disabled" @onclick="OnClick" @attributes="AdditionalAttributes">
+        @Content
+    </button>
+}
+
+@code {
+    /// <summary>
+    /// Renders the icon, label and trailing icon.
+    /// </summary>
+    private RenderFragment Content => @<text>
+        @if (Icon is not null)
+        {
+            <Icon Name="@Icon" />
+        }
+        @if (ChildContent is not null)
+        {
+            <span>@ChildContent</span>
+        }
+        @if (IconEnd is not null)
+        {
+            <Icon Name="@IconEnd" />
+        }
+    </text>;
+}

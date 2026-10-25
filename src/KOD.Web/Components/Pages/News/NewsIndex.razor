@@ -1,0 +1,70 @@
+@page "/news"
+@attribute [RequirePermission(Permissions.News.View)]
+@attribute [StreamRendering]
+
+<PageHeader Title="Новини" Subtitle="Новини, оголошення та події закладу.">
+    <Actions>
+        @if (CanManage)
+        {
+            <Button Href="/news/manage" Variant="ButtonVariant.Secondary" Icon="settings">Керування</Button>
+            <Button Href="/news/manage/new" Icon="plus">Нова публікація</Button>
+        }
+    </Actions>
+</PageHeader>
+
+<Tabs Label="Категорії">
+    <TabLink Href="/news" Active="@(Category is null)">Усі</TabLink>
+    @foreach (var category in Enum.GetValues<NewsCategory>())
+    {
+        <TabLink Href="@($"/news?category={category}")" Active="@(Category == category.ToString())">@Display.Text(category)</TabLink>
+    }
+</Tabs>
+
+<GridToolbar Search="@Search" Placeholder="Пошук у новинах" Preserve="@(new Dictionary<string, string?> { ["category"] = Category })" />
+
+@if (Result is null)
+{
+    <div class="news-grid">
+        @for (var i = 0; i < 6; i++)
+        {
+            <div class="ds-skeleton" style="height:20rem;border-radius:1.5rem"></div>
+        }
+    </div>
+}
+else if (Result.Items.Count == 0)
+{
+    <Card><EmptyState Icon="newspaper" Title="Новин не знайдено" Text="Спробуйте іншу категорію або пошуковий запит." /></Card>
+}
+else
+{
+    <div class="news-grid ds-stagger">
+        @foreach (var article in Result.Items)
+        {
+            <a class="ds-card ds-card--interactive news-card" href="@($"/news/{article.Slug}")">
+                <div class="news-card__media">
+                    @if (article.CoverImageUrl is not null)
+                    {
+                        <img class="news-card__cover" src="@article.CoverImageUrl" alt="" loading="lazy" />
+                    }
+                    else
+                    {
+                        <div class="news-card__placeholder"><Icon Name="newspaper" Size="IconSize.ExtraLarge" /></div>
+                    }
+                </div>
+                <div class="news-card__body">
+                    <div class="ds-cluster">
+                        <Badge>@Display.Text(article.Category)</Badge>
+                        @if (article.IsPinned)
+                        {
+                            <Badge Tone="Tone.Inverse" Icon="pin">Закріплено</Badge>
+                        }
+                    </div>
+                    <span class="news-card__title">@article.Title</span>
+                    <span class="news-card__summary">@article.Summary</span>
+                    <span class="ds-text-sm ds-muted">@Display.Date(article.PublishedAt)</span>
+                </div>
+            </a>
+        }
+    </div>
+    <Pagination Page="Result.Page" PageSize="Result.PageSize" TotalCount="Result.TotalCount" PageSizes="@([9, 18, 36, 72])" />
+}

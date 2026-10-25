@@ -1,0 +1,17 @@
+* text=auto eol=lf
+
+*.cs      text diff=csharp
+*.razor   text
+*.slnx    text
+*.ps1     text eol=crlf
+*.cmd     text eol=crlf
+
+*.p7b     binary
+*.woff2   binary
+*.png     binary
+*.ico     binary
+*.gz      binary
+*.xlsx    binary
+
+# The official signing library is vendored as-is.
+src/KOD.Web/wwwroot/lib/eusign/** -text -diff linguist-vendored

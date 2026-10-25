@@ -1,0 +1,41 @@
+@page "/admin/roles"
+@attribute [RequirePermission(Permissions.Roles.Manage)]
+@attribute [StreamRendering]
+
+<PageHeader Title="Ролі та дозволи" Subtitle="Роль — набір дозволів для посади. Користувач отримує дозволи всіх своїх посад."
+            Breadcrumbs="@([new("Адміністрування", "/admin"), new("Ролі")])">
+    <Actions>
+        <Button Href="/admin/roles/new" Icon="plus">Нова роль</Button>
+    </Actions>
+</PageHeader>
+
+<GridToolbar Search="@Search" Placeholder="Назва або код ролі" />
+
+@if (Result is not null)
+{
+    <DataGrid TItem="RoleListItem" Items="Result.Items" Page="Result.Page" PageSize="Result.PageSize" TotalCount="Result.TotalCount"
+              SortBy="@SortBy" Descending="Descending" Caption="Ролі" EmptyIcon="shield">
+        <Columns>
+            <GridColumn TItem="RoleListItem" Title="Роль" SortKey="name" Primary>
+                <a class="ds-table__primary" href="@($"/admin/roles/{context.Id}")">@context.Name</a>
+                <span class="ds-table__secondary">@context.Description</span>
+            </GridColumn>
+            <GridColumn TItem="RoleListItem" Title="Код" SortKey="code"><span class="ds-mono">@context.Code</span></GridColumn>
+            <GridColumn TItem="RoleListItem" Title="Тип">
+                @if (context.IsSystem)
+                {
+                    <Badge Tone="Tone.Outline">Системна</Badge>
+                }
+                else
+                {
+                    <Badge Tone="Tone.Dashed">Власна</Badge>
+                }
+            </GridColumn>
+            <GridColumn TItem="RoleListItem" Title="Дозволи">@context.PermissionCount</GridColumn>
+            <GridColumn TItem="RoleListItem" Title="Користувачі">@context.UserCount</GridColumn>
+            <GridColumn TItem="RoleListItem" Title="Дії" Actions>
+                <Button Href="@($"/admin/roles/{context.Id}")" Variant="ButtonVariant.Ghost" Size="ControlSize.Small" Icon="pencil">Налаштувати</Button>
+            </GridColumn>
+        </Columns>
+    </DataGrid>
+}

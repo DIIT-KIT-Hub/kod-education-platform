@@ -1,0 +1,94 @@
+@page "/admin/users"
+@attribute [RequirePermission(Permissions.Users.View)]
+@attribute [StreamRendering]
+
+<PageHeader Title="Користувачі" Subtitle="Облікові записи працівників і здобувачів освіти. Самостійна реєстрація вимкнена."
+            Breadcrumbs="@([new("Адміністрування", "/admin"), new("Користувачі")])">
+    <Actions>
+        @if (User.HasPermission(Permissions.Users.Export))
+        {
+            <Button Href="@ExportHref("Xlsx")" Variant="ButtonVariant.Secondary" Icon="download" download>XLSX</Button>
+            <Button Href="@ExportHref("Csv")" Variant="ButtonVariant.Secondary" Icon="download" download>CSV</Button>
+        }
+        @if (User.HasPermission(Permissions.Users.Import))
+        {
+            <Button Href="/admin/users/import" Variant="ButtonVariant.Secondary" Icon="upload">Імпорт</Button>
+        }
+        @if (User.HasPermission(Permissions.Users.Manage))
+        {
+            <Button Href="/admin/users/new" Icon="user-plus">Додати</Button>
+        }
+    </Actions>
+</PageHeader>
+
+<GridToolbar Search="@Search" Placeholder="ПІБ або e-mail">
+    <select name="status" class="ds-select" aria-label="Статус" data-autosubmit>
+        @foreach (var status in Enum.GetValues<UserStatusFilter>())
+        {
+            <option value="@status" selected="@(status.ToString() == Status)">@Display.Text(status)</option>
+        }
+    </select>
+    <select name="unitId" class="ds-select" aria-label="Підрозділ" data-autosubmit>
+        <option value="">Усі підрозділи</option>
+        @foreach (var unit in Units)
+        {
+            <option value="@unit.Id" selected="@(unit.Id == UnitId)">@(new string(' ', unit.Depth * 2))@unit.Name</option>
+        }
+    </select>
+    <select name="roleId" class="ds-select" aria-label="Роль" data-autosubmit>
+        <option value="">Усі ролі</option>
+        @foreach (var role in Roles)
+        {
+            <option value="@role.Id" selected="@(role.Id == RoleId)">@role.Name</option>
+        }
+    </select>
+</GridToolbar>
+
+@if (Result is not null)
+{
+    <DataGrid TItem="UserListItem" Items="Result.Items" Page="Result.Page" PageSize="Result.PageSize" TotalCount="Result.TotalCount"
+              SortBy="@SortBy" Descending="Descending" Caption="Користувачі" EmptyIcon="users" EmptyTitle="Користувачів не знайдено">
+        <Columns>
+            <GridColumn TItem="UserListItem" Title="Користувач" SortKey="name" Primary>
+                <div class="ds-row">
+                    <Avatar Name="@context.FullName" Size="ControlSize.Small" />
+                    <div class="ds-stack ds-stack--sm" style="gap:0">
+                        <a class="ds-table__primary" href="@($"/admin/users/{context.Id}")">@context.FullName</a>
+                        <span class="ds-table__secondary">@context.Email</span>
+                    </div>
+                </div>
+            </GridColumn>
+            <GridColumn TItem="UserListItem" Title="Посада">
+                @(context.Position ?? "—")
+                @if (context.Unit is not null)
+                {
+                    <span class="ds-table__secondary">@context.Unit</span>
+                }
+            </GridColumn>
+            <GridColumn TItem="UserListItem" Title="Статус">
+                <div class="ds-cluster">
+                    @if (!context.IsActive)
+                    {
+                        <Badge Tone="Tone.Danger" Icon="ban">Заблоковано</Badge>
+                    }
+                    else if (context.IsLockedOut)
+                    {
+                        <Badge Tone="Tone.Outline" Icon="timer">Тимчасово заблоковано</Badge>
+                    }
+                    else
+                    {
+                        <Badge Tone="Tone.Inverse">Активний</Badge>
+                    }
+                    @if (!context.TwoFactorEnabled)
+                    {
+                        <Badge Tone="Tone.Dashed" Title="Автентифікатор ще не прив'язано">Без 2FA</Badge>
+                    }
+                </div>
+            </GridColumn>
+            <GridColumn TItem="UserListItem" Title="Останній вхід" SortKey="lastSignIn" Class="ds-nowrap">@Display.DateTime(context.LastSignInAt)</GridColumn>
+            <GridColumn TItem="UserListItem" Title="Дії" Actions>
+                <Button Href="@($"/admin/users/{context.Id}")" Variant="ButtonVariant.Ghost" Size="ControlSize.Small" IconEnd="arrow-right">Відкрити</Button>
+            </GridColumn>
+        </Columns>
+    </DataGrid>
+}

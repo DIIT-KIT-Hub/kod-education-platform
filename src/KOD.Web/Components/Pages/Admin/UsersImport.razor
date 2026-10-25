@@ -1,0 +1,116 @@
+@page "/admin/users/import"
+@attribute [RequirePermission(Permissions.Users.Import, Permissions.Users.Export)]
+@rendermode InteractiveServer
+
+<PageHeader Title="Імпорт і експорт користувачів" Subtitle="Масове створення та оновлення облікових записів із файлів XLSX або CSV."
+            Breadcrumbs="@([new("Адміністрування", "/admin"), new("Користувачі", "/admin/users"), new("Імпорт і експорт")])" />
+
+<div class="ds-split ds-split--wide-aside">
+    <div class="ds-stack ds-stack--lg">
+        @if (CanImport)
+        {
+            <Card Title="1. Оберіть файл" Subtitle="Рядки з однаковою електронною поштою — це кілька посад одного користувача.">
+                <ChildContent>
+                    <label class="ds-dropzone">
+                        <InputFile OnChange="SelectFile" accept=".xlsx,.csv" />
+                        <span class="ds-empty__icon"><Icon Name="file-spreadsheet" Size="IconSize.Large" /></span>
+                        <span class="ds-dropzone__title">@(FileName ?? "Перетягніть файл XLSX або CSV")</span>
+                        <span class="ds-dropzone__hint">До 5 МБ, до 10 000 рядків. Наявні облікові записи оновлюються за e-mail.</span>
+                    </label>
+                </ChildContent>
+                <Footer>
+                    <Button Icon="list-checks" Disabled="@(FileBytes is null || Busy)" OnClick="() => RunAsync(dryRun: true)">Перевірити</Button>
+                    <Button Variant="ButtonVariant.Secondary" Icon="upload" Disabled="@(Report is not { Errors.Count: 0, Applied: false } || Busy)" OnClick="() => RunAsync(dryRun: false)">Імпортувати</Button>
+                </Footer>
+            </Card>
+
+            @if (Busy)
+            {
+                <div class="ds-progress ds-progress--indeterminate"><div class="ds-progress__bar"></div></div>
+            }
+
+            @if (ErrorMessage is not null)
+            {
+                <Alert Tone="Tone.Danger">@ErrorMessage</Alert>
+            }
+
+            @if (Report is not null)
+            {
+                <Card Title="@(Report.Applied ? "2. Імпорт виконано" : "2. Результат перевірки")">
+                    <div class="ds-cols ds-cols--stats ds-stagger">
+                        <StatCard Label="Рядків у файлі" Value="@Report.TotalRows.ToString(Display.Culture)" Icon="table" />
+                        <StatCard Label="@(Report.Applied ? "Створено" : "Буде створено")" Value="@Report.UsersToCreate.ToString(Display.Culture)" Icon="user-plus" Inverse="Report.Applied" />
+                        <StatCard Label="@(Report.Applied ? "Оновлено" : "Буде оновлено")" Value="@Report.UsersToUpdate.ToString(Display.Culture)" Icon="user-cog" />
+                    </div>
+
+                    @if (Report.Errors.Count > 0)
+                    {
+                        <Alert Tone="Tone.Danger" Title="@($"Знайдено помилок: {Report.Errors.Count}")">Виправте файл і перевірте його ще раз — імпорт можливий лише без помилок.</Alert>
+                        <DataGrid TItem="ImportRowError" Items="ErrorPage" Page="ErrorPageNumber" PageSize="ErrorPageSize" TotalCount="Report.Errors.Count" ShowPagination="false" Caption="Помилки імпорту">
+                            <Columns>
+                                <GridColumn TItem="ImportRowError" Title="Рядок" Class="ds-col-number">@context.Row</GridColumn>
+                                <GridColumn TItem="ImportRowError" Title="E-mail" Primary>@context.Email</GridColumn>
+                                <GridColumn TItem="ImportRowError" Title="Помилка">@context.Message</GridColumn>
+                            </Columns>
+                        </DataGrid>
+                        <div class="ds-pagination">
+                            <span class="ds-pagination__summary">Сторінка @ErrorPageNumber з @ErrorPages</span>
+                            <div class="ds-pagination__pages">
+                                <button type="button" class="ds-pagination__page" disabled="@(ErrorPageNumber <= 1)" @onclick="() => ErrorPageNumber--" aria-label="Попередня"><Icon Name="chevron-left" /></button>
+                                <button type="button" class="ds-pagination__page" disabled="@(ErrorPageNumber >= ErrorPages)" @onclick="() => ErrorPageNumber++" aria-label="Наступна"><Icon Name="chevron-right" /></button>
+                            </div>
+                        </div>
+                    }
+                    else if (!Report.Applied)
+                    {
+                        <Alert Tone="Tone.Outline" Icon="circle-check">Помилок не знайдено. Натисніть «Імпортувати», щоб зберегти зміни.</Alert>
+                    }
+
+                    @if (Report.Credentials.Count > 0)
+                    {
+                        <div class="secret-box">
+                            <span class="ds-strong">Створено облікових записів: @Report.Credentials.Count. Завантажте тимчасові паролі — вони показуються лише зараз.</span>
+                            <div class="ds-cluster">
+                                <Button Icon="download" OnClick="() => DownloadCredentialsAsync(SpreadsheetFormat.Xlsx)">Паролі (XLSX)</Button>
+                                <Button Variant="ButtonVariant.Secondary" Icon="download" OnClick="() => DownloadCredentialsAsync(SpreadsheetFormat.Csv)">Паролі (CSV)</Button>
+                            </div>
+                        </div>
+                    }
+                </Card>
+            }
+        }
+    </div>
+
+    <div class="ds-stack ds-stack--lg">
+        @if (CanImport)
+        {
+            <Card Title="Шаблон" Variant="CardVariant.Muted">
+                <p class="ds-text-sm ds-muted">Стовпці: Email, Прізвище, Ім'я, По батькові, Телефон, Код підрозділу, Код ролі, Посада, Статус.</p>
+                <div class="ds-cluster">
+                    <Button Href="/api/v1/user-imports/template?format=Xlsx" Variant="ButtonVariant.Secondary" Size="ControlSize.Small" Icon="download" download>XLSX</Button>
+                    <Button Href="/api/v1/user-imports/template?format=Csv" Variant="ButtonVariant.Secondary" Size="ControlSize.Small" Icon="download" download>CSV</Button>
+                </div>
+                <details>
+                    <summary class="ds-link ds-text-sm">Коди ролей</summary>
+                    <dl class="ds-dl">
+                        @foreach (var role in Roles)
+                        {
+                            <dt class="ds-mono">@role.Code</dt>
+                            <dd>@role.Name</dd>
+                        }
+                    </dl>
+                </details>
+            </Card>
+        }
+        @if (CanExport)
+        {
+            <Card Title="Експорт">
+                <p class="ds-text-sm ds-muted">Вивантажує всіх користувачів у форматі, сумісному з імпортом (без паролів).</p>
+                <div class="ds-cluster">
+                    <Button Href="/api/v1/user-exports?format=Xlsx" Size="ControlSize.Small" Icon="download" download>XLSX</Button>
+                    <Button Href="/api/v1/user-exports?format=Csv" Variant="ButtonVariant.Secondary" Size="ControlSize.Small" Icon="download" download>CSV</Button>
+                </div>
+            </Card>
+        }
+    </div>
+</div>
