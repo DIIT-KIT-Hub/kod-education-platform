@@ -10,6 +10,7 @@
  *   data-autosubmit         on a <select>/<input>: submits its form on change
  *   data-copy="text"        copies the text to the clipboard and shows a toast
  *   data-theme-toggle       switches between the light and dark themes
+ *   data-sidebar-toggle     collapses / expands the desktop sidebar (<html data-sidebar>, remembered per browser)
  *   data-busy-on-submit     on a <form>: shows a spinner on the submit button while submitting
  *   .ds-dropzone            highlights while a file is dragged over and shows the chosen file names
  *
@@ -100,9 +101,60 @@
         }
     }
 
+    /**
+     * Updates the label and the expanded state of every sidebar toggle from the current sidebar state.
+     */
+    function syncSidebarToggles() {
+        var collapsed = document.documentElement.getAttribute("data-sidebar") === "collapsed";
+        var label = collapsed ? "Розгорнути меню" : "Згорнути меню";
+        document.querySelectorAll("[data-sidebar-toggle]").forEach(function (button) {
+            button.setAttribute("aria-expanded", collapsed ? "false" : "true");
+            button.setAttribute("aria-label", label);
+            button.setAttribute("title", label);
+        });
+    }
+
+    /**
+     * Collapses or expands the desktop sidebar and optionally remembers the choice in this browser.
+     * @param {boolean} collapsed Whether the sidebar is collapsed to an icon rail.
+     * @param {boolean} [persist] Whether to store the choice.
+     */
+    function setSidebar(collapsed, persist) {
+        document.documentElement.setAttribute("data-sidebar", collapsed ? "collapsed" : "expanded");
+        if (persist) {
+            try {
+                window.localStorage.setItem("kod-sidebar", collapsed ? "collapsed" : "expanded");
+            } catch (e) {
+                /* Storage may be unavailable (private mode); the state still applies for this page. */
+            }
+        }
+
+        syncSidebarToggles();
+    }
+
+    /**
+     * Re-applies the stored sidebar state (enhanced navigation resets the <html> attributes, like the theme).
+     */
+    function restoreSidebar() {
+        var saved = null;
+        try {
+            saved = window.localStorage.getItem("kod-sidebar");
+        } catch (e) {
+            saved = null;
+        }
+
+        setSidebar(saved === "collapsed", false);
+    }
+
     document.addEventListener("click", function (event) {
         var target = /** @type {Element} */ (event.target);
         if (!(target instanceof Element)) {
+            return;
+        }
+
+        var sidebarToggle = target.closest("[data-sidebar-toggle]");
+        if (sidebarToggle) {
+            setSidebar(document.documentElement.getAttribute("data-sidebar") !== "collapsed", true);
             return;
         }
 
@@ -239,14 +291,23 @@
     }
 
     if (window.Blazor && typeof window.Blazor.addEventListener === "function") {
-        window.Blazor.addEventListener("enhancedload", restoreTheme);
+        window.Blazor.addEventListener("enhancedload", function () {
+            restoreTheme();
+            restoreSidebar();
+        });
     }
 
     new MutationObserver(function () {
         if (!document.documentElement.hasAttribute("data-theme")) {
             restoreTheme();
         }
-    }).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
 
-    window.kodDs = { toast: toast, openDialog: openDialog, setTheme: setTheme, restoreTheme: restoreTheme };
+        if (!document.documentElement.hasAttribute("data-sidebar")) {
+            restoreSidebar();
+        }
+    }).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme", "data-sidebar"] });
+
+    syncSidebarToggles();
+
+    window.kodDs = { toast: toast, openDialog: openDialog, setTheme: setTheme, restoreTheme: restoreTheme, setSidebar: setSidebar };
 })();

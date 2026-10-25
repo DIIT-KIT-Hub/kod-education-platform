@@ -1,7 +1,7 @@
 <nav class="app-nav">
     @foreach (var item in Items)
     {
-        <NavLink class="app-nav__link" href="@item.Href" Match="@(item.Href == "/" ? NavLinkMatch.All : NavLinkMatch.Prefix)">
+        <NavLink class="app-nav__link" href="@item.Href" Match="@(item.Href == "/" ? NavLinkMatch.All : NavLinkMatch.Prefix)" data-label="@item.Text">
             <Icon Name="@item.Icon" />
             <span>@item.Text</span>
         </NavLink>

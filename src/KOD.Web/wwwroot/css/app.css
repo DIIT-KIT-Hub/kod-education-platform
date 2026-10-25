@@ -226,10 +226,24 @@
     .app-main { padding-bottom: var(--ds-space-12); }
 }
 
+/* Sidebar collapse toggle: desktop only. */
+.app-sidebar-toggle { display: none; }
+
 @media (min-width: 1024px) {
+    :root {
+        --app-sidebar-width: 17.5rem;
+        --app-rail-width: 5.25rem;
+        --app-sidebar-current: var(--app-sidebar-width);
+        --app-sidebar-transition: 320ms var(--ds-ease-in-out);
+    }
+
+    /* Collapsed: an icon rail (<html data-sidebar="collapsed">, set before the first paint by kod-theme.js). */
+    [data-sidebar="collapsed"] { --app-sidebar-current: var(--app-rail-width); }
+
     .app-shell {
-        grid-template-columns: 17.5rem minmax(0, 1fr);
+        grid-template-columns: var(--app-sidebar-current) minmax(0, 1fr);
         grid-template-rows: 1fr;
+        transition: grid-template-columns var(--app-sidebar-transition);
     }
 
     .app-topbar,
@@ -245,17 +259,96 @@
         padding: var(--ds-space-6) var(--ds-space-4);
         border-right: 1px solid var(--ds-color-border);
         background: var(--ds-color-surface);
+        overflow-x: hidden;
         overflow-y: auto;
         animation: ds-fade-in var(--ds-duration-slow) both;
+        transition: padding var(--app-sidebar-transition);
     }
 
-    .app-sidebar .app-brand { padding: 0 var(--ds-space-2); }
+    .app-sidebar .app-brand { padding: 0 var(--ds-space-2); transition: padding var(--app-sidebar-transition); }
     .app-sidebar__footer { margin-top: auto; }
     .app-main { padding: var(--ds-space-8) var(--ds-gutter) var(--ds-space-12); }
+
+    /* Labels fade and shrink instead of wrapping while the width animates; they stay readable for screen readers. */
+    .app-sidebar .app-brand__text,
+    .app-sidebar .app-nav__link > span,
+    .app-sidebar .app-user__text {
+        max-width: 14rem;
+        overflow: hidden;
+        white-space: nowrap;
+        transition: opacity 200ms var(--ds-ease-out), max-width var(--app-sidebar-transition);
+    }
+
+    .app-sidebar .app-nav__link { transition: background-color var(--ds-duration-base) var(--ds-ease-out), color var(--ds-duration-base) var(--ds-ease-out), transform var(--ds-duration-fast), padding var(--app-sidebar-transition), gap var(--app-sidebar-transition); }
+
+    .app-sidebar-toggle {
+        position: fixed;
+        z-index: calc(var(--ds-z-header) + 1);
+        top: 2.35rem;
+        left: calc(var(--app-sidebar-current) - 0.9rem);
+        display: grid;
+        place-items: center;
+        width: 1.8rem;
+        height: 1.8rem;
+        padding: 0;
+        border: 1px solid var(--ds-color-border-strong);
+        border-radius: 50%;
+        background: var(--ds-color-surface);
+        color: var(--ds-color-text);
+        box-shadow: var(--ds-shadow-md);
+        cursor: pointer;
+        transition: left var(--app-sidebar-transition), background-color var(--ds-duration-fast), color var(--ds-duration-fast), transform var(--ds-duration-fast) var(--ds-ease-spring);
+    }
+
+    .app-sidebar-toggle .ds-icon { width: 1rem; height: 1rem; transition: transform var(--app-sidebar-transition); }
+    .app-sidebar-toggle:hover { background: var(--ds-color-inverse); color: var(--ds-color-on-inverse); transform: scale(1.1); }
+    .app-sidebar-toggle:active { transform: scale(0.95); }
+    .app-sidebar-toggle:focus-visible { outline: 2px solid var(--ds-color-focus); outline-offset: 2px; }
+    [data-sidebar="collapsed"] .app-sidebar-toggle .ds-icon { transform: rotate(180deg); }
+
+    /* Icon rail */
+    [data-sidebar="collapsed"] .app-sidebar { padding-inline: var(--ds-space-3); }
+    [data-sidebar="collapsed"] .app-sidebar .app-brand { justify-content: center; gap: 0; padding: 0; }
+    [data-sidebar="collapsed"] .app-sidebar .app-nav__link { justify-content: center; gap: 0; padding: 0; }
+    [data-sidebar="collapsed"] .app-sidebar .app-user__card { justify-content: center; gap: 0; }
+
+    [data-sidebar="collapsed"] .app-sidebar .app-brand__text,
+    [data-sidebar="collapsed"] .app-sidebar .app-nav__link > span,
+    [data-sidebar="collapsed"] .app-sidebar .app-user__text {
+        max-width: 0;
+        opacity: 0;
+    }
+
+    [data-sidebar="collapsed"] .app-sidebar .app-user { flex-direction: column; padding: var(--ds-space-2) 0; }
+    [data-sidebar="collapsed"] .app-sidebar .app-user > .ds-row { flex-direction: column; }
+
+    /* Rail tooltip (js/app.js): fixed to the viewport, so the scrollable sidebar does not clip it. */
+    .app-rail-tip {
+        position: fixed;
+        z-index: var(--ds-z-toast);
+        padding: 0.35rem 0.7rem;
+        border-radius: var(--ds-radius-sm);
+        background: var(--ds-color-inverse);
+        color: var(--ds-color-on-inverse);
+        font-size: var(--ds-fs-sm);
+        font-weight: 700;
+        white-space: nowrap;
+        box-shadow: var(--ds-shadow-md);
+        opacity: 0;
+        pointer-events: none;
+        transform: translate3d(-0.25rem, -50%, 0);
+        transition: opacity var(--ds-duration-fast) var(--ds-ease-out), transform var(--ds-duration-fast) var(--ds-ease-out);
+    }
+
+    .app-rail-tip[data-visible] { opacity: 1; transform: translate3d(0, -50%, 0); }
+}
+
+@media (max-width: 1023.98px) {
+    .app-rail-tip { display: none; }
 }
 
 @media (min-width: 1536px) {
-    .app-shell { grid-template-columns: 19rem minmax(0, 1fr); }
+    :root { --app-sidebar-width: 19rem; }
 }
 
 /* Blazor error UI */

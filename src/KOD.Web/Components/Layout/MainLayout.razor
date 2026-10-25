@@ -3,7 +3,7 @@
 <a class="app-skip" href="#main">Перейти до змісту</a>
 
 <div class="app-shell">
-    <aside class="app-sidebar" aria-label="Головне меню">
+    <aside id="app-sidebar" class="app-sidebar" aria-label="Головне меню">
         <a class="app-brand" href="/">
             <span class="app-brand__mark" aria-hidden="true">К</span>
             <span class="app-brand__text">
@@ -16,6 +16,11 @@
             <UserMenu />
         </div>
     </aside>
+
+    @* Collapses the desktop sidebar to an icon rail; outside the aside so its scroll area does not clip the button. *@
+    <button type="button" class="app-sidebar-toggle" data-sidebar-toggle aria-controls="app-sidebar" aria-expanded="true" aria-label="Згорнути меню" title="Згорнути меню">
+        <Icon Name="chevron-left" />
+    </button>
 
     <header class="app-topbar">
         <a class="app-brand app-brand--compact" href="/">
