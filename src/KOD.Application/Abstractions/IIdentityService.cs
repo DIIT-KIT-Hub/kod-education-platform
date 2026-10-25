@@ -49,6 +49,22 @@ public interface IIdentityService
     Task<Result> ResetAuthenticatorAsync(User user);
 
     /// <summary>
+    /// Changes the security stamp: every cookie and interactive circuit issued before stops working at its next validation
+    /// (at most one minute later), independently of the server-side session rows.
+    /// </summary>
+    /// <param name="user">The user.</param>
+    /// <returns>A task that completes when the stamp is changed.</returns>
+    Task InvalidateSessionsAsync(User user);
+
+    /// <summary>
+    /// Verifies a code of the user's authenticator app (step-up confirmation of sensitive actions).
+    /// </summary>
+    /// <param name="user">The user.</param>
+    /// <param name="code">The 6-digit code.</param>
+    /// <returns><see langword="true"/> when the code is valid and was not used before.</returns>
+    Task<bool> VerifyAuthenticatorCodeAsync(User user, string code);
+
+    /// <summary>
     /// Generates a new set of recovery codes.
     /// </summary>
     /// <param name="user">The user.</param>

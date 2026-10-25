@@ -34,6 +34,9 @@ internal static class WebApplicationExtensions
         /// <returns>The web application.</returns>
         public WebApplication UseWebPipeline()
         {
+            // First: the client address and scheme from trusted reverse proxies (rate limits, audit, session IPs, HTTPS).
+            app.UseForwardedHeaders();
+
             if (app.Environment.IsDevelopment())
             {
                 // HTML pages keep the developer exception page; the API still answers with problem details.
@@ -65,6 +68,7 @@ internal static class WebApplicationExtensions
             app.MapStaticAssets().AllowAnonymous();
             app.MapControllers();
             app.MapEuSignProxy();
+            app.MapTrustList();
             app.MapAccountEndpoints();
             app.MapRazorComponents<App>()
                 .AddInteractiveServerRenderMode();

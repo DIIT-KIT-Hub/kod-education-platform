@@ -11,6 +11,11 @@
     <ProjectReference Include="..\..\src\KOD.Domain\KOD.Domain.csproj" />
     <ProjectReference Include="..\..\src\KOD.Application\KOD.Application.csproj" />
     <ProjectReference Include="..\..\src\KOD.Infrastructure\KOD.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\KOD.Web\KOD.Web.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\src\KOD.Web\wwwroot\lib\eusign\data\*" Link="TrustList\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <ItemGroup>

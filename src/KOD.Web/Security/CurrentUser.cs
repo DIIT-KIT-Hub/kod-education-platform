@@ -17,6 +17,11 @@ internal sealed class CurrentUser(IHttpContextAccessor httpContextAccessor, Circ
     /// </summary>
     private FrozenSet<string>? _permissions;
 
+    /// <summary>
+    /// The principal the cached permission set was built from (a circuit may receive a refreshed principal).
+    /// </summary>
+    private ClaimsPrincipal? _permissionsSource;
+
     /// <inheritdoc />
     public bool IsAuthenticated => Principal?.Identity?.IsAuthenticated == true;
 
@@ -30,9 +35,22 @@ internal sealed class CurrentUser(IHttpContextAccessor httpContextAccessor, Circ
     public string? IpAddress => httpContextAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString();
 
     /// <inheritdoc />
-    public IReadOnlySet<string> Permissions => _permissions ??= IsAuthenticated
-        ? Principal!.FindAll(AppClaimTypes.Permission).Select(static c => c.Value).ToFrozenSet(StringComparer.Ordinal)
-        : FrozenSet<string>.Empty;
+    public IReadOnlySet<string> Permissions
+    {
+        get
+        {
+            var principal = Principal;
+            if (_permissions is null || !ReferenceEquals(principal, _permissionsSource))
+            {
+                _permissionsSource = principal;
+                _permissions = principal?.Identity?.IsAuthenticated == true
+                    ? principal.FindAll(AppClaimTypes.Permission).Select(static c => c.Value).ToFrozenSet(StringComparer.Ordinal)
+                    : FrozenSet<string>.Empty;
+            }
+
+            return _permissions;
+        }
+    }
 
     /// <inheritdoc />
     public Guid? CurrentSessionId => Principal?.SessionId;

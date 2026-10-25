@@ -102,7 +102,7 @@ internal sealed class ProfileService(
     }
 
     /// <inheritdoc />
-    public async Task<Result<IReadOnlyList<string>>> RegenerateRecoveryCodesAsync(CancellationToken cancellationToken)
+    public async Task<Result<IReadOnlyList<string>>> RegenerateRecoveryCodesAsync(string authenticatorCode, CancellationToken cancellationToken)
     {
         var user = await LoadAsync(cancellationToken);
         if (user is null)
@@ -113,6 +113,12 @@ internal sealed class ProfileService(
         if (!user.TwoFactorEnabled)
         {
             return Error.Validation("Спочатку підключіть застосунок-автентифікатор.");
+        }
+
+        if (!await identity.VerifyAuthenticatorCodeAsync(user, authenticatorCode))
+        {
+            await audit.WriteAsync(AuditActions.SignInFailed, user.Id, user.FullName, "Неправильний код підтвердження (нові резервні коди)", cancellationToken);
+            return Error.Validation("Код неправильний або вже використаний. Введіть наступний код із застосунку.");
         }
 
         var codes = await identity.GenerateRecoveryCodesAsync(user);
@@ -166,7 +172,12 @@ internal sealed class ProfileService(
             return Error.Unauthorized();
         }
 
-        var current = sessionContext.CurrentSessionId;
+        // Without a known current session the filter below would also end the session of this request.
+        if (sessionContext.CurrentSessionId is not { } current)
+        {
+            return Error.Validation("Не вдалося визначити поточну сесію. Увійдіть знову та повторіть дію.");
+        }
+
         var deleted = await db.UserSessions.Where(s => s.UserId == me && s.Id != current).ExecuteDeleteAsync(cancellationToken);
         await audit.WriteAsync(AuditActions.SessionRevoked, me, currentUser.DisplayName, $"Завершено {deleted} інших сесій", cancellationToken);
         return deleted;

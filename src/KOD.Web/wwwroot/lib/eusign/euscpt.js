@@ -4556,6 +4556,46 @@ EndUserMakeCertificateResult.prototype.GetTransferableObject = function() {
 
 //=============================================================================
 
+var EndUserDataHashFields =  {
+	'hashAlgo': 'number',
+	'hash': 'array'
+};
+
+//-----------------------------------------------------------------------------
+
+var EndUserDataHash = function(hashAlgo, hash) {
+	SetClassID('EndUserDataHash', '1.0.1', this);
+
+	this.hashAlgo = hashAlgo;
+	this.hash = hash;
+};
+
+//-----------------------------------------------------------------------------
+
+EndUserDataHash.prototype.GetHashAlgo = function() {
+	return this.hashAlgo;
+};
+
+//-----------------------------------------------------------------------------
+
+EndUserDataHash.prototype.GetHash = function() {
+	return this.hash;
+};
+
+//-----------------------------------------------------------------------------
+
+EndUserDataHash.prototype.SetTransferableObject = function(obj) {
+	TransferableObjectToClass(this, obj, EndUserDataHashFields);
+};
+
+//-----------------------------------------------------------------------------
+
+EndUserDataHash.prototype.GetTransferableObject = function() {
+	return ObjectToTransferableObject(this, {}, EndUserDataHashFields);
+};
+
+//=============================================================================
+
 // WARNING! Next items are depracated.
 
 /**

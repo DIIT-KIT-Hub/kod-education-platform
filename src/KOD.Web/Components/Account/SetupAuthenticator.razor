@@ -23,9 +23,39 @@
         <Button Href="@ContinueHref" IconEnd="arrow-right">Перейти до кабінету</Button>
     </div>
 }
+else if (MustSetPassword)
+{
+    <header class="auth-card__header">
+        <span class="ds-badge ds-badge--outline">Крок 1 з 2</span>
+        <h1>Створіть власний пароль</h1>
+        <p>Тимчасовий пароль від адміністратора діє лише для першого входу. Придумайте власний — після цього підключимо автентифікатор.</p>
+    </header>
+
+    @if (ErrorMessage is not null)
+    {
+        <Alert Tone="Tone.Danger">@ErrorMessage</Alert>
+    }
+
+    <EditForm Model="Password" method="post" OnValidSubmit="SetPasswordAsync" FormName="first-password" class="ds-form" Enhance data-busy-on-submit>
+        <DataAnnotationsValidator />
+        <Field Label="Новий пароль" For="first-password-new" Hint="Від 12 символів: великі й малі літери та цифри. Паролі з відомих витоків не приймаються.">
+            <InputText id="first-password-new" type="password" @bind-Value="Password.NewPassword" class="ds-input" autocomplete="new-password" />
+            <ValidationMessage For="() => Password.NewPassword" />
+        </Field>
+        <Field Label="Повторіть пароль" For="first-password-confirm">
+            <InputText id="first-password-confirm" type="password" @bind-Value="Password.ConfirmPassword" class="ds-input" autocomplete="new-password" />
+            <ValidationMessage For="() => Password.ConfirmPassword" />
+        </Field>
+        <Button Type="submit" Size="ControlSize.Large" Block IconEnd="arrow-right">Зберегти пароль</Button>
+    </EditForm>
+}
 else
 {
     <header class="auth-card__header">
+        @if (WasTemporaryPassword)
+        {
+            <span class="ds-badge ds-badge--outline">Крок 2 з 2</span>
+        }
         <h1>Захистіть вхід</h1>
         <p>Для кожного облікового запису обов'язкова двофакторна автентифікація. Прив'яжіть застосунок-автентифікатор — це займе хвилину.</p>
     </header>

@@ -13,6 +13,7 @@ var EU_FALSE 				= 0;
 var XMLHTTPProxyService = "";
 var XMLHTTPDirectAccess = false;
 var XMLHTTPDirectAccessAddresses = [];
+var XMLHTTPTempDir = "";
 
 //=============================================================================
 
@@ -716,9 +717,9 @@ if (EU_MAX_DATA_SIZE_MB <= 2)
 
 var EUSignCP = NewClass({
 	"Vendor": "JSC IIT",
-	"ClassVersion": "1.3.73",
+	"ClassVersion": "1.3.74",
 	"ClassName": "EUSignCP",
-	"BaseLibraryVersion": "1.3.1.216",
+	"BaseLibraryVersion": "1.3.1.224",
 	"errorLangCode": EU_DEFAULT_LANG,
 	"privKeyOwnerInfo": null,
 	"isFileSyncAPISupported": false,
@@ -1149,6 +1150,12 @@ function() {
 	},
 	AddXMLHTTPDirectAccessAddress: function(address) {
 		XMLHTTPDirectAccessAddresses.push(address);
+	},
+	SetXMLHTTPTempDir: function(path) {
+		if (path == null) {
+			this.RaiseError(EU_ERROR_BAD_PARAMETER);
+		}
+		XMLHTTPTempDir = path;
 	},
 	InitializeMandatorySettings: function() {
 		var fs = this.CreateFileStoreSettings();
@@ -3117,6 +3124,41 @@ function() {
 		}
 
 		return arrPtr.toArray();
+	},
+	GetDataHashFromSignedDataEx: function(signIndex, signedData) {
+		this.CheckMaxDataSize(signedData);
+
+		var isSignStr = ((typeof signedData) == 'string');
+		var intPtr = EUPointerDWORD();
+		var arrPtr = EUPointerArray();
+		var error;
+
+		try {
+			error = Module.ccall('EUGetDataHashFromSignedDataEx',
+				'number',
+				['number', 
+					isSignStr ? 'array' : 'number',
+					(!isSignStr) ? 'array' : 'number', 'number',
+					'number', 'number', 'number', 'number'],
+				[signIndex, 
+					isSignStr ? StringToCString(signedData) : 0,
+					!isSignStr ? signedData : 0,
+					!isSignStr ? signedData.length : 0, 
+					intPtr.ptr, 0, arrPtr.ptr, arrPtr.lengthPtr]);
+		} catch (e) {
+			error = EU_ERROR_UNKNOWN;
+		}
+		
+		if (error != EU_ERROR_NONE) {
+			intPtr.free();
+			arrPtr.free();
+			this.RaiseError(error);
+		}
+
+		var hashAlgo = intPtr.toNumber();
+		var hash = arrPtr.toArray();
+
+		return new EndUserDataHash(hashAlgo, hash);
 	},
 	GetSignTimeInfo: function(signIndex, sign) {
 		this.CheckMaxDataSize(sign);
@@ -5755,6 +5797,60 @@ function() {
 					recipientCertsArray.arraysLengthPtr,
 					recipientAppendType, 
 					IntFromBool(signData), IntFromBool(appendCert),
+					data, data.length, pPtr.ptr, pPtr.lengthPtr]);
+		} catch (e) {
+			error = EU_ERROR_UNKNOWN;
+		}
+		
+		if (error != EU_ERROR_NONE) {
+			recipientCertsArray.free();
+			pPtr.free();
+			this.RaiseError(error);
+		}
+
+		recipientCertsArray.free();
+		
+		if (asBase64String)
+			return this.Base64Encode(pPtr.toArray());
+		else 
+			return pPtr.toArray();
+	},
+	CtxEnvelopDataWithSettings2: function (
+		privateKeyContext, useDynamicKey, contentEncAlgoType,
+		recipientCertificates, recipientAppendType,
+		checkRecipientCertsOffline, checkRecipientCertsNoCRL,
+		noRecipientCertsCertCheck,
+		signData, noTSP, appendCert, data, asBase64String) {
+		if ((typeof data) == 'string')
+			data = this.StringToArray(data);
+
+		this.CheckMaxDataSize(data);
+
+		var pPtr = EUPointerArray(privateKeyContext.GetContext());
+		var recipientCertsArray = 
+			new EUArrayFromArrayOfArray(recipientCertificates);
+		var error;
+
+		try {
+			error = Module.ccall('EUCtxEnvelopDataWithSettings2',
+				'number',
+				['number', 
+					'number', 'number', 
+					'number', 'number', 'number',
+					'number', 'number', 'number', 'number',
+					'number', 'number', 'number',
+					'array', 'number', 'number', 'number'],
+				[privateKeyContext.GetContext(),
+					IntFromBool(useDynamicKey), contentEncAlgoType,
+					recipientCertsArray.count,
+					recipientCertsArray.arraysPtr,
+					recipientCertsArray.arraysLengthPtr,
+					recipientAppendType,
+					IntFromBool(checkRecipientCertsOffline),
+					IntFromBool(checkRecipientCertsNoCRL), 
+					IntFromBool(noRecipientCertsCertCheck),
+					IntFromBool(signData), IntFromBool(noTSP),
+					IntFromBool(appendCert),
 					data, data.length, pPtr.ptr, pPtr.lengthPtr]);
 		} catch (e) {
 			error = EU_ERROR_UNKNOWN;

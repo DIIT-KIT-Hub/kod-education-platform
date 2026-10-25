@@ -242,6 +242,7 @@ internal sealed class UserService(
         var result = await identity.UpdateAsync(user.Value);
         if (result.IsSuccess && !isActive)
         {
+            await identity.InvalidateSessionsAsync(user.Value);
             await db.UserSessions.Where(s => s.UserId == id).ExecuteDeleteAsync(cancellationToken);
         }
 
@@ -313,6 +314,7 @@ internal sealed class UserService(
             return user.Error;
         }
 
+        await identity.InvalidateSessionsAsync(user.Value);
         var count = await db.UserSessions.Where(s => s.UserId == id).ExecuteDeleteAsync(cancellationToken);
         await identity.UnlockAsync(user.Value);
         await audit.WriteAsync(AuditActions.SessionRevoked, currentUser.Id, currentUser.DisplayName, $"Завершено {count} сесій {user.Value.Email}", cancellationToken);
@@ -409,9 +411,29 @@ internal sealed class UserService(
             .Where(u => emails.Contains(u.NormalizedEmail!))
             .ToDictionaryAsync(static u => u.Email!, StringComparer.OrdinalIgnoreCase, cancellationToken);
 
-        foreach (var plan in plans.Where(p => existing.TryGetValue(p.Email, out var user) && user.Id == currentUser.Id && !p.IsActive))
+        foreach (var plan in plans)
         {
-            errors.Add(new ImportRowError(plan.Row, plan.Email, "Ви не можете заблокувати власний обліковий запис."));
+            if (!existing.TryGetValue(plan.Email, out var user))
+            {
+                continue;
+            }
+
+            if (user.Id == currentUser.Id)
+            {
+                if (!plan.IsActive)
+                {
+                    errors.Add(new ImportRowError(plan.Row, plan.Email, "Ви не можете заблокувати власний обліковий запис."));
+                }
+
+                continue;
+            }
+
+            // The same hierarchy rule as for manual editing: only accounts whose permissions the importer also has.
+            var target = await permissions.GetEffectivePermissionsAsync(user.Id, cancellationToken);
+            if (target.Any(p => !currentUser.Has(p)))
+            {
+                errors.Add(new ImportRowError(plan.Row, plan.Email, "Цей обліковий запис має більше прав, ніж ви, тому імпорт не може його змінювати."));
+            }
         }
 
         var toCreate = plans.Count(p => !existing.ContainsKey(p.Email));
@@ -438,11 +460,19 @@ internal sealed class UserService(
                                 user.SetPositions(plan.Positions.Select(static p => (p.UnitId, p.RoleId, p.Title, p.IsPrimary)));
                             }
 
+                            var blocked = user.IsActive && !plan.IsActive;
                             user.SetActive(plan.IsActive);
                             var updated = await identity.UpdateAsync(user);
                             if (!updated.IsSuccess)
                             {
                                 throw new DomainException($"{plan.Email}: {updated.Error.Message}");
+                            }
+
+                            // A blocked account loses its sessions immediately, as with manual blocking.
+                            if (blocked)
+                            {
+                                await identity.InvalidateSessionsAsync(user);
+                                await db.UserSessions.Where(s => s.UserId == user.Id).ExecuteDeleteAsync(ct);
                             }
                         }
                         else

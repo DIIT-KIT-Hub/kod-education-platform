@@ -3,17 +3,20 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace KOD.Infrastructure.Identity;
 
 /// <summary>
-/// Periodically deletes expired server-side sessions.
+/// Periodically deletes expired server-side sessions (idle timeout or absolute lifetime passed).
 /// </summary>
 /// <param name="scopeFactory">Creates scopes for the database context.</param>
+/// <param name="options">The session lifetime options.</param>
 /// <param name="timeProvider">The clock.</param>
 /// <param name="logger">The logger.</param>
 internal sealed partial class SessionCleanupService(
     IServiceScopeFactory scopeFactory,
+    IOptions<SessionLifetimeOptions> options,
     TimeProvider timeProvider,
     ILogger<SessionCleanupService> logger) : BackgroundService
 {
@@ -33,7 +36,10 @@ internal sealed partial class SessionCleanupService(
                 await using var scope = scopeFactory.CreateAsyncScope();
                 var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
                 var now = timeProvider.GetUtcNow();
-                var deleted = await db.UserSessions.Where(s => s.ExpiresAt < now).ExecuteDeleteAsync(stoppingToken);
+                var createdBefore = now - options.Value.AbsoluteLifetime;
+                var deleted = await db.UserSessions
+                    .Where(s => s.ExpiresAt < now || s.CreatedAt < createdBefore)
+                    .ExecuteDeleteAsync(stoppingToken);
                 if (deleted > 0)
                 {
                     LogCleaned(logger, deleted);

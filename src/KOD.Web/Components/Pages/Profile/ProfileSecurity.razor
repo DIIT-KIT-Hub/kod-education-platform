@@ -29,6 +29,10 @@
         <Card Title="Резервні коди" Subtitle="Для входу без телефону. Кожен код діє один раз.">
             <ChildContent>
                 <p><span class="ds-stat__value">@Profile.RecoveryCodesLeft</span> <span class="ds-muted">кодів залишилось</span></p>
+                @if (ErrorMessage is not null)
+                {
+                    <Alert Tone="Tone.Danger">@ErrorMessage</Alert>
+                }
                 @if (Codes is not null)
                 {
                     <div class="secret-box">
@@ -44,8 +48,11 @@
                 }
             </ChildContent>
             <Footer>
-                <form method="post" @formname="regenerate-codes" @onsubmit="RegenerateAsync" data-confirm="Згенерувати нові коди? Старі перестануть діяти.">
+                @* Step-up: a valid session alone is not enough to replace the recovery codes. *@
+                <form method="post" @formname="regenerate-codes" @onsubmit="RegenerateAsync" class="ds-row ds-row--wrap" data-confirm="Згенерувати нові коди? Старі перестануть діяти.">
                     <AntiforgeryToken />
+                    <input name="StepUpCode" class="ds-input ds-input--code profile-stepup" inputmode="numeric" autocomplete="one-time-code" maxlength="7" required
+                           placeholder="000000" aria-label="Код із застосунку-автентифікатора" />
                     <Button Type="submit" Variant="ButtonVariant.Secondary" Icon="refresh-cw">Нові коди</Button>
                 </form>
             </Footer>

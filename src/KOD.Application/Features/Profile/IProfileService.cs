@@ -32,11 +32,12 @@ public interface IProfileService
     Task<Result> ChangePasswordAsync(string currentPassword, string newPassword, CancellationToken cancellationToken);
 
     /// <summary>
-    /// Generates a new set of recovery codes.
+    /// Generates a new set of recovery codes after confirming a code of the authenticator app (step-up authentication).
     /// </summary>
+    /// <param name="authenticatorCode">The current authenticator code.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The codes (shown once).</returns>
-    Task<Result<IReadOnlyList<string>>> RegenerateRecoveryCodesAsync(CancellationToken cancellationToken);
+    Task<Result<IReadOnlyList<string>>> RegenerateRecoveryCodesAsync(string authenticatorCode, CancellationToken cancellationToken);
 
     /// <summary>
     /// Lists the current user's active sessions.

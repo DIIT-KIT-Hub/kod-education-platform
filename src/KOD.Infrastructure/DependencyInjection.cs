@@ -1,3 +1,4 @@
+using System.Security.Cryptography.X509Certificates;
 using KOD.Application.Abstractions;
 using KOD.Application.Features.Users;
 using KOD.Domain.Users;
@@ -15,6 +16,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace KOD.Infrastructure;
 
@@ -30,10 +32,12 @@ public static class DependencyInjection
         /// Adds the infrastructure layer.
         /// </summary>
         /// <param name="configuration">The application configuration.</param>
+        /// <param name="environment">The host environment.</param>
         /// <returns>The service collection.</returns>
-        public IServiceCollection AddInfrastructure(IConfiguration configuration)
+        public IServiceCollection AddInfrastructure(IConfiguration configuration, IHostEnvironment environment)
         {
             ArgumentNullException.ThrowIfNull(configuration);
+            ArgumentNullException.ThrowIfNull(environment);
 
             var connectionString = configuration.GetConnectionString("Database")
                 ?? throw new InvalidOperationException("Connection string 'ConnectionStrings:Database' is not configured.");
@@ -49,11 +53,16 @@ public static class DependencyInjection
             services.AddScoped<IApplicationDbContext>(static provider => provider.GetRequiredService<ApplicationDbContext>());
 
             services.AddIdentityServices();
+            services.AddKeyProtection(configuration, environment);
 
-            services.AddDataProtection()
-                .SetApplicationName("KOD")
-                .PersistKeysToDbContext<ApplicationDbContext>();
+            services.Configure<PasswordSecurityOptions>(configuration.GetSection(PasswordSecurityOptions.SectionName));
+            services.AddHttpClient(PwnedPasswordValidator.HttpClientName, static client =>
+            {
+                client.Timeout = TimeSpan.FromSeconds(5);
+                client.DefaultRequestHeaders.UserAgent.ParseAdd("KOD-education-platform");
+            });
 
+            services.Configure<SessionLifetimeOptions>(configuration.GetSection(SessionLifetimeOptions.SectionName));
             services.Configure<StorageOptions>(configuration.GetSection(StorageOptions.SectionName));
             services.Configure<SeedOptions>(configuration.GetSection(SeedOptions.SectionName));
 
@@ -93,17 +102,60 @@ public static class DependencyInjection
                     options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
                 })
                 .AddEntityFrameworkStores<ApplicationDbContext>()
+                .AddUserStore<ProtectedUserStore>()
                 .AddSignInManager<AppSignInManager>()
                 .AddClaimsPrincipalFactory<AppUserClaimsPrincipalFactory>()
                 .AddErrorDescriber<UkrainianIdentityErrorDescriber>()
-                .AddDefaultTokenProviders();
+                .AddPasswordValidator<MaximumLengthPasswordValidator>()
+                .AddPasswordValidator<PwnedPasswordValidator>()
+                .AddDefaultTokenProviders()
+                .AddTokenProvider<ReplayProtectedAuthenticatorTokenProvider>(TokenOptions.DefaultAuthenticatorProvider);
 
+            services.AddSingleton<UserTokenProtector>();
             services.AddHttpContextAccessor();
             services.AddScoped<IIdentityService, IdentityService>();
-            services.AddSingleton<ITicketStore, DatabaseTicketStore>();
+            services.AddSingleton<DatabaseTicketStore>();
+            services.AddSingleton<ITicketStore>(static sp => sp.GetRequiredService<DatabaseTicketStore>());
+            services.AddSingleton<IUserSessionValidator>(static sp => sp.GetRequiredService<DatabaseTicketStore>());
             services.AddOptions<CookieAuthenticationOptions>(IdentityConstants.ApplicationScheme)
                 .Configure<ITicketStore>(static (options, store) => options.SessionStore = store);
             services.AddHostedService<SessionCleanupService>();
+
+            return services;
+        }
+
+        /// <summary>
+        /// Stores Data Protection keys in the database encrypted at rest: with the X.509 certificate from
+        /// <c>DataProtection:CertificatePath</c> (any OS, required in production outside Windows) or with Windows DPAPI.
+        /// A database dump alone is then not enough to decrypt sessions or forge cookies.
+        /// </summary>
+        /// <param name="configuration">The configuration.</param>
+        /// <param name="environment">The host environment.</param>
+        /// <returns>The service collection.</returns>
+        private IServiceCollection AddKeyProtection(IConfiguration configuration, IHostEnvironment environment)
+        {
+            var builder = services.AddDataProtection()
+                .SetApplicationName("KOD")
+                .PersistKeysToDbContext<ApplicationDbContext>();
+
+            var certificatePath = configuration["DataProtection:CertificatePath"];
+            if (!string.IsNullOrWhiteSpace(certificatePath))
+            {
+                var certificate = X509CertificateLoader.LoadPkcs12FromFile(
+                    Path.GetFullPath(certificatePath, environment.ContentRootPath),
+                    configuration["DataProtection:CertificatePassword"],
+                    X509KeyStorageFlags.EphemeralKeySet);
+                builder.ProtectKeysWithCertificate(certificate).UnprotectKeysWithAnyCertificate(certificate);
+            }
+            else if (OperatingSystem.IsWindows())
+            {
+                builder.ProtectKeysWithDpapi();
+            }
+            else if (!environment.IsDevelopment())
+            {
+                throw new InvalidOperationException(
+                    "Data Protection keys must be encrypted: set DataProtection:CertificatePath (a PFX file) and DataProtection:CertificatePassword.");
+            }
 
             return services;
         }

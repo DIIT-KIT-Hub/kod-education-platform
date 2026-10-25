@@ -3,6 +3,7 @@ using System.Security.Claims;
 using KOD.Application.Abstractions;
 using KOD.Domain.Audit;
 using KOD.Domain.Users;
+using KOD.Infrastructure.Identity;
 using KOD.Web.Identity;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Components;
@@ -12,15 +13,23 @@ namespace KOD.Web.Components.Account;
 
 /// <summary>
 /// Mandatory authenticator enrollment at the first sign-in (and after an administrator reset).
-/// Uses the Identity authenticator token provider (TOTP, RFC 6238) and issues recovery codes.
+/// A user who signed in with a temporary password first replaces it, so the temporary password stops working before
+/// an authenticator is bound to the account. Uses the Identity authenticator token provider (TOTP, RFC 6238) and issues
+/// recovery codes.
 /// </summary>
 public partial class SetupAuthenticator
 {
     /// <summary>
-    /// Gets or sets the form model.
+    /// Gets or sets the enrollment form model.
     /// </summary>
-    [SupplyParameterFromForm]
+    [SupplyParameterFromForm(FormName = "setup-authenticator")]
     private EnrollModel Input { get; set; } = default!;
+
+    /// <summary>
+    /// Gets or sets the first password form model.
+    /// </summary>
+    [SupplyParameterFromForm(FormName = "first-password")]
+    private PasswordModel Password { get; set; } = default!;
 
     /// <summary>
     /// Gets or sets the address to return to.
@@ -101,6 +110,17 @@ public partial class SetupAuthenticator
     private User? PendingUser { get; set; }
 
     /// <summary>
+    /// Gets a value indicating whether the user must first replace a temporary password.
+    /// </summary>
+    private bool MustSetPassword => PendingUser?.MustChangePassword == true;
+
+    /// <summary>
+    /// Gets or sets a value indicating whether the user started with a temporary password (shows the step counter).
+    /// </summary>
+    [SupplyParameterFromQuery(Name = "firstLogin")]
+    private bool WasTemporaryPassword { get; set; }
+
+    /// <summary>
     /// Gets the address to continue to.
     /// </summary>
     private string ContinueHref => IdentityRedirectManager.SafeLocal(ReturnUrl);
@@ -109,8 +129,9 @@ public partial class SetupAuthenticator
     protected override async Task OnInitializedAsync()
     {
         Input ??= new EnrollModel();
+        Password ??= new PasswordModel();
         PendingUser = await SignInManager.GetTwoFactorAuthenticationUserAsync();
-        if (PendingUser is null)
+        if (PendingUser is null || !PendingUser.IsActive)
         {
             Redirect.RedirectTo("/account/login");
             return;
@@ -122,16 +143,67 @@ public partial class SetupAuthenticator
             return;
         }
 
-        var key = await UserManager.GetAuthenticatorKeyAsync(PendingUser);
+        if (await UserManager.IsLockedOutAsync(PendingUser))
+        {
+            Redirect.RedirectTo("/account/lockout");
+            return;
+        }
+
+        if (!MustSetPassword)
+        {
+            await PrepareKeyAsync(PendingUser);
+        }
+    }
+
+    /// <summary>
+    /// Replaces the temporary password. The user proved knowledge of it on the sign-in page minutes ago
+    /// (the two-factor cookie lives 10 minutes), so the reset-token path of Identity is used.
+    /// </summary>
+    /// <returns>A task that completes when the response is decided.</returns>
+    private async Task SetPasswordAsync()
+    {
+        if (PendingUser is null || !MustSetPassword)
+        {
+            return;
+        }
+
+        if (await UserManager.CheckPasswordAsync(PendingUser, Password.NewPassword))
+        {
+            ErrorMessage = "Новий пароль має відрізнятися від тимчасового.";
+            return;
+        }
+
+        PendingUser.RequirePasswordChange(false);
+        var token = await UserManager.GeneratePasswordResetTokenAsync(PendingUser);
+        var result = await UserManager.ResetPasswordAsync(PendingUser, token, Password.NewPassword);
+        if (!result.Succeeded)
+        {
+            PendingUser.RequirePasswordChange(true);
+            ErrorMessage = string.Join(" ", result.Errors.Select(static e => e.Description));
+            return;
+        }
+
+        await Audit.WriteAsync(AuditActions.PasswordChanged, PendingUser.Id, PendingUser.FullName, "Перший вхід: тимчасовий пароль замінено", CancellationToken.None);
+        Redirect.RedirectTo("/account/setup-authenticator", new() { ["returnUrl"] = ReturnUrl, ["rememberMe"] = RememberMe, ["firstLogin"] = true });
+    }
+
+    /// <summary>
+    /// Creates the authenticator key (once) and renders the QR code.
+    /// </summary>
+    /// <param name="user">The user.</param>
+    /// <returns>A task that completes when the key is ready.</returns>
+    private async Task PrepareKeyAsync(User user)
+    {
+        var key = await UserManager.GetAuthenticatorKeyAsync(user);
         if (string.IsNullOrEmpty(key))
         {
-            await UserManager.ResetAuthenticatorKeyAsync(PendingUser);
-            key = await UserManager.GetAuthenticatorKeyAsync(PendingUser);
+            await UserManager.ResetAuthenticatorKeyAsync(user);
+            key = await UserManager.GetAuthenticatorKeyAsync(user);
         }
 
         SharedKeyRaw = key!;
         SharedKey = AuthenticatorQrCode.FormatKey(key!);
-        QrSvg = AuthenticatorQrCode.RenderSvg(AuthenticatorQrCode.BuildUri(PendingUser.Email!, key!));
+        QrSvg = AuthenticatorQrCode.RenderSvg(AuthenticatorQrCode.BuildUri(user.Email!, key!));
     }
 
     /// <summary>
@@ -140,7 +212,7 @@ public partial class SetupAuthenticator
     /// <returns>A task that completes when the response is decided.</returns>
     private async Task EnrollAsync()
     {
-        if (PendingUser is null)
+        if (PendingUser is null || MustSetPassword)
         {
             return;
         }
@@ -150,7 +222,20 @@ public partial class SetupAuthenticator
         if (!valid)
         {
             await UserManager.AccessFailedAsync(PendingUser);
+            if (await UserManager.IsLockedOutAsync(PendingUser))
+            {
+                await Audit.WriteAsync(AuditActions.LockedOut, PendingUser.Id, PendingUser.FullName, "Підключення автентифікатора", CancellationToken.None);
+                Redirect.RedirectTo("/account/lockout");
+                return;
+            }
+
             ErrorMessage = "Код неправильний. Перевірте час на телефоні та спробуйте наступний код.";
+            return;
+        }
+
+        if (!await SignInManager.CanSignInAsync(PendingUser))
+        {
+            Redirect.RedirectTo("/account/login");
             return;
         }
 
@@ -160,7 +245,7 @@ public partial class SetupAuthenticator
         await UserManager.UpdateAsync(PendingUser);
 
         await HttpContext.SignOutAsync(IdentityConstants.TwoFactorUserIdScheme);
-        await SignInManager.SignInWithClaimsAsync(PendingUser, RememberMe, [new Claim("amr", "mfa")]);
+        await SignInManager.SignInWithClaimsAsync(PendingUser, RememberMe, [new Claim(AppClaimTypes.AuthenticationMethod, "mfa")]);
 
         await Audit.WriteAsync(AuditActions.AuthenticatorEnrolled, PendingUser.Id, PendingUser.FullName, null, CancellationToken.None);
         await Audit.WriteAsync(AuditActions.SignIn, PendingUser.Id, PendingUser.FullName, "Пароль + новий автентифікатор", CancellationToken.None);
@@ -177,5 +262,24 @@ public partial class SetupAuthenticator
         [Required(ErrorMessage = "Введіть код.")]
         [StringLength(7, MinimumLength = 6, ErrorMessage = "Код містить 6 цифр.")]
         public string Code { get; set; } = string.Empty;
+    }
+
+    /// <summary>
+    /// The first password form.
+    /// </summary>
+    private sealed class PasswordModel
+    {
+        /// <summary>
+        /// Gets or sets the new password.
+        /// </summary>
+        [Required(ErrorMessage = "Вкажіть новий пароль.")]
+        [StringLength(128, MinimumLength = 12, ErrorMessage = "Пароль має містити від 12 до 128 символів.")]
+        public string NewPassword { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets the confirmation.
+        /// </summary>
+        [Compare(nameof(NewPassword), ErrorMessage = "Паролі не збігаються.")]
+        public string ConfirmPassword { get; set; } = string.Empty;
     }
 }

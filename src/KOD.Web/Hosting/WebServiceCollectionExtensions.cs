@@ -1,15 +1,20 @@
 using System.Net;
+using System.Security.Claims;
 using System.Text.Json.Serialization;
 using System.Threading.RateLimiting;
 using KOD.Application.Abstractions;
+using KOD.Infrastructure.Identity;
 using KOD.Web.Identity;
 using KOD.Web.Security;
 using KOD.Web.Signing;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Server.Circuits;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace KOD.Web.Hosting;
 
@@ -38,6 +43,7 @@ internal static class WebServiceCollectionExtensions
             services.AddCookieAuthentication();
             services.AddPermissionAuthorization();
             services.AddRateLimiting();
+            services.AddTrustedProxies(configuration);
 
             services.AddAntiforgery(static options =>
             {
@@ -67,6 +73,11 @@ internal static class WebServiceCollectionExtensions
                     PooledConnectionLifetime = TimeSpan.FromMinutes(5),
                     UseCookies = false,
                 });
+
+            services.AddSingleton<TrustListStore>();
+            services.AddHostedService<TrustListRefreshService>();
+            services.AddHttpClient(TrustListRefreshService.HttpClientName, static client => client.Timeout = TimeSpan.FromMinutes(2))
+                .ConfigurePrimaryHttpMessageHandler(static () => new SocketsHttpHandler { AllowAutoRedirect = false, UseCookies = false });
 
             services.AddRequestLocalization(static options =>
             {
@@ -109,7 +120,6 @@ internal static class WebServiceCollectionExtensions
                 options.Cookie.HttpOnly = true;
                 options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
                 options.Cookie.SameSite = SameSiteMode.Lax;
-                options.ExpireTimeSpan = TimeSpan.FromHours(8);
                 options.SlidingExpiration = true;
                 options.LoginPath = "/account/login";
                 options.LogoutPath = "/account/logout";
@@ -121,8 +131,60 @@ internal static class WebServiceCollectionExtensions
                 options.Events.OnRedirectToAccessDenied = static context => RedirectOrStatus(context.HttpContext, context.RedirectUri, StatusCodes.Status403Forbidden);
             });
 
-            // Permissions are re-read from the database every minute (claims factory) and blocked users are signed out.
-            services.Configure<SecurityStampValidatorOptions>(static options => options.ValidationInterval = TimeSpan.FromMinutes(1));
+            // Idle timeout (sliding); the absolute lifetime is enforced by the server-side ticket store.
+            services.AddOptions<CookieAuthenticationOptions>(IdentityConstants.ApplicationScheme)
+                .Configure<IOptions<SessionLifetimeOptions>>(static (options, lifetime) => options.ExpireTimeSpan = lifetime.Value.IdleTimeout);
+
+            // Permissions are re-read from the database every minute (claims factory). The rebuilt principal keeps the claims
+            // that describe the sign-in itself rather than the user: the server-side session and the authentication methods.
+            services.Configure<SecurityStampValidatorOptions>(static options =>
+            {
+                options.ValidationInterval = TimeSpan.FromMinutes(1);
+                options.OnRefreshingPrincipal = static context =>
+                {
+                    if (context.NewPrincipal?.Identity is ClaimsIdentity identity && context.CurrentPrincipal is { } current)
+                    {
+                        foreach (var type in (string[])[AppClaimTypes.SessionId, AppClaimTypes.AuthenticationMethod])
+                        {
+                            if (identity.FindFirst(type) is null)
+                            {
+                                identity.AddClaims(current.FindAll(type).Select(static c => new Claim(c.Type, c.Value)));
+                            }
+                        }
+                    }
+
+                    return Task.CompletedTask;
+                };
+            });
+
+            return services;
+        }
+
+        /// <summary>
+        /// Accepts <c>X-Forwarded-For</c> / <c>X-Forwarded-Proto</c> only from trusted reverse proxies: loopback and the
+        /// addresses in <c>ReverseProxy:KnownProxies</c> / <c>ReverseProxy:KnownNetworks</c> (CIDR). Headers from anyone
+        /// else are ignored, so clients cannot spoof their IP to evade rate limits or falsify the audit log.
+        /// </summary>
+        /// <param name="configuration">The configuration.</param>
+        /// <returns>The service collection.</returns>
+        private IServiceCollection AddTrustedProxies(IConfiguration configuration)
+        {
+            var proxies = configuration.GetSection("ReverseProxy:KnownProxies").Get<string[]>() ?? [];
+            var networks = configuration.GetSection("ReverseProxy:KnownNetworks").Get<string[]>() ?? [];
+            services.Configure<ForwardedHeadersOptions>(options =>
+            {
+                options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+                options.ForwardLimit = 1;
+                foreach (var proxy in proxies)
+                {
+                    options.KnownProxies.Add(IPAddress.Parse(proxy));
+                }
+
+                foreach (var network in networks)
+                {
+                    options.KnownIPNetworks.Add(System.Net.IPNetwork.Parse(network));
+                }
+            });
 
             return services;
         }
@@ -153,7 +215,11 @@ internal static class WebServiceCollectionExtensions
                 options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(static context =>
                 {
                     var client = context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
-                    if (HttpMethods.IsPost(context.Request.Method) && context.Request.Path.StartsWithSegments("/account", StringComparison.OrdinalIgnoreCase))
+
+                    // Forms that verify passwords or codes: sign-in pages and the profile security actions.
+                    if (HttpMethods.IsPost(context.Request.Method)
+                        && (context.Request.Path.StartsWithSegments("/account", StringComparison.OrdinalIgnoreCase)
+                            || context.Request.Path.StartsWithSegments("/profile", StringComparison.OrdinalIgnoreCase)))
                     {
                         return RateLimitPartition.GetFixedWindowLimiter($"account:{client}", static _ => new FixedWindowRateLimiterOptions
                         {

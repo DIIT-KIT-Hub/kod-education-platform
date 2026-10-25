@@ -78,12 +78,14 @@ internal static partial class EuSignProxyEndpoint
     /// <param name="context">The HTTP context.</param>
     /// <param name="clientFactory">The HTTP client factory.</param>
     /// <param name="options">The signing options.</param>
+    /// <param name="trustList">The current trust list (servers of the listed providers are allowed).</param>
     /// <param name="logger">The logger.</param>
     /// <returns>The relay result.</returns>
     private static async Task<IResult> HandleAsync(
         HttpContext context,
         IHttpClientFactory clientFactory,
         IOptions<SigningOptions> options,
+        TrustListStore trustList,
         ILogger<SigningOptions> logger)
     {
         var cancellationToken = context.RequestAborted;
@@ -98,12 +100,14 @@ internal static partial class EuSignProxyEndpoint
             address = "http://" + address;
         }
 
+        // Destinations: servers of the providers in the current trust list plus the configured extra hosts.
         var settings = options.Value;
+        var list = trustList.Current;
         if (!Uri.TryCreate(address, UriKind.Absolute, out var uri)
             || (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps)
             || !string.IsNullOrEmpty(uri.UserInfo)
-            || !settings.AllowedHosts.Contains(uri.IdnHost, StringComparer.OrdinalIgnoreCase)
-            || !settings.AllowedPorts.Contains(uri.Port))
+            || !(list.ContainsHost(uri.IdnHost) || settings.AllowedHosts.Contains(uri.IdnHost, StringComparer.OrdinalIgnoreCase))
+            || !(list.Ports.Contains(uri.Port) || settings.AllowedPorts.Contains(uri.Port)))
         {
             LogRejected(logger, uri?.Host ?? "invalid");
             return TypedResults.BadRequest();

@@ -6,10 +6,16 @@
  *  - "sign":     signs local files and offers the result for download (nothing is uploaded);
  *  - "verify":   verifies a signed file locally.
  *
+ * Signing is a three-step wizard (design system kod-wizard.js): 1) the data, 2) the signature parameters,
+ * 3) the key and the signature itself. The key is read only on the last step, right before signing, so the private
+ * key spends as little time in memory as possible; it is released after signing, when the user goes back, when the
+ * signing dialog closes and when the page goes away.
+ *
  * The key file and password are read into memory, transferred to the Web Worker and never sent to the server.
  * All dynamic text is inserted with textContent (no innerHTML), so certificate fields cannot inject markup.
  */
 
+import { createWizard } from "/_content/KOD.DesignSystem/js/kod-wizard.js";
 import { EUSignClient } from "./eusign-client.js";
 
 /** Signature formats supported by euscp.ex.js. */
@@ -19,6 +25,12 @@ const FORMATS = [
     { id: "PAdES", title: "PAdES", hint: "підписаний PDF", packaging: false, multiple: false, pdf: true },
     { id: "AsicS", title: "ASiC-S", hint: "контейнер з 1 файлом", packaging: false, multiple: false },
     { id: "AsicE", title: "ASiC-E", hint: "контейнер з кількох файлів", packaging: false, multiple: true },
+];
+
+/** Packaging options of CAdES and XAdES. */
+const PACKAGINGS = [
+    { id: "Detached", title: "Окремо від даних", hint: "файл підпису поруч із документом" },
+    { id: "Enveloped", title: "Разом з даними", hint: "дані всередині підпису" },
 ];
 
 /** Signature levels (ETSI baseline profiles). */
@@ -165,41 +177,35 @@ function segmented(name, options, value, onChange) {
 
 /**
  * Creates a drop zone with a file input.
- * @param {{title: string, hint: string, accept?: string, multiple?: boolean, onFiles: (files: File[]) => void}} options Options.
- * @returns {HTMLElement} The drop zone.
+ * @param {{title: string, hint: string, accept?: string, multiple?: boolean, listed?: boolean, onFiles: (files: File[]) => void}} options
+ * Options; `listed` means the caller lists the chosen files itself, so the title keeps its text.
+ * @returns {{root: HTMLElement, clear: () => void}} The drop zone and a function that forgets the chosen files.
  */
 function dropzone(options) {
     const input = /** @type {HTMLInputElement} */ (el("input", { type: "file", accept: options.accept, multiple: options.multiple }));
     const names = el("span", { class: "ds-dropzone__title", text: options.title });
     input.addEventListener("change", () => {
         const files = Array.from(input.files || []);
-        names.textContent = files.length > 0 ? files.map((f) => f.name).join(", ") : options.title;
+        names.textContent = files.length > 0 && !options.listed ? files.map((f) => f.name).join(", ") : options.title;
         options.onFiles(files);
     });
 
-    return el(
+    const root = el(
         "label",
         { class: "ds-dropzone" },
         input,
         el("span", { class: "ds-empty__icon" }, icon("file-up", "ds-icon--lg")),
         names,
         el("span", { class: "ds-dropzone__hint", text: options.hint }));
-}
 
-/**
- * Creates a numbered step block.
- * @param {number} number The step number.
- * @param {string} title The title.
- * @returns {{root: HTMLElement, body: HTMLElement, setState: (state: "active"|"locked"|"done") => void}} The step.
- */
-function step(number, title) {
-    const body = el("div", { class: "ds-stack" });
-    const root = el(
-        "section",
-        { class: "sign-step", "data-state": "active" },
-        el("h3", { class: "sign-step__title" }, el("span", { class: "sign-step__number", text: String(number) }), title),
-        body);
-    return { root, body, setState: (state) => root.setAttribute("data-state", state) };
+    return {
+        root,
+        clear: () => {
+            input.value = "";
+            names.textContent = options.title;
+            options.onFiles([]);
+        },
+    };
 }
 
 /**
@@ -213,6 +219,23 @@ function formatDate(iso) {
     }
 
     return new Intl.DateTimeFormat("uk-UA", { dateStyle: "long", timeStyle: "short", timeZone: "Europe/Kyiv" }).format(new Date(iso));
+}
+
+/**
+ * Formats a size in bytes.
+ * @param {number} bytes The size.
+ * @returns {string} The formatted size.
+ */
+function formatSize(bytes) {
+    const units = ["Б", "КБ", "МБ"];
+    let value = bytes;
+    let unit = 0;
+    while (value >= 1024 && unit < units.length - 1) {
+        value /= 1024;
+        unit++;
+    }
+
+    return `${new Intl.NumberFormat("uk-UA", { maximumFractionDigits: unit === 0 ? 0 : 1 }).format(value)} ${units[unit]}`;
 }
 
 /**
@@ -294,40 +317,48 @@ function readConfig(host) {
 }
 
 /**
- * Builds the key step: key type, provider, key file, password and optional certificates.
+ * Builds the key panel: key type, provider, key file, password and optional certificates; after the key is read,
+ * the card of its owner.
  * @param {EUSignClient} client The worker client.
  * @param {Promise<{providers: string[]}>} ready Resolves when the library is loaded.
- * @param {(owner: any|null) => void} onKey Called when a key is read (or forgotten).
- * @returns {HTMLElement} The step.
+ * @param {(owner: any|null) => void} onKey Called when a key is read or released.
+ * @returns {{root: HTMLElement, owner: () => any|null, forget: () => Promise<void>}} The panel.
  */
-function keyStep(client, ready, onKey) {
-    const block = step(1, "Особистий ключ");
+function keyPanel(client, ready, onKey) {
+    /** @type {File|null} */
     let keyFile = null;
     /** @type {File[]} */
     let certificateFiles = [];
+    let owner = null;
 
+    const root = el("div", { class: "ds-stack" });
     const provider = /** @type {HTMLSelectElement} */ (el("select", { class: "ds-select" }, el("option", { value: "-1", text: "Визначити автоматично" })));
     ready.then((info) => info.providers.forEach((name, index) => provider.append(el("option", { value: String(index), text: name })))).catch(() => { });
 
     const password = /** @type {HTMLInputElement} */ (el("input", { type: "password", class: "ds-input", autocomplete: "off", spellcheck: "false" }));
     const status = el("div", { class: "ds-stack ds-stack--sm", "aria-live": "polite" });
-    const readButton = button("Зчитати ключ", { icon: "key-round", block: true });
+    const readButton = button("Зчитати ключ", { icon: "key-round", type: "submit", block: true });
 
-    const certificates = el(
-        "details",
-        {},
-        el("summary", { class: "ds-link ds-text-sm", text: "Додати сертифікати вручну (якщо надавач не підтримує автоматичне завантаження)" }),
-        el("div", { class: "ds-stack ds-stack--sm" }, dropzone({
-            title: "Файли сертифікатів",
-            hint: "*.cer, *.crt, *.p7b",
-            accept: ".cer,.crt,.der,.p7b",
-            multiple: true,
-            onFiles: (files) => {
-                certificateFiles = files;
-            },
-        })));
+    const keyDrop = dropzone({
+        title: "Оберіть файл ключа",
+        hint: "Key-6.dat, *.pfx, *.p12, *.pk8, *.jks, *.zs2",
+        accept: KEY_ACCEPT,
+        onFiles: (files) => {
+            keyFile = files[0] || null;
+        },
+    });
 
-    const form = el(
+    const certificateDrop = dropzone({
+        title: "Файли сертифікатів",
+        hint: "*.cer, *.crt, *.p7b",
+        accept: ".cer,.crt,.der,.p7b",
+        multiple: true,
+        onFiles: (files) => {
+            certificateFiles = files;
+        },
+    });
+
+    const form = /** @type {HTMLFormElement} */ (el(
         "form",
         { class: "ds-stack" },
         segmented("key-type", [
@@ -336,18 +367,40 @@ function keyStep(client, ready, onKey) {
             { id: "cloud", title: "Хмарний / Дія.Підпис", hint: "потребує сервісу надавача", disabled: true },
         ], "file", () => { }),
         field("Надавач електронних довірчих послуг", provider),
-        dropzone({
-            title: "Оберіть файл ключа",
-            hint: "Key-6.dat, *.pfx, *.p12, *.pk8, *.jks, *.zs2",
-            accept: KEY_ACCEPT,
-            onFiles: (files) => {
-                keyFile = files[0] || null;
-            },
-        }),
+        keyDrop.root,
         field("Пароль захисту ключа", password, "Пароль не передається на сервер."),
-        certificates,
+        el(
+            "details",
+            {},
+            el("summary", { class: "ds-link ds-text-sm", text: "Додати сертифікати вручну (якщо надавач не підтримує автоматичне завантаження)" }),
+            el("div", { class: "ds-stack ds-stack--sm" }, certificateDrop.root)),
         status,
-        readButton);
+        readButton));
+
+    const card = el("div", { class: "ds-stack" });
+    card.hidden = true;
+    root.append(form, card);
+
+    /**
+     * Releases the key in the worker and returns the panel to the empty form.
+     * @returns {Promise<void>} Resolves when the key is released.
+     */
+    async function forget() {
+        const hadKey = owner !== null;
+        owner = null;
+        password.value = "";
+        keyDrop.clear();
+        certificateDrop.clear();
+        status.replaceChildren();
+        card.replaceChildren();
+        card.hidden = true;
+        form.hidden = false;
+        if (hadKey) {
+            onKey(null);
+        }
+
+        await client.resetKey().catch(() => { });
+    }
 
     form.addEventListener("submit", async (event) => {
         event.preventDefault();
@@ -359,36 +412,33 @@ function keyStep(client, ready, onKey) {
 
         if (!password.value) {
             status.append(alert("danger", "Введіть пароль."));
+            password.focus();
             return;
         }
 
         readButton.setAttribute("data-busy", "true");
+        readButton.disabled = true;
         try {
             await ready;
             const keyBuffer = await keyFile.arrayBuffer();
             const certBuffers = await Promise.all(certificateFiles.map((f) => f.arrayBuffer()));
-            const owner = await client.readKey(keyFile.name, keyBuffer, password.value, Number(provider.value), certBuffers);
+            const secret = password.value;
             password.value = "";
+            owner = await client.readKey(keyFile.name, keyBuffer, secret, Number(provider.value), certBuffers);
             form.hidden = true;
-            block.setState("done");
-            block.body.append(ownerCard(owner, async () => {
-                await client.resetKey();
-                block.body.lastChild.remove();
-                form.hidden = false;
-                block.setState("active");
-                onKey(null);
-            }));
+            card.replaceChildren(ownerCard(owner, () => forget()));
+            card.hidden = false;
             onKey(owner);
         } catch (error) {
             status.append(alert("danger", error.message || String(error)));
+            password.focus();
         } finally {
             readButton.removeAttribute("data-busy");
+            readButton.disabled = false;
         }
     });
 
-    readButton.type = "submit";
-    block.body.append(form);
-    return block.root;
+    return { root, owner: () => owner, forget };
 }
 
 /**
@@ -416,10 +466,9 @@ function ownerCard(owner, onForget) {
 /**
  * Builds the signature parameters (format, packaging, level).
  * @param {{pdfOnly: () => boolean, multiple: () => boolean}} context The data context.
- * @param {(value: {format: string, packaging: string, level: string}) => void} onChange Called on changes.
  * @returns {{root: HTMLElement, refresh: () => void, value: () => {format: string, packaging: string, level: string}}} The control.
  */
-function parametersBlock(context, onChange) {
+function parametersBlock(context) {
     let format = "CAdES";
     let packaging = "Detached";
     let level = "B-LT";
@@ -428,7 +477,6 @@ function parametersBlock(context, onChange) {
     const levelSelect = /** @type {HTMLSelectElement} */ (el("select", { class: "ds-select" }, ...LEVELS.map((l) => el("option", { value: l.id, text: l.title, selected: l.id === level }))));
     levelSelect.addEventListener("change", () => {
         level = levelSelect.value;
-        onChange({ format, packaging, level });
     });
 
     const render = () => {
@@ -447,15 +495,10 @@ function parametersBlock(context, onChange) {
             field("Формат підпису", segmented("sign-format", available, format, (value) => {
                 format = value;
                 render();
-                onChange({ format, packaging, level });
             })),
             meta.packaging
-                ? field("Тип підпису", segmented("sign-packaging", [
-                    { id: "Detached", title: "Окремо від даних", hint: "файл підпису поруч із документом" },
-                    { id: "Enveloped", title: "Разом з даними", hint: "дані всередині підпису" },
-                ], packaging, (value) => {
+                ? field("Тип підпису", segmented("sign-packaging", PACKAGINGS, packaging, (value) => {
                     packaging = value;
-                    onChange({ format, packaging, level });
                 }))
                 : null,
             field("Рівень підпису", levelSelect, "B-LT містить усе для перевірки через роки (рекомендовано)."));
@@ -470,38 +513,43 @@ function parametersBlock(context, onChange) {
 }
 
 /**
- * Renders the signing flow (document and local files modes).
+ * Describes the chosen parameters for the summary.
+ * @param {{format: string, packaging: string, level: string}} value The parameters.
+ * @returns {[string, string][]} Term/value pairs.
+ */
+function describeParameters(value) {
+    const format = FORMATS.find((f) => f.id === value.format);
+    return [
+        ["Формат", format.packaging ? `${format.title} · ${PACKAGINGS.find((p) => p.id === value.packaging).title.toLowerCase()}` : format.title],
+        ["Рівень", LEVELS.find((l) => l.id === value.level).title],
+    ];
+}
+
+/**
+ * Renders the signing wizard (document and local files modes).
  * @param {HTMLElement} host The host element.
  * @param {EUSignClient} client The worker client.
+ * @param {Promise<void>} visible Resolves when the panel is first shown.
  * @param {Promise<{providers: string[]}>} ready Resolves when the library is loaded.
  */
-function renderSigning(host, client, ready) {
+function renderSigning(host, client, visible, ready) {
     const documentMode = host.dataset.mode === "document";
-    let owner = null;
-    /** @type {{name: string, file?: File, buffer?: ArrayBuffer}[]} */
+    /** @type {{name: string, size: number, file?: File, buffer?: ArrayBuffer}[]} */
     let files = [];
     let integrityOk = !documentMode;
 
-    const signButton = button("Підписати", { icon: "signature", block: true, disabled: true });
-    const result = el("div", { class: "ds-stack", "aria-live": "polite" });
-    const refreshButton = () => {
-        signButton.disabled = !owner || files.length === 0 || !integrityOk;
-    };
-
-    const dataStep = step(2, documentMode ? "Документ" : "Файли для підпису");
-    const parameters = parametersBlock(
-        {
-            pdfOnly: () => files.length > 0 && files.every((f) => /\.pdf$/i.test(f.name)),
-            multiple: () => files.length > 1,
-        },
-        () => { });
-
+    // Step 1: the data.
+    const dataBody = el("div", { class: "ds-stack" });
+    const dataStatus = el("div", { class: "ds-stack ds-stack--sm", "aria-live": "polite" });
     if (documentMode) {
-        const integrity = el("div", { class: "ds-stack ds-stack--sm" }, el("div", { class: "ds-progress ds-progress--indeterminate" }, el("div", { class: "ds-progress__bar" })));
-        dataStep.body.append(
+        dataStatus.append(el("div", { class: "ds-progress ds-progress--indeterminate" }, el("div", { class: "ds-progress__bar" })));
+        dataBody.append(
             el("div", { class: "doc-file" }, el("span", { class: "doc-file__icon" }, icon("file-text")), el("span", { class: "doc-file__name", text: host.dataset.fileName })),
-            integrity);
-        fetch(host.dataset.fileUrl, { credentials: "same-origin" })
+            dataStatus);
+
+        // The file is downloaded only when the signing panel is actually opened.
+        visible
+            .then(() => fetch(host.dataset.fileUrl, { credentials: "same-origin" }))
             .then((response) => {
                 if (!response.ok) {
                     throw new Error("Не вдалося завантажити файл документа.");
@@ -519,80 +567,168 @@ function renderSigning(host, client, ready) {
                     throw new Error("Контрольна сума файлу не збігається з зареєстрованою. Підписання заборонено.");
                 }
 
-                files = [{ name: host.dataset.fileName, buffer }];
+                files = [{ name: host.dataset.fileName, size: buffer.byteLength, buffer }];
                 integrityOk = true;
-                integrity.replaceChildren(alert("outline", "SHA-256 файлу збігається з зареєстрованим у системі.", "Цілісність підтверджено"));
-                parameters.refresh();
-                refreshButton();
+                dataStatus.replaceChildren(alert("outline", "SHA-256 файлу збігається з зареєстрованим у системі.", "Цілісність підтверджено"));
+                wizard.refresh();
             })
-            .catch((error) => integrity.replaceChildren(alert("danger", error.message)));
+            .catch((error) => dataStatus.replaceChildren(alert("danger", error.message)));
     } else {
-        dataStep.body.append(dropzone({
-            title: "Перетягніть файли або натисніть, щоб обрати",
-            hint: "До 25 МБ. Для XAdES та ASiC-E можна обрати кілька файлів; для PAdES — PDF.",
-            multiple: true,
-            onFiles: (selected) => {
-                files = selected.map((file) => ({ name: file.name, file }));
-                result.replaceChildren();
-                if (selected.some((f) => f.size > MAX_DATA_BYTES)) {
-                    files = [];
-                    result.append(alert("danger", "Файли понад 25 МБ не підтримуються."));
-                }
+        const fileList = el("ul", { class: "sign-files" });
+        dataBody.append(
+            dropzone({
+                title: "Перетягніть файли або натисніть, щоб обрати",
+                hint: "До 25 МБ кожен. Для XAdES та ASiC-E можна обрати кілька файлів; для PAdES — PDF.",
+                multiple: true,
+                listed: true,
+                onFiles: (selected) => {
+                    dataStatus.replaceChildren();
+                    files = selected.map((file) => ({ name: file.name, size: file.size, file }));
+                    if (selected.some((f) => f.size > MAX_DATA_BYTES)) {
+                        files = [];
+                        dataStatus.append(alert("danger", "Файли понад 25 МБ не підтримуються."));
+                    }
 
-                parameters.refresh();
-                refreshButton();
-            },
-        }));
+                    fileList.replaceChildren(...files.map((f) => el(
+                        "li",
+                        { class: "doc-file" },
+                        el("span", { class: "doc-file__icon" }, icon("file-text")),
+                        el("span", { class: "doc-file__name", text: f.name }),
+                        el("span", { class: "ds-text-sm ds-muted", text: formatSize(f.size) }))));
+                    wizard.refresh();
+                },
+            }).root,
+            fileList,
+            dataStatus);
     }
 
-    const paramsStep = step(3, "Параметри підпису");
-    paramsStep.body.append(parameters.root);
-
-    const keyBlock = keyStep(client, ready, (value) => {
-        owner = value;
-        refreshButton();
+    // Step 2: the parameters.
+    const parameters = parametersBlock({
+        pdfOnly: () => files.length > 0 && files.every((f) => /\.pdf$/i.test(f.name)),
+        multiple: () => files.length > 1,
     });
 
-    signButton.addEventListener("click", async () => {
-        result.replaceChildren();
-        signButton.setAttribute("data-busy", "true");
-        try {
-            const { format, packaging, level } = parameters.value();
-            const payload = await Promise.all(files.map(async (f) => ({ name: f.name, data: f.buffer ? f.buffer.slice(0) : await f.file.arrayBuffer() })));
-            const signed = await client.sign(format, packaging, level, payload);
-            const fileName = signatureFileName(format, files.map((f) => f.name));
+    // Step 3: the summary, the key and the signature.
+    const summary = el("div", { class: "sign-summary" });
+    const signStatus = el("div", { class: "ds-stack ds-stack--sm", "aria-live": "polite" });
+    const key = keyPanel(client, ready, () => wizard.refresh());
+    const keyBody = el("div", { class: "ds-stack" }, summary, key.root, signStatus);
 
+    const wizard = createWizard({
+        label: documentMode ? "Підписання документа" : "Підписання файлів",
+        steps: [
+            {
+                id: "data",
+                title: documentMode ? "Документ" : "Файли",
+                description: documentMode ? "Перевіряємо, що файл не змінювався після реєстрації." : "Файли не залишають ваш пристрій.",
+                body: dataBody,
+                isComplete: () => integrityOk && files.length > 0,
+            },
+            {
+                id: "parameters",
+                title: "Параметри",
+                description: "Формат і рівень кваліфікованого електронного підпису.",
+                body: parameters.root,
+                onEnter: () => parameters.refresh(),
+            },
+            {
+                id: "key",
+                title: "Ключ і підпис",
+                description: "Ключ зчитується лише у вашому браузері; пароль не передається на сервер.",
+                body: keyBody,
+                isComplete: () => key.owner() !== null,
+                onEnter: () => {
+                    // The stepper can jump here from the data step, so the parameters are re-validated for the current files.
+                    parameters.refresh();
+                    signStatus.replaceChildren();
+                    summary.replaceChildren(descriptionList([
+                        documentMode ? ["Документ", host.dataset.documentTitle || host.dataset.fileName] : ["Файли", files.map((f) => f.name).join(", ")],
+                        ...describeParameters(parameters.value()),
+                    ]));
+                },
+                // The private key never outlives the step it is needed for.
+                onLeave: () => {
+                    key.forget();
+                },
+            },
+        ],
+        finish: {
+            text: "Підписати",
+            icon: "signature",
+            run: () => sign(),
+        },
+    });
+
+    /**
+     * Signs the data with the key that was read on the last step.
+     * @returns {Promise<void>} Resolves when done (errors are shown in the step).
+     */
+    async function sign() {
+        signStatus.replaceChildren();
+        const owner = key.owner();
+
+        // Re-check every precondition here instead of trusting the state of the buttons.
+        if (!owner || files.length === 0 || !integrityOk) {
+            signStatus.append(alert("danger", "Не всі кроки завершено."));
+            return;
+        }
+
+        const { format, packaging, level } = parameters.value();
+        const fileName = signatureFileName(format, files.map((f) => f.name));
+        let signed;
+        try {
+            const payload = await Promise.all(files.map(async (f) => ({ name: f.name, data: f.buffer ? f.buffer.slice(0) : await f.file.arrayBuffer() })));
+            signed = await client.sign(format, packaging, level, payload);
             if (documentMode) {
                 await uploadSignature(host, owner, signed, { format, packaging, level, fileName });
-                await client.resetKey();
-                host.replaceChildren(el(
-                    "div",
-                    { class: "sign-result" },
-                    el("span", { class: "sign-result__icon" }, icon("badge-check", "ds-icon--xl")),
-                    el("h3", { text: "Документ підписано" }),
-                    el("p", { class: "ds-muted", text: "Підпис збережено. Сторінка оновиться автоматично." })));
-                window.setTimeout(() => window.location.reload(), 1400);
-                return;
             }
-
-            result.append(el(
-                "div",
-                { class: "sign-result" },
-                el("span", { class: "sign-result__icon" }, icon("badge-check", "ds-icon--xl")),
-                el("h3", { text: "Файл підписано" }),
-                el("p", { class: "ds-muted", text: `${format} · ${level} · ${formatDate(signed.signedAt)}` }),
-                downloadLink(signed.signature, fileName)));
         } catch (error) {
-            result.append(alert("danger", error.message || String(error)));
-        } finally {
-            signButton.removeAttribute("data-busy");
+            signStatus.append(alert("danger", error.message || String(error)));
+            return;
         }
-    });
 
-    host.replaceChildren(
-        el("div", { class: "sign-steps" }, keyBlock, dataStep.root, paramsStep.root),
-        result,
-        signButton);
+        await key.forget();
+        if (documentMode) {
+            host.replaceChildren(successCard("Документ підписано", "Підпис збережено. Сторінка оновиться автоматично."));
+            window.setTimeout(() => window.location.reload(), 1400);
+            return;
+        }
+
+        host.replaceChildren(successCard(
+            "Файл підписано",
+            `${describeParameters({ format, packaging, level }).map(([, value]) => value).join(" · ")} · ${formatDate(signed.signedAt)}`,
+            downloadLink(signed.signature, fileName),
+            button("Підписати інші файли", { variant: "ghost", icon: "refresh-cw", onclick: () => renderSigning(host, client, visible, ready) })));
+    }
+
+    // Closing the signing dialog releases the key; the chosen data and parameters stay.
+    const dialog = host.closest("dialog");
+    if (dialog) {
+        dialog.addEventListener("close", () => {
+            if (!wizard.busy()) {
+                key.forget();
+            }
+        });
+    }
+
+    host.replaceChildren(wizard.root);
+}
+
+/**
+ * Builds the result card shown after a successful signature.
+ * @param {string} title The title.
+ * @param {string} text The details.
+ * @param {...HTMLElement} actions Actions under the text.
+ * @returns {HTMLElement} The card.
+ */
+function successCard(title, text, ...actions) {
+    return el(
+        "div",
+        { class: "sign-result" },
+        el("span", { class: "sign-result__icon" }, icon("badge-check", "ds-icon--xl")),
+        el("h3", { text: title }),
+        el("p", { class: "ds-muted", text }),
+        actions.length > 0 ? el("div", { class: "sign-result__actions" }, ...actions) : null);
 }
 
 /**
@@ -698,21 +834,16 @@ function renderVerification(host, client, ready) {
     });
 
     host.replaceChildren(
-        el("div", { class: "sign-steps" }, (() => {
-            const block = step(1, "Підписаний файл");
-            block.body.append(
-                dropzone({
-                    title: "Перетягніть підписаний файл (і за потреби оригінал)",
-                    hint: "*.p7s, *.pdf, *.xml, *.asics, *.asice. Для зовнішнього підпису додайте також підписаний файл.",
-                    multiple: true,
-                    onFiles: (selected) => {
-                        files = selected;
-                        verifyButton.disabled = files.length === 0;
-                        result.replaceChildren();
-                    },
-                }));
-            return block.root;
-        })()),
+        dropzone({
+            title: "Перетягніть підписаний файл (і за потреби оригінал)",
+            hint: "*.p7s, *.pdf, *.xml, *.asics, *.asice. Для зовнішнього підпису додайте також підписаний файл.",
+            multiple: true,
+            onFiles: (selected) => {
+                files = selected;
+                verifyButton.disabled = files.length === 0;
+                result.replaceChildren();
+            },
+        }).root,
         result,
         verifyButton);
 }
@@ -724,7 +855,8 @@ function renderVerification(host, client, ready) {
 export function mountSigningPanel(host) {
     const client = new EUSignClient(readConfig(host));
 
-    // The library (~3 MB compressed) is loaded only when the panel becomes visible (e.g. the signing dialog opens).
+    // The library (~3 MB compressed) and the document are loaded only when the panel becomes visible
+    // (e.g. the signing dialog opens); by the last wizard step the library is ready.
     const visible = new Promise((resolve) => {
         const observer = new IntersectionObserver((entries) => {
             if (entries.some((entry) => entry.isIntersecting)) {
@@ -740,7 +872,7 @@ export function mountSigningPanel(host) {
     if (host.dataset.mode === "verify") {
         renderVerification(host, client, ready);
     } else {
-        renderSigning(host, client, ready);
+        renderSigning(host, client, visible, ready);
     }
 
     // Wipe the key when the page goes away (full or enhanced navigation).

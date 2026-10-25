@@ -24,17 +24,29 @@ public partial class ProfileSecurity
     /// </summary>
     private IReadOnlyList<string>? Codes { get; set; }
 
+    /// <summary>
+    /// Gets or sets the authenticator code that confirms the regeneration.
+    /// </summary>
+    [SupplyParameterFromForm(FormName = "regenerate-codes")]
+    private string? StepUpCode { get; set; }
+
+    /// <summary>
+    /// Gets or sets the error of the last action.
+    /// </summary>
+    private string? ErrorMessage { get; set; }
+
     /// <inheritdoc />
     protected override async Task OnInitializedAsync() => await LoadAsync();
 
     /// <summary>
-    /// Generates new recovery codes.
+    /// Generates new recovery codes after the authenticator code is confirmed.
     /// </summary>
     /// <returns>A task that completes when generated.</returns>
     private async Task RegenerateAsync()
     {
-        var result = await ProfileService.RegenerateRecoveryCodesAsync(CancellationToken.None);
+        var result = await ProfileService.RegenerateRecoveryCodesAsync(StepUpCode ?? string.Empty, CancellationToken.None);
         Codes = result.IsSuccess ? result.Value : null;
+        ErrorMessage = result.IsSuccess ? null : result.Error.Message;
         await LoadAsync();
     }
 

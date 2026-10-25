@@ -15,6 +15,11 @@ namespace KOD.Web.Components.Account;
 public partial class Login
 {
     /// <summary>
+    /// The answer for every failed attempt.
+    /// </summary>
+    private const string GenericError = "Неправильна електронна пошта або пароль. Після кількох невдалих спроб вхід тимчасово блокується.";
+
+    /// <summary>
     /// Gets or sets the form model.
     /// </summary>
     [SupplyParameterFromForm]
@@ -59,7 +64,8 @@ public partial class Login
     protected override void OnInitialized() => Input ??= new LoginModel();
 
     /// <summary>
-    /// Verifies the password and continues to the second factor.
+    /// Verifies the password and continues to the second factor. Unknown accounts, wrong passwords and locked-out
+    /// accounts get the same answer, so the form does not reveal which e-mails exist (OWASP ASVS 2.2.1 / 3.2).
     /// </summary>
     /// <returns>A task that completes when the response is decided.</returns>
     private async Task SignInAsync()
@@ -70,7 +76,7 @@ public partial class Login
             // Spend comparable time to avoid revealing which e-mails exist.
             _ = UserManager.PasswordHasher.HashPassword(new User("timing@kod.local", "-", "-", null), Input.Password);
             await Audit.WriteAsync(AuditActions.SignInFailed, null, Input.Email.Trim(), "Невідомий обліковий запис", CancellationToken.None);
-            ErrorMessage = "Неправильна електронна пошта або пароль.";
+            ErrorMessage = GenericError;
             return;
         }
 
@@ -81,17 +87,31 @@ public partial class Login
         }
         else if (result.IsLockedOut)
         {
-            await Audit.WriteAsync(AuditActions.LockedOut, user.Id, user.FullName, null, CancellationToken.None);
-            Redirect.RedirectTo("/account/lockout");
+            // Identity reports a lockout before checking the password: answering differently would reveal the account
+            // and let a locked-out attacker keep testing passwords. Hash anyway so the timing matches.
+            _ = UserManager.PasswordHasher.HashPassword(user, Input.Password);
+            await Audit.WriteAsync(AuditActions.LockedOut, user.Id, user.FullName, "Спроба входу під час блокування", CancellationToken.None);
+            ErrorMessage = GenericError;
         }
         else if (result.IsNotAllowed)
         {
-            ErrorMessage = "Обліковий запис заблоковано. Зверніться до адміністратора.";
+            // A blocked account: say so only to someone who knows the password; wrong guesses count toward the lockout.
+            if (await UserManager.CheckPasswordAsync(user, Input.Password))
+            {
+                await Audit.WriteAsync(AuditActions.SignInFailed, user.Id, user.FullName, "Обліковий запис заблоковано", CancellationToken.None);
+                ErrorMessage = "Обліковий запис заблоковано. Зверніться до адміністратора.";
+            }
+            else
+            {
+                await UserManager.AccessFailedAsync(user);
+                await Audit.WriteAsync(AuditActions.SignInFailed, user.Id, user.FullName, "Неправильний пароль (заблокований обліковий запис)", CancellationToken.None);
+                ErrorMessage = GenericError;
+            }
         }
         else
         {
             await Audit.WriteAsync(AuditActions.SignInFailed, user.Id, user.FullName, "Неправильний пароль", CancellationToken.None);
-            ErrorMessage = "Неправильна електронна пошта або пароль.";
+            ErrorMessage = GenericError;
         }
     }
 
@@ -111,6 +131,7 @@ public partial class Login
         /// Gets or sets the password.
         /// </summary>
         [Required(ErrorMessage = "Вкажіть пароль.")]
+        [MaxLength(128, ErrorMessage = "Пароль не може бути довшим за 128 символів.")]
         public string Password { get; set; } = string.Empty;
 
         /// <summary>

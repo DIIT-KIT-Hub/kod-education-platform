@@ -1,6 +1,5 @@
 using KOD.Web.Signing;
 using Microsoft.AspNetCore.Components;
-using Microsoft.Extensions.Options;
 
 namespace KOD.Web.Components.Shared;
 
@@ -15,6 +14,16 @@ public partial class SigningHost
     /// The relay URL for CA requests.
     /// </summary>
     private const string ProxyUrl = EuSignProxyEndpoint.Route;
+
+    /// <summary>
+    /// The URL of the current provider list.
+    /// </summary>
+    private const string ProvidersUrl = TrustListEndpoints.ProvidersRoute;
+
+    /// <summary>
+    /// The URL of the current CA certificate bundle.
+    /// </summary>
+    private const string CertificatesUrl = TrustListEndpoints.CertificatesRoute;
 
     /// <summary>
     /// Gets or sets the mode: <c>document</c>, <c>sign</c> or <c>verify</c>.
@@ -51,12 +60,6 @@ public partial class SigningHost
     /// </summary>
     [Parameter]
     public bool IsPdf { get; set; }
-
-    /// <summary>
-    /// Gets or sets the signing options.
-    /// </summary>
-    [Inject]
-    private IOptions<SigningOptions> Signing { get; set; } = default!;
 
     /// <summary>
     /// Gets the URL of the document file.

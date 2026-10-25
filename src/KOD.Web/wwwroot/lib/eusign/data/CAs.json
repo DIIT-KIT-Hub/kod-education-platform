@@ -22,11 +22,11 @@
 									"\"DIIA\". Qualified Trust Services Provider",
 									"CA of the Justice of Ukraine",
 									"АЦСК Держінформ'юсту"],
-		"address": 					"ca.informjust.ua",
-		"ocspAccessPointAddress":	"ca.informjust.ua/services/ocsp/",
+		"address": 					"ca.diia.gov.ua",
+		"ocspAccessPointAddress":	"ca.diia.gov.ua/services/ocsp/",
 		"ocspAccessPointPort":		"80",
-		"cmpAddress":				"ca.informjust.ua",
-		"tspAddress":				"ca.informjust.ua",
+		"cmpAddress":				"ca.diia.gov.ua",
+		"tspAddress":				"ca.diia.gov.ua",
 		"tspAddressPort":			"80",
 		"directAccess":				true,
 		"qscdSNInCert":				true,
@@ -84,7 +84,8 @@
 		"codeEDRPOU":				"09807750"
 	},
 	{
-		"issuerCNs": 				["КНЕДП АЦСК АТ КБ \"ПРИВАТБАНК\"",
+		"issuerCNs": 				["КНЕДП АЦСК АТ КБ \"ПриватБанк\"",
+									"КНЕДП АЦСК АТ КБ \"ПРИВАТБАНК\"",
 									"АЦСК АТ КБ «ПРИВАТБАНК»",
 									"АЦСК ПАТ КБ «ПРИВАТБАНК»",
 									"АЦСК «ПРИВАТБАНК»"],
@@ -99,7 +100,8 @@
 		"codeEDRPOU":				"14360570"
 	},
 	{
-		"issuerCNs": 				["КНЕДП АТ \"СЕНС БАНК\"",
+		"issuerCNs": 				["КНЕДП АТ \"Сенс Банк\"",
+									"КНЕДП АТ \"СЕНС БАНК\"",
 									"КНЕДП АЦСК АТ \"Альфа-Банк\"",
 									"Акредитований центр сертифікації ключів АТ \"Альфа-Банк\""],
 		"address": 					"ca.sensebank.com.ua",
@@ -112,7 +114,8 @@
 		"cmpCompatibility":			1
 	},
 	{
-		"issuerCNs": 				["КНЕДП Акціонерного товариства “КРЕДІ АГРІКОЛЬ БАНК”",
+		"issuerCNs": 				["КНЕДП Акціонерного товариства \"КРЕДІ АГРІКОЛЬ БАНК\"",
+									"КНЕДП Акціонерного товариства “КРЕДІ АГРІКОЛЬ БАНК”",
 									"QTSP of Joint-stock company \"CREDIT-AGRICOLE BANK\""],
 		"address": 					"ca.credit-agricole.ua",
 		"ocspAccessPointAddress":	"ca.credit-agricole.ua/services/ocsp/",
@@ -280,6 +283,17 @@
 		"tspAddress":				"amokey.com.ua",
 		"tspAddressPort":			"80",
 		"codeEDRPOU":				"44669502"
+	},
+	{
+		"issuerCNs": 				["КНЕДП EDIN ID ТОВ “АТС”",
+									"QTSP EDIN ID of the ATS LLC"],
+		"address":					"ca.edin.ua",
+		"ocspAccessPointAddress":	"ca.edin.ua/services/ocsp/",
+		"ocspAccessPointPort":		"80",
+		"cmpAddress":				"ca.edin.ua",
+		"tspAddress":				"ca.edin.ua",
+		"tspAddressPort":			"80",
+		"codeEDRPOU":				"37636185"
 	},
 	{ 
 		"issuerCNs": 				["КНЕДП ТОВ \"Центр сертифікації ключів \"Україна\"",

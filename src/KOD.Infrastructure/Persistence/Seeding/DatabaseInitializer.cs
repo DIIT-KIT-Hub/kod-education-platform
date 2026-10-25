@@ -3,8 +3,10 @@ using KOD.Domain.Access;
 using KOD.Domain.News;
 using KOD.Domain.Organization;
 using KOD.Domain.Users;
+using KOD.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -17,6 +19,8 @@ namespace KOD.Infrastructure.Persistence.Seeding;
 /// <param name="db">The database context.</param>
 /// <param name="userManager">The user manager.</param>
 /// <param name="identity">The identity service.</param>
+/// <param name="tokenProtector">Encrypts secret user tokens.</param>
+/// <param name="environment">The host environment.</param>
 /// <param name="options">The seed options.</param>
 /// <param name="timeProvider">The clock.</param>
 /// <param name="logger">The logger.</param>
@@ -24,10 +28,17 @@ public sealed partial class DatabaseInitializer(
     ApplicationDbContext db,
     UserManager<User> userManager,
     IIdentityService identity,
+    UserTokenProtector tokenProtector,
+    IHostEnvironment environment,
     IOptions<SeedOptions> options,
     TimeProvider timeProvider,
     ILogger<DatabaseInitializer> logger)
 {
+    /// <summary>
+    /// The file that receives a generated password of the first administrator (never the log).
+    /// </summary>
+    private const string AdminPasswordFile = "App_Data/initial-admin-password.txt";
+
     /// <summary>
     /// Demo units: code, name, short name, type, parent code.
     /// </summary>
@@ -80,6 +91,7 @@ public sealed partial class DatabaseInitializer(
     public async Task InitializeAsync(CancellationToken cancellationToken)
     {
         await db.Database.MigrateAsync(cancellationToken);
+        await ProtectLegacyTokensAsync(cancellationToken);
 
         var roles = await SeedRolesAsync(cancellationToken);
         var root = await SeedRootAsync(cancellationToken);
@@ -94,13 +106,21 @@ public sealed partial class DatabaseInitializer(
     }
 
     /// <summary>
-    /// Logs a generated administrator password.
+    /// Logs where a generated administrator password was written.
     /// </summary>
     /// <param name="logger">The logger.</param>
     /// <param name="email">The administrator e-mail.</param>
-    /// <param name="password">The temporary password.</param>
-    [LoggerMessage(Level = LogLevel.Warning, Message = "Created the first administrator {Email} with the temporary password {Password}. Change it at the first sign-in.")]
-    private static partial void LogAdministratorCreated(ILogger logger, string email, string password);
+    /// <param name="path">The file with the temporary password.</param>
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Created the first administrator {Email}; the temporary password is in {Path}. Sign in, set your own password and delete the file.")]
+    private static partial void LogAdministratorCreated(ILogger logger, string email, string path);
+
+    /// <summary>
+    /// Logs encrypted legacy tokens.
+    /// </summary>
+    /// <param name="logger">The logger.</param>
+    /// <param name="count">The number of tokens.</param>
+    [LoggerMessage(Level = LogLevel.Information, Message = "Encrypted {Count} authenticator keys and recovery code sets stored before encryption was enabled")]
+    private static partial void LogTokensProtected(ILogger logger, int count);
 
     /// <summary>
     /// Logs that demo data was created.
@@ -109,6 +129,50 @@ public sealed partial class DatabaseInitializer(
     /// <param name="count">The number of demo accounts.</param>
     [LoggerMessage(Level = LogLevel.Information, Message = "Created {Count} demo accounts")]
     private static partial void LogDemoCreated(ILogger logger, int count);
+
+    /// <summary>
+    /// Encrypts authenticator keys and recovery codes that were stored in plain text by earlier versions.
+    /// </summary>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that completes when every secret token is encrypted.</returns>
+    private async Task ProtectLegacyTokensAsync(CancellationToken cancellationToken)
+    {
+        var secrets = UserTokenProtector.Secrets.ToList();
+        var legacy = await db.UserTokens
+            .Where(t => t.LoginProvider == UserTokenProtector.IdentityProvider && secrets.Contains(t.Name) && t.Value != null && !t.Value.StartsWith("dp1:"))
+            .ToListAsync(cancellationToken);
+        if (legacy.Count == 0)
+        {
+            return;
+        }
+
+        foreach (var token in legacy)
+        {
+            token.Value = tokenProtector.Protect(token.UserId, token.LoginProvider, token.Name, token.Value);
+        }
+
+        await db.SaveChangesAsync(cancellationToken);
+        LogTokensProtected(logger, legacy.Count);
+    }
+
+    /// <summary>
+    /// Writes a generated administrator password to a file readable only by the service account.
+    /// </summary>
+    /// <param name="password">The password.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The full path of the file.</returns>
+    private async Task<string> WriteAdminPasswordAsync(string password, CancellationToken cancellationToken)
+    {
+        var path = Path.GetFullPath(AdminPasswordFile, environment.ContentRootPath);
+        Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+        await File.WriteAllTextAsync(path, password + Environment.NewLine, cancellationToken);
+        if (!OperatingSystem.IsWindows())
+        {
+            File.SetUnixFileMode(path, UnixFileMode.UserRead | UnixFileMode.UserWrite);
+        }
+
+        return path;
+    }
 
     /// <summary>
     /// Creates missing predefined roles; keeps administrator-made changes of existing ones.
@@ -187,7 +251,7 @@ public sealed partial class DatabaseInitializer(
 
             if (string.IsNullOrWhiteSpace(settings.AdminPassword))
             {
-                LogAdministratorCreated(logger, settings.AdminEmail, password);
+                LogAdministratorCreated(logger, settings.AdminEmail, await WriteAdminPasswordAsync(password, cancellationToken));
             }
         }
 

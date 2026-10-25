@@ -19,4 +19,7 @@ public static class AppClaimTypes
 
     /// <summary>The identifier of the server-side session.</summary>
     public const string SessionId = "kod:sid";
+
+    /// <summary>The authentication methods of the sign-in (RFC 8176, e.g. <c>mfa</c>).</summary>
+    public const string AuthenticationMethod = "amr";
 }
