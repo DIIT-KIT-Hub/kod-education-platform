@@ -1,0 +1,195 @@
+@page "/documents/new"
+@page "/documents/{Id:guid}/edit"
+@attribute [RequirePermission(Permissions.Documents.Create)]
+@rendermode InteractiveServer
+
+@if (IsEdit)
+{
+    <PageHeader Title="Редагування документа" Subtitle="Змініть файл, реквізити або маршрут і збережіть документ або надішліть його на підпис."
+                Breadcrumbs="@([new("Документи", "/documents"), new($"№ {Existing?.RegistrationNumber}", $"/documents/{Id}"), new("Редагування")])" />
+}
+else
+{
+    <PageHeader Title="Новий документ" Subtitle="Завантажте файл, вкажіть реквізити та сформуйте маршрут підписання."
+                Breadcrumbs="@([new("Документи", "/documents"), new("Новий документ")])" />
+}
+
+@if (LoadError is not null)
+{
+    <Card>
+        <EmptyState Icon="file-x" Title="Документ не можна змінити" Text="@LoadError">
+            <Button Href="@($"/documents/{Id}")" Variant="ButtonVariant.Secondary" Icon="arrow-left">До документа</Button>
+        </EmptyState>
+    </Card>
+}
+else if (!IsEdit || Existing is not null)
+{
+    <EditForm Model="Model" OnValidSubmit="SaveAsync" class="ds-split ds-split--wide-aside">
+        <DataAnnotationsValidator />
+
+        <div class="ds-stack ds-stack--lg">
+            @if (Existing?.Status == DocumentStatus.Rejected)
+            {
+                <Alert Tone="Tone.Outline" Icon="info" Title="Документ відхилено">
+                    Виправте його та надішліть на підпис повторно. Підписи, накладені на поточний файл, збережуться — ці підписанти не підписуватимуть знову, якщо ви не заміните файл і не приберете їх із маршруту.
+                </Alert>
+            }
+
+            @if (ErrorMessage is not null)
+            {
+                <Alert Tone="Tone.Danger">@ErrorMessage</Alert>
+            }
+
+            <Card Title="Файл">
+                @if (Existing is not null)
+                {
+                    <div class="doc-file">
+                        <span class="doc-file__icon"><Icon Name="file-text" /></span>
+                        <span class="ds-stack ds-stack--sm">
+                            <span class="doc-file__name">@(SelectedFile is null ? Existing.File.FileName : SelectedFile.Name)</span>
+                            <span class="ds-text-sm ds-muted">@(SelectedFile is null ? $"Поточний файл · {Display.FileSize(Existing.File.Size)}" : $"Новий файл · {Display.FileSize(SelectedFile.Size)}")</span>
+                        </span>
+                    </div>
+                }
+                <label class="ds-dropzone">
+                    <InputFile OnChange="SelectFile" accept="@FileRules.DocumentAccept" />
+                    <span class="ds-empty__icon"><Icon Name="file-up" Size="IconSize.Large" /></span>
+                    <span class="ds-dropzone__title">@(IsEdit ? "Замінити файл" : SelectedFile?.Name ?? "Перетягніть файл або натисніть, щоб обрати")</span>
+                    <span class="ds-dropzone__hint">
+                        @if (SelectedFile is null || IsEdit)
+                        {
+                            <span>PDF, DOCX, XLSX, ODT та інші · до @(FileRules.MaxDocumentSize / 1024 / 1024) МБ. Для PAdES оберіть PDF.</span>
+                        }
+                        else
+                        {
+                            <span>@Display.FileSize(SelectedFile.Size)</span>
+                        }
+                    </span>
+                </label>
+                @if (SignaturesToRemove > 0)
+                {
+                    <Alert Tone="Tone.Danger" Icon="triangle-alert" Title="Частину підписів буде анульовано">
+                        @(SelectedFile is not null
+                            ? $"Підписи накладено на попередній файл. Після збереження всі {SignaturesToRemove} підписи буде видалено, а підписанти підписуватимуть новий файл."
+                            : $"Підписи тих, кого ви прибрали з маршруту ({SignaturesToRemove}), буде видалено після збереження.")
+                    </Alert>
+                }
+            </Card>
+
+            <Card Title="Реквізити">
+                <div class="ds-form-grid">
+                    <Field Label="Назва" For="doc-title" Required Class="ds-span-full">
+                        <InputText id="doc-title" @bind-Value="Model.Title" class="ds-input" maxlength="300" placeholder="Наприклад: Про затвердження графіка навчального процесу" />
+                        <ValidationMessage For="() => Model.Title" />
+                    </Field>
+                    <Field Label="Вид документа" For="doc-kind" Required>
+                        <InputSelect id="doc-kind" @bind-Value="Model.Kind" class="ds-select">
+                            @foreach (var kind in Enum.GetValues<DocumentKind>())
+                            {
+                                <option value="@kind">@Display.Text(kind)</option>
+                            }
+                        </InputSelect>
+                    </Field>
+                    <Field Label="Підрозділ" For="doc-unit" Required>
+                        <InputSelect id="doc-unit" @bind-Value="Model.UnitId" class="ds-select">
+                            <option value="">Оберіть підрозділ</option>
+                            @foreach (var unit in Units)
+                            {
+                                <option value="@unit.Id">@(new string(' ', unit.Depth * 3))@unit.Name</option>
+                            }
+                        </InputSelect>
+                        <ValidationMessage For="() => Model.UnitId" />
+                    </Field>
+                    <Field Label="Опис" For="doc-description" Class="ds-span-full" Hint="Короткий зміст або коментар для підписантів.">
+                        <InputTextArea id="doc-description" @bind-Value="Model.Description" class="ds-textarea" maxlength="4000" />
+                    </Field>
+                </div>
+            </Card>
+        </div>
+
+        <div class="ds-stack ds-stack--lg">
+            <Card Title="Маршрут підписання" Subtitle="Додайте підписантів у потрібному порядку.">
+                <div class="ds-segmented" role="radiogroup" aria-label="Порядок підписання">
+                    @foreach (var mode in Enum.GetValues<SigningMode>())
+                    {
+                        <label class="ds-segmented__option">
+                            <input type="radio" name="signing-mode" checked="@(Model.Mode == mode)" @onchange="() => Model.Mode = mode" />
+                            <span class="ds-segmented__label">
+                                @Display.Text(mode)
+                                <small>@(mode == SigningMode.Sequential ? "один за одним" : "у будь-якому порядку")</small>
+                            </span>
+                        </label>
+                    }
+                </div>
+
+                <div class="ds-field">
+                    <label class="ds-label" for="signer-search">Знайти працівника</label>
+                    <div class="ds-toolbar__search">
+                        <Icon Name="search" />
+                        <input id="signer-search" class="ds-input" placeholder="Прізвище, ім'я або e-mail" autocomplete="off"
+                               value="@SearchTerm" @oninput="SearchAsync" />
+                    </div>
+                    @if (Suggestions.Count > 0)
+                    {
+                        <ul class="signers-picker__results">
+                            @foreach (var suggestion in Suggestions)
+                            {
+                                <li>
+                                    <button type="button" @onclick="() => AddSigner(suggestion)">
+                                        <span class="ds-strong">@suggestion.FullName</span>
+                                        <span class="ds-text-xs ds-muted">@(suggestion.Position ?? suggestion.Email)</span>
+                                    </button>
+                                </li>
+                            }
+                        </ul>
+                    }
+                </div>
+
+                @if (Signers.Count == 0)
+                {
+                    <EmptyState Icon="users" Title="Підписантів ще немає" Text="Документ без підписантів можна зберегти лише як чернетку." />
+                }
+                else
+                {
+                    var kept = KeptSigners.Select(static s => s.Id).ToHashSet();
+                    <ol class="route-list">
+                        @for (var i = 0; i < Signers.Count; i++)
+                        {
+                            var index = i;
+                            var signer = Signers[index];
+                            <li class="route-list__item" @key="signer.Id">
+                                <span class="route-list__order">@(index + 1)</span>
+                                <span class="ds-list__body">
+                                    <span class="ds-list__title">@signer.FullName</span>
+                                    <span class="ds-list__meta">@(signer.Position ?? signer.Email)</span>
+                                    @if (kept.Contains(signer.Id))
+                                    {
+                                        <Badge Tone="Tone.Inverse" Icon="badge-check">Підпис збережеться</Badge>
+                                    }
+                                </span>
+                                <button type="button" class="ds-btn ds-btn--ghost ds-btn--icon ds-btn--sm" disabled="@(index == 0)" @onclick="() => Move(index, -1)" aria-label="Вище"><Icon Name="chevron-up" /></button>
+                                <button type="button" class="ds-btn ds-btn--ghost ds-btn--icon ds-btn--sm" disabled="@(index == Signers.Count - 1)" @onclick="() => Move(index, 1)" aria-label="Нижче"><Icon Name="chevron-down" /></button>
+                                <button type="button" class="ds-btn ds-btn--ghost ds-btn--icon ds-btn--sm" @onclick="() => Signers.RemoveAt(index)" aria-label="Прибрати"><Icon Name="x" /></button>
+                            </li>
+                        }
+                    </ol>
+                }
+            </Card>
+
+            <Card Variant="CardVariant.Muted">
+                <div class="ds-stack">
+                    <Button Type="submit" Block Icon="send" Disabled="@(Busy || Signers.Count == 0)" OnClick="() => Model.Submit = true">@(IsEdit ? "Зберегти й надіслати на підпис" : "Створити й надіслати на підпис")</Button>
+                    <Button Type="submit" Variant="ButtonVariant.Secondary" Block Icon="save" Disabled="Busy" OnClick="() => Model.Submit = false">@(IsEdit ? "Зберегти зміни" : "Зберегти чернетку")</Button>
+                    @if (IsEdit)
+                    {
+                        <Button Href="@($"/documents/{Id}")" Variant="ButtonVariant.Ghost" Block Icon="arrow-left">Скасувати</Button>
+                    }
+                    @if (Busy)
+                    {
+                        <div class="ds-progress ds-progress--indeterminate"><div class="ds-progress__bar"></div></div>
+                    }
+                </div>
+            </Card>
+        </div>
+    </EditForm>
+}

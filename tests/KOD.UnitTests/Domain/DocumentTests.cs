@@ -63,7 +63,7 @@ public sealed class DocumentTests
     }
 
     [Fact]
-    public void Rejected_document_can_be_resubmitted_with_a_fresh_route()
+    public void Rejected_document_without_signatures_restarts_the_whole_route()
     {
         var document = CreateDocument(SigningMode.Sequential);
         document.Submit(Now);
@@ -73,6 +73,86 @@ public sealed class DocumentTests
 
         Assert.Equal(DocumentStatus.InSigning, document.Status);
         Assert.All(document.Signers, static s => Assert.Equal(SignerStatus.Pending, s.Status));
+    }
+
+    [Fact]
+    public void Resubmission_keeps_signatures_on_the_unchanged_file()
+    {
+        var document = CreateDocument(SigningMode.Sequential);
+        document.Submit(Now);
+        Sign(document, First);
+        document.Reject(Second, "Додати підпис ректора", Now);
+
+        document.Submit(Now.AddHours(1));
+
+        Assert.Equal(DocumentStatus.InSigning, document.Status);
+        Assert.Equal(SignerStatus.Signed, document.Signers.Single(s => s.UserId == First).Status);
+        Assert.False(document.IsAwaitingSignatureFrom(First));
+        Assert.True(document.IsAwaitingSignatureFrom(Second));
+        Assert.Single(document.Signatures);
+    }
+
+    [Fact]
+    public void Replacing_the_file_removes_every_signature()
+    {
+        var document = CreateDocument(SigningMode.Sequential);
+        document.Submit(Now);
+        Sign(document, First);
+        document.Reject(Second, "Неправильний файл", Now);
+
+        var removed = document.ReplaceFile(DocumentFile());
+        document.Submit(Now.AddHours(1));
+
+        Assert.Single(removed);
+        Assert.Empty(document.Signatures);
+        Assert.All(document.Signers, static s => Assert.Equal(SignerStatus.Pending, s.Status));
+        Assert.True(document.IsAwaitingSignatureFrom(First));
+    }
+
+    [Fact]
+    public void Route_changes_remove_only_signatures_of_removed_signers()
+    {
+        var third = Guid.CreateVersion7();
+        var document = CreateDocument(SigningMode.Parallel);
+        document.Submit(Now);
+        Sign(document, First);
+        document.Reject(Second, "Потрібен ще один підписант", Now);
+
+        Assert.Empty(document.SetRoute([First, Second, third], SigningMode.Parallel));
+        Assert.Single(document.Signatures);
+
+        var removed = document.SetRoute([Second, third], SigningMode.Parallel);
+        Assert.Single(removed);
+        Assert.Empty(document.Signatures);
+    }
+
+    [Fact]
+    public void Resubmitting_when_everyone_already_signed_completes_the_document()
+    {
+        var document = CreateDocument(SigningMode.Parallel);
+        document.Submit(Now);
+        Sign(document, First);
+        document.Reject(Second, "Підписант не потрібен", Now);
+
+        document.SetRoute([First], SigningMode.Parallel);
+        document.Submit(Now.AddHours(1));
+
+        Assert.Equal(DocumentStatus.Signed, document.Status);
+        Assert.NotNull(document.CompletedAt);
+    }
+
+    [Fact]
+    public void Only_drafts_and_rejected_documents_can_be_edited()
+    {
+        var document = CreateDocument(SigningMode.Sequential);
+        document.UpdateDetails("Нова назва", "Опис", DocumentKind.Memo, Guid.CreateVersion7());
+        Assert.Equal("Нова назва", document.Title);
+
+        document.Submit(Now);
+        Assert.False(document.IsEditable);
+        Assert.Throws<DomainException>(() => document.UpdateDetails("Інша", null, DocumentKind.Order, document.OrganizationUnitId));
+        Assert.Throws<DomainException>(() => document.ReplaceFile(DocumentFile()));
+        Assert.Throws<DomainException>(() => document.SetRoute([First], SigningMode.Sequential));
     }
 
     [Fact]

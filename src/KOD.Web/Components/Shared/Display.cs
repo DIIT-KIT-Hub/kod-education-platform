@@ -21,7 +21,7 @@ public static class Display
     /// <summary>
     /// The time zone of the institution.
     /// </summary>
-    private static readonly TimeZoneInfo Kyiv = ResolveKyivTimeZone();
+    private static readonly TimeZoneInfo Kyiv = KOD.Application.Common.Text.KyivTime.Zone;
 
     /// <summary>
     /// Formats a moment as a local date and time (e.g. «25.10.2026, 14:05»).
@@ -280,6 +280,7 @@ public static class Display
         "roles.deleted" => "Видалення ролі",
         "structure.changed" => "Зміна структури",
         "documents.created" => "Створено документ",
+        "documents.updated" => "Документ змінено",
         "documents.submitted" => "Документ на підписання",
         "documents.withdrawn" => "Документ відкликано",
         "documents.signed" => "Документ підписано",
@@ -290,21 +291,4 @@ public static class Display
         "news.deleted" => "Видалення новини",
         _ => action,
     };
-
-    /// <summary>
-    /// Finds the Kyiv time zone on any OS.
-    /// </summary>
-    /// <returns>The time zone.</returns>
-    private static TimeZoneInfo ResolveKyivTimeZone()
-    {
-        foreach (var id in (string[])["Europe/Kyiv", "Europe/Kiev", "FLE Standard Time"])
-        {
-            if (TimeZoneInfo.TryFindSystemTimeZoneById(id, out var zone))
-            {
-                return zone;
-            }
-        }
-
-        return TimeZoneInfo.Utc;
-    }
 }

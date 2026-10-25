@@ -9,14 +9,20 @@ using Microsoft.AspNetCore.Components.Forms;
 namespace KOD.Web.Components.Pages.Documents;
 
 /// <summary>
-/// Creates a document: file upload, details and the signing route (interactive server component).
+/// Creates a document or changes a draft / rejected one: file, details and the signing route (interactive server component).
 /// </summary>
-public sealed partial class DocumentCreate : IDisposable
+public sealed partial class DocumentEditor : IDisposable
 {
     /// <summary>
     /// Debounces signer search input.
     /// </summary>
     private CancellationTokenSource? _searchCancellation;
+
+    /// <summary>
+    /// Gets or sets the identifier of the document being edited; <see langword="null"/> when creating.
+    /// </summary>
+    [Parameter]
+    public Guid? Id { get; set; }
 
     /// <summary>
     /// Gets or sets the document service.
@@ -31,17 +37,32 @@ public sealed partial class DocumentCreate : IDisposable
     private NavigationManager Navigation { get; set; } = default!;
 
     /// <summary>
-    /// Gets or sets the form model.
+    /// Gets a value indicating whether an existing document is edited.
     /// </summary>
-    private CreateModel Model { get; set; } = new();
+    private bool IsEdit => Id is not null;
 
     /// <summary>
-    /// Gets or sets the units the user may create documents in.
+    /// Gets or sets the document being edited.
+    /// </summary>
+    private DocumentEditModel? Existing { get; set; }
+
+    /// <summary>
+    /// Gets or sets the reason the document cannot be edited.
+    /// </summary>
+    private string? LoadError { get; set; }
+
+    /// <summary>
+    /// Gets or sets the form model.
+    /// </summary>
+    private EditorModel Model { get; set; } = new();
+
+    /// <summary>
+    /// Gets or sets the units the user may assign the document to.
     /// </summary>
     private IReadOnlyList<UnitOption> Units { get; set; } = [];
 
     /// <summary>
-    /// Gets or sets the chosen file.
+    /// Gets or sets the chosen (new) file.
     /// </summary>
     private IBrowserFile? SelectedFile { get; set; }
 
@@ -70,6 +91,18 @@ public sealed partial class DocumentCreate : IDisposable
     /// </summary>
     private string? ErrorMessage { get; set; }
 
+    /// <summary>
+    /// Gets the signers whose signatures are kept while the file is not replaced.
+    /// </summary>
+    private IEnumerable<UserLookupItem> KeptSigners
+        => SelectedFile is not null || Existing is null ? [] : Signers.Where(s => Existing.SignedBy.Contains(s.Id));
+
+    /// <summary>
+    /// Gets the number of existing signatures that saving will remove.
+    /// </summary>
+    private int SignaturesToRemove
+        => Existing is null ? 0 : SelectedFile is not null ? Existing.SignedBy.Count : Existing.SignedBy.Count(id => Signers.TrueForAll(s => s.Id != id));
+
     /// <inheritdoc />
     public void Dispose()
     {
@@ -81,9 +114,33 @@ public sealed partial class DocumentCreate : IDisposable
     protected override async Task OnInitializedAsync()
     {
         Units = await Documents.GetAuthorUnitsAsync(CancellationToken.None);
-        if (Units.Count == 1)
+        if (Id is not { } id)
         {
-            Model.UnitId = Units[0].Id;
+            if (Units.Count == 1)
+            {
+                Model.UnitId = Units[0].Id;
+            }
+
+            return;
+        }
+
+        var result = await Documents.GetForEditAsync(id, CancellationToken.None);
+        if (!result.IsSuccess)
+        {
+            LoadError = result.Error.Message;
+            return;
+        }
+
+        Existing = result.Value;
+        Model.Title = Existing.Title;
+        Model.Description = Existing.Description;
+        Model.Kind = Existing.Kind;
+        Model.UnitId = Existing.Unit.Id;
+        Model.Mode = Existing.SigningMode;
+        Signers.AddRange(Existing.Signers);
+        if (Units.All(u => u.Id != Existing.Unit.Id))
+        {
+            Units = [Existing.Unit, .. Units];
         }
     }
 
@@ -175,12 +232,12 @@ public sealed partial class DocumentCreate : IDisposable
     }
 
     /// <summary>
-    /// Creates the document.
+    /// Creates the document or saves the changes.
     /// </summary>
     /// <returns>A task that completes when the document is saved.</returns>
     private async Task SaveAsync()
     {
-        if (SelectedFile is null)
+        if (!IsEdit && SelectedFile is null)
         {
             ErrorMessage = "Оберіть файл документа.";
             return;
@@ -188,29 +245,48 @@ public sealed partial class DocumentCreate : IDisposable
 
         Busy = true;
         ErrorMessage = null;
+        Stream? stream = null;
         try
         {
-            await using var stream = SelectedFile.OpenReadStream(FileRules.MaxDocumentSize);
-            var result = await Documents.CreateAsync(
-                new CreateDocumentCommand(
-                    Model.Title,
-                    Model.Description,
-                    Model.Kind,
-                    Model.UnitId ?? Guid.Empty,
-                    Model.Mode,
-                    [.. Signers.Select(static s => s.Id)],
-                    Model.Submit && Signers.Count > 0,
-                    new FileUpload(stream, SelectedFile.Name, SelectedFile.ContentType, SelectedFile.Size)),
-                CancellationToken.None);
-
-            if (result.IsSuccess)
+            stream = SelectedFile?.OpenReadStream(FileRules.MaxDocumentSize);
+            var upload = SelectedFile is null ? null : new FileUpload(stream!, SelectedFile.Name, SelectedFile.ContentType, SelectedFile.Size);
+            var submit = Model.Submit && Signers.Count > 0;
+            Guid documentId;
+            if (Existing is { } existing)
             {
-                var message = Model.Submit ? "Документ створено й надіслано на підпис" : "Чернетку збережено";
-                Navigation.NavigateTo($"/documents/{result.Value}?toast={Uri.EscapeDataString(message)}");
-                return;
+                var result = await Documents.UpdateAsync(
+                    new UpdateDocumentCommand(existing.Id, Model.Title, Model.Description, Model.Kind, Model.UnitId ?? Guid.Empty, Model.Mode, [.. Signers.Select(static s => s.Id)], submit, upload),
+                    CancellationToken.None);
+                if (!result.IsSuccess)
+                {
+                    ErrorMessage = result.Error.Message;
+                    return;
+                }
+
+                documentId = existing.Id;
+            }
+            else
+            {
+                var result = await Documents.CreateAsync(
+                    new CreateDocumentCommand(Model.Title, Model.Description, Model.Kind, Model.UnitId ?? Guid.Empty, Model.Mode, [.. Signers.Select(static s => s.Id)], submit, upload!),
+                    CancellationToken.None);
+                if (!result.IsSuccess)
+                {
+                    ErrorMessage = result.Error.Message;
+                    return;
+                }
+
+                documentId = result.Value;
             }
 
-            ErrorMessage = result.Error.Message;
+            var message = (IsEdit, submit) switch
+            {
+                (true, true) => "Зміни збережено, документ надіслано на підписання",
+                (true, false) => "Зміни збережено",
+                (false, true) => "Документ створено й надіслано на підпис",
+                _ => "Чернетку збережено",
+            };
+            Navigation.NavigateTo($"/documents/{documentId}?toast={Uri.EscapeDataString(message)}");
         }
         catch (IOException)
         {
@@ -218,6 +294,11 @@ public sealed partial class DocumentCreate : IDisposable
         }
         finally
         {
+            if (stream is not null)
+            {
+                await stream.DisposeAsync();
+            }
+
             Busy = false;
         }
     }
@@ -225,7 +306,7 @@ public sealed partial class DocumentCreate : IDisposable
     /// <summary>
     /// The document form.
     /// </summary>
-    private sealed class CreateModel
+    private sealed class EditorModel
     {
         /// <summary>
         /// Gets or sets the title.

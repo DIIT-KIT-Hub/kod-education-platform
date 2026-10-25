@@ -37,6 +37,7 @@ public sealed record NavigationItem(string Href, string Text, string Icon, IRead
             ],
             false),
         new("/profile", "Профіль", "user", [], true),
+        new("/help", "Довідка", "book-open", [], false),
     ];
 
     /// <summary>

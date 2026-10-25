@@ -1,4 +1,5 @@
 using KOD.Application.Abstractions;
+using KOD.Application.Common.Text;
 using KOD.Application.Features.Documents;
 using KOD.Application.Features.News;
 using KOD.Domain.Access;
@@ -38,7 +39,8 @@ internal sealed class DashboardService(
             }
 
             var now = timeProvider.GetUtcNow();
-            var monthStart = new DateTimeOffset(now.Year, now.Month, 1, 0, 0, 0, TimeSpan.Zero);
+            var today = DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(now, KyivTime.Zone).DateTime);
+            var monthStart = KyivTime.StartOfDay(new DateOnly(today.Year, today.Month, 1));
             var mine = db.Documents.AsNoTracking().Where(d => d.AuthorId == me);
             drafts = await mine.CountAsync(static d => d.Status == DocumentStatus.Draft, cancellationToken);
             inSigning = await mine.CountAsync(static d => d.Status == DocumentStatus.InSigning, cancellationToken);

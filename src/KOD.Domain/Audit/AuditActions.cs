@@ -62,6 +62,9 @@ public static class AuditActions
     /// <summary>Document created.</summary>
     public const string DocumentCreated = "documents.created";
 
+    /// <summary>Document changed (details, route or file) by its author.</summary>
+    public const string DocumentUpdated = "documents.updated";
+
     /// <summary>Document submitted for signing.</summary>
     public const string DocumentSubmitted = "documents.submitted";
 

@@ -147,7 +147,8 @@ internal sealed class DocumentService(
         var awaitingMe = document.IsAwaitingSignatureFrom(me) && currentUser.Has(Permissions.Documents.Sign);
         var hasSignatures = document.Signatures.Count > 0;
         var actions = new DocumentActions(
-            CanSubmit: isAuthor && document.Status is DocumentStatus.Draft or DocumentStatus.Rejected && document.Signers.Count > 0,
+            CanEdit: isAuthor && document.IsEditable && currentUser.Has(Permissions.Documents.Create),
+            CanSubmit: isAuthor && document.IsEditable && document.Signers.Count > 0,
             CanWithdraw: isAuthor && document.Status == DocumentStatus.InSigning && !hasSignatures,
             CanSign: awaitingMe,
             CanReject: awaitingMe,
@@ -248,6 +249,183 @@ internal sealed class DocumentService(
                 await fileStorage.DeleteAsync(blob.StorageKey, CancellationToken.None);
             }
         }
+    }
+
+    /// <inheritdoc />
+    public async Task<Result<DocumentEditModel>> GetForEditAsync(Guid id, CancellationToken cancellationToken)
+    {
+        if (currentUser.Id is not { } me)
+        {
+            return Error.Unauthorized();
+        }
+
+        var document = await db.Documents
+            .AsNoTracking()
+            .Include(static d => d.Signers)
+            .Include(static d => d.Signatures)
+            .FirstOrDefaultAsync(d => d.Id == id, cancellationToken);
+        if (document is null || !await IsVisibleAsync(id, cancellationToken))
+        {
+            return Error.NotFound("Документ не знайдено.");
+        }
+
+        if (document.AuthorId != me || !currentUser.Has(Permissions.Documents.Create))
+        {
+            return Error.Forbidden("Змінювати документ може лише його автор.");
+        }
+
+        if (!document.IsEditable)
+        {
+            return Error.Conflict("Змінювати можна лише чернетку або відхилений документ.");
+        }
+
+        var signerIds = document.Signers.OrderBy(static s => s.Order).Select(static s => s.UserId).ToList();
+        var people = await db.Users
+            .AsNoTracking()
+            .Where(u => signerIds.Contains(u.Id))
+            .Select(static u => new UserLookupItem(
+                u.Id,
+                u.LastName + " " + u.FirstName + (u.MiddleName != null ? " " + u.MiddleName : string.Empty),
+                u.Email!,
+                u.Positions.Where(static p => p.IsPrimary).Select(static p => (p.Title ?? p.Role!.Name) + ", " + p.OrganizationUnit!.Name).FirstOrDefault()))
+            .ToDictionaryAsync(static u => u.Id, cancellationToken);
+        var unit = await db.OrganizationUnits
+            .AsNoTracking()
+            .Where(u => u.Id == document.OrganizationUnitId)
+            .Select(static u => new UnitOption(u.Id, u.Name, u.Code, u.Type, 0))
+            .FirstAsync(cancellationToken);
+
+        return new DocumentEditModel(
+            document.Id,
+            document.RegistrationNumber,
+            document.Title,
+            document.Description,
+            document.Kind,
+            document.Status,
+            unit,
+            document.SigningMode,
+            [.. signerIds.Where(people.ContainsKey).Select(signerId => people[signerId])],
+            new DocumentFileInfo(document.File.FileName, document.File.ContentType, document.File.Size, document.File.Sha256, document.File.IsPdf),
+            document.Signatures.Select(static s => s.UserId).ToHashSet());
+    }
+
+    /// <inheritdoc />
+    public async Task<Result> UpdateAsync(UpdateDocumentCommand command, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(command);
+        if (currentUser.Id is not { } me)
+        {
+            return Error.Unauthorized();
+        }
+
+        if (!currentUser.Has(Permissions.Documents.Create))
+        {
+            return Error.Forbidden();
+        }
+
+        var document = await db.Documents
+            .Include(static d => d.Signers)
+            .Include(static d => d.Signatures)
+            .FirstOrDefaultAsync(d => d.Id == command.Id, cancellationToken);
+        if (document is null || !await IsVisibleAsync(command.Id, cancellationToken))
+        {
+            return Error.NotFound("Документ не знайдено.");
+        }
+
+        if (document.AuthorId != me)
+        {
+            return Error.Forbidden("Змінювати документ може лише його автор.");
+        }
+
+        // The current unit stays allowed even if the author's positions changed since the document was created.
+        if (command.OrganizationUnitId != document.OrganizationUnitId)
+        {
+            var allowedUnits = await GetAuthorUnitsAsync(cancellationToken);
+            if (!allowedUnits.Any(u => u.Id == command.OrganizationUnitId))
+            {
+                return Error.Validation("Оберіть підрозділ, до якого ви належите.");
+            }
+        }
+
+        var signerIds = command.SignerIds.Distinct().ToList();
+        var activeSigners = await db.Users.CountAsync(u => signerIds.Contains(u.Id) && u.IsActive, cancellationToken);
+        if (activeSigners != signerIds.Count)
+        {
+            return Error.Validation("Серед підписантів є неактивні або неіснуючі користувачі.");
+        }
+
+        if (command.Submit && signerIds.Count == 0)
+        {
+            return Error.Validation("Додайте щонайменше одного підписанта.");
+        }
+
+        StoredFile? newFile = null;
+        if (command.File is { } upload)
+        {
+            var contentType = FileRules.ResolveDocumentType(upload.FileName);
+            if (contentType is null)
+            {
+                return Error.Validation("Цей тип файлу не підтримується.");
+            }
+
+            if (upload.Length > FileRules.MaxDocumentSize)
+            {
+                return Error.Validation($"Розмір файлу не може перевищувати {FileRules.MaxDocumentSize / 1024 / 1024} МБ.");
+            }
+
+            var blob = await fileStorage.SaveAsync(upload.Content, "documents", FileRules.MaxDocumentSize, cancellationToken);
+            newFile = new StoredFile(upload.FileName, contentType, blob.Size, blob.Sha256, blob.StorageKey);
+        }
+
+        var previousFile = document.File;
+        var removed = new List<DocumentSignature>();
+        var result = await DomainErrors.GuardAsync(async () =>
+        {
+            document.UpdateDetails(command.Title, command.Description, command.Kind, command.OrganizationUnitId);
+            removed.AddRange(document.SetRoute(signerIds, command.SigningMode));
+            if (newFile is not null)
+            {
+                removed.AddRange(document.ReplaceFile(newFile));
+            }
+
+            var details = newFile is null
+                ? $"{document.RegistrationNumber} «{document.Title}»"
+                : $"{document.RegistrationNumber} «{document.Title}»: новий файл {newFile.FileName}";
+            if (removed.Count > 0)
+            {
+                details += $", анульовано підписів: {removed.Count}";
+            }
+
+            audit.Add(AuditActions.DocumentUpdated, nameof(Document), document.Id.ToString(), details);
+            if (command.Submit)
+            {
+                document.Submit(timeProvider.GetUtcNow());
+                audit.Add(AuditActions.DocumentSubmitted, nameof(Document), document.Id.ToString(), document.RegistrationNumber);
+            }
+
+            await db.SaveChangesAsync(cancellationToken);
+            return Result.Success();
+        });
+
+        // Only files that are no longer referenced are deleted, and only after the database agreed.
+        if (result.IsSuccess)
+        {
+            if (newFile is not null)
+            {
+                await fileStorage.DeleteAsync(previousFile.StorageKey, CancellationToken.None);
+            }
+
+            foreach (var signature in removed)
+            {
+                await fileStorage.DeleteAsync(signature.File.StorageKey, CancellationToken.None);
+            }
+        }
+        else if (newFile is not null)
+        {
+            await fileStorage.DeleteAsync(newFile.StorageKey, CancellationToken.None);
+        }
+
+        return result;
     }
 
     /// <inheritdoc />

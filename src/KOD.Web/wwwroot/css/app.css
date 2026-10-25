@@ -643,3 +643,192 @@
     from { transform: scale(1.08); opacity: 0; }
     to { transform: none; opacity: 1; }
 }
+
+/* User manual (/help) ------------------------------------------------------- */
+.help-layout { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--ds-space-6); align-items: start; }
+.help-content { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--ds-space-10); min-width: 0; }
+
+/* Wide tables scroll inside their frame instead of widening the nested grids. */
+.help-chapter, .help-topic, .help-prose { grid-template-columns: minmax(0, 1fr); }
+
+.help-search { display: grid; gap: var(--ds-space-2); max-width: 40rem; }
+.help-search__field { position: relative; }
+.help-search__field .ds-icon { position: absolute; left: var(--ds-space-4); top: 50%; transform: translateY(-50%); color: var(--ds-color-text-muted); pointer-events: none; }
+.help-search__field .ds-input { padding-left: 3rem; }
+.help-search__status { min-height: 1.25rem; color: var(--ds-color-text-muted); font-size: var(--ds-fs-sm); font-weight: 650; }
+
+/* Table of contents: a collapsible card on phones and tablets, a sticky column on desktops. */
+.help-toc {
+    border: 1px solid var(--ds-color-border);
+    border-radius: var(--ds-radius-lg);
+    background: var(--ds-color-surface);
+}
+
+.help-toc > summary {
+    display: flex;
+    align-items: center;
+    gap: var(--ds-space-2);
+    padding: var(--ds-space-4) var(--ds-space-5);
+    font-weight: 750;
+    cursor: pointer;
+    list-style: none;
+}
+
+.help-toc > summary::-webkit-details-marker { display: none; }
+.help-toc__chevron { margin-left: auto; transition: transform var(--ds-duration-base) var(--ds-ease-out); }
+.help-toc[open] .help-toc__chevron { transform: rotate(180deg); }
+.help-toc nav { padding: 0 var(--ds-space-3) var(--ds-space-4); }
+.help-toc ol { display: grid; gap: 0.15rem; margin: 0; padding: 0; list-style: none; }
+.help-toc ol ol { margin: 0.15rem 0 var(--ds-space-2) var(--ds-space-5); padding-left: var(--ds-space-3); border-left: 1px solid var(--ds-color-border); }
+
+.help-toc a {
+    display: flex;
+    gap: var(--ds-space-2);
+    padding: 0.4rem var(--ds-space-3);
+    border-radius: var(--ds-radius-sm);
+    color: var(--ds-color-text-muted);
+    font-size: var(--ds-fs-sm);
+    font-weight: 600;
+    line-height: 1.35;
+    text-decoration: none;
+    transition: background-color var(--ds-duration-fast), color var(--ds-duration-fast);
+}
+
+.help-toc__chapter > a { color: var(--ds-color-text); font-weight: 750; }
+.help-toc a:hover { background: var(--ds-color-surface-2); color: var(--ds-color-text); }
+.help-toc a.is-active { background: var(--ds-color-surface-3); color: var(--ds-color-text); }
+.help-toc ol ol a.is-active { background: var(--ds-color-inverse); color: var(--ds-color-on-inverse); }
+.help-toc__number { min-width: 1.4rem; font-variant-numeric: tabular-nums; }
+
+@media (min-width: 1280px) {
+    .help-layout { grid-template-columns: minmax(16rem, 19rem) minmax(0, 1fr); }
+    .help-toc { position: sticky; top: var(--ds-space-6); max-height: calc(100dvh - var(--ds-space-12)); overflow-y: auto; overscroll-behavior: contain; }
+    .help-toc > summary { pointer-events: none; }
+    .help-toc__chevron { display: none; }
+}
+
+/* Chapters and topics */
+.help-chapter { display: grid; gap: var(--ds-space-6); scroll-margin-top: 5rem; }
+
+.help-chapter__header {
+    display: flex;
+    gap: var(--ds-space-5);
+    align-items: flex-start;
+    padding: var(--ds-space-6);
+    border-radius: var(--ds-radius-xl);
+    background: var(--ds-color-inverse);
+    color: var(--ds-color-on-inverse);
+    animation: ds-fade-up var(--ds-duration-slow) var(--ds-ease-out) both;
+}
+
+.help-chapter__header .ds-muted { color: inherit; opacity: 0.75; }
+.help-chapter__header .ds-badge { border-color: currentColor; color: inherit; background: transparent; }
+.help-chapter__header .ds-badge--inverse { background: var(--ds-color-on-inverse); color: var(--ds-color-inverse); }
+
+.help-chapter__icon {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 3.5rem;
+    height: 3.5rem;
+    border-radius: var(--ds-radius-md);
+    background: color-mix(in srgb, var(--ds-color-on-inverse) 14%, transparent);
+}
+
+.help-chapter__heading { display: grid; gap: var(--ds-space-2); min-width: 0; }
+
+/* Access badges may name several permissions: let them wrap on narrow screens. */
+.help-chapter .ds-badge { max-width: 100%; border-radius: 0.75rem; white-space: normal; }
+.help-chapter__number { font-size: var(--ds-fs-xs); font-weight: 750; letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.7; }
+.help-chapter__title { font-size: var(--ds-fs-2xl); line-height: 1.15; }
+
+.help-topic {
+    display: grid;
+    gap: var(--ds-space-4);
+    padding: var(--ds-space-6);
+    border: 1px solid var(--ds-color-border);
+    border-radius: var(--ds-radius-lg);
+    background: var(--ds-color-surface);
+    scroll-margin-top: 5rem;
+}
+
+.help-topic__title { display: flex; align-items: center; gap: var(--ds-space-2); font-size: var(--ds-fs-xl); line-height: 1.25; }
+.help-topic__anchor { display: inline-grid; place-items: center; flex: none; width: 1.75rem; height: 1.75rem; border-radius: var(--ds-radius-sm); color: var(--ds-color-text-subtle); opacity: 0.5; transition: opacity var(--ds-duration-fast), background-color var(--ds-duration-fast); }
+.help-topic:hover .help-topic__anchor, .help-topic__anchor:focus-visible { opacity: 1; }
+.help-topic__anchor:hover { background: var(--ds-color-surface-2); color: var(--ds-color-text); }
+
+@media (max-width: 479.98px) {
+    .help-chapter__header { flex-direction: column; padding: var(--ds-space-5); }
+    .help-topic { padding: var(--ds-space-5) var(--ds-space-4); }
+}
+
+/* Manual typography */
+.help-prose { display: grid; gap: var(--ds-space-4); line-height: 1.65; }
+.help-prose > * { margin: 0; }
+.help-prose h4 { margin-top: var(--ds-space-2); font-size: var(--ds-fs-md); font-weight: 750; }
+.help-prose ul, .help-prose ol { display: grid; gap: var(--ds-space-2); margin: 0; padding-left: 1.4rem; }
+.help-prose li::marker { color: var(--ds-color-text-muted); font-weight: 700; }
+.help-prose strong { font-weight: 750; }
+.help-prose a:not(.ds-btn) { color: var(--ds-color-text); font-weight: 650; text-underline-offset: 3px; }
+
+/* An interface label (button, field, menu item) written exactly as it appears on screen. */
+.help-ui {
+    display: inline-block;
+    padding: 0 0.45em;
+    border: 1px solid var(--ds-color-border-strong);
+    border-radius: 0.45em;
+    background: var(--ds-color-surface-2);
+    font-size: 0.92em;
+    font-weight: 700;
+    line-height: 1.55;
+}
+
+/* Numbered step-by-step instructions. */
+.help-prose .help-steps { counter-reset: help-step; gap: var(--ds-space-3); padding: 0; list-style: none; }
+
+.help-steps > li {
+    counter-increment: help-step;
+    position: relative;
+    padding: var(--ds-space-3) var(--ds-space-4) var(--ds-space-3) 3.25rem;
+    border-radius: var(--ds-radius-md);
+    background: var(--ds-color-surface-2);
+}
+
+.help-steps > li::before {
+    content: counter(help-step);
+    position: absolute;
+    left: var(--ds-space-3);
+    top: var(--ds-space-3);
+    display: grid;
+    place-items: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 50%;
+    background: var(--ds-color-inverse);
+    color: var(--ds-color-on-inverse);
+    font-size: var(--ds-fs-xs);
+    font-weight: 800;
+}
+
+.help-table-wrap { overflow-x: auto; border: 1px solid var(--ds-color-border); border-radius: var(--ds-radius-md); }
+.help-table { width: 100%; border-collapse: collapse; font-size: var(--ds-fs-sm); line-height: 1.5; }
+.help-table th, .help-table td { padding: var(--ds-space-3) var(--ds-space-4); border-bottom: 1px solid var(--ds-color-border); text-align: left; vertical-align: top; }
+.help-table th { background: var(--ds-color-surface-2); color: var(--ds-color-text-muted); font-size: var(--ds-fs-xs); font-weight: 750; letter-spacing: 0.04em; text-transform: uppercase; white-space: nowrap; }
+.help-table tr:last-child td { border-bottom: 0; }
+.help-table td:first-child { font-weight: 700; }
+
+.help-faq { display: grid; gap: var(--ds-space-2); }
+.help-faq details { border: 1px solid var(--ds-color-border); border-radius: var(--ds-radius-md); background: var(--ds-color-surface); }
+.help-faq summary { padding: var(--ds-space-3) var(--ds-space-4); font-weight: 700; cursor: pointer; }
+.help-faq details > div { display: grid; gap: var(--ds-space-3); padding: 0 var(--ds-space-4) var(--ds-space-4); }
+
+/* Search matches (CSS Custom Highlight API). */
+::highlight(help-match) { background-color: #ffe066; color: #000; }
+
+@media print {
+    .app-sidebar, .app-topbar, .app-tabbar, .help-toc, .help-search, .help-topic__anchor, [data-help-print] { display: none !important; }
+    .help-layout { display: block; }
+    .help-chapter { break-before: page; }
+    .help-chapter__header { border: 2px solid #000; background: none; color: #000; }
+    .help-topic { break-inside: avoid-page; border-color: #999; }
+}

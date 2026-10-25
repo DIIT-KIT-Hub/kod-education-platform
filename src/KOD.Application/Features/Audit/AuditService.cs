@@ -1,6 +1,7 @@
 using KOD.Application.Abstractions;
 using KOD.Application.Common.Paging;
 using KOD.Application.Common.Results;
+using KOD.Application.Common.Text;
 using KOD.Domain.Access;
 using Microsoft.EntityFrameworkCore;
 
@@ -29,15 +30,16 @@ internal sealed class AuditService(IApplicationDbContext db, ICurrentUser curren
             entries = entries.Where(e => e.Action.StartsWith(prefix));
         }
 
+        // The dates are Kyiv calendar days (as shown in the log), not UTC days.
         if (query.From is { } from)
         {
-            var start = new DateTimeOffset(from.ToDateTime(TimeOnly.MinValue), TimeSpan.Zero);
+            var start = KyivTime.StartOfDay(from);
             entries = entries.Where(e => e.OccurredAt >= start);
         }
 
         if (query.To is { } to)
         {
-            var end = new DateTimeOffset(to.AddDays(1).ToDateTime(TimeOnly.MinValue), TimeSpan.Zero);
+            var end = KyivTime.StartOfDay(to.AddDays(1));
             entries = entries.Where(e => e.OccurredAt < end);
         }
 

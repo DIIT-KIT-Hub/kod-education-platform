@@ -1,0 +1,12 @@
+@if (Permissions.Count == 0)
+{
+    <Badge Tone="Tone.Dashed" Icon="users">Для всіх користувачів</Badge>
+}
+else if (IsAvailable)
+{
+    <Badge Tone="Tone.Inverse" Icon="circle-check">Доступно вам</Badge>
+}
+else
+{
+    <Badge Tone="Tone.Outline" Icon="lock" Title="@RequiredFullText">Потрібен дозвіл: @RequiredText</Badge>
+}

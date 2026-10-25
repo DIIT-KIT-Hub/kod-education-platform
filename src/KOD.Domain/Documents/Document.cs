@@ -152,28 +152,56 @@ public sealed class Document : AuditableEntity
     public IReadOnlyCollection<DocumentSignature> Signatures => _signatures;
 
     /// <summary>
-    /// Updates the descriptive data of a draft.
+    /// Gets a value indicating whether the author may change the document: a draft, or a rejected document that is being
+    /// corrected before it is sent again.
+    /// </summary>
+    public bool IsEditable => Status is DocumentStatus.Draft or DocumentStatus.Rejected;
+
+    /// <summary>
+    /// Updates the descriptive data of a draft or a rejected document. These details are not part of the signed file,
+    /// so existing signatures stay valid.
     /// </summary>
     /// <param name="title">The new title.</param>
     /// <param name="description">The new description.</param>
     /// <param name="kind">The new kind.</param>
-    public void UpdateDetails(string title, string? description, DocumentKind kind)
+    /// <param name="organizationUnitId">The unit the document belongs to.</param>
+    public void UpdateDetails(string title, string? description, DocumentKind kind, Guid organizationUnitId)
     {
-        EnsureStatus(DocumentStatus.Draft, "Редагувати можна лише чернетку.");
+        EnsureEditable();
         Title = Guard.Text(title, TitleMaxLength, "Назва");
         Description = Guard.OptionalText(description, DescriptionMaxLength, "Опис");
         Kind = kind;
+        OrganizationUnitId = organizationUnitId;
     }
 
     /// <summary>
-    /// Replaces the signing route of a draft.
+    /// Replaces the file of a draft or a rejected document. Every signature was made on the previous file, so all of them
+    /// are removed; the caller deletes their stored files.
+    /// </summary>
+    /// <param name="file">The new file.</param>
+    /// <returns>The removed signatures.</returns>
+    public IReadOnlyList<DocumentSignature> ReplaceFile(StoredFile file)
+    {
+        ArgumentNullException.ThrowIfNull(file);
+        EnsureEditable();
+
+        File = file;
+        var removed = _signatures.ToList();
+        _signatures.Clear();
+        return removed;
+    }
+
+    /// <summary>
+    /// Replaces the signing route of a draft or a rejected document. Signatures of users who are no longer on the route
+    /// are removed (the caller deletes their stored files); signatures of the remaining signers are kept.
     /// </summary>
     /// <param name="signerIds">The signers in signing order.</param>
     /// <param name="mode">The signing order mode.</param>
-    public void SetRoute(IReadOnlyList<Guid> signerIds, SigningMode mode)
+    /// <returns>The removed signatures.</returns>
+    public IReadOnlyList<DocumentSignature> SetRoute(IReadOnlyList<Guid> signerIds, SigningMode mode)
     {
         ArgumentNullException.ThrowIfNull(signerIds);
-        EnsureStatus(DocumentStatus.Draft, "Маршрут можна змінювати лише у чернетці.");
+        EnsureEditable();
 
         var distinct = signerIds.Distinct().ToList();
         if (distinct.Count > MaxSigners)
@@ -181,18 +209,27 @@ public sealed class Document : AuditableEntity
             throw new DomainException($"Маршрут не може містити більше {MaxSigners} підписантів.");
         }
 
-        _signers.Clear();
-        _signers.AddRange(distinct.Select((userId, index) => new DocumentSigner(Id, userId, index + 1)));
-        SigningMode = mode;
+        var unchanged = mode == SigningMode && _signers.OrderBy(static s => s.Order).Select(static s => s.UserId).SequenceEqual(distinct);
+        if (!unchanged)
+        {
+            _signers.Clear();
+            _signers.AddRange(distinct.Select((userId, index) => new DocumentSigner(Id, userId, index + 1)));
+            SigningMode = mode;
+        }
+
+        var removed = _signatures.Where(s => !distinct.Contains(s.UserId)).ToList();
+        _signatures.RemoveAll(removed.Contains);
+        return removed;
     }
 
     /// <summary>
-    /// Sends the draft (or a rejected document) for signing.
+    /// Sends the draft (or a corrected rejected document) for signing. Signers who already signed the current file keep
+    /// their signatures and are not asked again; everyone else signs (again). When nobody is left, the document is signed.
     /// </summary>
     /// <param name="moment">The current moment.</param>
     public void Submit(DateTimeOffset moment)
     {
-        if (Status is not (DocumentStatus.Draft or DocumentStatus.Rejected))
+        if (!IsEditable)
         {
             throw new DomainException("Надіслати на підпис можна лише чернетку або відхилений документ.");
         }
@@ -202,10 +239,29 @@ public sealed class Document : AuditableEntity
             throw new DomainException("Додайте щонайменше одного підписанта.");
         }
 
-        _signers.ForEach(static s => s.Reset());
+        foreach (var signer in _signers)
+        {
+            var signature = _signatures.Where(s => s.UserId == signer.UserId).MaxBy(static s => s.SignedAt);
+            if (signature is null)
+            {
+                signer.Reset();
+            }
+            else
+            {
+                signer.MarkSigned(signature.SignedAt);
+            }
+        }
+
         Status = DocumentStatus.InSigning;
         SubmittedAt = moment;
         CompletedAt = null;
+        UpdatedAt = moment;
+
+        if (_signers.TrueForAll(static s => s.Status == SignerStatus.Signed))
+        {
+            Status = DocumentStatus.Signed;
+            CompletedAt = moment;
+        }
     }
 
     /// <summary>
@@ -351,6 +407,17 @@ public sealed class Document : AuditableEntity
         if (Status != expected)
         {
             throw new DomainException(message);
+        }
+    }
+
+    /// <summary>
+    /// Throws when the document may not be changed.
+    /// </summary>
+    private void EnsureEditable()
+    {
+        if (!IsEditable)
+        {
+            throw new DomainException("Змінювати можна лише чернетку або відхилений документ.");
         }
     }
 }

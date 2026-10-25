@@ -35,6 +35,23 @@ public interface IDocumentService
     Task<Result<Guid>> CreateAsync(CreateDocumentCommand command, CancellationToken cancellationToken);
 
     /// <summary>
+    /// Gets a draft or rejected document of the current user for the editor.
+    /// </summary>
+    /// <param name="id">The document identifier.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The editable data.</returns>
+    Task<Result<DocumentEditModel>> GetForEditAsync(Guid id, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Changes a draft or rejected document (author only). Replacing the file removes every signature; removing a signer
+    /// from the route removes that signer's signature.
+    /// </summary>
+    /// <param name="command">The command.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The result.</returns>
+    Task<Result> UpdateAsync(UpdateDocumentCommand command, CancellationToken cancellationToken);
+
+    /// <summary>
     /// Sends a draft or rejected document for signing.
     /// </summary>
     /// <param name="id">The document identifier.</param>

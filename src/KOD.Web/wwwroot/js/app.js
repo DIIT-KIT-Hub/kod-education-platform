@@ -4,6 +4,7 @@
  *  - Closes the mobile drawer after navigating.
  *  - Shows toasts passed through the `toast` query parameter and removes it from the address bar.
  *  - Mounts the signing UI on pages that contain [data-signing].
+ *  - Mounts the user manual behaviors on the page that contains [data-help].
  */
 
 /**
@@ -53,6 +54,20 @@ async function mountSigning() {
 }
 
 /**
+ * Lazily loads and mounts the user manual behaviors (table of contents, search).
+ */
+async function mountHelpPage() {
+    const root = document.querySelector("[data-help]:not([data-help-mounted])");
+    if (!root) {
+        return;
+    }
+
+    root.setAttribute("data-help-mounted", "true");
+    const { mountHelp } = await import("./help.js");
+    mountHelp(/** @type {HTMLElement} */ (root));
+}
+
+/**
  * Runs after the initial load and after every enhanced navigation.
  */
 function onPageReady() {
@@ -63,6 +78,7 @@ function onPageReady() {
 
     showQueryToast();
     mountSigning().catch((error) => console.error("Signing UI failed to load", error));
+    mountHelpPage().catch((error) => console.error("Manual behaviors failed to load", error));
 }
 
 /**

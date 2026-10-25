@@ -29,6 +29,10 @@ else
             {
                 <button type="button" class="ds-btn ds-btn--secondary" data-dialog-open="reject-dialog"><Icon Name="ban" /> <span>Відмовити</span></button>
             }
+            @if (Document.Actions.CanEdit)
+            {
+                <Button Href="@($"/documents/{Document.Id}/edit")" Variant="ButtonVariant.Secondary" Icon="pencil">Редагувати</Button>
+            }
             @if (Document.Actions.CanSubmit)
             {
                 <form method="post" @formname="document-submit" @onsubmit="SubmitAsync" data-confirm="Надіслати документ на підписання?">
@@ -71,6 +75,13 @@ else
             {
                 <Alert Tone="Tone.Inverse" Icon="signature" Title="Документ очікує вашого підпису">
                     Перевірте файл і натисніть «Підписати». Ключ і пароль використовуються лише у вашому браузері.
+                </Alert>
+            }
+
+            @if (Document.Status == DocumentStatus.Rejected && Document.Actions.CanEdit)
+            {
+                <Alert Tone="Tone.Outline" Icon="ban" Title="Документ відхилено">
+                    Причину вказано в маршруті підписання. Натисніть «Редагувати», щоб виправити файл, реквізити чи маршрут, або «На підписання», щоб надіслати документ повторно без змін. Ті, хто вже підписав поточний файл, не підписуватимуть його знову.
                 </Alert>
             }
 

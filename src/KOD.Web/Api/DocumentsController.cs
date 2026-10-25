@@ -72,6 +72,29 @@ public sealed class DocumentsController(IDocumentService documents) : ApiControl
     }
 
     /// <summary>
+    /// Changes a draft or rejected document (author only). Sending a new file removes every signature; removing a signer
+    /// from the route removes that signer's signature.
+    /// </summary>
+    /// <param name="id">The document identifier.</param>
+    /// <param name="form">The form; without a file the current file is kept.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>204 on success.</returns>
+    [HttpPut("{id:guid}")]
+    [Consumes("multipart/form-data")]
+    [RequestSizeLimit(FileRules.MaxDocumentSize + (1024 * 1024))]
+    [RequirePermission(Permissions.Documents.Create)]
+    public async Task<ActionResult> Update(Guid id, [FromForm] UpdateDocumentForm form, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(form);
+
+        await using var content = form.File?.OpenReadStream();
+        var upload = form.File is null ? null : new FileUpload(content!, form.File.FileName, form.File.ContentType, form.File.Length);
+        return FromResult(await documents.UpdateAsync(
+            new UpdateDocumentCommand(id, form.Title, form.Description, form.Kind, form.OrganizationUnitId, form.SigningMode, form.SignerIds, form.Submit, upload),
+            cancellationToken));
+    }
+
+    /// <summary>
     /// Changes the life-cycle state: submit for signing, withdraw to drafts or archive.
     /// </summary>
     /// <param name="id">The document identifier.</param>
