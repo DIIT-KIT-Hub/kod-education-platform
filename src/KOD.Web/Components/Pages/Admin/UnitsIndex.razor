@@ -2,12 +2,15 @@
 @attribute [RequirePermission(Permissions.Structure.Manage)]
 @attribute [StreamRendering]
 
-<PageHeader Title="Організації та підрозділи" Subtitle="Організації верхнього рівня та всі їхні підрозділи."
+<PageHeader Title="Організації та підрозділи" Subtitle="@(CabinetWide ? "Усі організації кабінету та їхні підрозділи." : "Організації, структурою яких ви керуєте, та їхні підрозділи.")"
             Breadcrumbs="@([new("Адміністрування", "/admin"), new("Структура")])">
     <Actions>
         <Button Href="/structure" Variant="ButtonVariant.Secondary" Icon="network">Дерево</Button>
         <Button Href="/admin/unit-types" Variant="ButtonVariant.Secondary" Icon="layers">Типи підрозділів</Button>
-        <Button Href="/admin/units/new?top=true" Variant="ButtonVariant.Secondary" Icon="building-2">Нова організація</Button>
+        @if (CabinetWide)
+        {
+            <Button Href="/admin/units/new?top=true" Variant="ButtonVariant.Secondary" Icon="building-2">Нова організація</Button>
+        }
         <Button Href="/admin/units/new" Icon="plus">Новий підрозділ</Button>
     </Actions>
 </PageHeader>

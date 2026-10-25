@@ -1,8 +1,13 @@
 using System.ComponentModel.DataAnnotations;
 using KOD.Application.Common.Files;
+using KOD.Application.Common.Models;
 using KOD.Application.Features.News;
+using KOD.Application.Features.Organization;
+using KOD.Domain.Access;
 using KOD.Domain.News;
+using KOD.Web.Security;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.JSInterop;
 
@@ -20,10 +25,22 @@ public partial class NewsEditor
     public Guid? Id { get; set; }
 
     /// <summary>
+    /// Gets or sets the authentication state.
+    /// </summary>
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthenticationState { get; set; } = default!;
+
+    /// <summary>
     /// Gets or sets the news service.
     /// </summary>
     [Inject]
     private INewsService News { get; set; } = default!;
+
+    /// <summary>
+    /// Gets or sets the organization service.
+    /// </summary>
+    [Inject]
+    private IOrganizationService Organization { get; set; } = default!;
 
     /// <summary>
     /// Gets or sets the navigation manager.
@@ -53,6 +70,16 @@ public partial class NewsEditor
     private IBrowserFile? CoverFile { get; set; }
 
     /// <summary>
+    /// Gets or sets the organizations whose news the current user manages.
+    /// </summary>
+    private IReadOnlyList<UnitOption> Organizations { get; set; } = [];
+
+    /// <summary>
+    /// Gets or sets a value indicating whether the current user manages the news of every organization (and of the whole cabinet).
+    /// </summary>
+    private bool CabinetWide { get; set; }
+
+    /// <summary>
     /// Gets or sets a value indicating whether the data is loaded.
     /// </summary>
     private bool Loaded { get; set; }
@@ -70,6 +97,9 @@ public partial class NewsEditor
     /// <inheritdoc />
     protected override async Task OnParametersSetAsync()
     {
+        CabinetWide = (await AuthenticationState).User.HasPermission(Permissions.Administration.AllOrganizations);
+        Organizations = [.. (await Organization.GetOptionsAsync(Permissions.News.Manage, CancellationToken.None)).Where(static u => u.IsOrganization)];
+        Model.OrganizationId ??= CabinetWide || Organizations.Count == 0 ? null : Organizations[0].Id;
         if (Id is { } id)
         {
             var result = await News.GetAsync(id, CancellationToken.None);
@@ -88,6 +118,7 @@ public partial class NewsEditor
                 Category = Existing.Category,
                 IsPinned = Existing.IsPinned,
                 Publish = Existing.PublishedAt is not null,
+                OrganizationId = Existing.Organization?.Id,
             };
         }
 
@@ -116,7 +147,7 @@ public partial class NewsEditor
         {
             await using var cover = CoverFile?.OpenReadStream(FileRules.MaxImageSize);
             var upload = CoverFile is null || cover is null ? null : new FileUpload(cover, CoverFile.Name, CoverFile.ContentType, CoverFile.Size);
-            var command = new SaveNewsCommand(Model.Title, Model.Summary, Model.Body, Model.Category, Model.IsPinned, Model.Publish, upload, Model.RemoveCover);
+            var command = new SaveNewsCommand(Model.Title, Model.Summary, Model.Body, Model.Category, Model.IsPinned, Model.Publish, upload, Model.RemoveCover, Model.OrganizationId);
 
             if (Id is { } id)
             {
@@ -206,5 +237,10 @@ public partial class NewsEditor
         /// Gets or sets a value indicating whether to remove the cover.
         /// </summary>
         public bool RemoveCover { get; set; }
+
+        /// <summary>
+        /// Gets or sets the organization of the article; <see langword="null"/> for news of the whole cabinet.
+        /// </summary>
+        public Guid? OrganizationId { get; set; }
     }
 }

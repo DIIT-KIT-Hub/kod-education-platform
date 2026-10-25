@@ -43,11 +43,13 @@ public interface IOrganizationService
     Task<Result<PagedResult<UnitListItem>>> ListAsync(UnitQuery query, CancellationToken cancellationToken);
 
     /// <summary>
-    /// Returns all units as a flat hierarchical list for select inputs.
+    /// Returns the active units where an administrative permission of the current user applies (see
+    /// <see cref="Common.Access.IAccessScope.GetAdministrationScopeAsync"/>) as a flat hierarchical list for select inputs.
     /// </summary>
+    /// <param name="permission">The administrative permission, e.g. <c>users.manage</c>.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>The options.</returns>
-    Task<IReadOnlyList<UnitOption>> GetOptionsAsync(CancellationToken cancellationToken);
+    /// <returns>The options; the topmost units of the scope have depth 0.</returns>
+    Task<IReadOnlyList<UnitOption>> GetOptionsAsync(string permission, CancellationToken cancellationToken);
 
     /// <summary>
     /// Creates a unit.

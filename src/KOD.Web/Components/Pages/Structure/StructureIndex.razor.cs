@@ -33,10 +33,17 @@ public partial class StructureIndex
     /// </summary>
     private bool CanManage { get; set; }
 
+    /// <summary>
+    /// Gets or sets a value indicating whether the user may create top-level organizations.
+    /// </summary>
+    private bool CanCreateOrganization { get; set; }
+
     /// <inheritdoc />
     protected override async Task OnInitializedAsync()
     {
-        CanManage = (await AuthenticationState).User.HasPermission(Permissions.Structure.Manage);
+        var user = (await AuthenticationState).User;
+        CanManage = user.HasPermission(Permissions.Structure.Manage);
+        CanCreateOrganization = CanManage && user.HasPermission(Permissions.Administration.AllOrganizations);
         var result = await Organization.GetTreeAsync(includeInactive: false, CancellationToken.None);
         Tree = result.IsSuccess ? result.Value : [];
     }

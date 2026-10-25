@@ -1,3 +1,4 @@
+using KOD.Application.Common.Models;
 using KOD.Domain.News;
 
 namespace KOD.Application.Features.News;
@@ -15,6 +16,7 @@ namespace KOD.Application.Features.News;
 /// <param name="PublishedAt">The publication moment; <see langword="null"/> for drafts.</param>
 /// <param name="AuthorName">The author's name.</param>
 /// <param name="UpdatedAt">The last modification moment.</param>
+/// <param name="Organization">The organization of the article; <see langword="null"/> for news of the whole cabinet.</param>
 public sealed record NewsListItem(
     Guid Id,
     string Slug,
@@ -25,4 +27,5 @@ public sealed record NewsListItem(
     bool IsPinned,
     DateTimeOffset? PublishedAt,
     string AuthorName,
-    DateTimeOffset? UpdatedAt);
+    DateTimeOffset? UpdatedAt,
+    UnitRef? Organization);

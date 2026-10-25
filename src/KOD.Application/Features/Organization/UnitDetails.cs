@@ -17,6 +17,7 @@ namespace KOD.Application.Features.Organization;
 /// <param name="Organization">The nearest organization the unit belongs to (the unit itself for an organization).</param>
 /// <param name="Children">The direct child units.</param>
 /// <param name="StaffCount">The number of positions in the unit.</param>
+/// <param name="CanManage">Whether the current user may edit the unit and add units under it (it is in their organizations).</param>
 public sealed record UnitDetails(
     Guid Id,
     string Code,
@@ -29,4 +30,5 @@ public sealed record UnitDetails(
     IReadOnlyList<UnitRef> Path,
     UnitRef Organization,
     IReadOnlyList<UnitTreeNode> Children,
-    int StaffCount);
+    int StaffCount,
+    bool CanManage);

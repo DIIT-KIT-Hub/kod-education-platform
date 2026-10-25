@@ -35,15 +35,15 @@ public partial class NewsArticlePage
     private NewsArticleDto? Article { get; set; }
 
     /// <summary>
-    /// Gets or sets a value indicating whether the user manages news.
+    /// Gets or sets a value indicating whether the user may edit the article (manages the news of its organization).
     /// </summary>
     private bool CanManage { get; set; }
 
     /// <inheritdoc />
     protected override async Task OnParametersSetAsync()
     {
-        CanManage = (await AuthenticationState).User.HasPermission(Permissions.News.Manage);
         var result = await News.GetBySlugAsync(Slug, CancellationToken.None);
         Article = result.IsSuccess ? result.Value : null;
+        CanManage = (await AuthenticationState).User.HasPermission(Permissions.News.Manage) && Article?.CanManage == true;
     }
 }

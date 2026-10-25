@@ -60,7 +60,7 @@ public partial class UnitPage
     private PagedResult<UnitStaffItem>? Staff { get; set; }
 
     /// <summary>
-    /// Gets or sets a value indicating whether the user manages the structure.
+    /// Gets or sets a value indicating whether the user manages the structure of the unit's organization.
     /// </summary>
     private bool CanManage { get; set; }
 
@@ -76,8 +76,8 @@ public partial class UnitPage
     /// <inheritdoc />
     protected override async Task OnParametersSetAsync()
     {
-        CanManage = (await AuthenticationState).User.HasPermission(Permissions.Structure.Manage);
         var unit = await Organization.GetAsync(Id, CancellationToken.None);
+        CanManage = (await AuthenticationState).User.HasPermission(Permissions.Structure.Manage) && unit is { IsSuccess: true, Value.CanManage: true };
         var staff = unit.IsSuccess
             ? await Organization.GetStaffAsync(
                 Id,

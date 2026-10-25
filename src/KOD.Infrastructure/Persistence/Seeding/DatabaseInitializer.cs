@@ -95,6 +95,8 @@ public sealed partial class DatabaseInitializer(
         ("lviv@kod.local", "Гнатюк", "Роман", "Степанович", "LVIV", SystemRoles.HeadOfUnit, "Директор філії"),
         ("external@kod.local", "Гончаренко", "Максим", "Ігорович", null, SystemRoles.External, "Представник контрагента"),
         ("fund@kod.local", "Олійник", "Світлана", "Миколаївна", "FUND", SystemRoles.Head, "Голова правління"),
+        ("hr.fund@kod.local", "Савчук", "Ольга", "Петрівна", "FUND-BOARD", SystemRoles.HrSpecialist, "Менеджер з персоналу"),
+        ("projects.fund@kod.local", "Руденко", "Віктор", "Андрійович", "FUND-PROJ", SystemRoles.Employee, "Координатор проєктів"),
     ];
 
     /// <summary>
@@ -116,7 +118,7 @@ public sealed partial class DatabaseInitializer(
         {
             var units = await SeedDemoUnitsAsync(root, types, cancellationToken);
             await SeedDemoStaffAsync(root, units, roles, cancellationToken);
-            await SeedDemoNewsAsync(cancellationToken);
+            await SeedDemoNewsAsync(root, units, cancellationToken);
         }
     }
 
@@ -396,11 +398,13 @@ public sealed partial class DatabaseInitializer(
     }
 
     /// <summary>
-    /// Creates demo news.
+    /// Creates demo news: one for the whole cabinet and the others for their organizations.
     /// </summary>
+    /// <param name="root">The first organization.</param>
+    /// <param name="units">The units by code.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task that completes when the news exist.</returns>
-    private async Task SeedDemoNewsAsync(CancellationToken cancellationToken)
+    private async Task SeedDemoNewsAsync(OrganizationUnit root, Dictionary<string, OrganizationUnit> units, CancellationToken cancellationToken)
     {
         if (await db.NewsArticles.AnyAsync(cancellationToken))
         {
@@ -409,7 +413,8 @@ public sealed partial class DatabaseInitializer(
 
         var author = await db.Users.OrderBy(static u => u.CreatedAt).FirstAsync(cancellationToken);
         var now = timeProvider.GetUtcNow();
-        (string Slug, string Title, string Summary, string Body, NewsCategory Category, bool Pinned, int DaysAgo)[] items =
+        var fund = units.GetValueOrDefault("FUND")?.Id ?? root.Id;
+        (string Slug, string Title, string Summary, string Body, NewsCategory Category, bool Pinned, int DaysAgo, Guid? Organization)[] items =
         [
             (
                 "zapusk-kabinetu-orhanizatsiinykh-dokumentiv",
@@ -418,7 +423,8 @@ public sealed partial class DatabaseInitializer(
                 "## Що змінюється\n\nВідтепер накази, розпорядження, службові записки, договори та акти погоджуються **в електронному вигляді**.\n\n- підпис накладається у браузері — ключ і пароль не залишають ваш пристрій;\n- підтримуються формати CAdES, XAdES, PAdES, ASiC-S та ASiC-E;\n- вхід захищено двофакторною автентифікацією.\n\nПитання щодо доступу — до відділу кадрів або системного адміністратора.",
                 NewsCategory.Announcement,
                 true,
-                1),
+                1,
+                null),
             (
                 "novyi-poriadok-pohodzhennia-dohovoriv",
                 "Оновлено порядок погодження договорів",
@@ -426,7 +432,8 @@ public sealed partial class DatabaseInitializer(
                 "Ініціатор створює документ виду **«Договір»**, обирає свій підрозділ і додає погоджувачів до маршруту.\n\n> Строк погодження — до трьох робочих днів.",
                 NewsCategory.News,
                 false,
-                3),
+                3,
+                root.Id),
             (
                 "navchannia-elektronnyi-pidpys",
                 "Навчання: робота з кваліфікованим електронним підписом",
@@ -434,13 +441,24 @@ public sealed partial class DatabaseInitializer(
                 "Розглянемо файлові ключі, формати CAdES, XAdES, PAdES і ASiC та перевірку підпису.\n\nРеєстрація — у відділі кадрів.",
                 NewsCategory.Training,
                 false,
-                6),
+                6,
+                root.Id),
+            (
+                "fond-shukaie-volonteriv",
+                "Фонд «Відкриті серця» запрошує волонтерів",
+                "Відділ проєктів набирає волонтерів для зимової благодійної кампанії.",
+                "Потрібні координатори збору допомоги та водії.\n\nЗаявки приймає **відділ проєктів** фонду до кінця місяця.",
+                NewsCategory.Projects,
+                false,
+                2,
+                fund),
         ];
 
         foreach (var item in items)
         {
             var article = new NewsArticle(item.Slug, item.Title, item.Summary, item.Body, item.Category, author.Id);
             article.Update(item.Title, item.Summary, item.Body, item.Category, item.Pinned);
+            article.AssignTo(item.Organization);
             article.Publish(now.AddDays(-item.DaysAgo));
             db.NewsArticles.Add(article);
         }

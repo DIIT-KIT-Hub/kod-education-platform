@@ -130,6 +130,7 @@ public static class HelpContents
             [P.Users.View, P.Roles.Manage, P.Structure.Manage, P.News.Manage, P.Audit.View],
             [
                 new("admin-overview", "Панель адміністрування"),
+                new("admin-scope", "Адміністрування в межах організацій", [P.Users.View, P.Structure.Manage, P.News.Manage]),
                 new("admin-users-list", "Список користувачів", [P.Users.View]),
                 new("admin-users-create", "Створення облікового запису", [P.Users.Manage]),
                 new("admin-users-edit", "Особисті дані та посади", [P.Users.Manage]),

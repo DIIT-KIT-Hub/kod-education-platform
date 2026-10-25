@@ -16,7 +16,7 @@
     <EditForm Model="Model" OnValidSubmit="SaveAsync" class="ds-split ds-split--wide-aside">
         <DataAnnotationsValidator />
         <Card>
-            <div class="ds-form-grid">
+            <fieldset disabled="@ReadOnly" class="ds-form-grid" style="border:0;padding:0;margin:0">
                 <Field Label="Повна назва" For="unit-name" Required Class="ds-span-full">
                     <InputText id="unit-name" @bind-Value="Model.Name" class="ds-input" maxlength="256" />
                     <ValidationMessage For="() => Model.Name" />
@@ -42,11 +42,17 @@
                         }
                     </InputSelect>
                     <ValidationMessage For="() => Model.TypeId" />
-                    <span class="ds-hint">Немає потрібного типу? <a class="ds-link" href="/admin/unit-types/new">Додайте його</a>.</span>
+                    @if (CabinetWide)
+                    {
+                        <span class="ds-hint">Немає потрібного типу? <a class="ds-link" href="/admin/unit-types/new">Додайте його</a>.</span>
+                    }
                 </Field>
-                <Field Label="Батьківський підрозділ" For="unit-parent" Hint="Без батьківського підрозділу — окрема організація верхнього рівня.">
+                <Field Label="Батьківський підрозділ" For="unit-parent" Hint="@(CanBeTopLevel ? "Без батьківського підрозділу — окрема організація верхнього рівня." : "Лише підрозділи організацій, структурою яких ви керуєте.")">
                     <InputSelect id="unit-parent" @bind-Value="Model.ParentId" class="ds-select">
-                        <option value="">— немає (організація верхнього рівня) —</option>
+                        @if (CanBeTopLevel)
+                        {
+                            <option value="">— немає (організація верхнього рівня) —</option>
+                        }
                         @foreach (var unit in Units.Where(u => u.Id != Id))
                         {
                             <option value="@unit.Id">@(new string(' ', unit.Depth * 2))@unit.Name</option>
@@ -60,10 +66,13 @@
                     <InputCheckbox @bind-Value="Model.IsActive" />
                     <span class="ds-check__text"><span>Активний</span><span class="ds-check__hint">Неактивні підрозділи зберігаються для історії документів.</span></span>
                 </label>
-            </div>
+            </fieldset>
         </Card>
-        <Card Variant="CardVariant.Muted">
-            <Button Type="submit" Block Icon="save" Disabled="Busy">Зберегти</Button>
-        </Card>
+        @if (!ReadOnly)
+        {
+            <Card Variant="CardVariant.Muted">
+                <Button Type="submit" Block Icon="save" Disabled="Busy">Зберегти</Button>
+            </Card>
+        }
     </EditForm>
 }

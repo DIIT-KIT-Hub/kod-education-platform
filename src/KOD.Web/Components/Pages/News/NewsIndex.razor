@@ -61,7 +61,7 @@ else
                     </div>
                     <span class="news-card__title">@article.Title</span>
                     <span class="news-card__summary">@article.Summary</span>
-                    <span class="ds-text-sm ds-muted">@Display.Date(article.PublishedAt)</span>
+                    <span class="ds-text-sm ds-muted">@Display.Date(article.PublishedAt)@(article.Organization is { } organization ? $" · {organization.Name}" : null)</span>
                 </div>
             </a>
         }

@@ -13,6 +13,11 @@ namespace KOD.Application.Common.Access;
 internal sealed class AccessScope(IApplicationDbContext db, ICurrentUser currentUser) : IAccessScope
 {
     /// <summary>
+    /// The cached administration scopes by permission.
+    /// </summary>
+    private readonly Dictionary<string, AdministrationScope> _administrationScopes = new(StringComparer.Ordinal);
+
+    /// <summary>
     /// The cached unit scope.
     /// </summary>
     private IReadOnlySet<Guid>? _unitScope;
@@ -22,6 +27,16 @@ internal sealed class AccessScope(IApplicationDbContext db, ICurrentUser current
     /// </summary>
     private IReadOnlySet<Guid>? _organizationScope;
 
+    /// <summary>
+    /// The cached positions of the current user.
+    /// </summary>
+    private List<PositionGrant>? _positions;
+
+    /// <summary>
+    /// The cached unit hierarchy.
+    /// </summary>
+    private UnitHierarchy? _hierarchy;
+
     /// <inheritdoc />
     public async Task<IReadOnlySet<Guid>> GetUnitScopeAsync(CancellationToken cancellationToken)
     {
@@ -30,14 +45,14 @@ internal sealed class AccessScope(IApplicationDbContext db, ICurrentUser current
             return _unitScope;
         }
 
-        var positions = await GetPositionUnitsAsync(cancellationToken);
+        var positions = await GetPositionsAsync(cancellationToken);
         if (positions.Count == 0)
         {
             return _unitScope = new HashSet<Guid>();
         }
 
-        var links = await LoadLinksAsync(cancellationToken);
-        return _unitScope = OrganizationTree.WithDescendants(links.Select(static l => (l.Id, l.ParentId)), positions);
+        var hierarchy = await GetHierarchyAsync(cancellationToken);
+        return _unitScope = hierarchy.WithDescendants(positions.Select(static p => p.UnitId));
     }
 
     /// <inheritdoc />
@@ -48,17 +63,51 @@ internal sealed class AccessScope(IApplicationDbContext db, ICurrentUser current
             return _organizationScope;
         }
 
-        var positions = await GetPositionUnitsAsync(cancellationToken);
+        var positions = await GetPositionsAsync(cancellationToken);
         if (positions.Count == 0)
         {
             return _organizationScope = new HashSet<Guid>();
         }
 
-        var links = await LoadLinksAsync(cancellationToken);
-        var parents = links.ToDictionary(static l => l.Id, static l => l.ParentId);
-        var organizations = links.Where(static l => l.IsOrganization).Select(static l => l.Id).ToHashSet();
-        var roots = positions.Where(parents.ContainsKey).Select(id => OrganizationTree.OrganizationOf(parents, organizations, id));
-        return _organizationScope = OrganizationTree.WithDescendants(links.Select(static l => (l.Id, l.ParentId)), roots);
+        var hierarchy = await GetHierarchyAsync(cancellationToken);
+        return _organizationScope = hierarchy.OrganizationsOf(positions.Select(static p => p.UnitId));
+    }
+
+    /// <inheritdoc />
+    public async Task<AdministrationScope> GetAdministrationScopeAsync(string permission, CancellationToken cancellationToken)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(permission);
+        if (!currentUser.Has(permission))
+        {
+            return AdministrationScope.None;
+        }
+
+        if (currentUser.Has(Permissions.Administration.AllOrganizations))
+        {
+            return AdministrationScope.Cabinet;
+        }
+
+        if (_administrationScopes.TryGetValue(permission, out var cached))
+        {
+            return cached;
+        }
+
+        // The permission applies where a position grants it; an individual grant is not tied to a position and applies to all of them.
+        var positions = await GetPositionsAsync(cancellationToken);
+        var units = positions
+            .Where(p => p.Grants(permission))
+            .Select(static p => p.UnitId)
+            .ToList();
+
+        var scope = AdministrationScope.None;
+        if (units.Count > 0)
+        {
+            var hierarchy = await GetHierarchyAsync(cancellationToken);
+            scope = AdministrationScope.Of(hierarchy.OrganizationsOf(units));
+        }
+
+        _administrationScopes[permission] = scope;
+        return scope;
     }
 
     /// <inheritdoc />
@@ -106,40 +155,69 @@ internal sealed class AccessScope(IApplicationDbContext db, ICurrentUser current
     }
 
     /// <summary>
-    /// Loads the units of the current user's positions.
+    /// Loads the positions of the current user with the permissions they grant.
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>The unit identifiers.</returns>
-    private async Task<List<Guid>> GetPositionUnitsAsync(CancellationToken cancellationToken)
+    /// <returns>The positions.</returns>
+    private async Task<List<PositionGrant>> GetPositionsAsync(CancellationToken cancellationToken)
     {
-        if (currentUser.Id is not { } userId)
+        if (_positions is not null)
         {
-            return [];
+            return _positions;
         }
 
-        return await db.StaffPositions
+        if (currentUser.Id is not { } userId)
+        {
+            return _positions = [];
+        }
+
+        var positions = await db.StaffPositions
             .AsNoTracking()
             .Where(p => p.UserId == userId)
-            .Select(static p => p.OrganizationUnitId)
+            .Select(static p => new
+            {
+                p.OrganizationUnitId,
+                p.Role!.Code,
+                Permissions = p.Role.Permissions.Select(static rp => rp.Permission).ToList(),
+            })
             .ToListAsync(cancellationToken);
+
+        var granted = await db.UserPermissionOverrides
+            .AsNoTracking()
+            .Where(o => o.UserId == userId && o.IsGranted)
+            .Select(static o => o.Permission)
+            .ToListAsync(cancellationToken);
+
+        return _positions =
+        [
+            .. positions.Select(p => new PositionGrant(
+                p.OrganizationUnitId,
+                p.Code == SystemRoles.Administrator,
+                p.Permissions.Concat(granted).ToHashSet(StringComparer.Ordinal))),
+        ];
     }
 
     /// <summary>
-    /// Loads the hierarchy links of every unit.
+    /// Loads the unit hierarchy once per scope.
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>The links.</returns>
-    private Task<List<UnitLink>> LoadLinksAsync(CancellationToken cancellationToken)
-        => db.OrganizationUnits
-            .AsNoTracking()
-            .Select(static u => new UnitLink(u.Id, u.ParentId, u.Type!.IsOrganization))
-            .ToListAsync(cancellationToken);
+    /// <returns>The hierarchy.</returns>
+    private async Task<UnitHierarchy> GetHierarchyAsync(CancellationToken cancellationToken)
+        => _hierarchy ??= await UnitHierarchy.LoadAsync(db, cancellationToken);
 
     /// <summary>
-    /// A unit with its parent.
+    /// A position of the current user and the permissions it grants (its role's permissions and the individual grants).
     /// </summary>
-    /// <param name="Id">The unit identifier.</param>
-    /// <param name="ParentId">The parent identifier.</param>
-    /// <param name="IsOrganization">Whether the unit is an organization.</param>
-    private sealed record UnitLink(Guid Id, Guid? ParentId, bool IsOrganization);
+    /// <param name="UnitId">The unit of the position.</param>
+    /// <param name="IsAdministrator">Whether the role is the system administrator role, which grants every permission.</param>
+    /// <param name="Permissions">The permissions granted by the role and individually.</param>
+    private sealed record PositionGrant(Guid UnitId, bool IsAdministrator, IReadOnlySet<string> Permissions)
+    {
+        /// <summary>
+        /// Determines whether the position grants a permission.
+        /// </summary>
+        /// <param name="permission">The permission code.</param>
+        /// <returns><see langword="true"/> when granted.</returns>
+        public bool Grants(string permission) => IsAdministrator || Permissions.Contains(permission);
+    }
 }

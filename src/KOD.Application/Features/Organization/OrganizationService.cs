@@ -16,9 +16,20 @@ namespace KOD.Application.Features.Organization;
 /// </summary>
 /// <param name="db">The database context.</param>
 /// <param name="currentUser">The current user.</param>
+/// <param name="accessScope">The data access rules of the current user.</param>
 /// <param name="audit">The audit logger.</param>
-internal sealed class OrganizationService(IApplicationDbContext db, ICurrentUser currentUser, IAuditLogger audit) : IOrganizationService
+internal sealed class OrganizationService(IApplicationDbContext db, ICurrentUser currentUser, IAccessScope accessScope, IAuditLogger audit) : IOrganizationService
 {
+    /// <summary>
+    /// The error shown when a unit is outside the organizations the current user manages.
+    /// </summary>
+    private const string OutsideScopeMessage = "Підрозділ належить організації, структурою якої ви не керуєте.";
+
+    /// <summary>
+    /// The error shown when an organization administrator tries to create or move a top-level organization.
+    /// </summary>
+    private const string TopLevelMessage = "Організації верхнього рівня створює й переміщує лише адміністратор усіх організацій. Оберіть батьківський підрозділ у своїй організації.";
+
     /// <inheritdoc />
     public async Task<Result<IReadOnlyList<UnitTreeNode>>> GetTreeAsync(bool includeInactive, CancellationToken cancellationToken)
     {
@@ -53,6 +64,7 @@ internal sealed class OrganizationService(IApplicationDbContext db, ICurrentUser
             .Select(pid => new UnitRef(pid, byId[pid].Name))
             .ToList();
         var organization = byId[OrganizationTree.OrganizationOf(parents, organizations, id)];
+        var scope = await accessScope.GetAdministrationScopeAsync(Permissions.Structure.Manage, cancellationToken);
 
         return new UnitDetails(
             unit.Id,
@@ -66,7 +78,8 @@ internal sealed class OrganizationService(IApplicationDbContext db, ICurrentUser
             path,
             new UnitRef(organization.Id, organization.Name),
             BuildTree(units, id, includeInactive: true),
-            unit.StaffCount);
+            unit.StaffCount,
+            currentUser.Has(Permissions.Structure.Manage) && scope.Contains(id));
     }
 
     /// <inheritdoc />
@@ -109,7 +122,14 @@ internal sealed class OrganizationService(IApplicationDbContext db, ICurrentUser
             return Error.Forbidden();
         }
 
+        var scope = await accessScope.GetAdministrationScopeAsync(Permissions.Structure.Manage, cancellationToken);
         var units = db.OrganizationUnits.AsNoTracking();
+        if (scope.Units is { } scoped)
+        {
+            var managed = scoped.ToList();
+            units = units.Where(u => managed.Contains(u.Id));
+        }
+
         if (query.TypeId is { } typeId)
         {
             units = units.Where(u => u.TypeId == typeId);
@@ -148,16 +168,28 @@ internal sealed class OrganizationService(IApplicationDbContext db, ICurrentUser
     }
 
     /// <inheritdoc />
-    public async Task<IReadOnlyList<UnitOption>> GetOptionsAsync(CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<UnitOption>> GetOptionsAsync(string permission, CancellationToken cancellationToken)
     {
+        var scope = await accessScope.GetAdministrationScopeAsync(permission, cancellationToken);
+        if (scope.Units is { Count: 0 })
+        {
+            return [];
+        }
+
         var units = await LoadUnitsAsync(cancellationToken);
         var result = new List<UnitOption>(units.Count);
         void Walk(IReadOnlyList<UnitTreeNode> nodes, int depth)
         {
             foreach (var node in nodes)
             {
-                result.Add(new UnitOption(node.Id, node.Name, node.Code, node.Type.IsOrganization, depth));
-                Walk(node.Children, depth + 1);
+                // Units outside the scope are skipped without indenting their descendants, so the scope's topmost units have depth 0.
+                var included = scope.Contains(node.Id);
+                if (included)
+                {
+                    result.Add(new UnitOption(node.Id, node.Name, node.Code, node.Type.IsOrganization, depth));
+                }
+
+                Walk(node.Children, included ? depth + 1 : depth);
             }
         }
 
@@ -178,6 +210,19 @@ internal sealed class OrganizationService(IApplicationDbContext db, ICurrentUser
         if (validation is not null)
         {
             return validation;
+        }
+
+        var scope = await accessScope.GetAdministrationScopeAsync(Permissions.Structure.Manage, cancellationToken);
+        if (command.ParentId is not { } parentId)
+        {
+            if (!scope.IsCabinetWide)
+            {
+                return Error.Forbidden(TopLevelMessage);
+            }
+        }
+        else if (!scope.Contains(parentId))
+        {
+            return Error.Forbidden(OutsideScopeMessage);
         }
 
         return await DomainErrors.GuardAsync<Guid>(async () =>
@@ -207,10 +252,39 @@ internal sealed class OrganizationService(IApplicationDbContext db, ICurrentUser
             return Error.NotFound("Підрозділ не знайдено.");
         }
 
+        var scope = await accessScope.GetAdministrationScopeAsync(Permissions.Structure.Manage, cancellationToken);
+        if (!scope.Contains(id))
+        {
+            return Error.Forbidden(OutsideScopeMessage);
+        }
+
         var validation = await ValidateAsync(id, command, cancellationToken);
         if (validation is not null)
         {
             return validation;
+        }
+
+        if (command.ParentId != unit.ParentId)
+        {
+            if (command.ParentId is not { } parentId)
+            {
+                if (!scope.IsCabinetWide)
+                {
+                    return Error.Forbidden(TopLevelMessage);
+                }
+            }
+            else if (!scope.Contains(parentId))
+            {
+                return Error.Forbidden(OutsideScopeMessage);
+            }
+        }
+
+        // Turning an organization into an ordinary unit merges it into the organization above and widens the scope of its staff.
+        if (!scope.IsCabinetWide
+            && await db.UnitTypes.AnyAsync(t => t.Id == unit.TypeId && t.IsOrganization, cancellationToken)
+            && !await db.UnitTypes.AnyAsync(t => t.Id == command.TypeId && t.IsOrganization, cancellationToken))
+        {
+            return Error.Forbidden("Перетворити організацію на звичайний підрозділ може лише адміністратор усіх організацій: це змінює межі організацій і права їхніх працівників.");
         }
 
         var links = await db.OrganizationUnits.AsNoTracking().Select(static u => new { u.Id, u.ParentId }).ToListAsync(cancellationToken);

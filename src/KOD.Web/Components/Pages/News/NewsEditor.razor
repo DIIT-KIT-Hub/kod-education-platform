@@ -43,6 +43,18 @@
         <div class="ds-stack ds-stack--lg">
             <Card Title="Публікація">
                 <div class="ds-form">
+                    <Field Label="Організація" For="news-organization" Hint="Редагувати новину можуть фахівці з комунікацій цієї організації.">
+                        <InputSelect id="news-organization" @bind-Value="Model.OrganizationId" class="ds-select">
+                            @if (CabinetWide)
+                            {
+                                <option value="">Увесь кабінет (усі організації)</option>
+                            }
+                            @foreach (var organization in Organizations)
+                            {
+                                <option value="@organization.Id">@organization.Name</option>
+                            }
+                        </InputSelect>
+                    </Field>
                     <Field Label="Категорія" For="news-category">
                         <InputSelect id="news-category" @bind-Value="Model.Category" class="ds-select">
                             @foreach (var category in Enum.GetValues<NewsCategory>())

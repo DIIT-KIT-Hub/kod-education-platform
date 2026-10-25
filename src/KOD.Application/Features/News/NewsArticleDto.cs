@@ -1,3 +1,4 @@
+using KOD.Application.Common.Models;
 using KOD.Domain.News;
 
 namespace KOD.Application.Features.News;
@@ -17,6 +18,8 @@ namespace KOD.Application.Features.News;
 /// <param name="PublishedAt">The publication moment.</param>
 /// <param name="AuthorName">The author's name.</param>
 /// <param name="UpdatedAt">The last modification moment.</param>
+/// <param name="Organization">The organization of the article; <see langword="null"/> for news of the whole cabinet.</param>
+/// <param name="CanManage">Whether the current user may edit the article (it belongs to their organizations).</param>
 public sealed record NewsArticleDto(
     Guid Id,
     string Slug,
@@ -29,4 +32,6 @@ public sealed record NewsArticleDto(
     bool IsPinned,
     DateTimeOffset? PublishedAt,
     string AuthorName,
-    DateTimeOffset? UpdatedAt);
+    DateTimeOffset? UpdatedAt,
+    UnitRef? Organization,
+    bool CanManage);

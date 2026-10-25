@@ -13,7 +13,7 @@ public sealed record UserQuery : PageRequest
     public UserStatusFilter Status { get; init; }
 
     /// <summary>
-    /// Gets the unit filter.
+    /// Gets the unit filter; users with a position in the unit or any of its descendants match.
     /// </summary>
     public Guid? UnitId { get; init; }
 

@@ -13,7 +13,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace KOD.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20261025190456_InitialCreate")]
+    [Migration("20261025195137_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -513,6 +513,10 @@ namespace KOD.Infrastructure.Persistence.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("is_pinned");
 
+                    b.Property<Guid?>("OrganizationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("organization_id");
+
                     b.Property<DateTimeOffset?>("PublishedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("published_at");
@@ -544,6 +548,9 @@ namespace KOD.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("AuthorId")
                         .HasDatabaseName("ix_news_articles_author_id");
+
+                    b.HasIndex("OrganizationId")
+                        .HasDatabaseName("ix_news_articles_organization_id");
 
                     b.HasIndex("Slug")
                         .IsUnique()
@@ -1082,7 +1089,15 @@ namespace KOD.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasConstraintName("fk_news_articles_users_author_id");
 
+                    b.HasOne("KOD.Domain.Organization.OrganizationUnit", "Organization")
+                        .WithMany()
+                        .HasForeignKey("OrganizationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_news_articles_organization_units_organization_id");
+
                     b.Navigation("Author");
+
+                    b.Navigation("Organization");
                 });
 
             modelBuilder.Entity("KOD.Domain.Organization.OrganizationUnit", b =>

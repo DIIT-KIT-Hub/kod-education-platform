@@ -17,6 +17,16 @@ namespace KOD.Application.Features.Organization;
 /// <param name="audit">The audit logger.</param>
 internal sealed class UnitTypeService(IApplicationDbContext db, ICurrentUser currentUser, IAuditLogger audit) : IUnitTypeService
 {
+    /// <summary>
+    /// The error shown when an organization administrator tries to change the catalog.
+    /// </summary>
+    private const string CatalogMessage = "Каталог типів підрозділів спільний для всіх організацій кабінету, тому змінювати його може лише адміністратор усіх організацій.";
+
+    /// <summary>
+    /// Gets a value indicating whether the current user may change the catalog shared by every organization.
+    /// </summary>
+    private bool CanEditCatalog => currentUser.Has(Permissions.Structure.Manage) && currentUser.Has(Permissions.Administration.AllOrganizations);
+
     /// <inheritdoc />
     public async Task<Result<IReadOnlyList<UnitTypeItem>>> ListAsync(CancellationToken cancellationToken)
     {
@@ -53,9 +63,9 @@ internal sealed class UnitTypeService(IApplicationDbContext db, ICurrentUser cur
     public async Task<Result<Guid>> CreateAsync(SaveUnitTypeCommand command, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(command);
-        if (!currentUser.Has(Permissions.Structure.Manage))
+        if (!CanEditCatalog)
         {
-            return Error.Forbidden();
+            return Error.Forbidden(CatalogMessage);
         }
 
         var validation = await ValidateAsync(null, command, cancellationToken);
@@ -79,9 +89,9 @@ internal sealed class UnitTypeService(IApplicationDbContext db, ICurrentUser cur
     public async Task<Result> UpdateAsync(Guid id, SaveUnitTypeCommand command, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(command);
-        if (!currentUser.Has(Permissions.Structure.Manage))
+        if (!CanEditCatalog)
         {
-            return Error.Forbidden();
+            return Error.Forbidden(CatalogMessage);
         }
 
         var type = await db.UnitTypes.FirstOrDefaultAsync(t => t.Id == id, cancellationToken);
@@ -114,9 +124,9 @@ internal sealed class UnitTypeService(IApplicationDbContext db, ICurrentUser cur
     /// <inheritdoc />
     public async Task<Result> DeleteAsync(Guid id, CancellationToken cancellationToken)
     {
-        if (!currentUser.Has(Permissions.Structure.Manage))
+        if (!CanEditCatalog)
         {
-            return Error.Forbidden();
+            return Error.Forbidden(CatalogMessage);
         }
 
         var type = await db.UnitTypes.FirstOrDefaultAsync(t => t.Id == id, cancellationToken);

@@ -1,7 +1,10 @@
 using KOD.Application.Common.Models;
 using KOD.Application.Common.Paging;
 using KOD.Application.Features.Organization;
+using KOD.Domain.Access;
+using KOD.Web.Security;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 
 namespace KOD.Web.Components.Pages.Admin;
 
@@ -53,6 +56,18 @@ public partial class UnitsIndex
     private bool Descending { get; set; }
 
     /// <summary>
+    /// Gets or sets the authentication state.
+    /// </summary>
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthenticationState { get; set; } = default!;
+
+    /// <summary>
+    /// Gets or sets a value indicating whether the current user manages the structure of every organization
+    /// (top-level organizations and the unit type catalog shared by all of them).
+    /// </summary>
+    private bool CabinetWide { get; set; }
+
+    /// <summary>
     /// Gets or sets the organization service.
     /// </summary>
     [Inject]
@@ -82,8 +97,9 @@ public partial class UnitsIndex
     /// <inheritdoc />
     protected override async Task OnParametersSetAsync()
     {
+        CabinetWide = (await AuthenticationState).User.HasPermission(Permissions.Administration.AllOrganizations);
         Types = await UnitTypes.GetOptionsAsync(CancellationToken.None);
-        Organizations = [.. (await OrganizationService.GetOptionsAsync(CancellationToken.None)).Where(static u => u.Depth == 0)];
+        Organizations = [.. (await OrganizationService.GetOptionsAsync(Permissions.Structure.Manage, CancellationToken.None)).Where(static u => u.Depth == 0)];
         var result = await OrganizationService.ListAsync(
             new UnitQuery
             {

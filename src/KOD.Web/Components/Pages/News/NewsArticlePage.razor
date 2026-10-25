@@ -24,6 +24,11 @@ else
                     <span>@Display.Date(Article.PublishedAt ?? Article.UpdatedAt)</span>
                     <span>·</span>
                     <span>@Article.AuthorName</span>
+                    @if (Article.Organization is { } organization)
+                    {
+                        <span>·</span>
+                        <span>@organization.Name</span>
+                    }
                 </div>
             </ChildContent>
             <Actions>

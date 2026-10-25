@@ -21,6 +21,7 @@ namespace KOD.Application.Features.Users;
 /// <param name="currentUser">The current user.</param>
 /// <param name="identity">The identity service.</param>
 /// <param name="permissions">The permission resolver.</param>
+/// <param name="accessScope">The data access rules of the current user.</param>
 /// <param name="spreadsheet">The spreadsheet reader/writer.</param>
 /// <param name="audit">The audit logger.</param>
 /// <param name="timeProvider">The clock.</param>
@@ -29,10 +30,26 @@ internal sealed class UserService(
     ICurrentUser currentUser,
     IIdentityService identity,
     IPermissionResolver permissions,
+    IAccessScope accessScope,
     IUserSpreadsheet spreadsheet,
     IAuditLogger audit,
     TimeProvider timeProvider) : IUserService
 {
+    /// <summary>
+    /// The error shown when a position is placed outside the organizations the current user manages.
+    /// </summary>
+    private const string OutsideScopeMessage = "Ви можете призначати посади лише в підрозділах організацій, якими керуєте.";
+
+    /// <summary>
+    /// The error shown when an account would be left without positions by an organization administrator.
+    /// </summary>
+    private const string NoPositionsMessage = "Призначте хоча б одну посаду в підрозділі своєї організації: обліковий запис без посад бачить лише адміністратор усіх організацій. Щоб припинити доступ, заблокуйте обліковий запис.";
+
+    /// <summary>
+    /// The error shown when an account also has positions in organizations the current user does not manage.
+    /// </summary>
+    private const string SharedAccountMessage = "Користувач також обіймає посади в організаціях, якими ви не керуєте. Особисті дані, e-mail, статус і безпеку такого облікового запису змінює адміністратор, що керує всіма його організаціями; ви можете змінювати лише посади у своїх організаціях.";
+
     /// <summary>
     /// Accepted values of the «Статус» column meaning a blocked account.
     /// </summary>
@@ -47,8 +64,11 @@ internal sealed class UserService(
             return Error.Forbidden();
         }
 
+        var scope = await accessScope.GetAdministrationScopeAsync(Permissions.Users.View, cancellationToken);
+        var all = scope.IsCabinetWide;
+        var units = ScopeUnits(scope);
         var now = timeProvider.GetUtcNow();
-        var users = Filter(db.Users.AsNoTracking(), query);
+        var users = await FilterAsync(InScope(db.Users.AsNoTracking(), scope), query, cancellationToken);
         users = query.SortBy switch
         {
             "email" => users.OrderByDirection(static u => u.Email, query.Descending),
@@ -63,8 +83,8 @@ internal sealed class UserService(
                 u.Id,
                 u.LastName + " " + u.FirstName + (u.MiddleName != null ? " " + u.MiddleName : string.Empty),
                 u.Email!,
-                u.Positions.Where(static p => p.IsPrimary).Select(static p => p.Title ?? p.Role!.Name).FirstOrDefault(),
-                u.Positions.Where(static p => p.IsPrimary).Select(static p => p.OrganizationUnit!.Name).FirstOrDefault(),
+                u.Positions.Where(p => all || units.Contains(p.OrganizationUnitId)).OrderByDescending(static p => p.IsPrimary).Select(static p => p.Title ?? p.Role!.Name).FirstOrDefault(),
+                u.Positions.Where(p => all || units.Contains(p.OrganizationUnitId)).OrderByDescending(static p => p.IsPrimary).Select(static p => p.OrganizationUnit!.Name).FirstOrDefault(),
                 u.IsActive,
                 u.TwoFactorEnabled,
                 u.LockoutEnd != null && u.LockoutEnd > now,
@@ -86,7 +106,8 @@ internal sealed class UserService(
             .Include(static u => u.Positions).ThenInclude(static p => p.Role)
             .Include(static u => u.PermissionOverrides)
             .FirstOrDefaultAsync(u => u.Id == id, cancellationToken);
-        if (user is null)
+        var scope = await accessScope.GetAdministrationScopeAsync(Permissions.Users.View, cancellationToken);
+        if (user is null || !scope.Overlaps(user.Positions.Select(static p => p.OrganizationUnitId)))
         {
             return Error.NotFound("Користувача не знайдено.");
         }
@@ -94,6 +115,11 @@ internal sealed class UserService(
         var now = timeProvider.GetUtcNow();
         var sessions = await db.UserSessions.CountAsync(s => s.UserId == id && (s.ExpiresAt == null || s.ExpiresAt > now), cancellationToken);
         var effective = await permissions.GetEffectivePermissionsAsync(id, cancellationToken);
+        var hierarchy = await UnitHierarchy.LoadAsync(db, cancellationToken);
+        var manageScope = await accessScope.GetAdministrationScopeAsync(Permissions.Users.Manage, cancellationToken);
+        var securityScope = await accessScope.GetAdministrationScopeAsync(Permissions.Users.Security, cancellationToken);
+        var units = user.Positions.Select(static p => p.OrganizationUnitId).ToList();
+        var withinHierarchy = id == currentUser.Id || effective.All(currentUser.Has);
 
         return new UserDetails(
             user.Id,
@@ -112,11 +138,26 @@ internal sealed class UserService(
             sessions,
             user.Positions
                 .OrderByDescending(static p => p.IsPrimary)
-                .Select(static p => new PositionDto(p.OrganizationUnitId, p.OrganizationUnit!.Name, p.RoleId, p.Role!.Name, p.Title, p.IsPrimary))
+                .Select(p =>
+                {
+                    var organization = hierarchy.OrganizationOf(p.OrganizationUnitId);
+                    return new UserPositionDto(
+                        p.OrganizationUnitId,
+                        p.OrganizationUnit!.Name,
+                        new UnitRef(organization, hierarchy.Names.GetValueOrDefault(organization, string.Empty)),
+                        p.RoleId,
+                        p.Role!.Name,
+                        p.Title,
+                        p.IsPrimary,
+                        manageScope.Contains(p.OrganizationUnitId));
+                })
                 .ToList(),
             [.. user.PermissionOverrides.Where(static o => o.IsGranted).Select(static o => o.Permission)],
             [.. user.PermissionOverrides.Where(static o => !o.IsGranted).Select(static o => o.Permission)],
-            effective);
+            effective,
+            CanEditAccount: withinHierarchy && manageScope.Covers(units),
+            CanEditPositions: withinHierarchy && manageScope.Overlaps(units),
+            CanManageSecurity: withinHierarchy && securityScope.Covers(units));
     }
 
     /// <inheritdoc />
@@ -138,6 +179,17 @@ internal sealed class UserService(
         if (await db.Users.AnyAsync(u => u.NormalizedEmail == normalizedEmail, cancellationToken))
         {
             return Error.Conflict("Користувач із такою електронною поштою вже існує.");
+        }
+
+        var scope = await accessScope.GetAdministrationScopeAsync(Permissions.Users.Manage, cancellationToken);
+        if (command.Positions.Any(p => !scope.Contains(p.UnitId)))
+        {
+            return Error.Forbidden(OutsideScopeMessage);
+        }
+
+        if (!scope.IsCabinetWide && command.Positions.Count == 0)
+        {
+            return Error.Validation(NoPositionsMessage);
         }
 
         var positionError = await ValidatePositionsAsync(command.Positions, cancellationToken);
@@ -177,7 +229,8 @@ internal sealed class UserService(
             return Error.Forbidden();
         }
 
-        var user = await LoadForManagementAsync(id, cancellationToken);
+        var scope = await accessScope.GetAdministrationScopeAsync(Permissions.Users.Manage, cancellationToken);
+        var user = await LoadForManagementAsync(id, scope, requireWholeAccount: false, cancellationToken);
         if (!user.IsSuccess)
         {
             return user.Error;
@@ -195,24 +248,52 @@ internal sealed class UserService(
             return Error.Conflict("Користувач із такою електронною поштою вже існує.");
         }
 
-        var positionError = await ValidatePositionsAsync(command.Positions, cancellationToken);
+        // Positions outside the managed organizations stay as they are; the command may only repeat them.
+        var entity = user.Value;
+        var foreign = entity.Positions.Where(p => !scope.Contains(p.OrganizationUnitId)).ToList();
+        if (command.Positions.Any(p => !scope.Contains(p.UnitId) && !foreign.Exists(f => f.OrganizationUnitId == p.UnitId && f.RoleId == p.RoleId)))
+        {
+            return Error.Forbidden(OutsideScopeMessage);
+        }
+
+        var managed = command.Positions.Where(p => scope.Contains(p.UnitId)).ToList();
+        if (!scope.IsCabinetWide && foreign.Count + managed.Count == 0)
+        {
+            return Error.Validation(NoPositionsMessage);
+        }
+
+        var wholeAccount = foreign.Count == 0;
+        if (!wholeAccount && !IsAccountUnchanged(entity, email, command))
+        {
+            return Error.Forbidden(SharedAccountMessage);
+        }
+
+        var positionError = await ValidatePositionsAsync(managed, cancellationToken);
         if (positionError is not null)
         {
             return positionError;
         }
 
+        var foreignPrimary = foreign.Exists(static p => p.IsPrimary);
+        var positions = foreign
+            .Select(static p => (p.OrganizationUnitId, p.RoleId, p.Title, p.IsPrimary))
+            .Concat(managed.Select(p => (p.UnitId, p.RoleId, p.Title, p.IsPrimary && !foreignPrimary)))
+            .ToList();
+
         return await DomainErrors.GuardAsync(async () =>
         {
-            var entity = user.Value;
-            entity.Email = email;
-            entity.UserName = email;
-            entity.UpdatePersonalData(command.LastName, command.FirstName, command.MiddleName, command.PhoneNumber);
-            entity.SetPositions(command.Positions.Select(static p => (p.UnitId, p.RoleId, p.Title, p.IsPrimary)));
-            if (currentUser.Has(Permissions.Roles.Manage))
+            if (wholeAccount)
             {
-                entity.SetPermissionOverrides(command.GrantedPermissions, command.DeniedPermissions);
+                entity.Email = email;
+                entity.UserName = email;
+                entity.UpdatePersonalData(command.LastName, command.FirstName, command.MiddleName, command.PhoneNumber);
+                if (currentUser.Has(Permissions.Roles.Manage))
+                {
+                    entity.SetPermissionOverrides(command.GrantedPermissions, command.DeniedPermissions);
+                }
             }
 
+            entity.SetPositions(positions);
             audit.Add(AuditActions.UserUpdated, nameof(User), entity.Id.ToString(), $"Змінено {entity.Email}");
             return await identity.UpdateAsync(entity);
         });
@@ -231,7 +312,8 @@ internal sealed class UserService(
             return Error.Validation("Ви не можете заблокувати власний обліковий запис.");
         }
 
-        var user = await LoadForManagementAsync(id, cancellationToken);
+        var scope = await accessScope.GetAdministrationScopeAsync(Permissions.Users.Manage, cancellationToken);
+        var user = await LoadForManagementAsync(id, scope, requireWholeAccount: true, cancellationToken);
         if (!user.IsSuccess)
         {
             return user.Error;
@@ -257,7 +339,7 @@ internal sealed class UserService(
             return Error.Forbidden();
         }
 
-        var user = await LoadForManagementAsync(id, cancellationToken);
+        var user = await LoadForSecurityAsync(id, cancellationToken);
         if (!user.IsSuccess)
         {
             return user.Error;
@@ -284,7 +366,7 @@ internal sealed class UserService(
             return Error.Forbidden();
         }
 
-        var user = await LoadForManagementAsync(id, cancellationToken);
+        var user = await LoadForSecurityAsync(id, cancellationToken);
         if (!user.IsSuccess)
         {
             return user.Error;
@@ -308,7 +390,7 @@ internal sealed class UserService(
             return Error.Forbidden();
         }
 
-        var user = await LoadForManagementAsync(id, cancellationToken);
+        var user = await LoadForSecurityAsync(id, cancellationToken);
         if (!user.IsSuccess)
         {
             return user.Error;
@@ -356,6 +438,7 @@ internal sealed class UserService(
             return Error.Validation("Файл не містить жодного рядка з даними.");
         }
 
+        var scope = await accessScope.GetAdministrationScopeAsync(Permissions.Users.Import, cancellationToken);
         var units = await db.OrganizationUnits.AsNoTracking().Select(static u => new { u.Id, u.Code }).ToDictionaryAsync(static u => u.Code, static u => u.Id, StringComparer.OrdinalIgnoreCase, cancellationToken);
         var roles = await db.Roles.AsNoTracking().Include(static r => r.Permissions).ToDictionaryAsync(static r => r.Code, StringComparer.OrdinalIgnoreCase, cancellationToken);
         var errors = new List<ImportRowError>();
@@ -378,11 +461,18 @@ internal sealed class UserService(
             }
 
             var positions = new List<PositionInput>();
-            foreach (var row in group.Where(static r => !string.IsNullOrWhiteSpace(r.UnitCode) || !string.IsNullOrWhiteSpace(r.RoleCode)))
+            var positionRows = group.Where(static r => !string.IsNullOrWhiteSpace(r.UnitCode) || !string.IsNullOrWhiteSpace(r.RoleCode)).ToList();
+            foreach (var row in positionRows)
             {
                 if (!units.TryGetValue(row.UnitCode?.Trim() ?? string.Empty, out var unitId))
                 {
                     errors.Add(new ImportRowError(row.RowNumber, email, $"Підрозділ із кодом «{row.UnitCode}» не знайдено."));
+                    continue;
+                }
+
+                if (!scope.Contains(unitId))
+                {
+                    errors.Add(new ImportRowError(row.RowNumber, email, $"Підрозділ «{row.UnitCode}» належить організації, якою ви не керуєте: імпорт призначає посади лише у ваших організаціях."));
                     continue;
                 }
 
@@ -402,7 +492,7 @@ internal sealed class UserService(
             }
 
             var isActive = !BlockedStatuses.Contains(first.Status?.Trim().ToLowerInvariant());
-            plans.Add(new ImportPlan(first.RowNumber, email, first, positions, isActive));
+            plans.Add(new ImportPlan(first.RowNumber, email, first, positions, positionRows.Count > 0, isActive));
         }
 
         var emails = plans.Select(static p => p.Email.ToUpperInvariant()).ToList();
@@ -415,6 +505,18 @@ internal sealed class UserService(
         {
             if (!existing.TryGetValue(plan.Email, out var user))
             {
+                if (!scope.IsCabinetWide && !plan.HasPositionRows)
+                {
+                    errors.Add(new ImportRowError(plan.Row, plan.Email, "Вкажіть код підрозділу й код ролі: обліковий запис без посад бачить лише адміністратор усіх організацій."));
+                }
+
+                continue;
+            }
+
+            // Import replaces the personal data and positions, so it may change only accounts that belong entirely to the importer's organizations.
+            if (!scope.Covers([.. user.Positions.Select(static p => p.OrganizationUnitId)]))
+            {
+                errors.Add(new ImportRowError(plan.Row, plan.Email, "Обліковий запис із цією поштою вже існує й має посади в організаціях, якими ви не керуєте, тому імпорт не може його змінювати."));
                 continue;
             }
 
@@ -515,9 +617,14 @@ internal sealed class UserService(
             return Error.Forbidden();
         }
 
-        var users = await Filter(db.Users.AsNoTracking(), query)
+        // Only the positions in the exporter's organizations are exported, so the file can be imported back by the same administrator.
+        var scope = await accessScope.GetAdministrationScopeAsync(Permissions.Users.Export, cancellationToken);
+        var all = scope.IsCabinetWide;
+        var units = ScopeUnits(scope);
+        var filtered = await FilterAsync(InScope(db.Users.AsNoTracking(), scope), query, cancellationToken);
+        var users = await filtered
             .OrderBy(static u => u.LastName).ThenBy(static u => u.FirstName)
-            .Select(static u => new
+            .Select(u => new
             {
                 u.Email,
                 u.LastName,
@@ -526,6 +633,7 @@ internal sealed class UserService(
                 u.PhoneNumber,
                 u.IsActive,
                 Positions = u.Positions
+                    .Where(p => all || units.Contains(p.OrganizationUnitId))
                     .OrderByDescending(static p => p.IsPrimary)
                     .Select(static p => new { UnitCode = p.OrganizationUnit!.Code, RoleCode = p.Role!.Code, p.Title })
                     .ToList(),
@@ -605,12 +713,49 @@ internal sealed class UserService(
     }
 
     /// <summary>
+    /// Restricts a query to the accounts with at least one position in the scope.
+    /// </summary>
+    /// <param name="users">The query.</param>
+    /// <param name="scope">The administration scope.</param>
+    /// <returns>The restricted query.</returns>
+    private static IQueryable<User> InScope(IQueryable<User> users, AdministrationScope scope)
+    {
+        if (scope.Units is not { } scoped)
+        {
+            return users;
+        }
+
+        var units = scoped.ToList();
+        return users.Where(u => u.Positions.Any(p => units.Contains(p.OrganizationUnitId)));
+    }
+
+    /// <summary>
+    /// Returns the units of a scope as a list usable in queries (empty for the cabinet-wide scope).
+    /// </summary>
+    /// <param name="scope">The administration scope.</param>
+    /// <returns>The units.</returns>
+    private static List<Guid> ScopeUnits(AdministrationScope scope) => scope.Units is { } units ? [.. units] : [];
+
+    /// <summary>
+    /// Compares a stored optional text with a requested one the way the domain normalizes it (trimmed, empty means none).
+    /// </summary>
+    /// <param name="current">The stored value.</param>
+    /// <param name="requested">The requested value.</param>
+    /// <returns><see langword="true"/> when the values are the same.</returns>
+    private static bool Same(string? current, string? requested)
+        => string.Equals(
+            string.IsNullOrWhiteSpace(current) ? null : current.Trim(),
+            string.IsNullOrWhiteSpace(requested) ? null : requested.Trim(),
+            StringComparison.Ordinal);
+
+    /// <summary>
     /// Applies the grid filters.
     /// </summary>
     /// <param name="users">The query.</param>
     /// <param name="query">The filters.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The filtered query.</returns>
-    private static IQueryable<User> Filter(IQueryable<User> users, UserQuery query)
+    private async Task<IQueryable<User>> FilterAsync(IQueryable<User> users, UserQuery query, CancellationToken cancellationToken)
     {
         users = query.Status switch
         {
@@ -621,7 +766,9 @@ internal sealed class UserService(
 
         if (query.UnitId is { } unitId)
         {
-            users = users.Where(u => u.Positions.Any(p => p.OrganizationUnitId == unitId));
+            var hierarchy = await UnitHierarchy.LoadAsync(db, cancellationToken);
+            var subtree = hierarchy.WithDescendants([unitId]).ToList();
+            users = users.Where(u => u.Positions.Any(p => subtree.Contains(p.OrganizationUnitId)));
         }
 
         if (query.RoleId is { } roleId)
@@ -680,20 +827,59 @@ internal sealed class UserService(
     }
 
     /// <summary>
-    /// Loads a user for modification and checks that the current user's permissions cover the target's permissions.
+    /// Determines whether the command keeps everything of the account except its positions: e-mail, personal data and,
+    /// for owners of <c>roles.manage</c>, the individual permissions.
+    /// </summary>
+    /// <param name="user">The stored account.</param>
+    /// <param name="email">The normalized requested e-mail.</param>
+    /// <param name="command">The command.</param>
+    /// <returns><see langword="true"/> when only the positions may change.</returns>
+    private bool IsAccountUnchanged(User user, string email, SaveUserCommand command)
+        => string.Equals(user.Email, email, StringComparison.OrdinalIgnoreCase)
+            && Same(user.LastName, command.LastName)
+            && Same(user.FirstName, command.FirstName)
+            && Same(user.MiddleName, command.MiddleName)
+            && Same(user.PhoneNumber, command.PhoneNumber)
+            && (!currentUser.Has(Permissions.Roles.Manage)
+                || (user.PermissionOverrides.Where(static o => o.IsGranted).Select(static o => o.Permission).ToHashSet(StringComparer.Ordinal).SetEquals(command.GrantedPermissions)
+                    && user.PermissionOverrides.Where(static o => !o.IsGranted).Select(static o => o.Permission).ToHashSet(StringComparer.Ordinal).SetEquals(command.DeniedPermissions)));
+
+    /// <summary>
+    /// Loads a user for a credential operation (<c>users.security</c>).
     /// </summary>
     /// <param name="id">The user identifier.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The tracked user.</returns>
-    private async Task<Result<User>> LoadForManagementAsync(Guid id, CancellationToken cancellationToken)
+    private async Task<Result<User>> LoadForSecurityAsync(Guid id, CancellationToken cancellationToken)
+    {
+        var scope = await accessScope.GetAdministrationScopeAsync(Permissions.Users.Security, cancellationToken);
+        return await LoadForManagementAsync(id, scope, requireWholeAccount: true, cancellationToken);
+    }
+
+    /// <summary>
+    /// Loads a user for modification: the account must have a position in the administrator's organizations (all of its positions
+    /// when <paramref name="requireWholeAccount"/> is set), and the current user's permissions must cover the target's permissions.
+    /// </summary>
+    /// <param name="id">The user identifier.</param>
+    /// <param name="scope">The administration scope of the operation's permission.</param>
+    /// <param name="requireWholeAccount">Whether the operation changes the account as a whole rather than only positions.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The tracked user.</returns>
+    private async Task<Result<User>> LoadForManagementAsync(Guid id, AdministrationScope scope, bool requireWholeAccount, CancellationToken cancellationToken)
     {
         var user = await db.Users
             .Include(static u => u.Positions)
             .Include(static u => u.PermissionOverrides)
             .FirstOrDefaultAsync(u => u.Id == id, cancellationToken);
-        if (user is null)
+        var units = user?.Positions.Select(static p => p.OrganizationUnitId).ToList() ?? [];
+        if (user is null || !scope.Overlaps(units))
         {
             return Error.NotFound("Користувача не знайдено.");
+        }
+
+        if (requireWholeAccount && !scope.Covers(units))
+        {
+            return Error.Forbidden(SharedAccountMessage);
         }
 
         if (id != currentUser.Id)
@@ -714,7 +900,8 @@ internal sealed class UserService(
     /// <param name="Row">The first row number.</param>
     /// <param name="Email">The normalized e-mail.</param>
     /// <param name="Data">The first row with the personal data.</param>
-    /// <param name="Positions">The positions.</param>
+    /// <param name="Positions">The valid positions.</param>
+    /// <param name="HasPositionRows">Whether the file has any position rows for the e-mail.</param>
     /// <param name="IsActive">The account state.</param>
-    private sealed record ImportPlan(int Row, string Email, UserSheetRow Data, List<PositionInput> Positions, bool IsActive);
+    private sealed record ImportPlan(int Row, string Email, UserSheetRow Data, List<PositionInput> Positions, bool HasPositionRows, bool IsActive);
 }

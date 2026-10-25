@@ -1,4 +1,5 @@
 using KOD.Domain.Common;
+using KOD.Domain.Organization;
 using KOD.Domain.Users;
 
 namespace KOD.Domain.News;
@@ -114,6 +115,16 @@ public sealed class NewsArticle : AuditableEntity
     public User? Author { get; private set; }
 
     /// <summary>
+    /// Gets the organization the article belongs to; <see langword="null"/> for news of the whole cabinet.
+    /// </summary>
+    public Guid? OrganizationId { get; private set; }
+
+    /// <summary>
+    /// Gets the organization the article belongs to.
+    /// </summary>
+    public OrganizationUnit? Organization { get; private set; }
+
+    /// <summary>
     /// Updates the content.
     /// </summary>
     /// <param name="title">The title.</param>
@@ -129,6 +140,12 @@ public sealed class NewsArticle : AuditableEntity
         Category = category;
         IsPinned = isPinned;
     }
+
+    /// <summary>
+    /// Assigns the article to an organization.
+    /// </summary>
+    /// <param name="organizationId">The organization, or <see langword="null"/> for news of the whole cabinet.</param>
+    public void AssignTo(Guid? organizationId) => OrganizationId = organizationId;
 
     /// <summary>
     /// Sets or removes the cover image.

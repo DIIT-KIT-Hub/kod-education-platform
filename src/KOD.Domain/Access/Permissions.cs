@@ -30,6 +30,7 @@ public static class Permissions
         new(Users.Export, AppModule.Users, "Експорт користувачів", "Вивантаження облікових записів у файли XLSX/CSV."),
         new(Users.Security, AppModule.Users, "Безпека облікових записів", "Скидання паролів, автентифікаторів і завершення сесій користувачів."),
         new(Roles.Manage, AppModule.Administration, "Керування ролями", "Створення ролей та налаштування їхніх дозволів."),
+        new(Administration.AllOrganizations, AppModule.Administration, "Адміністрування всіх організацій", "Дозволи керування користувачами, структурою та новинами діють в усіх організаціях кабінету, а не лише в організаціях власних посад; створення організацій верхнього рівня та керування каталогом типів підрозділів."),
         new(Audit.View, AppModule.Audit, "Журнал аудиту", "Перегляд журналу дій користувачів і подій безпеки."),
     ];
 
@@ -132,6 +133,18 @@ public static class Permissions
     {
         /// <summary>Create roles and edit their permissions.</summary>
         public const string Manage = "roles.manage";
+    }
+
+    /// <summary>
+    /// Cabinet-wide administration permissions.
+    /// </summary>
+    public static class Administration
+    {
+        /// <summary>
+        /// Apply the administrative permissions (<see cref="Users"/>, <see cref="Structure.Manage"/>, <see cref="News.Manage"/>) in every organization
+        /// instead of only the organizations of own positions; create top-level organizations and edit the unit type catalog.
+        /// </summary>
+        public const string AllOrganizations = "administration.all";
     }
 
     /// <summary>

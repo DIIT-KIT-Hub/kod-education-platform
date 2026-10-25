@@ -736,7 +736,12 @@
 
 @media (min-width: 1024px) {
     .position-row { grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1fr) auto auto; align-items: end; }
+    .position-row--readonly { grid-template-columns: minmax(0, 1fr) auto; }
 }
+
+/* A position in an organization the administrator does not manage: shown, but not editable. */
+.position-row--readonly { background: transparent; border: 1px dashed var(--ds-color-border); }
+.position-row--readonly .ds-input { display: flex; align-items: center; height: auto; min-height: 2.75rem; color: var(--ds-color-text-muted); }
 
 .secret-box {
     display: grid;

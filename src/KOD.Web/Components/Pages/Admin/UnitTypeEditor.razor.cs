@@ -1,7 +1,10 @@
 using System.ComponentModel.DataAnnotations;
 using KOD.Application.Features.Organization;
+using KOD.Domain.Access;
 using KOD.Domain.Organization;
+using KOD.Web.Security;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.JSInterop;
 
 namespace KOD.Web.Components.Pages.Admin;
@@ -27,6 +30,18 @@ public partial class UnitTypeEditor
     /// </summary>
     [Inject]
     private IUnitTypeService UnitTypes { get; set; } = default!;
+
+    /// <summary>
+    /// Gets or sets the authentication state.
+    /// </summary>
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthenticationState { get; set; } = default!;
+
+    /// <summary>
+    /// Gets or sets a value indicating whether the current user manages the structure of every organization
+    /// (top-level organizations and the unit type catalog shared by all of them).
+    /// </summary>
+    private bool CabinetWide { get; set; }
 
     /// <summary>
     /// Gets or sets the navigation manager.
@@ -68,6 +83,7 @@ public partial class UnitTypeEditor
     /// <inheritdoc />
     protected override async Task OnParametersSetAsync()
     {
+        CabinetWide = (await AuthenticationState).User.HasPermission(Permissions.Administration.AllOrganizations);
         if (Id is { } id)
         {
             var result = await UnitTypes.GetAsync(id, CancellationToken.None);

@@ -1,7 +1,10 @@
 using System.ComponentModel.DataAnnotations;
 using KOD.Application.Common.Models;
 using KOD.Application.Features.Organization;
+using KOD.Domain.Access;
+using KOD.Web.Security;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 
 namespace KOD.Web.Components.Pages.Admin;
 
@@ -27,6 +30,12 @@ public partial class UnitEditor
     /// </summary>
     [SupplyParameterFromQuery]
     private bool Top { get; set; }
+
+    /// <summary>
+    /// Gets or sets the authentication state.
+    /// </summary>
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthenticationState { get; set; } = default!;
 
     /// <summary>
     /// Gets or sets the organization service.
@@ -62,6 +71,26 @@ public partial class UnitEditor
     private IReadOnlyList<UnitTypeRef> Types { get; set; } = [];
 
     /// <summary>
+    /// Gets or sets a value indicating whether the current user manages the structure of every organization.
+    /// </summary>
+    private bool CabinetWide { get; set; }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether the form is read-only (the unit is outside the current user's organizations).
+    /// </summary>
+    private bool ReadOnly { get; set; }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether the edited unit is a top-level organization.
+    /// </summary>
+    private bool WasTopLevel { get; set; }
+
+    /// <summary>
+    /// Gets a value indicating whether «no parent» (a top-level organization) may be chosen.
+    /// </summary>
+    private bool CanBeTopLevel => CabinetWide || WasTopLevel;
+
+    /// <summary>
     /// Gets or sets a value indicating whether the data is loaded.
     /// </summary>
     private bool Loaded { get; set; }
@@ -79,7 +108,8 @@ public partial class UnitEditor
     /// <inheritdoc />
     protected override async Task OnParametersSetAsync()
     {
-        Units = await Organization.GetOptionsAsync(CancellationToken.None);
+        CabinetWide = (await AuthenticationState).User.HasPermission(Permissions.Administration.AllOrganizations);
+        Units = await Organization.GetOptionsAsync(Permissions.Structure.Manage, CancellationToken.None);
         Types = await UnitTypes.GetOptionsAsync(CancellationToken.None);
         if (Id is { } id)
         {
@@ -91,6 +121,9 @@ public partial class UnitEditor
             }
 
             var unit = result.Value;
+            WasTopLevel = unit.ParentId is null;
+            ReadOnly = !unit.CanManage;
+            ErrorMessage = ReadOnly ? "Підрозділ належить організації, структурою якої ви не керуєте, тому його можна лише переглянути." : null;
             Model = new UnitModel
             {
                 Code = unit.Code,
@@ -102,9 +135,14 @@ public partial class UnitEditor
                 IsActive = unit.IsActive,
             };
         }
+        else if (Top && !CabinetWide)
+        {
+            ReadOnly = true;
+            ErrorMessage = "Організації верхнього рівня створює лише адміністратор усіх організацій. Ви можете додавати підрозділи й дочірні організації у своїх організаціях.";
+        }
         else
         {
-            Model.ParentId = Top ? null : Parent ?? (Units.Count > 0 ? Units[0].Id : null);
+            Model.ParentId = Top ? null : Units.FirstOrDefault(u => u.Id == Parent)?.Id ?? (Units.Count > 0 ? Units[0].Id : null);
             Model.TypeId ??= Types.FirstOrDefault(t => t.IsOrganization == (Model.ParentId is null))?.Id;
         }
 

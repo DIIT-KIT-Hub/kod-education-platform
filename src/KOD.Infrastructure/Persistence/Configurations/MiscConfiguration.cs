@@ -31,6 +31,11 @@ internal sealed class MiscConfiguration :
             .WithMany()
             .HasForeignKey(static a => a.AuthorId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne(static a => a.Organization)
+            .WithMany()
+            .HasForeignKey(static a => a.OrganizationId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 
     /// <inheritdoc />

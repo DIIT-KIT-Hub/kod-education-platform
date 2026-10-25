@@ -22,10 +22,14 @@
     {
         <Alert Tone="Tone.Danger">@ErrorMessage</Alert>
     }
+    @if (!CabinetWide)
+    {
+        <Alert Tone="Tone.Outline" Icon="info">Каталог типів спільний для всіх організацій кабінету, тому змінювати його може лише адміністратор усіх організацій.</Alert>
+    }
 
     <EditForm Model="Model" OnValidSubmit="SaveAsync" class="ds-split ds-split--wide-aside">
         <DataAnnotationsValidator />
-        <div class="ds-stack ds-stack--lg">
+        <fieldset disabled="@(!CabinetWide)" class="ds-stack ds-stack--lg" style="border:0;padding:0;margin:0;min-width:0">
             <Card>
                 <div class="ds-form-grid">
                     <Field Label="Назва" For="type-name" Required Hint="Як рівень називається у вашій організації: «Департамент», «Кафедра», «Відділення», «Цех»…">
@@ -62,19 +66,22 @@
                     }
                 </div>
             </Card>
-        </div>
-        <Card Variant="CardVariant.Muted">
-            <div class="ds-stack">
-                <Button Type="submit" Block Icon="save" Disabled="Busy">Зберегти</Button>
-                @if (Existing is not null)
-                {
-                    <Button Variant="ButtonVariant.Danger" Block Icon="trash-2" Disabled="@(Busy || Existing.UnitCount > 0)" OnClick="DeleteAsync">Видалити тип</Button>
-                    @if (Existing.UnitCount > 0)
+        </fieldset>
+        @if (CabinetWide)
+        {
+            <Card Variant="CardVariant.Muted">
+                <div class="ds-stack">
+                    <Button Type="submit" Block Icon="save" Disabled="Busy">Зберегти</Button>
+                    @if (Existing is not null)
                     {
-                        <span class="ds-text-sm ds-muted">Тип можна видалити, коли жоден підрозділ його не має.</span>
+                        <Button Variant="ButtonVariant.Danger" Block Icon="trash-2" Disabled="@(Busy || Existing.UnitCount > 0)" OnClick="DeleteAsync">Видалити тип</Button>
+                        @if (Existing.UnitCount > 0)
+                        {
+                            <span class="ds-text-sm ds-muted">Тип можна видалити, коли жоден підрозділ його не має.</span>
+                        }
                     }
-                }
-            </div>
-        </Card>
+                </div>
+            </Card>
+        }
     </EditForm>
 }

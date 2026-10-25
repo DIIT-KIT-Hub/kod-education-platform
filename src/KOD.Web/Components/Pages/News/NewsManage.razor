@@ -2,7 +2,7 @@
 @attribute [RequirePermission(Permissions.News.Manage)]
 @attribute [StreamRendering]
 
-<PageHeader Title="Керування новинами" Subtitle="Чернетки та опубліковані матеріали."
+<PageHeader Title="Керування новинами" Subtitle="Чернетки та опубліковані матеріали організацій, новинами яких ви керуєте."
             Breadcrumbs="@([new("Новини", "/news"), new("Керування")])">
     <Actions>
         <Button Href="/news/manage/new" Icon="plus">Нова публікація</Button>
@@ -38,6 +38,7 @@
             </GridColumn>
             <GridColumn TItem="NewsListItem" Title="Опубліковано" Class="ds-nowrap">@Display.DateTime(context.PublishedAt)</GridColumn>
             <GridColumn TItem="NewsListItem" Title="Змінено" SortKey="updated" Class="ds-nowrap">@Display.DateTime(context.UpdatedAt)</GridColumn>
+            <GridColumn TItem="NewsListItem" Title="Організація">@(context.Organization?.Name ?? "Увесь кабінет")</GridColumn>
             <GridColumn TItem="NewsListItem" Title="Автор">@context.AuthorName</GridColumn>
             <GridColumn TItem="NewsListItem" Title="Дії" Actions>
                 <Button Href="@($"/news/manage/{context.Id}")" Variant="ButtonVariant.Ghost" Size="ControlSize.Small" Icon="pencil">Редагувати</Button>

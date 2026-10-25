@@ -6,7 +6,10 @@
         @if (CanManage)
         {
             <Button Href="/admin/units" Variant="ButtonVariant.Secondary" Icon="settings">Керувати структурою</Button>
-            <Button Href="/admin/units/new?top=true" Icon="plus">Нова організація</Button>
+            @if (CanCreateOrganization)
+            {
+                <Button Href="/admin/units/new?top=true" Icon="plus">Нова організація</Button>
+            }
         }
     </Actions>
 </PageHeader>

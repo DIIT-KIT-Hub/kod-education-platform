@@ -99,7 +99,8 @@ public sealed class NewsController(INewsService news) : ApiControllerBase
             article.IsPinned,
             article.PublishedAt is not null,
             new FileUpload(content, file.FileName, file.ContentType, file.Length),
-            RemoveCover: false);
+            RemoveCover: false,
+            article.Organization?.Id);
         return FromResult(await news.UpdateAsync(id, command, cancellationToken));
     }
 

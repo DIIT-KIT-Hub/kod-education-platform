@@ -22,6 +22,17 @@ public interface IAccessScope
     Task<IReadOnlySet<Guid>> GetOrganizationScopeAsync(CancellationToken cancellationToken);
 
     /// <summary>
+    /// Returns where an administrative permission of the current user applies (<c>users.*</c>, <c>structure.manage</c>,
+    /// <c>news.manage</c>): every organization with <c>administration.all</c>; otherwise the organizations, with all their units,
+    /// of the positions whose role grants the permission (of every position when the permission is granted individually).
+    /// Nothing when the user does not have the permission.
+    /// </summary>
+    /// <param name="permission">The permission code.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The scope.</returns>
+    Task<AdministrationScope> GetAdministrationScopeAsync(string permission, CancellationToken cancellationToken);
+
+    /// <summary>
     /// Returns the units whose documents the current user may see beyond own documents, according to the widest
     /// of <c>documents.view.all</c>, <c>documents.view.organization</c> and <c>documents.view.unit</c>.
     /// </summary>

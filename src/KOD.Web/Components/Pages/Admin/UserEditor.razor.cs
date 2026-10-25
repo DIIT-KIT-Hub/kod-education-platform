@@ -125,6 +125,21 @@ public partial class UserEditor
     /// </summary>
     private bool CanManageRoles { get; set; }
 
+    /// <summary>
+    /// Gets a value indicating whether the account may be changed as a whole: personal data, e-mail, status, individual permissions.
+    /// </summary>
+    private bool CanEditAccount => Details?.CanEditAccount ?? (Id is null && CanManage);
+
+    /// <summary>
+    /// Gets a value indicating whether the positions in the current user's organizations may be changed.
+    /// </summary>
+    private bool CanEditPositions => Details?.CanEditPositions ?? (Id is null && CanManage);
+
+    /// <summary>
+    /// Gets a value indicating whether the main position is held in another organization and therefore cannot be moved.
+    /// </summary>
+    private bool PrimaryIsForeign => Model.Positions.Exists(static p => !p.IsManaged && p.IsPrimary);
+
     /// <inheritdoc />
     protected override async Task OnParametersSetAsync()
     {
@@ -132,7 +147,7 @@ public partial class UserEditor
         CanManage = user.HasPermission(Permissions.Users.Manage);
         CanSecurity = user.HasPermission(Permissions.Users.Security);
         CanManageRoles = user.HasPermission(Permissions.Roles.Manage);
-        Units = await Organization.GetOptionsAsync(CancellationToken.None);
+        Units = await Organization.GetOptionsAsync(Permissions.Users.Manage, CancellationToken.None);
         Roles = await RoleService.GetOptionsAsync(CancellationToken.None);
         await LoadAsync();
         Loaded = true;
@@ -165,7 +180,18 @@ public partial class UserEditor
             FirstName = Details.FirstName,
             MiddleName = Details.MiddleName,
             PhoneNumber = Details.PhoneNumber,
-            Positions = [.. Details.Positions.Select(static p => new PositionModel { UnitId = p.UnitId, RoleId = p.RoleId, Title = p.Title, IsPrimary = p.IsPrimary })],
+            Positions =
+            [
+                .. Details.Positions.Select(static p => new PositionModel
+                {
+                    UnitId = p.UnitId,
+                    RoleId = p.RoleId,
+                    Title = p.Title,
+                    IsPrimary = p.IsPrimary,
+                    IsManaged = p.IsManaged,
+                    Description = $"{p.UnitName} · {p.Organization.Name} · {p.RoleName}",
+                }),
+            ],
             Overrides = Details.GrantedPermissions.Select(static p => (p, "grant"))
                 .Concat(Details.DeniedPermissions.Select(static p => (p, "deny")))
                 .ToDictionary(static x => x.p, static x => x.Item2),
@@ -176,6 +202,12 @@ public partial class UserEditor
     /// Adds an empty position row.
     /// </summary>
     private void AddPosition() => Model.Positions.Add(new PositionModel { IsPrimary = Model.Positions.Count == 0 });
+
+    /// <summary>
+    /// Removes a position row.
+    /// </summary>
+    /// <param name="position">The position.</param>
+    private void RemovePosition(PositionModel position) => Model.Positions.Remove(position);
 
     /// <summary>
     /// Makes a position the main one.
@@ -420,5 +452,15 @@ public partial class UserEditor
         /// Gets or sets a value indicating whether this is the main position.
         /// </summary>
         public bool IsPrimary { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the position is in the current user's organizations (otherwise it is read-only).
+        /// </summary>
+        public bool IsManaged { get; set; } = true;
+
+        /// <summary>
+        /// Gets or sets the unit, organization and role of a stored position, shown for read-only positions.
+        /// </summary>
+        public string? Description { get; set; }
     }
 }

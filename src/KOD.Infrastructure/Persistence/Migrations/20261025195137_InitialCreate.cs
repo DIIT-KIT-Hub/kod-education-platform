@@ -190,34 +190,6 @@ namespace KOD.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "news_articles",
-                columns: table => new
-                {
-                    id = table.Column<Guid>(type: "uuid", nullable: false),
-                    slug = table.Column<string>(type: "character varying(160)", maxLength: 160, nullable: false),
-                    title = table.Column<string>(type: "citext", maxLength: 200, nullable: false),
-                    summary = table.Column<string>(type: "citext", maxLength: 500, nullable: false),
-                    body = table.Column<string>(type: "character varying(50000)", maxLength: 50000, nullable: false),
-                    category = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: false),
-                    cover_image_url = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
-                    is_pinned = table.Column<bool>(type: "boolean", nullable: false),
-                    published_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
-                    author_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    created_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    updated_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("pk_news_articles", x => x.id);
-                    table.ForeignKey(
-                        name: "fk_news_articles_users_author_id",
-                        column: x => x.author_id,
-                        principalTable: "users",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "user_claims",
                 columns: table => new
                 {
@@ -332,6 +304,41 @@ namespace KOD.Infrastructure.Persistence.Migrations
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "fk_documents_users_author_id",
+                        column: x => x.author_id,
+                        principalTable: "users",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "news_articles",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    slug = table.Column<string>(type: "character varying(160)", maxLength: 160, nullable: false),
+                    title = table.Column<string>(type: "citext", maxLength: 200, nullable: false),
+                    summary = table.Column<string>(type: "citext", maxLength: 500, nullable: false),
+                    body = table.Column<string>(type: "character varying(50000)", maxLength: 50000, nullable: false),
+                    category = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: false),
+                    cover_image_url = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    is_pinned = table.Column<bool>(type: "boolean", nullable: false),
+                    published_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    author_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    organization_id = table.Column<Guid>(type: "uuid", nullable: true),
+                    created_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    updated_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_news_articles", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_news_articles_organization_units_organization_id",
+                        column: x => x.organization_id,
+                        principalTable: "organization_units",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "fk_news_articles_users_author_id",
                         column: x => x.author_id,
                         principalTable: "users",
                         principalColumn: "id",
@@ -510,6 +517,11 @@ namespace KOD.Infrastructure.Persistence.Migrations
                 name: "ix_news_articles_is_pinned_published_at",
                 table: "news_articles",
                 columns: new[] { "is_pinned", "published_at" });
+
+            migrationBuilder.CreateIndex(
+                name: "ix_news_articles_organization_id",
+                table: "news_articles",
+                column: "organization_id");
 
             migrationBuilder.CreateIndex(
                 name: "ix_news_articles_slug",

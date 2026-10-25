@@ -14,6 +14,7 @@ namespace KOD.Web.Api.Contracts;
 /// <param name="IsPinned">Whether the article is pinned.</param>
 /// <param name="Publish">Whether the article is published.</param>
 /// <param name="RemoveCover">Whether to remove the cover image.</param>
+/// <param name="OrganizationId">The organization of the article; omitted for news of the whole cabinet.</param>
 public sealed record NewsRequest(
     [property: Required][property: MaxLength(NewsArticle.TitleMaxLength)] string Title,
     [property: Required][property: MaxLength(NewsArticle.SummaryMaxLength)] string Summary,
@@ -21,11 +22,12 @@ public sealed record NewsRequest(
     NewsCategory Category,
     bool IsPinned,
     bool Publish,
-    bool RemoveCover)
+    bool RemoveCover,
+    Guid? OrganizationId)
 {
     /// <summary>
     /// Converts the request to an application command.
     /// </summary>
     /// <returns>The command.</returns>
-    public SaveNewsCommand ToCommand() => new(Title, Summary, Body, Category, IsPinned, Publish, null, RemoveCover);
+    public SaveNewsCommand ToCommand() => new(Title, Summary, Body, Category, IsPinned, Publish, null, RemoveCover, OrganizationId);
 }

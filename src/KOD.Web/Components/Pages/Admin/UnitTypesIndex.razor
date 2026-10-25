@@ -5,9 +5,17 @@
 <PageHeader Title="Типи підрозділів" Subtitle="Назви рівнів структури у словнику вашої організації: департамент, управління, відділ, сектор, філія…"
             Breadcrumbs="@([new("Адміністрування", "/admin"), new("Структура", "/admin/units"), new("Типи підрозділів")])">
     <Actions>
-        <Button Href="/admin/unit-types/new" Icon="plus">Новий тип</Button>
+        @if (CabinetWide)
+        {
+            <Button Href="/admin/unit-types/new" Icon="plus">Новий тип</Button>
+        }
     </Actions>
 </PageHeader>
+
+@if (!CabinetWide)
+{
+    <Alert Tone="Tone.Outline" Icon="info">Каталог типів спільний для всіх організацій кабінету, тому змінювати його може лише адміністратор усіх організацій. Ви можете використовувати ці типи для підрозділів своїх організацій.</Alert>
+}
 
 @if (Items is not null)
 {
@@ -31,7 +39,7 @@
             </GridColumn>
             <GridColumn TItem="UnitTypeItem" Title="Підрозділів">@context.UnitCount</GridColumn>
             <GridColumn TItem="UnitTypeItem" Title="Дії" Actions>
-                <Button Href="@($"/admin/unit-types/{context.Id}")" Variant="ButtonVariant.Ghost" Size="ControlSize.Small" Icon="pencil">Редагувати</Button>
+                <Button Href="@($"/admin/unit-types/{context.Id}")" Variant="ButtonVariant.Ghost" Size="ControlSize.Small" Icon="@(CabinetWide ? "pencil" : "eye")">@(CabinetWide ? "Редагувати" : "Переглянути")</Button>
             </GridColumn>
         </Columns>
     </DataGrid>

@@ -1,6 +1,8 @@
 using KOD.Application.Abstractions;
+using KOD.Application.Common.Access;
 using KOD.Application.Common.Errors;
 using KOD.Application.Common.Files;
+using KOD.Application.Common.Models;
 using KOD.Application.Common.Paging;
 using KOD.Application.Common.Results;
 using KOD.Application.Common.Text;
@@ -16,6 +18,7 @@ namespace KOD.Application.Features.News;
 /// </summary>
 /// <param name="db">The database context.</param>
 /// <param name="currentUser">The current user.</param>
+/// <param name="accessScope">The data access rules of the current user.</param>
 /// <param name="markdown">The Markdown renderer.</param>
 /// <param name="assets">The public asset storage.</param>
 /// <param name="audit">The audit logger.</param>
@@ -23,11 +26,17 @@ namespace KOD.Application.Features.News;
 internal sealed class NewsService(
     IApplicationDbContext db,
     ICurrentUser currentUser,
+    IAccessScope accessScope,
     IMarkdownRenderer markdown,
     IPublicAssetStorage assets,
     IAuditLogger audit,
     TimeProvider timeProvider) : INewsService
 {
+    /// <summary>
+    /// The error shown when an article belongs to an organization the current user does not manage the news of.
+    /// </summary>
+    private const string OutsideScopeMessage = "Ця новина належить організації, новинами якої ви не керуєте.";
+
     /// <inheritdoc />
     public async Task<Result<PagedResult<NewsListItem>>> ListAsync(NewsQuery query, CancellationToken cancellationToken)
     {
@@ -37,8 +46,13 @@ internal sealed class NewsService(
             return Error.Forbidden();
         }
 
+        // Everyone reads the published news of every organization; the management view lists only the articles the user manages.
         var articles = db.NewsArticles.AsNoTracking();
-        if (!(query.IncludeDrafts && currentUser.Has(Permissions.News.Manage)))
+        if (query.IncludeDrafts && currentUser.Has(Permissions.News.Manage))
+        {
+            articles = Manageable(articles, await ManageScopeAsync(cancellationToken));
+        }
+        else
         {
             articles = articles.Where(static a => a.PublishedAt != null);
         }
@@ -72,7 +86,8 @@ internal sealed class NewsService(
                 a.IsPinned,
                 a.PublishedAt,
                 a.Author!.LastName + " " + a.Author.FirstName,
-                a.UpdatedAt ?? a.CreatedAt))
+                a.UpdatedAt ?? a.CreatedAt,
+                a.Organization != null ? new UnitRef(a.Organization.Id, a.Organization.Name) : null))
             .ToPagedResultAsync(query, cancellationToken);
     }
 
@@ -84,10 +99,11 @@ internal sealed class NewsService(
             return Error.Forbidden();
         }
 
-        var article = await db.NewsArticles.AsNoTracking().Include(static a => a.Author).FirstOrDefaultAsync(a => a.Slug == slug, cancellationToken);
-        return article is null || (!article.IsPublished && !currentUser.Has(Permissions.News.Manage))
+        var article = await db.NewsArticles.AsNoTracking().Include(static a => a.Author).Include(static a => a.Organization).FirstOrDefaultAsync(a => a.Slug == slug, cancellationToken);
+        var canManage = article is not null && CanManage(article, await ManageScopeAsync(cancellationToken));
+        return article is null || (!article.IsPublished && !canManage)
             ? Error.NotFound("Новину не знайдено.")
-            : ToDto(article);
+            : ToDto(article, canManage);
     }
 
     /// <inheritdoc />
@@ -98,8 +114,13 @@ internal sealed class NewsService(
             return Error.Forbidden();
         }
 
-        var article = await db.NewsArticles.AsNoTracking().Include(static a => a.Author).FirstOrDefaultAsync(a => a.Id == id, cancellationToken);
-        return article is null ? Error.NotFound("Новину не знайдено.") : ToDto(article);
+        var article = await db.NewsArticles.AsNoTracking().Include(static a => a.Author).Include(static a => a.Organization).FirstOrDefaultAsync(a => a.Id == id, cancellationToken);
+        if (article is null)
+        {
+            return Error.NotFound("Новину не знайдено.");
+        }
+
+        return CanManage(article, await ManageScopeAsync(cancellationToken)) ? ToDto(article, canManage: true) : Error.Forbidden(OutsideScopeMessage);
     }
 
     /// <inheritdoc />
@@ -111,11 +132,18 @@ internal sealed class NewsService(
             return Error.Forbidden();
         }
 
+        var organizationError = await ValidateOrganizationAsync(command.OrganizationId, await ManageScopeAsync(cancellationToken), cancellationToken);
+        if (organizationError is not null)
+        {
+            return organizationError;
+        }
+
         return await DomainErrors.GuardAsync<Guid>(async () =>
         {
             var slug = await UniqueSlugAsync(command.Title, cancellationToken);
             var article = new NewsArticle(slug, command.Title, command.Summary, command.Body, command.Category, me);
             article.Update(command.Title, command.Summary, command.Body, command.Category, command.IsPinned);
+            article.AssignTo(command.OrganizationId);
 
             var coverError = await ApplyCoverAsync(article, command, cancellationToken);
             if (coverError is not null)
@@ -150,9 +178,22 @@ internal sealed class NewsService(
             return Error.NotFound("Новину не знайдено.");
         }
 
+        var scope = await ManageScopeAsync(cancellationToken);
+        if (!CanManage(article, scope))
+        {
+            return Error.Forbidden(OutsideScopeMessage);
+        }
+
+        var organizationError = await ValidateOrganizationAsync(command.OrganizationId, scope, cancellationToken);
+        if (organizationError is not null)
+        {
+            return organizationError;
+        }
+
         return await DomainErrors.GuardAsync(async () =>
         {
             article.Update(command.Title, command.Summary, command.Body, command.Category, command.IsPinned);
+            article.AssignTo(command.OrganizationId);
             var coverError = await ApplyCoverAsync(article, command, cancellationToken);
             if (coverError is not null)
             {
@@ -188,6 +229,11 @@ internal sealed class NewsService(
             return Error.NotFound("Новину не знайдено.");
         }
 
+        if (!CanManage(article, await ManageScopeAsync(cancellationToken)))
+        {
+            return Error.Forbidden(OutsideScopeMessage);
+        }
+
         db.NewsArticles.Remove(article);
         audit.Add(AuditActions.NewsDeleted, nameof(NewsArticle), article.Id.ToString(), $"Видалено «{article.Title}»");
         await db.SaveChangesAsync(cancellationToken);
@@ -197,6 +243,62 @@ internal sealed class NewsService(
         }
 
         return Result.Success();
+    }
+
+    /// <summary>
+    /// Restricts a query to the articles of the scope: every article in the cabinet-wide scope, otherwise the articles of its organizations.
+    /// </summary>
+    /// <param name="articles">The query.</param>
+    /// <param name="scope">The <c>news.manage</c> scope.</param>
+    /// <returns>The restricted query.</returns>
+    private static IQueryable<NewsArticle> Manageable(IQueryable<NewsArticle> articles, AdministrationScope scope)
+    {
+        if (scope.Units is not { } scoped)
+        {
+            return articles;
+        }
+
+        var units = scoped.ToList();
+        return articles.Where(a => a.OrganizationId != null && units.Contains(a.OrganizationId.Value));
+    }
+
+    /// <summary>
+    /// Determines whether an article is in the scope; news of the whole cabinet belong only to the cabinet-wide scope.
+    /// </summary>
+    /// <param name="article">The article.</param>
+    /// <param name="scope">The <c>news.manage</c> scope.</param>
+    /// <returns><see langword="true"/> when the article may be managed.</returns>
+    private static bool CanManage(NewsArticle article, AdministrationScope scope)
+        => scope.IsCabinetWide || (article.OrganizationId is { } organizationId && scope.Contains(organizationId));
+
+    /// <summary>
+    /// Returns where <c>news.manage</c> of the current user applies.
+    /// </summary>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The scope.</returns>
+    private Task<AdministrationScope> ManageScopeAsync(CancellationToken cancellationToken)
+        => accessScope.GetAdministrationScopeAsync(Permissions.News.Manage, cancellationToken);
+
+    /// <summary>
+    /// Validates the organization of an article: an organization in the scope, or none (the whole cabinet) for the cabinet-wide scope.
+    /// </summary>
+    /// <param name="organizationId">The requested organization.</param>
+    /// <param name="scope">The <c>news.manage</c> scope.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>An error or <see langword="null"/>.</returns>
+    private async Task<Error?> ValidateOrganizationAsync(Guid? organizationId, AdministrationScope scope, CancellationToken cancellationToken)
+    {
+        if (organizationId is not { } id)
+        {
+            return scope.IsCabinetWide ? null : Error.Forbidden("Новини для всього кабінету публікує лише адміністратор усіх організацій. Оберіть свою організацію.");
+        }
+
+        if (!await db.OrganizationUnits.AnyAsync(u => u.Id == id && u.Type!.IsOrganization, cancellationToken))
+        {
+            return Error.Validation("Оберіть організацію новини.");
+        }
+
+        return scope.Contains(id) ? null : Error.Forbidden("Ви можете публікувати новини лише своїх організацій.");
     }
 
     /// <summary>
@@ -258,9 +360,10 @@ internal sealed class NewsService(
     /// <summary>
     /// Maps an entity to its DTO.
     /// </summary>
-    /// <param name="article">The article.</param>
+    /// <param name="article">The article with its author and organization.</param>
+    /// <param name="canManage">Whether the current user may edit the article.</param>
     /// <returns>The DTO.</returns>
-    private NewsArticleDto ToDto(NewsArticle article) => new(
+    private NewsArticleDto ToDto(NewsArticle article, bool canManage) => new(
         article.Id,
         article.Slug,
         article.Title,
@@ -272,5 +375,7 @@ internal sealed class NewsService(
         article.IsPinned,
         article.PublishedAt,
         article.Author?.FullName ?? string.Empty,
-        article.UpdatedAt ?? article.CreatedAt);
+        article.UpdatedAt ?? article.CreatedAt,
+        article.Organization is { } organization ? new UnitRef(organization.Id, organization.Name) : null,
+        canManage);
 }

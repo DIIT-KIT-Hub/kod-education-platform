@@ -1,5 +1,3 @@
-using KOD.Application.Common.Models;
-
 namespace KOD.Application.Features.Users;
 
 /// <summary>
@@ -23,6 +21,9 @@ namespace KOD.Application.Features.Users;
 /// <param name="GrantedPermissions">Individually granted permissions.</param>
 /// <param name="DeniedPermissions">Individually denied permissions.</param>
 /// <param name="EffectivePermissions">The resulting permissions.</param>
+/// <param name="CanEditAccount">Whether the current user may change the account as a whole: personal data, e-mail, status and individual permissions.</param>
+/// <param name="CanEditPositions">Whether the current user may change the positions in the organizations they manage.</param>
+/// <param name="CanManageSecurity">Whether the current user may reset the password and authenticator and end the sessions.</param>
 public sealed record UserDetails(
     Guid Id,
     string Email,
@@ -38,7 +39,10 @@ public sealed record UserDetails(
     DateTimeOffset CreatedAt,
     DateTimeOffset? LastSignInAt,
     int ActiveSessions,
-    IReadOnlyList<PositionDto> Positions,
+    IReadOnlyList<UserPositionDto> Positions,
     IReadOnlyList<string> GrantedPermissions,
     IReadOnlyList<string> DeniedPermissions,
-    IReadOnlySet<string> EffectivePermissions);
+    IReadOnlySet<string> EffectivePermissions,
+    bool CanEditAccount,
+    bool CanEditPositions,
+    bool CanManageSecurity);

@@ -4,6 +4,7 @@ using KOD.Application.Common.Paging;
 using KOD.Application.Features.Organization;
 using KOD.Application.Features.Roles;
 using KOD.Application.Features.Users;
+using KOD.Domain.Access;
 using KOD.Web.Components.Shared;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
@@ -104,7 +105,7 @@ public partial class UsersIndex
     private PagedResult<UserListItem>? Result { get; set; }
 
     /// <summary>
-    /// Gets or sets the unit options.
+    /// Gets or sets the unit options (the organizations whose accounts the current user sees).
     /// </summary>
     private IReadOnlyList<UnitOption> Units { get; set; } = [];
 
@@ -117,7 +118,7 @@ public partial class UsersIndex
     protected override async Task OnParametersSetAsync()
     {
         User = (await AuthenticationState).User;
-        Units = await Organization.GetOptionsAsync(CancellationToken.None);
+        Units = await Organization.GetOptionsAsync(Permissions.Users.View, CancellationToken.None);
         Roles = await RoleService.GetOptionsAsync(CancellationToken.None);
         var result = await Users.ListAsync(BuildQuery(), CancellationToken.None);
         Result = result.IsSuccess ? result.Value : PagedResult<UserListItem>.Empty(new PageRequest());

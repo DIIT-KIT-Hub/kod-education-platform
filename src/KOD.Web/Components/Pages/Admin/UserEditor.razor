@@ -55,12 +55,16 @@ else
     {
         <Alert Tone="Tone.Danger">@ErrorMessage</Alert>
     }
+    @if (CanEditPositions && !CanEditAccount)
+    {
+        <Alert Tone="Tone.Outline" Icon="info" Title="Обліковий запис кількох організацій">Користувач також обіймає посади в організаціях, якими ви не керуєте. Ви можете змінювати лише його посади у своїх організаціях; особисті дані, e-mail, статус і безпеку облікового запису змінює адміністратор, що керує всіма його організаціями.</Alert>
+    }
 
     <EditForm Model="Model" OnValidSubmit="SaveAsync" class="ds-split ds-split--wide-aside">
         <DataAnnotationsValidator />
         <div class="ds-stack ds-stack--lg">
             <Card Title="Особисті дані">
-                <fieldset disabled="@(!CanManage)" class="ds-form-grid" style="border:0;padding:0;margin:0">
+                <fieldset disabled="@(!CanEditAccount)" class="ds-form-grid" style="border:0;padding:0;margin:0">
                     <Field Label="Прізвище" For="u-last" Required>
                         <InputText id="u-last" @bind-Value="Model.LastName" class="ds-input" maxlength="64" />
                         <ValidationMessage For="() => Model.LastName" />
@@ -82,9 +86,9 @@ else
                 </fieldset>
             </Card>
 
-            <Card Title="Посади" Subtitle="Роль посади визначає дозволи; підрозділ — область доступу до документів.">
+            <Card Title="Посади" Subtitle="Роль посади визначає дозволи; підрозділ — область доступу до документів і організацію, у якій діють адміністративні дозволи ролі.">
                 <HeaderActions>
-                    @if (CanManage)
+                    @if (CanEditPositions)
                     {
                         <Button Variant="ButtonVariant.Secondary" Size="ControlSize.Small" Icon="plus" OnClick="AddPosition">Додати посаду</Button>
                     }
@@ -94,11 +98,23 @@ else
                     {
                         <EmptyState Icon="briefcase" Title="Посад не призначено" Text="Без посади користувач не матиме доступу до модулів." />
                     }
-                    @foreach (var position in Model.Positions)
+                    @foreach (var position in Model.Positions.Where(static p => !p.IsManaged))
+                    {
+                        <div class="position-row position-row--readonly" @key="position">
+                            <Field Label="Посада в іншій організації" Hint="Змінює адміністратор цієї організації.">
+                                <span class="ds-input" aria-readonly="true">@(position.Title ?? "—") (@position.Description)</span>
+                            </Field>
+                            <label class="ds-check">
+                                <input type="radio" name="primary-position" checked="@position.IsPrimary" disabled />
+                                <span>Основна</span>
+                            </label>
+                        </div>
+                    }
+                    @foreach (var position in Model.Positions.Where(static p => p.IsManaged))
                     {
                         <div class="position-row" @key="position">
                             <Field Label="Підрозділ">
-                                <select class="ds-select" disabled="@(!CanManage)" value="@position.UnitId" @onchange="e => position.UnitId = Guid.TryParse(e.Value?.ToString(), out var id) ? id : Guid.Empty">
+                                <select class="ds-select" disabled="@(!CanEditPositions)" value="@position.UnitId" @onchange="e => position.UnitId = Guid.TryParse(e.Value?.ToString(), out var id) ? id : Guid.Empty">
                                     <option value="@Guid.Empty">Оберіть…</option>
                                     @foreach (var unit in Units)
                                     {
@@ -107,7 +123,7 @@ else
                                 </select>
                             </Field>
                             <Field Label="Роль">
-                                <select class="ds-select" disabled="@(!CanManage)" value="@position.RoleId" @onchange="e => position.RoleId = Guid.TryParse(e.Value?.ToString(), out var id) ? id : Guid.Empty">
+                                <select class="ds-select" disabled="@(!CanEditPositions)" value="@position.RoleId" @onchange="e => position.RoleId = Guid.TryParse(e.Value?.ToString(), out var id) ? id : Guid.Empty">
                                     <option value="@Guid.Empty">Оберіть…</option>
                                     @foreach (var role in Roles)
                                     {
@@ -116,22 +132,22 @@ else
                                 </select>
                             </Field>
                             <Field Label="Назва посади">
-                                <input class="ds-input" disabled="@(!CanManage)" value="@position.Title" @onchange="e => position.Title = e.Value?.ToString()" placeholder="напр. доцент" maxlength="128" />
+                                <input class="ds-input" disabled="@(!CanEditPositions)" value="@position.Title" @onchange="e => position.Title = e.Value?.ToString()" placeholder="напр. доцент" maxlength="128" />
                             </Field>
                             <label class="ds-check">
-                                <input type="radio" name="primary-position" checked="@position.IsPrimary" disabled="@(!CanManage)" @onchange="() => SetPrimary(position)" />
+                                <input type="radio" name="primary-position" checked="@position.IsPrimary" disabled="@(!CanEditPositions || PrimaryIsForeign)" @onchange="() => SetPrimary(position)" />
                                 <span>Основна</span>
                             </label>
-                            @if (CanManage)
+                            @if (CanEditPositions)
                             {
-                                <button type="button" class="ds-btn ds-btn--ghost ds-btn--icon ds-btn--sm" aria-label="Прибрати посаду" @onclick="() => Model.Positions.Remove(position)"><Icon Name="trash-2" /></button>
+                                <button type="button" class="ds-btn ds-btn--ghost ds-btn--icon ds-btn--sm" aria-label="Прибрати посаду" @onclick="() => RemovePosition(position)"><Icon Name="trash-2" /></button>
                             }
                         </div>
                     }
                 </ChildContent>
             </Card>
 
-            @if (CanManageRoles)
+            @if (CanManageRoles && CanEditAccount)
             {
                 <Card Title="Індивідуальні дозволи" Subtitle="Надати або заборонити окремі дозволи поверх ролей посад.">
                     <div class="perm-matrix">
@@ -159,7 +175,7 @@ else
         </div>
 
         <div class="ds-stack ds-stack--lg">
-            @if (CanManage)
+            @if (CanEditAccount || CanEditPositions)
             {
                 <Card Variant="CardVariant.Muted">
                     <div class="ds-stack">
@@ -176,13 +192,13 @@ else
             {
                 <Card Title="Безпека облікового запису">
                     <div class="ds-stack">
-                        @if (CanManage)
+                        @if (CanManage && Details.CanEditAccount)
                         {
                             <Button Variant="@(Details.IsActive ? ButtonVariant.Danger : ButtonVariant.Primary)" Block Icon="@(Details.IsActive ? "ban" : "check")" Disabled="Busy" OnClick="ToggleActiveAsync">
                                 @(Details.IsActive ? "Заблокувати" : "Розблокувати")
                             </Button>
                         }
-                        @if (CanSecurity)
+                        @if (CanSecurity && Details.CanManageSecurity)
                         {
                             <Button Variant="ButtonVariant.Secondary" Block Icon="key-round" Disabled="Busy" OnClick="ResetPasswordAsync">Видати тимчасовий пароль</Button>
                             <Button Variant="ButtonVariant.Secondary" Block Icon="smartphone" Disabled="Busy" OnClick="ResetAuthenticatorAsync">Скинути автентифікатор</Button>
