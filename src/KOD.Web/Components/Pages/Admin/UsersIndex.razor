@@ -2,7 +2,7 @@
 @attribute [RequirePermission(Permissions.Users.View)]
 @attribute [StreamRendering]
 
-<PageHeader Title="Користувачі" Subtitle="Облікові записи працівників і здобувачів освіти. Самостійна реєстрація вимкнена."
+<PageHeader Title="Користувачі" Subtitle="Облікові записи працівників і зовнішніх користувачів усіх організацій. Самостійна реєстрація вимкнена."
             Breadcrumbs="@([new("Адміністрування", "/admin"), new("Користувачі")])">
     <Actions>
         @if (User.HasPermission(Permissions.Users.Export))

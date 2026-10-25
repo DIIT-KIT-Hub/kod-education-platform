@@ -38,6 +38,9 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
     public DbSet<OrganizationUnit> OrganizationUnits => Set<OrganizationUnit>();
 
     /// <inheritdoc />
+    public DbSet<UnitType> UnitTypes => Set<UnitType>();
+
+    /// <inheritdoc />
     public DbSet<Document> Documents => Set<Document>();
 
     /// <inheritdoc />
@@ -99,7 +102,6 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
         ArgumentNullException.ThrowIfNull(configurationBuilder);
 
         // Enums are stored as readable strings.
-        configurationBuilder.Properties<OrganizationUnitType>().HaveConversion<string>().HaveMaxLength(32);
         configurationBuilder.Properties<DocumentKind>().HaveConversion<string>().HaveMaxLength(32);
         configurationBuilder.Properties<DocumentStatus>().HaveConversion<string>().HaveMaxLength(32);
         configurationBuilder.Properties<SigningMode>().HaveConversion<string>().HaveMaxLength(32);

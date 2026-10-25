@@ -7,7 +7,7 @@
     <section class="home-hero">
         <p class="ds-text-sm ds-strong">@Greeting</p>
         <h1>@FirstName</h1>
-        <p>Документи, які очікують на ваш підпис, новини закладу та швидкий доступ до сервісів — в одному місці.</p>
+        <p>Документи, які очікують на ваш підпис, новини організації та швидкий доступ до сервісів — в одному місці.</p>
         <div class="ds-cluster">
             @if (User.HasPermission(Permissions.Documents.Create))
             {
@@ -77,7 +77,7 @@
 
             @if (User.HasPermission(Permissions.News.View))
             {
-                <Card Title="Новини" Subtitle="Останні оголошення закладу">
+                <Card Title="Новини" Subtitle="Останні оголошення">
                     <HeaderActions>
                         <Button Href="/news" Variant="ButtonVariant.Ghost" Size="ControlSize.Small" IconEnd="arrow-right">Усі</Button>
                     </HeaderActions>

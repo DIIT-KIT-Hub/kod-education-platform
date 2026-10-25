@@ -47,6 +47,10 @@ namespace KOD.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(512)")
                         .HasColumnName("description");
 
+                    b.Property<bool>("IsLeadership")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_leadership");
+
                     b.Property<bool>("IsSystem")
                         .HasColumnType("boolean")
                         .HasColumnName("is_system");
@@ -587,11 +591,9 @@ namespace KOD.Infrastructure.Persistence.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("sort_order");
 
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasMaxLength(32)
-                        .HasColumnType("character varying(32)")
-                        .HasColumnName("type");
+                    b.Property<Guid>("TypeId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("type_id");
 
                     b.Property<DateTimeOffset?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
@@ -607,7 +609,69 @@ namespace KOD.Infrastructure.Persistence.Migrations
                     b.HasIndex("ParentId")
                         .HasDatabaseName("ix_organization_units_parent_id");
 
+                    b.HasIndex("TypeId")
+                        .HasDatabaseName("ix_organization_units_type_id");
+
                     b.ToTable("organization_units", (string)null);
+                });
+
+            modelBuilder.Entity("KOD.Domain.Organization.UnitType", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("citext")
+                        .HasColumnName("code");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(512)
+                        .HasColumnType("character varying(512)")
+                        .HasColumnName("description");
+
+                    b.Property<string>("Icon")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasColumnName("icon");
+
+                    b.Property<bool>("IsOrganization")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_organization");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("citext")
+                        .HasColumnName("name");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("integer")
+                        .HasColumnName("sort_order");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_unit_types");
+
+                    b.HasIndex("Code")
+                        .IsUnique()
+                        .HasDatabaseName("ix_unit_types_code");
+
+                    b.HasIndex("Name")
+                        .IsUnique()
+                        .HasDatabaseName("ix_unit_types_name");
+
+                    b.ToTable("unit_types", (string)null);
                 });
 
             modelBuilder.Entity("KOD.Domain.Sessions.UserSession", b =>
@@ -1026,7 +1090,16 @@ namespace KOD.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .HasConstraintName("fk_organization_units_organization_units_parent_id");
 
+                    b.HasOne("KOD.Domain.Organization.UnitType", "Type")
+                        .WithMany()
+                        .HasForeignKey("TypeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_organization_units_unit_types_type_id");
+
                     b.Navigation("Parent");
+
+                    b.Navigation("Type");
                 });
 
             modelBuilder.Entity("KOD.Domain.Users.StaffPosition", b =>

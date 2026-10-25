@@ -13,7 +13,7 @@
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
 
     <Company>DIIT KIT Hub</Company>
-    <Product>KOD — Education Data Cabinet</Product>
+    <Product>KOD — Organizational Documents Cabinet</Product>
     <Copyright>© DIIT KIT Hub</Copyright>
     <NeutralLanguage>en</NeutralLanguage>
   </PropertyGroup>

@@ -1,7 +1,7 @@
 namespace KOD.Application.Common.Text;
 
 /// <summary>
-/// The time zone of the institution. Dates entered or shown in the interface are Kyiv dates; moments are stored in UTC.
+/// The time zone of the cabinet. Dates entered or shown in the interface are Kyiv dates; moments are stored in UTC.
 /// </summary>
 public static class KyivTime
 {

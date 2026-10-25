@@ -59,7 +59,7 @@ public static class DependencyInjection
             services.AddHttpClient(PwnedPasswordValidator.HttpClientName, static client =>
             {
                 client.Timeout = TimeSpan.FromSeconds(5);
-                client.DefaultRequestHeaders.UserAgent.ParseAdd("KOD-education-platform");
+                client.DefaultRequestHeaders.UserAgent.ParseAdd("KOD-organizational-documents");
             });
 
             services.Configure<SessionLifetimeOptions>(configuration.GetSection(SessionLifetimeOptions.SectionName));

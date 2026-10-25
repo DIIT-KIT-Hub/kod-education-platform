@@ -1,5 +1,4 @@
 using KOD.Application.Common.Models;
-using KOD.Domain.Organization;
 
 namespace KOD.Application.Features.Organization;
 
@@ -14,7 +13,8 @@ namespace KOD.Application.Features.Organization;
 /// <param name="IsActive">Whether the unit is active.</param>
 /// <param name="ParentId">The parent identifier.</param>
 /// <param name="SortOrder">The display order.</param>
-/// <param name="Path">The units from the root to this one (breadcrumbs).</param>
+/// <param name="Path">The units from the top-level organization to this one (breadcrumbs).</param>
+/// <param name="Organization">The nearest organization the unit belongs to (the unit itself for an organization).</param>
 /// <param name="Children">The direct child units.</param>
 /// <param name="StaffCount">The number of positions in the unit.</param>
 public sealed record UnitDetails(
@@ -22,10 +22,11 @@ public sealed record UnitDetails(
     string Code,
     string Name,
     string? ShortName,
-    OrganizationUnitType Type,
+    UnitTypeRef Type,
     bool IsActive,
     Guid? ParentId,
     int SortOrder,
     IReadOnlyList<UnitRef> Path,
+    UnitRef Organization,
     IReadOnlyList<UnitTreeNode> Children,
     int StaffCount);

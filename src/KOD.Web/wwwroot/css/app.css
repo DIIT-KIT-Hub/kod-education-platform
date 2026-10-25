@@ -699,6 +699,23 @@
 .sign-files .doc-file__name { flex: 1 1 auto; }
 
 /* Admin -------------------------------------------------------------------- */
+/* Icon picker of the unit type editor. */
+.icon-picker { display: grid; grid-template-columns: repeat(auto-fill, minmax(3rem, 1fr)); gap: var(--ds-space-2); }
+.icon-picker__option {
+    position: relative;
+    display: grid;
+    place-items: center;
+    aspect-ratio: 1;
+    border: 1px solid var(--ds-color-border);
+    border-radius: var(--ds-radius-md);
+    cursor: pointer;
+    transition: background var(--ds-duration-fast) var(--ds-ease-out), border-color var(--ds-duration-fast) var(--ds-ease-out);
+}
+.icon-picker__option:hover { border-color: var(--ds-color-border-strong); background: var(--ds-color-surface-2); }
+.icon-picker__option input { position: absolute; opacity: 0; pointer-events: none; }
+.icon-picker__option:has(input:checked) { background: var(--ds-color-primary); border-color: var(--ds-color-primary); color: var(--ds-color-on-primary); }
+.icon-picker__option:has(input:focus-visible) { outline: 2px solid var(--ds-color-focus); outline-offset: 2px; }
+
 .perm-matrix { display: grid; gap: var(--ds-space-5); }
 .perm-module { display: grid; gap: var(--ds-space-3); }
 .perm-module__title { display: flex; align-items: center; gap: var(--ds-space-2); font-weight: 750; }

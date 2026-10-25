@@ -5,7 +5,7 @@ namespace KOD.Domain.News;
 /// </summary>
 public enum NewsCategory
 {
-    /// <summary>General university news.</summary>
+    /// <summary>General news.</summary>
     News = 0,
 
     /// <summary>Official announcement.</summary>
@@ -14,9 +14,9 @@ public enum NewsCategory
     /// <summary>Upcoming event.</summary>
     Event = 2,
 
-    /// <summary>Education process: schedule, sessions, admission.</summary>
-    Education = 3,
+    /// <summary>Training and professional development.</summary>
+    Training = 3,
 
-    /// <summary>Science and research.</summary>
-    Science = 4,
+    /// <summary>Projects and achievements.</summary>
+    Projects = 4,
 }

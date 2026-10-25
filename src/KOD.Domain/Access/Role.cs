@@ -72,6 +72,11 @@ public sealed class Role : AuditableEntity
     public bool IsSystem { get; private set; }
 
     /// <summary>
+    /// Gets a value indicating whether the role is a leadership position: its holders are listed first among the staff of a unit.
+    /// </summary>
+    public bool IsLeadership { get; private set; }
+
+    /// <summary>
     /// Gets a value indicating whether the role is the super-user role that implicitly owns every permission.
     /// </summary>
     public bool IsAdministrator => Code == SystemRoles.Administrator;
@@ -86,10 +91,12 @@ public sealed class Role : AuditableEntity
     /// </summary>
     /// <param name="name">The new name.</param>
     /// <param name="description">The new description.</param>
-    public void Update(string name, string? description)
+    /// <param name="isLeadership">Whether the role is a leadership position.</param>
+    public void Update(string name, string? description, bool isLeadership)
     {
         Name = Guard.Text(name, NameMaxLength, "Назва");
         Description = Guard.OptionalText(description, DescriptionMaxLength, "Опис");
+        IsLeadership = isLeadership;
     }
 
     /// <summary>

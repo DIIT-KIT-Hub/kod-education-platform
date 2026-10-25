@@ -3,40 +3,26 @@ using P = KOD.Domain.Access.Permissions;
 namespace KOD.Domain.Access;
 
 /// <summary>
-/// Predefined roles that model typical positions of a Ukrainian higher education institution.
-/// Their permissions can be adjusted by an administrator (except <see cref="Administrator"/>, which always has every permission).
+/// Predefined roles that model positions found in almost any organization, whatever its domain.
+/// Their names and permissions can be adjusted by an administrator (except <see cref="Administrator"/>, which always has every permission),
+/// and domain-specific roles (e.g. «Декан», «Головний лікар») are added as custom roles.
 /// </summary>
 public static class SystemRoles
 {
     /// <summary>System administrator — full access.</summary>
     public const string Administrator = "system-admin";
 
-    /// <summary>Rector.</summary>
-    public const string Rector = "rector";
+    /// <summary>Head of an organization (director, CEO, chairperson, rector…).</summary>
+    public const string Head = "head";
 
-    /// <summary>Vice-rector.</summary>
-    public const string ViceRector = "vice-rector";
+    /// <summary>Deputy head of an organization.</summary>
+    public const string DeputyHead = "deputy-head";
 
-    /// <summary>Director of an educational and scientific institute.</summary>
-    public const string InstituteDirector = "institute-director";
+    /// <summary>Head of a unit (department, division, sector, branch…).</summary>
+    public const string HeadOfUnit = "head-of-unit";
 
-    /// <summary>Dean of a faculty.</summary>
-    public const string Dean = "dean";
-
-    /// <summary>Deputy dean.</summary>
-    public const string DeputyDean = "deputy-dean";
-
-    /// <summary>Head of a department (кафедра).</summary>
-    public const string HeadOfDepartment = "head-of-department";
-
-    /// <summary>Academic staff member: professor, associate professor, senior lecturer, assistant.</summary>
-    public const string Lecturer = "lecturer";
-
-    /// <summary>Methodologist / dean's office specialist.</summary>
-    public const string Methodologist = "methodologist";
-
-    /// <summary>Head of an administrative division.</summary>
-    public const string HeadOfDivision = "head-of-division";
+    /// <summary>Deputy head of a unit.</summary>
+    public const string DeputyHeadOfUnit = "deputy-head-of-unit";
 
     /// <summary>Records clerk of the general (registry) office.</summary>
     public const string RecordsClerk = "records-clerk";
@@ -44,14 +30,14 @@ public static class SystemRoles
     /// <summary>Human resources specialist.</summary>
     public const string HrSpecialist = "hr-specialist";
 
-    /// <summary>Press office / communications specialist.</summary>
-    public const string PressOfficer = "press-officer";
+    /// <summary>Communications / press office specialist.</summary>
+    public const string Communications = "communications";
 
-    /// <summary>General employee without academic duties.</summary>
+    /// <summary>Employee without special powers.</summary>
     public const string Employee = "employee";
 
-    /// <summary>Student (higher education seeker).</summary>
-    public const string Student = "student";
+    /// <summary>External user outside the staff (contractor, client, trainee, student…).</summary>
+    public const string External = "external";
 
     /// <summary>
     /// Permissions every staff member gets.
@@ -64,20 +50,15 @@ public static class SystemRoles
     /// </summary>
     public static IReadOnlyList<SystemRoleDefinition> All { get; } =
     [
-        new(Administrator, "Системний адміністратор", "Повний доступ до всіх модулів і налаштувань системи.", [.. P.Codes]),
-        new(Rector, "Ректор", "Керівник закладу: усі документи закладу, підписання, структура.", [.. BasePermissions, P.Documents.ViewAll, P.Documents.Manage, P.Users.View, P.Audit.View]),
-        new(ViceRector, "Проректор", "Заступник керівника закладу за напрямом діяльності.", [.. BasePermissions, P.Documents.ViewAll, P.Users.View]),
-        new(InstituteDirector, "Директор інституту", "Керівник навчально-наукового інституту.", [.. BasePermissions, P.Documents.ViewUnit, P.Users.View]),
-        new(Dean, "Декан", "Керівник факультету.", [.. BasePermissions, P.Documents.ViewUnit, P.Users.View]),
-        new(DeputyDean, "Заступник декана", "Заступник керівника факультету.", [.. BasePermissions, P.Documents.ViewUnit, P.Users.View]),
-        new(HeadOfDepartment, "Завідувач кафедри", "Керівник кафедри.", [.. BasePermissions, P.Documents.ViewUnit, P.Users.View]),
-        new(Lecturer, "Науково-педагогічний працівник", "Професор, доцент, старший викладач, асистент.", BasePermissions),
-        new(Methodologist, "Методист", "Фахівець деканату чи навчального відділу.", [.. BasePermissions, P.Documents.ViewUnit]),
-        new(HeadOfDivision, "Керівник відділу", "Керівник адміністративного чи сервісного підрозділу.", [.. BasePermissions, P.Documents.ViewUnit, P.Users.View]),
-        new(RecordsClerk, "Діловод", "Працівник загального відділу (канцелярії): реєстрація та архівування документів.", [.. BasePermissions, P.Documents.ViewAll, P.Documents.Manage]),
-        new(HrSpecialist, "Фахівець відділу кадрів", "Ведення облікових записів працівників, імпорт та експорт.", [.. BasePermissions, P.Users.View, P.Users.Manage, P.Users.Import, P.Users.Export]),
-        new(PressOfficer, "Прес-служба", "Публікація новин та оголошень.", [.. BasePermissions, P.News.Manage]),
-        new(Employee, "Працівник", "Працівник без особливих повноважень.", BasePermissions),
-        new(Student, "Здобувач освіти", "Студент, аспірант: власні документи (заяви) та новини.", [P.Documents.View, P.Documents.Create, P.Documents.Sign, P.Signing.Use, P.News.View]),
+        new(Administrator, "Системний адміністратор", "Повний доступ до всіх модулів і налаштувань системи.", [.. P.Codes], IsLeadership: false),
+        new(Head, "Керівник організації", "Директор, голова, ректор чи інший перший керівник: усі документи організації, підписання, працівники та журнал аудиту.", [.. BasePermissions, P.Documents.ViewOrganization, P.Documents.Manage, P.Users.View, P.Audit.View], IsLeadership: true),
+        new(DeputyHead, "Заступник керівника", "Заступник першого керівника організації за напрямом діяльності.", [.. BasePermissions, P.Documents.ViewOrganization, P.Users.View], IsLeadership: true),
+        new(HeadOfUnit, "Керівник підрозділу", "Керівник департаменту, управління, відділу, сектору чи філії: документи свого підрозділу та вкладених.", [.. BasePermissions, P.Documents.ViewUnit, P.Users.View], IsLeadership: true),
+        new(DeputyHeadOfUnit, "Заступник керівника підрозділу", "Заступник керівника підрозділу.", [.. BasePermissions, P.Documents.ViewUnit], IsLeadership: true),
+        new(RecordsClerk, "Діловод", "Працівник канцелярії (загального відділу): реєстрація та архівування документів організації.", [.. BasePermissions, P.Documents.ViewOrganization, P.Documents.Manage], IsLeadership: false),
+        new(HrSpecialist, "Фахівець з персоналу", "Ведення облікових записів працівників, імпорт та експорт.", [.. BasePermissions, P.Users.View, P.Users.Manage, P.Users.Import, P.Users.Export], IsLeadership: false),
+        new(Communications, "Фахівець з комунікацій", "Публікація новин та оголошень.", [.. BasePermissions, P.News.Manage], IsLeadership: false),
+        new(Employee, "Працівник", "Працівник без особливих повноважень.", BasePermissions, IsLeadership: false),
+        new(External, "Зовнішній користувач", "Особа поза штатом (контрагент, клієнт, слухач, здобувач освіти): власні документи та новини, без доступу до структури.", [P.Documents.View, P.Documents.Create, P.Documents.Sign, P.Signing.Use, P.News.View], IsLeadership: false),
     ];
 }

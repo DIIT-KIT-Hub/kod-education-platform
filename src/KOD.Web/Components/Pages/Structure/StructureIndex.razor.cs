@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Components.Authorization;
 namespace KOD.Web.Components.Pages.Structure;
 
 /// <summary>
-/// The organizational tree of the institution.
+/// The organizational tree: every organization with its units.
 /// </summary>
 public partial class StructureIndex
 {

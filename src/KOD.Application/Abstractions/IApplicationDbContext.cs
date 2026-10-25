@@ -40,6 +40,11 @@ public interface IApplicationDbContext
     DbSet<OrganizationUnit> OrganizationUnits { get; }
 
     /// <summary>
+    /// Gets the unit types.
+    /// </summary>
+    DbSet<UnitType> UnitTypes { get; }
+
+    /// <summary>
     /// Gets the documents.
     /// </summary>
     DbSet<Document> Documents { get; }

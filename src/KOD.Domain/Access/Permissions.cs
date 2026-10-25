@@ -14,16 +14,17 @@ public static class Permissions
     [
         new(Documents.View, AppModule.Documents, "Мої документи", "Перегляд документів, автором або підписантом яких є користувач."),
         new(Documents.ViewUnit, AppModule.Documents, "Документи підрозділу", "Перегляд документів свого підрозділу та всіх вкладених підрозділів."),
-        new(Documents.ViewAll, AppModule.Documents, "Усі документи", "Перегляд документів усього закладу освіти."),
+        new(Documents.ViewOrganization, AppModule.Documents, "Документи організації", "Перегляд документів усієї організації, у якій користувач обіймає посаду, з усіма її підрозділами."),
+        new(Documents.ViewAll, AppModule.Documents, "Усі документи", "Перегляд документів усіх організацій у системі."),
         new(Documents.Create, AppModule.Documents, "Створення документів", "Завантаження документів і формування маршруту підписання."),
         new(Documents.Sign, AppModule.Documents, "Підписання документів", "Накладання кваліфікованого електронного підпису на документи."),
         new(Documents.Manage, AppModule.Documents, "Керування документами", "Архівування та видалення будь-яких доступних документів."),
         new(Signing.Use, AppModule.Signing, "Підписання та перевірка файлів", "Інструменти підписання та перевірки довільних файлів у браузері."),
-        new(News.View, AppModule.News, "Перегляд новин", "Перегляд новин та оголошень закладу."),
+        new(News.View, AppModule.News, "Перегляд новин", "Перегляд новин та оголошень."),
         new(News.Manage, AppModule.News, "Керування новинами", "Створення, редагування та публікація новин."),
-        new(Structure.View, AppModule.Structure, "Перегляд структури", "Перегляд організаційної структури та працівників підрозділів."),
-        new(Structure.Manage, AppModule.Structure, "Керування структурою", "Створення та редагування інститутів, факультетів, кафедр і відділів."),
-        new(Users.View, AppModule.Users, "Перегляд користувачів", "Перегляд облікових записів працівників."),
+        new(Structure.View, AppModule.Structure, "Перегляд структури", "Перегляд організацій, їхніх підрозділів і працівників."),
+        new(Structure.Manage, AppModule.Structure, "Керування структурою", "Створення та редагування організацій, підрозділів і типів підрозділів."),
+        new(Users.View, AppModule.Users, "Перегляд користувачів", "Перегляд облікових записів користувачів."),
         new(Users.Manage, AppModule.Users, "Керування користувачами", "Створення, редагування та блокування облікових записів, призначення посад."),
         new(Users.Import, AppModule.Users, "Імпорт користувачів", "Масове створення та оновлення облікових записів з файлів XLSX/CSV."),
         new(Users.Export, AppModule.Users, "Експорт користувачів", "Вивантаження облікових записів у файли XLSX/CSV."),
@@ -54,7 +55,10 @@ public static class Permissions
         /// <summary>View documents of own units and their descendants.</summary>
         public const string ViewUnit = "documents.view.unit";
 
-        /// <summary>View documents of the whole institution.</summary>
+        /// <summary>View documents of the organizations of own positions, including all their units.</summary>
+        public const string ViewOrganization = "documents.view.organization";
+
+        /// <summary>View documents of every organization in the system.</summary>
         public const string ViewAll = "documents.view.all";
 
         /// <summary>Create documents and signing routes.</summary>
@@ -96,7 +100,7 @@ public static class Permissions
         /// <summary>View the structure and unit staff.</summary>
         public const string View = "structure.view";
 
-        /// <summary>Create and edit units.</summary>
+        /// <summary>Create and edit organizations, units and unit types.</summary>
         public const string Manage = "structure.manage";
     }
 

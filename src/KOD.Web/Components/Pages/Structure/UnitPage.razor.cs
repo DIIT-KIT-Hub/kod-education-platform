@@ -1,7 +1,7 @@
 using KOD.Application.Common.Paging;
 using KOD.Application.Features.Organization;
-using KOD.DesignSystem.Components;
 using KOD.Domain.Access;
+using KOD.Web.DesignSystem.Components;
 using KOD.Web.Security;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
@@ -78,16 +78,14 @@ public partial class UnitPage
     {
         CanManage = (await AuthenticationState).User.HasPermission(Permissions.Structure.Manage);
         var unit = await Organization.GetAsync(Id, CancellationToken.None);
-        Unit = unit.IsSuccess ? unit.Value : null;
-        if (Unit is null)
-        {
-            return;
-        }
+        var staff = unit.IsSuccess
+            ? await Organization.GetStaffAsync(
+                Id,
+                new PageRequest { Search = Search, Page = Page ?? 1, PageSize = PageSize ?? PageRequest.DefaultPageSize },
+                CancellationToken.None)
+            : null;
 
-        var staff = await Organization.GetStaffAsync(
-            Id,
-            new PageRequest { Search = Search, Page = Page ?? 1, PageSize = PageSize ?? PageRequest.DefaultPageSize },
-            CancellationToken.None);
-        Staff = staff.IsSuccess ? staff.Value : PagedResult<UnitStaffItem>.Empty(new PageRequest());
+        Unit = unit.IsSuccess ? unit.Value : null;
+        Staff = staff is { IsSuccess: true } ? staff.Value : PagedResult<UnitStaffItem>.Empty(new PageRequest());
     }
 }

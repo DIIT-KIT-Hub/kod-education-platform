@@ -59,6 +59,12 @@ public static class AuditActions
     /// <summary>Organization unit created or changed.</summary>
     public const string UnitChanged = "structure.changed";
 
+    /// <summary>Unit type created or changed.</summary>
+    public const string UnitTypeChanged = "structure.type-changed";
+
+    /// <summary>Unit type deleted.</summary>
+    public const string UnitTypeDeleted = "structure.type-deleted";
+
     /// <summary>Document created.</summary>
     public const string DocumentCreated = "documents.created";
 

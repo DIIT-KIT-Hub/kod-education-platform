@@ -30,6 +30,10 @@
                 {
                     <Badge Tone="Tone.Dashed">Власна</Badge>
                 }
+                @if (context.IsLeadership)
+                {
+                    <Badge>Керівна</Badge>
+                }
             </GridColumn>
             <GridColumn TItem="RoleListItem" Title="Дозволи">@context.PermissionCount</GridColumn>
             <GridColumn TItem="RoleListItem" Title="Користувачі">@context.UserCount</GridColumn>

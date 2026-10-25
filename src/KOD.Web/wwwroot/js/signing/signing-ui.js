@@ -15,7 +15,7 @@
  * All dynamic text is inserted with textContent (no innerHTML), so certificate fields cannot inject markup.
  */
 
-import { createWizard } from "/_content/KOD.DesignSystem/js/kod-wizard.js";
+import { createWizard } from "/js/kod-wizard.js";
 import { EUSignClient } from "./eusign-client.js";
 
 /** Signature formats supported by euscp.ex.js. */
@@ -93,7 +93,7 @@ function icon(name, extraClass = "") {
     svg.setAttribute("class", `ds-icon ${extraClass}`.trim());
     svg.setAttribute("aria-hidden", "true");
     const use = document.createElementNS(ns, "use");
-    use.setAttribute("href", `/_content/KOD.DesignSystem/icons/sprite.svg#${name}`);
+    use.setAttribute("href", `/icons/sprite.svg#${name}`);
     svg.append(use);
     return svg;
 }

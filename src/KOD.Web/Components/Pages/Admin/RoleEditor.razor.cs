@@ -82,6 +82,7 @@ public partial class RoleEditor
                 Code = Existing.Code,
                 Name = Existing.Name,
                 Description = Existing.Description,
+                IsLeadership = Existing.IsLeadership,
                 Permissions = [.. Existing.Permissions],
             };
         }
@@ -115,7 +116,7 @@ public partial class RoleEditor
         Busy = true;
         try
         {
-            var command = new SaveRoleCommand(Model.Code, Model.Name, Model.Description, [.. Model.Permissions]);
+            var command = new SaveRoleCommand(Model.Code, Model.Name, Model.Description, [.. Model.Permissions], Model.IsLeadership);
             if (Id is { } id)
             {
                 var result = await Roles.UpdateAsync(id, command, CancellationToken.None);
@@ -181,6 +182,11 @@ public partial class RoleEditor
         /// Gets or sets the description.
         /// </summary>
         public string? Description { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the role is a leadership position.
+        /// </summary>
+        public bool IsLeadership { get; set; }
 
         /// <summary>
         /// Gets or sets the granted permissions.

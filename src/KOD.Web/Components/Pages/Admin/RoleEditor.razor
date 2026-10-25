@@ -55,7 +55,7 @@
                     @if (Existing is null)
                     {
                         <Field Label="Код" For="role-code" Required Hint="Латиниця, цифри, «-». Використовується в імпорті.">
-                            <InputText id="role-code" @bind-Value="Model.Code" class="ds-input ds-mono" maxlength="64" placeholder="lab-assistant" />
+                            <InputText id="role-code" @bind-Value="Model.Code" class="ds-input ds-mono" maxlength="64" placeholder="project-manager" />
                             <ValidationMessage For="() => Model.Code" />
                         </Field>
                     }
@@ -66,6 +66,10 @@
                     <Field Label="Опис" For="role-description">
                         <InputTextArea id="role-description" @bind-Value="Model.Description" class="ds-textarea" maxlength="512" rows="3" />
                     </Field>
+                    <label class="ds-check">
+                        <InputCheckbox @bind-Value="Model.IsLeadership" />
+                        <span class="ds-check__text"><span>Керівна посада</span><span class="ds-check__hint">Працівників із цією роллю показано першими у складі підрозділу з позначкою «Керівник».</span></span>
+                    </label>
                 </div>
             </Card>
             <Card Variant="CardVariant.Muted">

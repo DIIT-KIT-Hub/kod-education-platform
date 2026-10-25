@@ -81,7 +81,7 @@ public sealed class DocumentTests
         var document = CreateDocument(SigningMode.Sequential);
         document.Submit(Now);
         Sign(document, First);
-        document.Reject(Second, "Додати підпис ректора", Now);
+        document.Reject(Second, "Додати підпис директора", Now);
 
         document.Submit(Now.AddHours(1));
 

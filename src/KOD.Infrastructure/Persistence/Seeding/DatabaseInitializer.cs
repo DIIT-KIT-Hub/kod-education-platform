@@ -13,7 +13,7 @@ using Microsoft.Extensions.Options;
 namespace KOD.Infrastructure.Persistence.Seeding;
 
 /// <summary>
-/// Applies migrations and creates the mandatory initial data: predefined roles, the root unit and the first administrator.
+/// Applies migrations and creates the mandatory initial data: predefined roles, the default unit types, the first organization and the first administrator.
 /// Optionally creates a demo structure, demo staff and news.
 /// </summary>
 /// <param name="db">The database context.</param>
@@ -40,47 +40,61 @@ public sealed partial class DatabaseInitializer(
     private const string AdminPasswordFile = "App_Data/initial-admin-password.txt";
 
     /// <summary>
-    /// Demo units: code, name, short name, type, parent code.
+    /// The default unit types created for an empty catalog: code, name, organization flag, icon, description.
     /// </summary>
-    private static readonly (string Code, string Name, string? Short, OrganizationUnitType Type, string? Parent)[] DemoUnits =
+    private static readonly (string Code, string Name, bool IsOrganization, string Icon, string Description)[] DefaultUnitTypes =
     [
-        ("RECT", "Ректорат", null, OrganizationUnitType.Division, null),
-        ("REG", "Загальний відділ (канцелярія)", "ЗВ", OrganizationUnitType.Division, null),
-        ("HR", "Відділ кадрів", "ВК", OrganizationUnitType.Division, null),
-        ("EDU", "Навчальний відділ", "НВ", OrganizationUnitType.Division, null),
-        ("ACC", "Бухгалтерія", null, OrganizationUnitType.Division, null),
-        ("PRESS", "Прес-служба", null, OrganizationUnitType.Division, null),
-        ("IIT", "Навчально-науковий інститут інформаційних технологій", "ННІ ІТ", OrganizationUnitType.Institute, null),
-        ("SE", "Кафедра програмної інженерії", "ПІ", OrganizationUnitType.Department, "IIT"),
-        ("CS", "Кафедра комп'ютерних наук", "КН", OrganizationUnitType.Department, "IIT"),
-        ("CYB", "Кафедра кібербезпеки", "КБ", OrganizationUnitType.Department, "IIT"),
-        ("ITLAB", "Лабораторія інформаційних систем", null, OrganizationUnitType.Laboratory, "IIT"),
-        ("FEM", "Факультет економіки та управління", "ФЕУ", OrganizationUnitType.Faculty, null),
-        ("ECON", "Кафедра економіки", null, OrganizationUnitType.Department, "FEM"),
-        ("MGMT", "Кафедра менеджменту", null, OrganizationUnitType.Department, "FEM"),
-        ("FIN", "Кафедра фінансів, обліку та оподаткування", null, OrganizationUnitType.Department, "FEM"),
-        ("FHS", "Факультет гуманітарних наук", "ФГН", OrganizationUnitType.Faculty, null),
-        ("PHIL", "Кафедра української філології", null, OrganizationUnitType.Department, "FHS"),
-        ("HIST", "Кафедра історії", null, OrganizationUnitType.Department, "FHS"),
-        ("LANG", "Кафедра іноземних мов", null, OrganizationUnitType.Department, "FHS"),
+        ("ORGANIZATION", "Організація", true, "building-2", "Самостійна організація: компанія, установа, заклад, фонд, громадська організація."),
+        ("DEPARTMENT", "Департамент", false, "layers", "Великий підрозділ, що об'єднує управління, відділи чи служби."),
+        ("DIRECTORATE", "Управління", false, "briefcase", "Підрозділ, що об'єднує кілька відділів або керує напрямом діяльності."),
+        ("DIVISION", "Відділ", false, "users", "Базовий структурний підрозділ."),
+        ("SECTOR", "Сектор", false, "folder-tree", "Невеликий підрозділ у складі відділу."),
+        ("SERVICE", "Служба", false, "settings", "Функціональна служба: канцелярія, підтримка, охорона праці тощо."),
+        ("TEAM", "Група / команда", false, "network", "Робоча або проєктна група."),
+        ("BRANCH", "Філія / представництво", false, "map-pin", "Відокремлений підрозділ організації в іншому місці."),
     ];
 
     /// <summary>
-    /// Demo staff: e-mail, last name, first name, patronymic, unit code, role code, title.
+    /// Demo units: code, name, short name, type code, parent code (<see langword="null"/> — the first organization, empty — top level).
     /// </summary>
-    private static readonly (string Email, string Last, string First, string Middle, string Unit, string Role, string Title)[] DemoStaff =
+    private static readonly (string Code, string Name, string? Short, string Type, string? Parent)[] DemoUnits =
     [
-        ("rector@kod.local", "Шевченко", "Олександр", "Іванович", "RECT", SystemRoles.Rector, "Ректор"),
-        ("vice.rector@kod.local", "Мельник", "Наталія", "Петрівна", "RECT", SystemRoles.ViceRector, "Проректор з науково-педагогічної роботи"),
-        ("director.iit@kod.local", "Бондаренко", "Андрій", "Сергійович", "IIT", SystemRoles.InstituteDirector, "Директор ННІ ІТ"),
-        ("dean.fem@kod.local", "Ткаченко", "Ірина", "Володимирівна", "FEM", SystemRoles.Dean, "Декан ФЕУ"),
-        ("head.se@kod.local", "Кравченко", "Дмитро", "Олегович", "SE", SystemRoles.HeadOfDepartment, "Завідувач кафедри програмної інженерії"),
-        ("lecturer.se@kod.local", "Коваленко", "Марія", "Андріївна", "SE", SystemRoles.Lecturer, "Доцент"),
-        ("methodologist@kod.local", "Олійник", "Світлана", "Миколаївна", "IIT", SystemRoles.Methodologist, "Методист"),
-        ("clerk@kod.local", "Шевчук", "Тетяна", "Іванівна", "REG", SystemRoles.RecordsClerk, "Діловод"),
+        ("MGMT", "Дирекція", null, "DIRECTORATE", null),
+        ("OFFICE", "Канцелярія", null, "SERVICE", null),
+        ("HR", "Відділ кадрів", "ВК", "DIVISION", null),
+        ("FIN", "Фінансовий департамент", "ФД", "DEPARTMENT", null),
+        ("ACC", "Бухгалтерія", null, "DIVISION", "FIN"),
+        ("PLAN", "Відділ фінансового планування", null, "DIVISION", "FIN"),
+        ("IT", "Департамент інформаційних технологій", "ДІТ", "DEPARTMENT", null),
+        ("DEV", "Відділ розробки", null, "DIVISION", "IT"),
+        ("DEV-WEB", "Сектор вебзастосунків", null, "SECTOR", "DEV"),
+        ("SUPPORT", "Служба підтримки", null, "SERVICE", "IT"),
+        ("LEGAL", "Юридичний відділ", "ЮВ", "DIVISION", null),
+        ("COMM", "Відділ комунікацій", null, "DIVISION", null),
+        ("LVIV", "Львівська філія", null, "BRANCH", null),
+        ("SALES", "Відділ продажу", null, "DIVISION", "LVIV"),
+        ("FUND", "Благодійний фонд «Відкриті серця»", "БФ «ВС»", "ORGANIZATION", string.Empty),
+        ("FUND-BOARD", "Правління", null, "DIRECTORATE", "FUND"),
+        ("FUND-PROJ", "Відділ проєктів", null, "DIVISION", "FUND"),
+    ];
+
+    /// <summary>
+    /// Demo staff: e-mail, last name, first name, patronymic, unit code (<see langword="null"/> — the first organization), role code, title.
+    /// </summary>
+    private static readonly (string Email, string Last, string First, string Middle, string? Unit, string Role, string Title)[] DemoStaff =
+    [
+        ("director@kod.local", "Шевченко", "Олександр", "Іванович", null, SystemRoles.Head, "Генеральний директор"),
+        ("deputy@kod.local", "Мельник", "Наталія", "Петрівна", "MGMT", SystemRoles.DeputyHead, "Заступник генерального директора"),
+        ("head.it@kod.local", "Бондаренко", "Андрій", "Сергійович", "IT", SystemRoles.HeadOfUnit, "Директор департаменту ІТ"),
+        ("head.fin@kod.local", "Ткаченко", "Ірина", "Володимирівна", "FIN", SystemRoles.HeadOfUnit, "Фінансовий директор"),
+        ("head.dev@kod.local", "Кравченко", "Дмитро", "Олегович", "DEV", SystemRoles.HeadOfUnit, "Начальник відділу розробки"),
+        ("engineer@kod.local", "Коваленко", "Марія", "Андріївна", "DEV-WEB", SystemRoles.Employee, "Провідний інженер-програміст"),
+        ("clerk@kod.local", "Шевчук", "Тетяна", "Іванівна", "OFFICE", SystemRoles.RecordsClerk, "Діловод"),
         ("hr@kod.local", "Поліщук", "Оксана", "Василівна", "HR", SystemRoles.HrSpecialist, "Інспектор з кадрів"),
-        ("press@kod.local", "Лисенко", "Юлія", "Олександрівна", "PRESS", SystemRoles.PressOfficer, "Керівник прес-служби"),
-        ("student@kod.local", "Гончаренко", "Максим", "Ігорович", "SE", SystemRoles.Student, "Студент 3 курсу"),
+        ("press@kod.local", "Лисенко", "Юлія", "Олександрівна", "COMM", SystemRoles.Communications, "Менеджер з комунікацій"),
+        ("lviv@kod.local", "Гнатюк", "Роман", "Степанович", "LVIV", SystemRoles.HeadOfUnit, "Директор філії"),
+        ("external@kod.local", "Гончаренко", "Максим", "Ігорович", null, SystemRoles.External, "Представник контрагента"),
+        ("fund@kod.local", "Олійник", "Світлана", "Миколаївна", "FUND", SystemRoles.Head, "Голова правління"),
     ];
 
     /// <summary>
@@ -94,13 +108,14 @@ public sealed partial class DatabaseInitializer(
         await ProtectLegacyTokensAsync(cancellationToken);
 
         var roles = await SeedRolesAsync(cancellationToken);
-        var root = await SeedRootAsync(cancellationToken);
+        var types = await SeedUnitTypesAsync(cancellationToken);
+        var root = await SeedRootAsync(types, cancellationToken);
         await SeedAdministratorAsync(root, roles[SystemRoles.Administrator], cancellationToken);
 
         if (options.Value.DemoData)
         {
-            var units = await SeedDemoUnitsAsync(root, cancellationToken);
-            await SeedDemoStaffAsync(units, roles, cancellationToken);
+            var units = await SeedDemoUnitsAsync(root, types, cancellationToken);
+            await SeedDemoStaffAsync(root, units, roles, cancellationToken);
             await SeedDemoNewsAsync(cancellationToken);
         }
     }
@@ -187,6 +202,7 @@ public sealed partial class DatabaseInitializer(
             if (!existing.TryGetValue(definition.Code, out var role))
             {
                 role = new Role(definition.Code, definition.Name, definition.Description, isSystem: true);
+                role.Update(definition.Name, definition.Description, definition.IsLeadership);
                 role.SetPermissions(definition.Permissions);
                 db.Roles.Add(role);
                 existing[definition.Code] = role;
@@ -203,21 +219,60 @@ public sealed partial class DatabaseInitializer(
     }
 
     /// <summary>
-    /// Creates the root unit (the institution) when missing.
+    /// Fills an empty unit type catalog with types common to most organizations; later changes of the administrator are kept.
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>The root unit.</returns>
-    private async Task<OrganizationUnit> SeedRootAsync(CancellationToken cancellationToken)
+    /// <returns>The types by code.</returns>
+    private async Task<Dictionary<string, UnitType>> SeedUnitTypesAsync(CancellationToken cancellationToken)
     {
-        var root = await db.OrganizationUnits.FirstOrDefaultAsync(static u => u.ParentId == null && u.Type == OrganizationUnitType.University, cancellationToken);
+        var existing = await db.UnitTypes.ToDictionaryAsync(static t => t.Code, StringComparer.OrdinalIgnoreCase, cancellationToken);
+        if (existing.Count > 0)
+        {
+            return existing;
+        }
+
+        var order = 0;
+        foreach (var (code, name, isOrganization, icon, description) in DefaultUnitTypes)
+        {
+            var type = new UnitType(code, name, isOrganization);
+            type.Update(code, name, description, icon, isOrganization, order += 10);
+            db.UnitTypes.Add(type);
+            existing[code] = type;
+        }
+
+        await db.SaveChangesAsync(cancellationToken);
+        return existing;
+    }
+
+    /// <summary>
+    /// Creates the first organization when the structure is empty and returns the first top-level organization.
+    /// </summary>
+    /// <param name="types">The unit types by code.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The first organization.</returns>
+    private async Task<OrganizationUnit> SeedRootAsync(Dictionary<string, UnitType> types, CancellationToken cancellationToken)
+    {
+        var root = await db.OrganizationUnits
+            .Where(static u => u.ParentId == null)
+            .OrderBy(static u => u.SortOrder)
+            .ThenBy(static u => u.CreatedAt)
+            .FirstOrDefaultAsync(cancellationToken);
         if (root is not null)
         {
             return root;
         }
 
+        var type = types.Values.Where(static t => t.IsOrganization).MinBy(static t => t.SortOrder);
+        if (type is null)
+        {
+            type = new UnitType("ORGANIZATION", "Організація", isOrganization: true);
+            db.UnitTypes.Add(type);
+            types[type.Code] = type;
+        }
+
         var settings = options.Value;
-        root = new OrganizationUnit(settings.UniversityCode, settings.UniversityName, OrganizationUnitType.University, null);
-        root.Update(settings.UniversityCode, settings.UniversityName, settings.UniversityShortName, OrganizationUnitType.University, 0);
+        root = new OrganizationUnit(settings.OrganizationCode, settings.OrganizationName, type.Id, null);
+        root.Update(settings.OrganizationCode, settings.OrganizationName, settings.OrganizationShortName, type.Id, 0);
         db.OrganizationUnits.Add(root);
         await db.SaveChangesAsync(cancellationToken);
         return root;
@@ -262,23 +317,30 @@ public sealed partial class DatabaseInitializer(
     /// <summary>
     /// Creates the demo structure.
     /// </summary>
-    /// <param name="root">The root unit.</param>
+    /// <param name="root">The first organization.</param>
+    /// <param name="types">The unit types by code.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The units by code.</returns>
-    private async Task<Dictionary<string, OrganizationUnit>> SeedDemoUnitsAsync(OrganizationUnit root, CancellationToken cancellationToken)
+    private async Task<Dictionary<string, OrganizationUnit>> SeedDemoUnitsAsync(OrganizationUnit root, Dictionary<string, UnitType> types, CancellationToken cancellationToken)
     {
         var units = await db.OrganizationUnits.ToDictionaryAsync(static u => u.Code, StringComparer.OrdinalIgnoreCase, cancellationToken);
         var order = 0;
-        foreach (var (code, name, shortName, type, parent) in DemoUnits)
+        foreach (var (code, name, shortName, typeCode, parent) in DemoUnits)
         {
-            if (units.ContainsKey(code))
+            // Demo units need the default types; those the administrator has removed are skipped.
+            if (units.ContainsKey(code) || !types.TryGetValue(typeCode, out var type))
             {
                 continue;
             }
 
-            var parentId = parent is null ? root.Id : units[parent].Id;
-            var unit = new OrganizationUnit(code, name, type, parentId);
-            unit.Update(code, name, shortName, type, ++order);
+            Guid? parentId = parent switch
+            {
+                null => root.Id,
+                { Length: 0 } => null,
+                _ => units.TryGetValue(parent, out var parentUnit) ? parentUnit.Id : root.Id,
+            };
+            var unit = new OrganizationUnit(code, name, type.Id, parentId);
+            unit.Update(code, name, shortName, type.Id, ++order);
             db.OrganizationUnits.Add(unit);
             units[code] = unit;
         }
@@ -290,11 +352,12 @@ public sealed partial class DatabaseInitializer(
     /// <summary>
     /// Creates demo staff accounts with a known password (they still enroll an authenticator at the first sign-in).
     /// </summary>
+    /// <param name="root">The first organization.</param>
     /// <param name="units">The units by code.</param>
     /// <param name="roles">The roles by code.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task that completes when the accounts exist.</returns>
-    private async Task SeedDemoStaffAsync(Dictionary<string, OrganizationUnit> units, Dictionary<string, Role> roles, CancellationToken cancellationToken)
+    private async Task SeedDemoStaffAsync(OrganizationUnit root, Dictionary<string, OrganizationUnit> units, Dictionary<string, Role> roles, CancellationToken cancellationToken)
     {
         var password = options.Value.DemoPassword;
         if (string.IsNullOrWhiteSpace(password))
@@ -303,19 +366,21 @@ public sealed partial class DatabaseInitializer(
         }
 
         var created = 0;
-        foreach (var (email, last, first, middle, unit, role, title) in DemoStaff)
+        foreach (var (email, last, first, middle, unitCode, role, title) in DemoStaff)
         {
-            if (await userManager.FindByEmailAsync(email) is not null)
+            var unit = unitCode is null ? root : units.GetValueOrDefault(unitCode);
+            if (unit is null || await userManager.FindByEmailAsync(email) is not null)
             {
                 continue;
             }
 
             var user = new User(email, last, first, middle);
             user.RequirePasswordChange(false);
-            user.SetPositions([(units[unit].Id, roles[role].Id, title, true)]);
-            if (role == SystemRoles.HeadOfDepartment)
+            user.SetPositions([(unit.Id, roles[role].Id, title, true)]);
+            if (email == "head.dev@kod.local" && units.TryGetValue("DEV-WEB", out var sector))
             {
-                user.SetPositions([(units[unit].Id, roles[role].Id, title, true), (units[unit].Id, roles[SystemRoles.Lecturer].Id, "Професор", false)]);
+                // A second, part-time position shows how one person can work in several units.
+                user.SetPositions([(unit.Id, roles[role].Id, title, true), (sector.Id, roles[SystemRoles.Employee].Id, "Архітектор програмного забезпечення", false)]);
             }
 
             var result = await userManager.CreateAsync(user, password);
@@ -347,27 +412,27 @@ public sealed partial class DatabaseInitializer(
         (string Slug, string Title, string Summary, string Body, NewsCategory Category, bool Pinned, int DaysAgo)[] items =
         [
             (
-                "zapusk-kabinetu-osvitnikh-danykh",
-                "Запущено Кабінет освітніх даних",
-                "Університет переходить на електронний документообіг із кваліфікованим електронним підписом.",
-                "## Що змінюється\n\nВідтепер накази, розпорядження, службові записки та заяви погоджуються **в електронному вигляді**.\n\n- підпис накладається у браузері — ключ і пароль не залишають ваш пристрій;\n- підтримуються формати CAdES, XAdES, PAdES, ASiC-S та ASiC-E;\n- вхід захищено двофакторною автентифікацією.\n\nПитання щодо доступу — до відділу кадрів або системного адміністратора.",
+                "zapusk-kabinetu-orhanizatsiinykh-dokumentiv",
+                "Запущено Кабінет організаційних документів",
+                "Організація переходить на електронний документообіг із кваліфікованим електронним підписом.",
+                "## Що змінюється\n\nВідтепер накази, розпорядження, службові записки, договори та акти погоджуються **в електронному вигляді**.\n\n- підпис накладається у браузері — ключ і пароль не залишають ваш пристрій;\n- підтримуються формати CAdES, XAdES, PAdES, ASiC-S та ASiC-E;\n- вхід захищено двофакторною автентифікацією.\n\nПитання щодо доступу — до відділу кадрів або системного адміністратора.",
                 NewsCategory.Announcement,
                 true,
                 1),
             (
-                "hrafik-zymovoi-sesii",
-                "Затверджено графік зимової екзаменаційної сесії",
-                "Деканати оприлюднили розклад іспитів і консультацій для всіх курсів.",
-                "Розклад доступний у деканатах та на сторінках інститутів і факультетів.\n\n> Зверніть увагу: ліквідація академічної заборгованості — до кінця навчального семестру.",
-                NewsCategory.Education,
+                "novyi-poriadok-pohodzhennia-dohovoriv",
+                "Оновлено порядок погодження договорів",
+                "Договори погоджуються паралельним маршрутом: юридичний відділ, фінансовий департамент і керівник підрозділу.",
+                "Ініціатор створює документ виду **«Договір»**, обирає свій підрозділ і додає погоджувачів до маршруту.\n\n> Строк погодження — до трьох робочих днів.",
+                NewsCategory.News,
                 false,
                 3),
             (
-                "naukova-konferentsiia-tsyfrova-transformatsiia",
-                "Наукова конференція «Цифрова трансформація освіти»",
-                "Запрошуємо науковців і здобувачів освіти взяти участь у щорічній конференції.",
-                "Тези доповідей приймаються до кінця місяця. Робочі мови — українська та англійська.\n\nДеталі — у прес-службі університету.",
-                NewsCategory.Science,
+                "navchannia-elektronnyi-pidpys",
+                "Навчання: робота з кваліфікованим електронним підписом",
+                "Запрошуємо працівників на онлайн-заняття з підписання та перевірки документів.",
+                "Розглянемо файлові ключі, формати CAdES, XAdES, PAdES і ASiC та перевірку підпису.\n\nРеєстрація — у відділі кадрів.",
+                NewsCategory.Training,
                 false,
                 6),
         ];

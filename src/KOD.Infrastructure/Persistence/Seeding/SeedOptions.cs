@@ -11,19 +11,19 @@ public sealed class SeedOptions
     public const string SectionName = "Seed";
 
     /// <summary>
-    /// Gets or sets the official name of the institution (root unit).
+    /// Gets or sets the official name of the first organization, created when the structure is empty.
     /// </summary>
-    public string UniversityName { get; set; } = "Університет";
+    public string OrganizationName { get; set; } = "Моя організація";
 
     /// <summary>
-    /// Gets or sets the abbreviation of the institution.
+    /// Gets or sets the abbreviation of the first organization.
     /// </summary>
-    public string UniversityShortName { get; set; } = "УН";
+    public string OrganizationShortName { get; set; } = "МО";
 
     /// <summary>
-    /// Gets or sets the code of the root unit.
+    /// Gets or sets the code of the first organization.
     /// </summary>
-    public string UniversityCode { get; set; } = "UNIV";
+    public string OrganizationCode { get; set; } = "ORG";
 
     /// <summary>
     /// Gets or sets the e-mail of the first system administrator.

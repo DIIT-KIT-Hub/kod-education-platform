@@ -16,17 +16,17 @@ public enum AppModule
     Signing = 1,
 
     /// <summary>
-    /// University news and announcements.
+    /// News and announcements.
     /// </summary>
     News = 2,
 
     /// <summary>
-    /// Organizational structure: institutes, faculties, departments, divisions.
+    /// Organizational structure: organizations, their units and unit types.
     /// </summary>
     Structure = 3,
 
     /// <summary>
-    /// Staff accounts, positions, import and export.
+    /// User accounts, positions, import and export.
     /// </summary>
     Users = 4,
 

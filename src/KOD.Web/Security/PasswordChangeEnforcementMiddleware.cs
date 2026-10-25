@@ -16,8 +16,8 @@ internal sealed class PasswordChangeEnforcementMiddleware(RequestDelegate next)
     /// </summary>
     private static readonly PathString[] AllowedPaths =
     [
-        new(ChangePasswordPath), new("/account/logout"), new("/_framework"), new("/_content"), new("/_blazor"),
-        new("/css"), new("/js"), new("/img"), new("/lib"), new("/favicon.svg"), new("/error"), new("/not-found"),
+        new(ChangePasswordPath), new("/account/logout"), new("/_framework"), new("/_blazor"),
+        new("/css"), new("/js"), new("/fonts"), new("/icons"), new("/img"), new("/lib"), new("/favicon.svg"), new("/error"), new("/not-found"),
     ];
 
     /// <summary>

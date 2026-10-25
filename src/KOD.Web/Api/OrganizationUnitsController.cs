@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace KOD.Web.Api;
 
 /// <summary>
-/// The organizational structure: university, institutes, faculties, departments, divisions.
+/// The organizational structure: organizations and their units.
 /// </summary>
 /// <param name="organization">The organization service.</param>
 [Route("api/v1/organization-units")]

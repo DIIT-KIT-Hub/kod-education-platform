@@ -32,6 +32,7 @@ public static class DependencyInjection
             services.AddScoped<IDocumentService, DocumentService>();
             services.AddScoped<INewsService, NewsService>();
             services.AddScoped<IOrganizationService, OrganizationService>();
+            services.AddScoped<IUnitTypeService, UnitTypeService>();
             services.AddScoped<IRoleService, RoleService>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IProfileService, ProfileService>();

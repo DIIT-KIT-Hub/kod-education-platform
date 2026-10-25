@@ -1,7 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using KOD.Application.Common.Models;
 using KOD.Application.Features.Organization;
-using KOD.Domain.Organization;
 using Microsoft.AspNetCore.Components;
 
 namespace KOD.Web.Components.Pages.Admin;
@@ -24,10 +23,22 @@ public partial class UnitEditor
     private Guid? Parent { get; set; }
 
     /// <summary>
+    /// Gets or sets a value indicating whether a new top-level organization is created.
+    /// </summary>
+    [SupplyParameterFromQuery]
+    private bool Top { get; set; }
+
+    /// <summary>
     /// Gets or sets the organization service.
     /// </summary>
     [Inject]
     private IOrganizationService Organization { get; set; } = default!;
+
+    /// <summary>
+    /// Gets or sets the unit type service.
+    /// </summary>
+    [Inject]
+    private IUnitTypeService UnitTypes { get; set; } = default!;
 
     /// <summary>
     /// Gets or sets the navigation manager.
@@ -44,6 +55,11 @@ public partial class UnitEditor
     /// Gets or sets the unit options.
     /// </summary>
     private IReadOnlyList<UnitOption> Units { get; set; } = [];
+
+    /// <summary>
+    /// Gets or sets the unit types.
+    /// </summary>
+    private IReadOnlyList<UnitTypeRef> Types { get; set; } = [];
 
     /// <summary>
     /// Gets or sets a value indicating whether the data is loaded.
@@ -64,6 +80,7 @@ public partial class UnitEditor
     protected override async Task OnParametersSetAsync()
     {
         Units = await Organization.GetOptionsAsync(CancellationToken.None);
+        Types = await UnitTypes.GetOptionsAsync(CancellationToken.None);
         if (Id is { } id)
         {
             var result = await Organization.GetAsync(id, CancellationToken.None);
@@ -79,7 +96,7 @@ public partial class UnitEditor
                 Code = unit.Code,
                 Name = unit.Name,
                 ShortName = unit.ShortName,
-                Type = unit.Type,
+                TypeId = unit.Type.Id,
                 ParentId = unit.ParentId,
                 SortOrder = unit.SortOrder,
                 IsActive = unit.IsActive,
@@ -87,7 +104,8 @@ public partial class UnitEditor
         }
         else
         {
-            Model.ParentId ??= Parent ?? (Units.Count > 0 ? Units[0].Id : null);
+            Model.ParentId = Top ? null : Parent ?? (Units.Count > 0 ? Units[0].Id : null);
+            Model.TypeId ??= Types.FirstOrDefault(t => t.IsOrganization == (Model.ParentId is null))?.Id;
         }
 
         Loaded = true;
@@ -102,7 +120,7 @@ public partial class UnitEditor
         Busy = true;
         try
         {
-            var command = new SaveUnitCommand(Model.Code, Model.Name, Model.ShortName, Model.Type, Model.ParentId, Model.SortOrder, Model.IsActive);
+            var command = new SaveUnitCommand(Model.Code, Model.Name, Model.ShortName, Model.TypeId ?? Guid.Empty, Model.ParentId, Model.SortOrder, Model.IsActive);
             if (Id is { } id)
             {
                 var result = await Organization.UpdateAsync(id, command, CancellationToken.None);
@@ -149,9 +167,10 @@ public partial class UnitEditor
         public string? ShortName { get; set; }
 
         /// <summary>
-        /// Gets or sets the type.
+        /// Gets or sets the unit type.
         /// </summary>
-        public OrganizationUnitType Type { get; set; } = OrganizationUnitType.Department;
+        [Required(ErrorMessage = "Оберіть тип.")]
+        public Guid? TypeId { get; set; }
 
         /// <summary>
         /// Gets or sets the parent.

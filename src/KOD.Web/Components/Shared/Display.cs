@@ -1,10 +1,9 @@
 using System.Globalization;
 using KOD.Application.Features.Users;
-using KOD.DesignSystem.Components;
 using KOD.Domain.Access;
 using KOD.Domain.Documents;
 using KOD.Domain.News;
-using KOD.Domain.Organization;
+using KOD.Web.DesignSystem.Components;
 
 namespace KOD.Web.Components.Shared;
 
@@ -19,7 +18,7 @@ public static class Display
     public static readonly CultureInfo Culture = CultureInfo.GetCultureInfo("uk-UA");
 
     /// <summary>
-    /// The time zone of the institution.
+    /// The time zone of the cabinet (Kyiv).
     /// </summary>
     private static readonly TimeZoneInfo Kyiv = KOD.Application.Common.Text.KyivTime.Zone;
 
@@ -66,8 +65,9 @@ public static class Display
         DocumentKind.Minutes => "Протокол",
         DocumentKind.Contract => "Договір",
         DocumentKind.Certificate => "Довідка",
-        DocumentKind.Curriculum => "Навчальний план / силабус",
+        DocumentKind.Regulation => "Положення / інструкція",
         DocumentKind.Letter => "Лист",
+        DocumentKind.Act => "Акт",
         _ => "Інший документ",
     };
 
@@ -166,37 +166,6 @@ public static class Display
     };
 
     /// <summary>
-    /// Returns the name of a unit type.
-    /// </summary>
-    /// <param name="type">The type.</param>
-    /// <returns>The text.</returns>
-    public static string Text(OrganizationUnitType type) => type switch
-    {
-        OrganizationUnitType.University => "Заклад вищої освіти",
-        OrganizationUnitType.Institute => "Навчально-науковий інститут",
-        OrganizationUnitType.Faculty => "Факультет",
-        OrganizationUnitType.Department => "Кафедра",
-        OrganizationUnitType.Division => "Відділ / служба",
-        OrganizationUnitType.Laboratory => "Лабораторія / центр",
-        _ => "Відокремлений підрозділ",
-    };
-
-    /// <summary>
-    /// Returns the icon of a unit type.
-    /// </summary>
-    /// <param name="type">The type.</param>
-    /// <returns>The icon name.</returns>
-    public static string IconOf(OrganizationUnitType type) => type switch
-    {
-        OrganizationUnitType.University => "landmark",
-        OrganizationUnitType.Institute or OrganizationUnitType.Faculty => "graduation-cap",
-        OrganizationUnitType.Department => "book-open",
-        OrganizationUnitType.Laboratory => "flask-conical",
-        OrganizationUnitType.Branch => "building-2",
-        _ => "briefcase",
-    };
-
-    /// <summary>
     /// Returns the name of a news category.
     /// </summary>
     /// <param name="category">The category.</param>
@@ -205,8 +174,8 @@ public static class Display
     {
         NewsCategory.Announcement => "Оголошення",
         NewsCategory.Event => "Подія",
-        NewsCategory.Education => "Освітній процес",
-        NewsCategory.Science => "Наука",
+        NewsCategory.Training => "Навчання та розвиток",
+        NewsCategory.Projects => "Проєкти та досягнення",
         _ => "Новини",
     };
 
@@ -279,6 +248,8 @@ public static class Display
         "roles.changed" => "Зміна ролі",
         "roles.deleted" => "Видалення ролі",
         "structure.changed" => "Зміна структури",
+        "structure.type-changed" => "Зміна типу підрозділу",
+        "structure.type-deleted" => "Видалення типу підрозділу",
         "documents.created" => "Створено документ",
         "documents.updated" => "Документ змінено",
         "documents.submitted" => "Документ на підписання",

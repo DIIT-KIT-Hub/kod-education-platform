@@ -1,6 +1,5 @@
 @page "/structure/{Id:guid}"
 @attribute [RequirePermission(Permissions.Structure.View)]
-@attribute [StreamRendering]
 
 @if (Unit is null)
 {
@@ -9,10 +8,14 @@
 }
 else
 {
-    <PageHeader Title="@Unit.Name" Subtitle="@Display.Text(Unit.Type)" Breadcrumbs="@Breadcrumbs">
+    <PageHeader Title="@Unit.Name" Subtitle="@Unit.Type.Name" Breadcrumbs="@Breadcrumbs">
         <ChildContent>
             <div class="ds-cluster">
                 <Badge Tone="Tone.Dashed">@Unit.Code</Badge>
+                @if (Unit.Organization.Id != Unit.Id)
+                {
+                    <a href="@($"/structure/{Unit.Organization.Id}")"><Badge Tone="Tone.Outline">Організація: @Unit.Organization.Name</Badge></a>
+                }
                 @if (Unit.ShortName is not null)
                 {
                     <Badge>@Unit.ShortName</Badge>
@@ -26,6 +29,7 @@ else
         <Actions>
             @if (CanManage)
             {
+                <Button Href="@($"/admin/units/new?parent={Unit.Id}")" Variant="ButtonVariant.Secondary" Icon="plus">Додати підрозділ</Button>
                 <Button Href="@($"/admin/units/{Unit.Id}")" Variant="ButtonVariant.Secondary" Icon="pencil">Редагувати</Button>
             }
         </Actions>
@@ -39,10 +43,10 @@ else
                 {
                     <Card Href="@($"/structure/{child.Id}")">
                         <div class="ds-row">
-                            <span class="ds-stat__icon"><Icon Name="@Display.IconOf(child.Type)" /></span>
+                            <span class="ds-stat__icon"><Icon Name="@child.Type.Icon" /></span>
                             <div class="ds-stack ds-stack--sm">
                                 <span class="ds-strong">@child.Name</span>
-                                <span class="ds-text-sm ds-muted">@Display.Text(child.Type) · працівників: @child.StaffCount</span>
+                                <span class="ds-text-sm ds-muted">@child.Type.Name · працівників: @child.StaffCount</span>
                             </div>
                         </div>
                     </Card>
@@ -62,6 +66,10 @@ else
                             <div class="ds-row">
                                 <Avatar Name="@context.FullName" Size="ControlSize.Small" />
                                 <span class="ds-strong">@context.FullName</span>
+                                @if (context.IsLeadership)
+                                {
+                                    <Badge Tone="Tone.Inverse">Керівник</Badge>
+                                }
                             </div>
                         </GridColumn>
                         <GridColumn TItem="UnitStaffItem" Title="Посада">

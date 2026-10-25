@@ -9,7 +9,6 @@
   <ItemGroup>
     <ProjectReference Include="..\KOD.Application\KOD.Application.csproj" />
     <ProjectReference Include="..\KOD.Infrastructure\KOD.Infrastructure.csproj" />
-    <ProjectReference Include="..\KOD.DesignSystem\KOD.DesignSystem.csproj" />
   </ItemGroup>
 
   <ItemGroup>

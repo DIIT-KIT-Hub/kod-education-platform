@@ -13,7 +13,6 @@
     <Project Path="src/KOD.Domain/KOD.Domain.csproj" />
     <Project Path="src/KOD.Application/KOD.Application.csproj" />
     <Project Path="src/KOD.Infrastructure/KOD.Infrastructure.csproj" />
-    <Project Path="src/KOD.DesignSystem/KOD.DesignSystem.csproj" />
     <Project Path="src/KOD.Web/KOD.Web.csproj" />
   </Folder>
   <Folder Name="/tests/">

@@ -1,7 +1,6 @@
+using KOD.Application.Common.Models;
 using KOD.Application.Common.Paging;
 using KOD.Application.Features.Organization;
-using KOD.Domain.Organization;
-using KOD.Web.Components.Shared;
 using Microsoft.AspNetCore.Components;
 
 namespace KOD.Web.Components.Pages.Admin;
@@ -18,10 +17,16 @@ public partial class UnitsIndex
     private string? Search { get; set; }
 
     /// <summary>
-    /// Gets or sets the type filter.
+    /// Gets or sets the unit type filter.
     /// </summary>
     [SupplyParameterFromQuery]
-    private string? Type { get; set; }
+    private Guid? Type { get; set; }
+
+    /// <summary>
+    /// Gets or sets the organization filter.
+    /// </summary>
+    [SupplyParameterFromQuery]
+    private Guid? Organization { get; set; }
 
     /// <summary>
     /// Gets or sets the page number.
@@ -51,7 +56,23 @@ public partial class UnitsIndex
     /// Gets or sets the organization service.
     /// </summary>
     [Inject]
-    private IOrganizationService Organization { get; set; } = default!;
+    private IOrganizationService OrganizationService { get; set; } = default!;
+
+    /// <summary>
+    /// Gets or sets the unit type service.
+    /// </summary>
+    [Inject]
+    private IUnitTypeService UnitTypes { get; set; } = default!;
+
+    /// <summary>
+    /// Gets or sets the unit types for the filter.
+    /// </summary>
+    private IReadOnlyList<UnitTypeRef> Types { get; set; } = [];
+
+    /// <summary>
+    /// Gets or sets the top-level organizations for the filter.
+    /// </summary>
+    private IReadOnlyList<UnitOption> Organizations { get; set; } = [];
 
     /// <summary>
     /// Gets or sets the loaded page.
@@ -61,11 +82,14 @@ public partial class UnitsIndex
     /// <inheritdoc />
     protected override async Task OnParametersSetAsync()
     {
-        var result = await Organization.ListAsync(
+        Types = await UnitTypes.GetOptionsAsync(CancellationToken.None);
+        Organizations = [.. (await OrganizationService.GetOptionsAsync(CancellationToken.None)).Where(static u => u.Depth == 0)];
+        var result = await OrganizationService.ListAsync(
             new UnitQuery
             {
                 Search = Search,
-                Type = QueryValues.Enum<OrganizationUnitType>(Type),
+                TypeId = Type,
+                OrganizationId = Organization,
                 Page = Page ?? 1,
                 PageSize = PageSize ?? PageRequest.DefaultPageSize,
                 SortBy = SortBy,

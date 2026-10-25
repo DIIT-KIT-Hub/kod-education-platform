@@ -7,4 +7,5 @@ namespace KOD.Domain.Access;
 /// <param name="Name">The user-facing role name.</param>
 /// <param name="Description">The user-facing role description.</param>
 /// <param name="Permissions">The default permissions of the role.</param>
-public sealed record SystemRoleDefinition(string Code, string Name, string Description, IReadOnlyList<string> Permissions);
+/// <param name="IsLeadership">Whether the role is a leadership position.</param>
+public sealed record SystemRoleDefinition(string Code, string Name, string Description, IReadOnlyList<string> Permissions, bool IsLeadership);

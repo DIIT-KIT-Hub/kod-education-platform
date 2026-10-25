@@ -1,7 +1,7 @@
 @page "/admin"
 @attribute [RequirePermission(Permissions.Users.View, Permissions.Roles.Manage, Permissions.Structure.Manage, Permissions.News.Manage, Permissions.Audit.View)]
 
-<PageHeader Title="Адміністрування" Subtitle="Облікові записи, ролі, структура закладу та журнал подій." />
+<PageHeader Title="Адміністрування" Subtitle="Облікові записи, ролі, організації та їхня структура, журнал подій." />
 
 <div class="ds-cols ds-stagger">
     @foreach (var section in Sections.Where(s => User.HasAnyPermission([.. s.Permissions])))

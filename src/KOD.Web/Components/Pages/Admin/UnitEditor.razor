@@ -3,7 +3,7 @@
 @attribute [RequirePermission(Permissions.Structure.Manage)]
 @rendermode InteractiveServer
 
-<PageHeader Title="@(Id is null ? "Новий підрозділ" : Model.Name)"
+<PageHeader Title="@(Id is null ? (Top ? "Нова організація" : "Новий підрозділ") : Model.Name)"
             Breadcrumbs="@([new("Адміністрування", "/admin"), new("Структура", "/admin/units"), new(Id is null ? "Новий" : "Редагування")])" />
 
 @if (Loaded)
@@ -24,21 +24,29 @@
                 <Field Label="Скорочена назва" For="unit-short">
                     <InputText id="unit-short" @bind-Value="Model.ShortName" class="ds-input" maxlength="64" />
                 </Field>
-                <Field Label="Код" For="unit-code" Required Hint="Латиниця, цифри, «-», «_». Використовується в імпорті.">
+                <Field Label="Код" For="unit-code" Required Hint="Латиниця, цифри, «-», «_». Унікальний серед усіх організацій; використовується в імпорті.">
                     <InputText id="unit-code" @bind-Value="Model.Code" class="ds-input ds-mono" maxlength="32" />
                     <ValidationMessage For="() => Model.Code" />
                 </Field>
-                <Field Label="Тип" For="unit-type">
-                    <InputSelect id="unit-type" @bind-Value="Model.Type" class="ds-select">
-                        @foreach (var type in Enum.GetValues<OrganizationUnitType>())
+                <Field Label="Тип" For="unit-type" Required>
+                    <InputSelect id="unit-type" @bind-Value="Model.TypeId" class="ds-select">
+                        <option value="">— оберіть тип —</option>
+                        @foreach (var group in Types.GroupBy(static t => t.IsOrganization).OrderByDescending(static g => g.Key))
                         {
-                            <option value="@type">@Display.Text(type)</option>
+                            <optgroup label="@(group.Key ? "Організації" : "Підрозділи")">
+                                @foreach (var type in group)
+                                {
+                                    <option value="@type.Id">@type.Name</option>
+                                }
+                            </optgroup>
                         }
                     </InputSelect>
+                    <ValidationMessage For="() => Model.TypeId" />
+                    <span class="ds-hint">Немає потрібного типу? <a class="ds-link" href="/admin/unit-types/new">Додайте його</a>.</span>
                 </Field>
-                <Field Label="Батьківський підрозділ" For="unit-parent">
+                <Field Label="Батьківський підрозділ" For="unit-parent" Hint="Без батьківського підрозділу — окрема організація верхнього рівня.">
                     <InputSelect id="unit-parent" @bind-Value="Model.ParentId" class="ds-select">
-                        <option value="">— (кореневий заклад)</option>
+                        <option value="">— немає (організація верхнього рівня) —</option>
                         @foreach (var unit in Units.Where(u => u.Id != Id))
                         {
                             <option value="@unit.Id">@(new string(' ', unit.Depth * 2))@unit.Name</option>

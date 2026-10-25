@@ -292,7 +292,7 @@ internal sealed class DocumentService(
         var unit = await db.OrganizationUnits
             .AsNoTracking()
             .Where(u => u.Id == document.OrganizationUnitId)
-            .Select(static u => new UnitOption(u.Id, u.Name, u.Code, u.Type, 0))
+            .Select(static u => new UnitOption(u.Id, u.Name, u.Code, u.Type!.IsOrganization, 0))
             .FirstAsync(cancellationToken);
 
         return new DocumentEditModel(
@@ -648,12 +648,15 @@ internal sealed class DocumentService(
         var units = await db.OrganizationUnits
             .AsNoTracking()
             .Where(static u => u.IsActive)
-            .Select(static u => new { u.Id, u.ParentId, u.Name, u.Code, u.Type, u.SortOrder })
+            .Select(static u => new { u.Id, u.ParentId, u.Name, u.Code, u.Type!.IsOrganization, u.SortOrder })
             .ToListAsync(cancellationToken);
 
+        // Authors file documents under their own units; the organization or system-wide viewers may file anywhere they can see.
         IReadOnlySet<Guid>? allowed = currentUser.Has(Permissions.Documents.ViewAll)
             ? null
-            : await accessScope.GetUnitScopeAsync(cancellationToken);
+            : currentUser.Has(Permissions.Documents.ViewOrganization)
+                ? await accessScope.GetOrganizationScopeAsync(cancellationToken)
+                : await accessScope.GetUnitScopeAsync(cancellationToken);
 
         var children = units.ToLookup(static u => u.ParentId);
         var result = new List<UnitOption>(units.Count);
@@ -663,7 +666,7 @@ internal sealed class DocumentService(
             {
                 if (allowed is null || allowed.Contains(unit.Id))
                 {
-                    result.Add(new UnitOption(unit.Id, unit.Name, unit.Code, unit.Type, depth));
+                    result.Add(new UnitOption(unit.Id, unit.Name, unit.Code, unit.IsOrganization, depth));
                 }
 
                 Walk(unit.Id, depth + 1);

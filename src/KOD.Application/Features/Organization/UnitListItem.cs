@@ -1,4 +1,4 @@
-using KOD.Domain.Organization;
+using KOD.Application.Common.Models;
 
 namespace KOD.Application.Features.Organization;
 
@@ -12,4 +12,4 @@ namespace KOD.Application.Features.Organization;
 /// <param name="ParentName">The parent unit name.</param>
 /// <param name="IsActive">Whether the unit is active.</param>
 /// <param name="StaffCount">The number of positions.</param>
-public sealed record UnitListItem(Guid Id, string Code, string Name, OrganizationUnitType Type, string? ParentName, bool IsActive, int StaffCount);
+public sealed record UnitListItem(Guid Id, string Code, string Name, UnitTypeRef Type, string? ParentName, bool IsActive, int StaffCount);

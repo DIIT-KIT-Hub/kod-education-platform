@@ -556,9 +556,9 @@ internal sealed class UserService(
 
         UserSheetRow[] sample =
         [
-            new(0, "ivan.petrenko@university.edu.ua", "Петренко", "Іван", "Олегович", "+380501234567", "KIPZ", SystemRoles.HeadOfDepartment, "Завідувач кафедри", "активний"),
-            new(0, "ivan.petrenko@university.edu.ua", "Петренко", "Іван", "Олегович", "+380501234567", "KIPZ", SystemRoles.Lecturer, "Професор", "активний"),
-            new(0, "olena.koval@university.edu.ua", "Коваль", "Олена", "Петрівна", null, "FIT", SystemRoles.Methodologist, "Методист деканату", "активний"),
+            new(0, "ivan.petrenko@example.com", "Петренко", "Іван", "Олегович", "+380501234567", "SALES", SystemRoles.HeadOfUnit, "Начальник відділу продажу", "активний"),
+            new(0, "ivan.petrenko@example.com", "Петренко", "Іван", "Олегович", "+380501234567", "SALES", SystemRoles.Employee, "Менеджер з ключових клієнтів", "активний"),
+            new(0, "olena.koval@example.com", "Коваль", "Олена", "Петрівна", null, "HR", SystemRoles.HrSpecialist, "Інспектор з кадрів", "активний"),
         ];
 
         return ToFile(spreadsheet.Write(sample, format), "users-import-template", format);

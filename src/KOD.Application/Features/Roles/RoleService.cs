@@ -46,6 +46,7 @@ internal sealed class RoleService(IApplicationDbContext db, ICurrentUser current
                 r.Name,
                 r.Description,
                 r.IsSystem,
+                r.IsLeadership,
                 r.Permissions.Count,
                 db.StaffPositions.Where(p => p.RoleId == r.Id).Select(static p => p.UserId).Distinct().Count()))
             .ToPagedResultAsync(request, cancellationToken);
@@ -73,6 +74,7 @@ internal sealed class RoleService(IApplicationDbContext db, ICurrentUser current
             role.Description,
             role.IsSystem,
             role.IsAdministrator,
+            role.IsLeadership,
             [.. role.Permissions.Select(static p => p.Permission)],
             users);
     }
@@ -109,6 +111,7 @@ internal sealed class RoleService(IApplicationDbContext db, ICurrentUser current
         return await DomainErrors.GuardAsync<Guid>(async () =>
         {
             var role = new Role(code, command.Name, command.Description, isSystem: false);
+            role.Update(command.Name, command.Description, command.IsLeadership);
             role.SetPermissions(command.Permissions);
             db.Roles.Add(role);
             audit.Add(AuditActions.RoleChanged, nameof(Role), role.Id.ToString(), $"Створено роль «{role.Name}»: {string.Join(", ", command.Permissions)}");
@@ -135,7 +138,7 @@ internal sealed class RoleService(IApplicationDbContext db, ICurrentUser current
         // Holders get the new permissions at the next periodic session validation.
         return await DomainErrors.GuardAsync(async () =>
         {
-            role.Update(command.Name, command.Description);
+            role.Update(command.Name, command.Description, command.IsLeadership);
             role.SetPermissions(command.Permissions);
             audit.Add(AuditActions.RoleChanged, nameof(Role), role.Id.ToString(), $"Змінено роль «{role.Name}»: {string.Join(", ", role.Permissions.Select(static p => p.Permission))}");
             await db.SaveChangesAsync(cancellationToken);

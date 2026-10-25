@@ -4,7 +4,7 @@ using KOD.Domain.Users;
 namespace KOD.Domain.News;
 
 /// <summary>
-/// A news article or announcement of the institution.
+/// A news article or announcement.
 /// </summary>
 public sealed class NewsArticle : AuditableEntity
 {

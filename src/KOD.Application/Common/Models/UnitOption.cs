@@ -1,5 +1,3 @@
-using KOD.Domain.Organization;
-
 namespace KOD.Application.Common.Models;
 
 /// <summary>
@@ -8,6 +6,6 @@ namespace KOD.Application.Common.Models;
 /// <param name="Id">The unit identifier.</param>
 /// <param name="Name">The unit name.</param>
 /// <param name="Code">The unit code.</param>
-/// <param name="Type">The unit type.</param>
-/// <param name="Depth">The depth in the tree (0 for the root).</param>
-public sealed record UnitOption(Guid Id, string Name, string Code, OrganizationUnitType Type, int Depth);
+/// <param name="IsOrganization">Whether the unit is an organization.</param>
+/// <param name="Depth">The depth in the tree (0 for a top-level organization).</param>
+public sealed record UnitOption(Guid Id, string Name, string Code, bool IsOrganization, int Depth);

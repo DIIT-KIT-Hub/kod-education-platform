@@ -21,7 +21,7 @@ public static class HelpContents
             "Що таке КОД, як влаштований інтерфейс і від чого залежить, що ви бачите.",
             [],
             [
-                new("intro-about", "Що таке Кабінет освітніх даних"),
+                new("intro-about", "Що таке Кабінет організаційних документів"),
                 new("intro-interface", "Інтерфейс: меню, тема, сповіщення"),
                 new("intro-access", "Ролі та доступ"),
                 new("intro-glossary", "Словник термінів"),
@@ -90,7 +90,7 @@ public static class HelpContents
             "news",
             "Новини",
             "newspaper",
-            "Новини та оголошення закладу: читання, створення, публікація.",
+            "Новини та оголошення: читання, створення, публікація.",
             [P.News.View, P.News.Manage],
             [
                 new("news-read", "Читання новин", [P.News.View]),
@@ -102,12 +102,14 @@ public static class HelpContents
             "structure",
             "Структура",
             "network",
-            "Організаційна структура закладу: підрозділи та їхні працівники.",
+            "Організації, їхні підрозділи та працівники; власні типи підрозділів для будь-якої сфери.",
             [P.Structure.View, P.Structure.Manage],
             [
-                new("structure-view", "Дерево структури та типи підрозділів", [P.Structure.View]),
+                new("structure-view", "Дерево організацій і підрозділів", [P.Structure.View]),
+                new("structure-organizations", "Кілька організацій в одному кабінеті", [P.Structure.View]),
                 new("structure-unit", "Сторінка підрозділу та працівники", [P.Structure.View]),
-                new("structure-manage", "Керування підрозділами", [P.Structure.Manage]),
+                new("structure-manage", "Керування організаціями та підрозділами", [P.Structure.Manage]),
+                new("structure-types", "Типи підрозділів", [P.Structure.Manage]),
             ]),
         new(
             "profile",
@@ -124,7 +126,7 @@ public static class HelpContents
             "admin",
             "Адміністрування",
             "shield",
-            "Користувачі, імпорт та експорт, ролі й дозволи, журнал аудиту.",
+            "Користувачі, імпорт та експорт, ролі й дозволи, структура, журнал аудиту.",
             [P.Users.View, P.Roles.Manage, P.Structure.Manage, P.News.Manage, P.Audit.View],
             [
                 new("admin-overview", "Панель адміністрування"),
@@ -143,7 +145,7 @@ public static class HelpContents
             "roles",
             "Ролі та дозволи",
             "key-round",
-            "Довідник усіх дозволів і стандартних ролей закладу.",
+            "Довідник усіх дозволів і стандартних ролей.",
             [],
             [
                 new("roles-permissions", "Перелік дозволів"),

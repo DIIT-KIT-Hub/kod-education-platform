@@ -1,0 +1,38 @@
+@page "/admin/unit-types"
+@attribute [RequirePermission(Permissions.Structure.Manage)]
+@attribute [StreamRendering]
+
+<PageHeader Title="Типи підрозділів" Subtitle="Назви рівнів структури у словнику вашої організації: департамент, управління, відділ, сектор, філія…"
+            Breadcrumbs="@([new("Адміністрування", "/admin"), new("Структура", "/admin/units"), new("Типи підрозділів")])">
+    <Actions>
+        <Button Href="/admin/unit-types/new" Icon="plus">Новий тип</Button>
+    </Actions>
+</PageHeader>
+
+@if (Items is not null)
+{
+    <DataGrid TItem="UnitTypeItem" Items="Items" Page="1" PageSize="@Math.Max(Items.Count, 1)" TotalCount="Items.Count" ShowPagination="false"
+              Caption="Типи підрозділів" EmptyIcon="layers" EmptyTitle="Типів ще немає" EmptyText="Створіть хоча б один тип, позначений як організація.">
+        <Columns>
+            <GridColumn TItem="UnitTypeItem" Title="Тип" Primary>
+                <a class="ds-table__primary ds-row" href="@($"/admin/unit-types/{context.Id}")"><Icon Name="@context.Icon" Size="IconSize.Small" /> @context.Name</a>
+                <span class="ds-table__secondary">@context.Description</span>
+            </GridColumn>
+            <GridColumn TItem="UnitTypeItem" Title="Код"><span class="ds-mono">@context.Code</span></GridColumn>
+            <GridColumn TItem="UnitTypeItem" Title="Рівень">
+                @if (context.IsOrganization)
+                {
+                    <Badge Tone="Tone.Inverse">Організація</Badge>
+                }
+                else
+                {
+                    <Badge Tone="Tone.Outline">Підрозділ</Badge>
+                }
+            </GridColumn>
+            <GridColumn TItem="UnitTypeItem" Title="Підрозділів">@context.UnitCount</GridColumn>
+            <GridColumn TItem="UnitTypeItem" Title="Дії" Actions>
+                <Button Href="@($"/admin/unit-types/{context.Id}")" Variant="ButtonVariant.Ghost" Size="ControlSize.Small" Icon="pencil">Редагувати</Button>
+            </GridColumn>
+        </Columns>
+    </DataGrid>
+}

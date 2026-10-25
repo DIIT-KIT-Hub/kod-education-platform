@@ -1,4 +1,4 @@
-using KOD.Domain.Organization;
+using KOD.Application.Common.Models;
 
 namespace KOD.Application.Features.Organization;
 
@@ -18,7 +18,7 @@ public sealed record UnitTreeNode(
     string Code,
     string Name,
     string? ShortName,
-    OrganizationUnitType Type,
+    UnitTypeRef Type,
     bool IsActive,
     int StaffCount,
     IReadOnlyList<UnitTreeNode> Children);

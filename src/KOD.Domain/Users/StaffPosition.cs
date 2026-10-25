@@ -5,7 +5,7 @@ using KOD.Domain.Organization;
 namespace KOD.Domain.Users;
 
 /// <summary>
-/// A position held by a user in an organization unit (e.g. «доцент кафедри програмної інженерії»).
+/// A position held by a user in an organization unit (e.g. «начальник відділу продажу»).
 /// The position's role defines the permissions; the unit defines the scope of unit-level permissions.
 /// </summary>
 public sealed class StaffPosition : Entity

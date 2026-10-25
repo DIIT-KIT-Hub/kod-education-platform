@@ -1,7 +1,7 @@
 namespace KOD.Domain.Documents;
 
 /// <summary>
-/// Kind of an organizational and administrative document of the institution.
+/// Kind of an organizational and administrative document (the common set of Ukrainian office work, DSTU 4163).
 /// </summary>
 public enum DocumentKind
 {
@@ -29,11 +29,14 @@ public enum DocumentKind
     /// <summary>Certificate / reference (довідка).</summary>
     Certificate = 7,
 
-    /// <summary>Curriculum, syllabus or educational program (навчальний план, силабус).</summary>
-    Curriculum = 8,
+    /// <summary>Regulation, statute or instruction (положення, інструкція).</summary>
+    Regulation = 8,
 
     /// <summary>Incoming or outgoing letter (лист).</summary>
     Letter = 9,
+
+    /// <summary>Act (акт): acceptance, inspection, write-off.</summary>
+    Act = 10,
 
     /// <summary>Any other document.</summary>
     Other = 99,

@@ -1,5 +1,4 @@
 using KOD.Application.Common.Paging;
-using KOD.Domain.Organization;
 
 namespace KOD.Application.Features.Organization;
 
@@ -9,7 +8,12 @@ namespace KOD.Application.Features.Organization;
 public sealed record UnitQuery : PageRequest
 {
     /// <summary>
-    /// Gets the type filter.
+    /// Gets the unit type filter.
     /// </summary>
-    public OrganizationUnitType? Type { get; init; }
+    public Guid? TypeId { get; init; }
+
+    /// <summary>
+    /// Gets the organization filter: the organization and all its units.
+    /// </summary>
+    public Guid? OrganizationId { get; init; }
 }

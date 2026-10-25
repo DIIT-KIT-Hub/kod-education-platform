@@ -9,6 +9,7 @@ namespace KOD.Application.Features.Roles;
 /// <param name="Description">The description.</param>
 /// <param name="IsSystem">Whether the role is predefined.</param>
 /// <param name="IsAdministrator">Whether the role is the super-user role.</param>
+/// <param name="IsLeadership">Whether the role is a leadership position.</param>
 /// <param name="Permissions">The granted permission codes.</param>
 /// <param name="UserCount">The number of users holding the role.</param>
 public sealed record RoleDetails(
@@ -18,5 +19,6 @@ public sealed record RoleDetails(
     string? Description,
     bool IsSystem,
     bool IsAdministrator,
+    bool IsLeadership,
     IReadOnlyList<string> Permissions,
     int UserCount);

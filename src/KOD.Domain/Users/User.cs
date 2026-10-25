@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Identity;
 namespace KOD.Domain.Users;
 
 /// <summary>
-/// A person who can sign in to the cabinet: a staff member, a student or an administrator.
+/// A person who can sign in to the cabinet: a staff member, an external user or an administrator.
 /// Accounts are created only by administrators (there is no self-registration).
 /// </summary>
 public sealed class User : IdentityUser<Guid>, IAuditable

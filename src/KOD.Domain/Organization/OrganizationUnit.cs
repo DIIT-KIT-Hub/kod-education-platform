@@ -3,7 +3,8 @@ using KOD.Domain.Common;
 namespace KOD.Domain.Organization;
 
 /// <summary>
-/// A node of the institution's organizational tree: university, institute, faculty, department or division.
+/// A node of the organizational structure: an organization or one of its units (department, division, sector, branch…).
+/// Top-level nodes are organizations; their kind comes from the administrator-defined <see cref="UnitType"/> catalog.
 /// </summary>
 public sealed class OrganizationUnit : AuditableEntity
 {
@@ -30,15 +31,15 @@ public sealed class OrganizationUnit : AuditableEntity
     /// <summary>
     /// Initializes a new instance of the <see cref="OrganizationUnit"/> class.
     /// </summary>
-    /// <param name="code">Unique short code used for imports (e.g. <c>FIT</c>).</param>
+    /// <param name="code">Unique short code used for imports (e.g. <c>HR</c>).</param>
     /// <param name="name">Full official name.</param>
-    /// <param name="type">The unit type.</param>
-    /// <param name="parentId">The parent unit identifier, <see langword="null"/> for the root.</param>
-    public OrganizationUnit(string code, string name, OrganizationUnitType type, Guid? parentId)
+    /// <param name="typeId">The unit type identifier.</param>
+    /// <param name="parentId">The parent unit identifier, <see langword="null"/> for a top-level organization.</param>
+    public OrganizationUnit(string code, string name, Guid typeId, Guid? parentId)
     {
-        Code = NormalizeCode(code);
+        Code = Guard.Code(code, CodeMaxLength);
         Name = Guard.Text(name, NameMaxLength, "Назва");
-        Type = type;
+        TypeId = typeId;
         ParentId = parentId;
     }
 
@@ -62,14 +63,19 @@ public sealed class OrganizationUnit : AuditableEntity
     public string Name { get; private set; }
 
     /// <summary>
-    /// Gets the abbreviation (e.g. «ФІТ»).
+    /// Gets the abbreviation (e.g. «ВК»).
     /// </summary>
     public string? ShortName { get; private set; }
 
     /// <summary>
+    /// Gets the unit type identifier.
+    /// </summary>
+    public Guid TypeId { get; private set; }
+
+    /// <summary>
     /// Gets the unit type.
     /// </summary>
-    public OrganizationUnitType Type { get; private set; }
+    public UnitType? Type { get; private set; }
 
     /// <summary>
     /// Gets the parent unit identifier.
@@ -102,14 +108,14 @@ public sealed class OrganizationUnit : AuditableEntity
     /// <param name="code">The new unique code.</param>
     /// <param name="name">The new full name.</param>
     /// <param name="shortName">The new abbreviation.</param>
-    /// <param name="type">The new unit type.</param>
+    /// <param name="typeId">The new unit type identifier.</param>
     /// <param name="sortOrder">The display order among siblings.</param>
-    public void Update(string code, string name, string? shortName, OrganizationUnitType type, int sortOrder)
+    public void Update(string code, string name, string? shortName, Guid typeId, int sortOrder)
     {
-        Code = NormalizeCode(code);
+        Code = Guard.Code(code, CodeMaxLength);
         Name = Guard.Text(name, NameMaxLength, "Назва");
         ShortName = Guard.OptionalText(shortName, ShortNameMaxLength, "Скорочена назва");
-        Type = type;
+        TypeId = typeId;
         SortOrder = sortOrder;
     }
 
@@ -135,17 +141,4 @@ public sealed class OrganizationUnit : AuditableEntity
     /// </summary>
     /// <param name="isActive">The new state.</param>
     public void SetActive(bool isActive) => IsActive = isActive;
-
-    /// <summary>
-    /// Validates and normalizes a unit code.
-    /// </summary>
-    /// <param name="code">The raw code.</param>
-    /// <returns>The normalized upper-case code.</returns>
-    private static string NormalizeCode(string code)
-    {
-        var value = Guard.Text(code, CodeMaxLength, "Код").ToUpperInvariant();
-        return value.All(static c => char.IsAsciiLetterOrDigit(c) || c is '-' or '_')
-            ? value
-            : throw new DomainException("Код може містити лише латинські літери, цифри, «-» та «_».");
-    }
 }

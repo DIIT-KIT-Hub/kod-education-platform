@@ -79,7 +79,7 @@ else if (!IsEdit || Existing is not null)
             <Card Title="Реквізити">
                 <div class="ds-form-grid">
                     <Field Label="Назва" For="doc-title" Required Class="ds-span-full">
-                        <InputText id="doc-title" @bind-Value="Model.Title" class="ds-input" maxlength="300" placeholder="Наприклад: Про затвердження графіка навчального процесу" />
+                        <InputText id="doc-title" @bind-Value="Model.Title" class="ds-input" maxlength="300" placeholder="Наприклад: Про затвердження графіка відпусток" />
                         <ValidationMessage For="() => Model.Title" />
                     </Field>
                     <Field Label="Вид документа" For="doc-kind" Required>

@@ -1,8 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 using KOD.Application.Common.Results;
 using KOD.Application.Features.Documents;
-using KOD.DesignSystem.Components;
 using KOD.Domain.Documents;
+using KOD.Web.DesignSystem.Components;
 using Microsoft.AspNetCore.Components;
 
 namespace KOD.Web.Components.Pages.Documents;

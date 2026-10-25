@@ -5,9 +5,9 @@
             <summary>
                 <span class="ds-tree__row">
                     <Icon Name="chevron-right" Class="ds-tree__chevron" Size="IconSize.Small" />
-                    <Icon Name="@Display.IconOf(Node.Type)" />
+                    <Icon Name="@Node.Type.Icon" />
                     <a class="ds-tree__name" href="@($"/structure/{Node.Id}")">@Node.Name</a>
-                    <span class="ds-text-xs ds-muted ds-hide-mobile">@Display.Text(Node.Type)</span>
+                    <span class="ds-text-xs ds-muted ds-hide-mobile">@Node.Type.Name</span>
                     @if (Node.StaffCount > 0)
                     {
                         <Badge Title="Працівників">@Node.StaffCount</Badge>
@@ -26,9 +26,9 @@
     {
         <span class="ds-tree__row">
             <span class="ds-tree__spacer"></span>
-            <Icon Name="@Display.IconOf(Node.Type)" />
+            <Icon Name="@Node.Type.Icon" />
             <a class="ds-tree__name" href="@($"/structure/{Node.Id}")">@Node.Name</a>
-            <span class="ds-text-xs ds-muted ds-hide-mobile">@Display.Text(Node.Type)</span>
+            <span class="ds-text-xs ds-muted ds-hide-mobile">@Node.Type.Name</span>
             @if (Node.StaffCount > 0)
             {
                 <Badge Title="Працівників">@Node.StaffCount</Badge>

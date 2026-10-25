@@ -16,9 +16,10 @@ public partial class AdminIndex
     private static readonly AdminSection[] Sections =
     [
         new("/admin/users", "Користувачі", "Облікові записи, посади, блокування, скидання пароля та 2FA.", "users", [Permissions.Users.View]),
-        new("/admin/users/import", "Імпорт і експорт", "Масове додавання працівників з XLSX/CSV та вивантаження.", "file-spreadsheet", [Permissions.Users.Import, Permissions.Users.Export]),
+        new("/admin/users/import", "Імпорт і експорт", "Масове додавання користувачів з XLSX/CSV та вивантаження.", "file-spreadsheet", [Permissions.Users.Import, Permissions.Users.Export]),
         new("/admin/roles", "Ролі та дозволи", "Набори дозволів для посад і модулів.", "shield", [Permissions.Roles.Manage]),
-        new("/admin/units", "Структура", "Інститути, факультети, кафедри, відділи.", "network", [Permissions.Structure.Manage]),
+        new("/admin/units", "Структура", "Організації та їхні підрозділи: департаменти, відділи, філії.", "network", [Permissions.Structure.Manage]),
+        new("/admin/unit-types", "Типи підрозділів", "Назви рівнів структури: організація, департамент, відділ, сектор…", "layers", [Permissions.Structure.Manage]),
         new("/news/manage", "Новини", "Публікації та оголошення.", "newspaper", [Permissions.News.Manage]),
         new("/admin/audit", "Журнал аудиту", "Входи, зміни прав, підписання документів.", "history", [Permissions.Audit.View]),
     ];

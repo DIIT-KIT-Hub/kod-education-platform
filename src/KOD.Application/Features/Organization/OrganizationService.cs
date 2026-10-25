@@ -47,9 +47,12 @@ internal sealed class OrganizationService(IApplicationDbContext db, ICurrentUser
         }
 
         var byId = units.ToDictionary(static u => u.Id);
-        var path = OrganizationTree.PathTo(units.ToDictionary(static u => u.Id, static u => u.ParentId), id)
+        var parents = units.ToDictionary(static u => u.Id, static u => u.ParentId);
+        var organizations = units.Where(static u => u.Type.IsOrganization).Select(static u => u.Id).ToHashSet();
+        var path = OrganizationTree.PathTo(parents, id)
             .Select(pid => new UnitRef(pid, byId[pid].Name))
             .ToList();
+        var organization = byId[OrganizationTree.OrganizationOf(parents, organizations, id)];
 
         return new UnitDetails(
             unit.Id,
@@ -61,6 +64,7 @@ internal sealed class OrganizationService(IApplicationDbContext db, ICurrentUser
             unit.ParentId,
             unit.SortOrder,
             path,
+            new UnitRef(organization.Id, organization.Name),
             BuildTree(units, id, includeInactive: true),
             unit.StaffCount);
     }
@@ -82,7 +86,7 @@ internal sealed class OrganizationService(IApplicationDbContext db, ICurrentUser
         }
 
         return await positions
-            .OrderByDescending(static p => p.Role!.Code == SystemRoles.HeadOfDepartment || p.Role.Code == SystemRoles.Dean || p.Role.Code == SystemRoles.InstituteDirector || p.Role.Code == SystemRoles.Rector)
+            .OrderByDescending(static p => p.Role!.IsLeadership)
             .ThenBy(static p => p.User!.LastName)
             .ThenBy(static p => p.User!.FirstName)
             .Select(static p => new UnitStaffItem(
@@ -91,7 +95,8 @@ internal sealed class OrganizationService(IApplicationDbContext db, ICurrentUser
                 p.Title ?? p.Role!.Name,
                 p.User.Email!,
                 p.User.PhoneNumber,
-                p.IsPrimary))
+                p.IsPrimary,
+                p.Role!.IsLeadership))
             .ToPagedResultAsync(request, cancellationToken);
     }
 
@@ -105,9 +110,16 @@ internal sealed class OrganizationService(IApplicationDbContext db, ICurrentUser
         }
 
         var units = db.OrganizationUnits.AsNoTracking();
-        if (query.Type is { } type)
+        if (query.TypeId is { } typeId)
         {
-            units = units.Where(u => u.Type == type);
+            units = units.Where(u => u.TypeId == typeId);
+        }
+
+        if (query.OrganizationId is { } organizationId)
+        {
+            var links = await db.OrganizationUnits.AsNoTracking().Select(static u => new { u.Id, u.ParentId }).ToListAsync(cancellationToken);
+            var subtree = OrganizationTree.WithDescendants(links.Select(static l => (l.Id, l.ParentId)), [organizationId]).ToList();
+            units = units.Where(u => subtree.Contains(u.Id));
         }
 
         if (query.Search is { } search)
@@ -119,7 +131,7 @@ internal sealed class OrganizationService(IApplicationDbContext db, ICurrentUser
         units = query.SortBy switch
         {
             "code" => units.OrderByDirection(static u => u.Code, query.Descending),
-            "type" => units.OrderByDirection(static u => u.Type, query.Descending),
+            "type" => units.OrderByDirection(static u => u.Type!.Name, query.Descending),
             _ => units.OrderByDirection(static u => u.Name, query.Descending),
         };
 
@@ -128,7 +140,7 @@ internal sealed class OrganizationService(IApplicationDbContext db, ICurrentUser
                 u.Id,
                 u.Code,
                 u.Name,
-                u.Type,
+                new UnitTypeRef(u.TypeId, u.Type!.Name, u.Type.Icon, u.Type.IsOrganization),
                 u.Parent != null ? u.Parent.Name : null,
                 u.IsActive,
                 db.StaffPositions.Count(p => p.OrganizationUnitId == u.Id)))
@@ -144,7 +156,7 @@ internal sealed class OrganizationService(IApplicationDbContext db, ICurrentUser
         {
             foreach (var node in nodes)
             {
-                result.Add(new UnitOption(node.Id, node.Name, node.Code, node.Type, depth));
+                result.Add(new UnitOption(node.Id, node.Name, node.Code, node.Type.IsOrganization, depth));
                 Walk(node.Children, depth + 1);
             }
         }
@@ -170,8 +182,8 @@ internal sealed class OrganizationService(IApplicationDbContext db, ICurrentUser
 
         return await DomainErrors.GuardAsync<Guid>(async () =>
         {
-            var unit = new OrganizationUnit(command.Code, command.Name, command.Type, command.ParentId);
-            unit.Update(command.Code, command.Name, command.ShortName, command.Type, command.SortOrder);
+            var unit = new OrganizationUnit(command.Code, command.Name, command.TypeId, command.ParentId);
+            unit.Update(command.Code, command.Name, command.ShortName, command.TypeId, command.SortOrder);
             unit.SetActive(command.IsActive);
             db.OrganizationUnits.Add(unit);
             audit.Add(AuditActions.UnitChanged, nameof(OrganizationUnit), unit.Id.ToString(), $"Створено {unit.Code} «{unit.Name}»");
@@ -207,7 +219,7 @@ internal sealed class OrganizationService(IApplicationDbContext db, ICurrentUser
 
         return await DomainErrors.GuardAsync(async () =>
         {
-            unit.Update(command.Code, command.Name, command.ShortName, command.Type, command.SortOrder);
+            unit.Update(command.Code, command.Name, command.ShortName, command.TypeId, command.SortOrder);
             unit.MoveTo(command.ParentId, descendants);
             unit.SetActive(command.IsActive);
             audit.Add(AuditActions.UnitChanged, nameof(OrganizationUnit), unit.Id.ToString(), $"Змінено {unit.Code} «{unit.Name}»");
@@ -220,7 +232,7 @@ internal sealed class OrganizationService(IApplicationDbContext db, ICurrentUser
     /// Builds the subtree under <paramref name="parentId"/>.
     /// </summary>
     /// <param name="units">All units.</param>
-    /// <param name="parentId">The parent, <see langword="null"/> for roots.</param>
+    /// <param name="parentId">The parent, <see langword="null"/> for the top-level organizations.</param>
     /// <param name="includeInactive">Whether inactive units are included.</param>
     /// <returns>The child nodes.</returns>
     private static List<UnitTreeNode> BuildTree(List<UnitRow> units, Guid? parentId, bool includeInactive)
@@ -252,14 +264,14 @@ internal sealed class OrganizationService(IApplicationDbContext db, ICurrentUser
                 u.Code,
                 u.Name,
                 u.ShortName,
-                u.Type,
+                new UnitTypeRef(u.TypeId, u.Type!.Name, u.Type.Icon, u.Type.IsOrganization),
                 u.IsActive,
                 u.SortOrder,
                 db.StaffPositions.Count(p => p.OrganizationUnitId == u.Id)))
             .ToListAsync(cancellationToken);
 
     /// <summary>
-    /// Validates code uniqueness and the parent reference.
+    /// Validates code uniqueness, the type and the parent reference.
     /// </summary>
     /// <param name="id">The unit being updated, <see langword="null"/> when creating.</param>
     /// <param name="command">The command.</param>
@@ -273,14 +285,20 @@ internal sealed class OrganizationService(IApplicationDbContext db, ICurrentUser
             return Error.Conflict($"Підрозділ із кодом «{code}» вже існує.");
         }
 
+        var type = await db.UnitTypes.AsNoTracking().FirstOrDefaultAsync(t => t.Id == command.TypeId, cancellationToken);
+        if (type is null)
+        {
+            return Error.Validation("Оберіть тип підрозділу.");
+        }
+
         if (command.ParentId is { } parentId && !await db.OrganizationUnits.AnyAsync(u => u.Id == parentId, cancellationToken))
         {
             return Error.Validation("Батьківський підрозділ не знайдено.");
         }
 
-        if (command.ParentId is null && command.Type != OrganizationUnitType.University)
+        if (command.ParentId is null && !type.IsOrganization)
         {
-            return Error.Validation("Кореневим може бути лише заклад освіти.");
+            return Error.Validation($"Верхній рівень структури займають лише організації. Оберіть батьківський підрозділ або тип, позначений як організація (тип «{type.Name}» ним не є).");
         }
 
         return null;
@@ -304,7 +322,7 @@ internal sealed class OrganizationService(IApplicationDbContext db, ICurrentUser
         string Code,
         string Name,
         string? ShortName,
-        OrganizationUnitType Type,
+        UnitTypeRef Type,
         bool IsActive,
         int SortOrder,
         int StaffCount);
