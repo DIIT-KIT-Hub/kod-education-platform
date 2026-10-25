@@ -9,6 +9,7 @@
 *.p7b     binary
 *.woff2   binary
 *.png     binary
+*.avif    binary
 *.ico     binary
 *.gz      binary
 *.xlsx    binary

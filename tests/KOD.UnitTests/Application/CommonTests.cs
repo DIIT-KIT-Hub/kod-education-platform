@@ -23,7 +23,7 @@ public sealed class CommonTests
 
         var scope = OrganizationTree.WithDescendants(links, [faculty]);
 
-        Assert.Equal([faculty, department], scope.Order());
+        Assert.Equivalent(new[] { faculty, department }, scope, strict: true);
     }
 
     [Fact]

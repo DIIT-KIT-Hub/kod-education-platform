@@ -2,6 +2,11 @@
 
 <div class="auth-shell">
     <section class="auth-hero" aria-hidden="true">
+        @* The photo is requested only where the panel is visible (≥ 1024px); smaller screens get a 1×1 placeholder. *@
+        <picture>
+            <source media="(min-width: 1024px)" type="image/avif" srcset="@Assets["img/auth/hero-800.avif"] 800w, @Assets["img/auth/hero-1200.avif"] 1200w" sizes="50vw" />
+            <img class="auth-hero__photo" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEAAAAALAAAAAABAAEAAAIBAAA=" alt="" width="1200" height="1334" fetchpriority="high" decoding="async" />
+        </picture>
         <div class="auth-hero__brand">
             <span class="app-brand__mark">К</span>
             <strong>КОД</strong>
@@ -10,11 +15,6 @@
             <h2>Кабінет<br />освітніх даних</h2>
             <p>Електронний документообіг закладу вищої освіти з кваліфікованим електронним підписом.</p>
         </div>
-        <ul class="auth-hero__features ds-stagger">
-            <li><Icon Name="shield-check" /> Двофакторний вхід через автентифікатор</li>
-            <li><Icon Name="signature" /> Підпис у браузері — ключ не залишає пристрій</li>
-            <li><Icon Name="network" /> Інститути, факультети, кафедри та відділи</li>
-        </ul>
     </section>
     <main class="auth-main">
         <div class="auth-card ds-animate-in">
