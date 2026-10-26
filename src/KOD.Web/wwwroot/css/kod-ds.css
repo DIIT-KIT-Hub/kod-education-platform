@@ -447,6 +447,7 @@ hr {
 .ds-pagination__page,
 .ds-calendar__nav,
 .ds-datepicker__toggle,
+.ds-password__toggle,
 .ds-chip__remove {
     position: relative;
     isolation: isolate;
@@ -457,6 +458,7 @@ hr {
 .ds-pagination__page::before,
 .ds-calendar__nav::before,
 .ds-datepicker__toggle::before,
+.ds-password__toggle::before,
 .ds-chip__remove::before {
     content: "";
     position: absolute;
@@ -474,6 +476,7 @@ hr {
 .ds-calendar__nav:hover::before,
 .ds-datepicker__toggle:hover::before,
 .ds-datepicker[data-open] .ds-datepicker__toggle::before,
+.ds-password__toggle:hover::before,
 .ds-chip__remove:hover::before { clip-path: circle(160% at var(--_x, 50%) var(--_y, 50%)); }
 
 .ds-segmented__option:hover input:not(:checked, :disabled) + .ds-segmented__label { color: var(--ds-color-on-inverse); border-color: var(--ds-color-inverse); }
@@ -917,7 +920,6 @@ hr {
     padding: 0.375rem;
     overflow-y: auto;
     overscroll-behavior: contain;
-    scrollbar-width: thin;
 }
 
 .ds-listbox__option {
@@ -950,6 +952,37 @@ hr {
     text-transform: uppercase;
     color: var(--ds-color-text-muted);
 }
+
+/* Password field with a show / hide button (PasswordReveal, js/kod-ds.js). */
+.ds-password { position: relative; min-width: 0; }
+.ds-password .ds-input { padding-right: 3rem; }
+.ds-password input::-ms-reveal,
+.ds-password input::-ms-clear { display: none; }
+
+.ds-password__toggle {
+    position: absolute;
+    top: 50%;
+    right: 0.4rem;
+    display: grid;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--ds-color-text-muted);
+    cursor: pointer;
+    transform: translateY(-50%);
+    transition: color var(--ds-ink-duration) var(--ds-ink-ease);
+}
+
+.ds-password__toggle:hover { color: var(--ds-color-on-inverse); }
+.ds-password__toggle:focus-visible { outline: 2px solid var(--ds-color-focus); outline-offset: 1px; border-radius: 50%; }
+.ds-password__toggle .ds-icon { width: 1.15rem; height: 1.15rem; }
+.ds-password__hide,
+.ds-password__toggle[aria-pressed="true"] .ds-password__show { display: none; }
+.ds-password__toggle[aria-pressed="true"] .ds-password__hide { display: block; animation: ds-pop var(--ds-duration-slow) var(--ds-ease-spring) both; }
 
 /* Date picker: a text field in the page language format + a hidden ISO value for the form. */
 .ds-datepicker { position: relative; display: block; min-width: 0; }
@@ -1040,6 +1073,36 @@ hr {
     margin-top: var(--ds-space-2);
     padding-top: var(--ds-space-2);
     border-top: 1px solid var(--ds-color-border);
+}
+
+/* Scrollbars of scrolling panels: dialogs, drop-down lists, the manual's contents, long grids.
+ * A thin rounded thumb on a transparent track, kept away from rounded corners; darker on hover.
+ * Chromium and Safari style ::-webkit-scrollbar; Firefox (no such selector) gets the standard properties. */
+:is(.ds-dialog, .ds-listbox, .ds-scroll, .help-toc) {
+    --_scroll-thumb: color-mix(in srgb, var(--ds-color-text) 22%, transparent);
+    --_scroll-thumb-hover: color-mix(in srgb, var(--ds-color-text) 42%, transparent);
+    --_scroll-inset: 0.75rem;
+}
+
+.ds-dialog { --_scroll-inset: 1.75rem; }
+
+:is(.ds-dialog, .ds-listbox, .ds-scroll, .help-toc)::-webkit-scrollbar { width: 0.875rem; height: 0.875rem; }
+:is(.ds-dialog, .ds-listbox, .ds-scroll, .help-toc)::-webkit-scrollbar-track { background: transparent; margin-block: var(--_scroll-inset); }
+:is(.ds-dialog, .ds-listbox, .ds-scroll, .help-toc)::-webkit-scrollbar-button { display: none; width: 0; height: 0; }
+:is(.ds-dialog, .ds-listbox, .ds-scroll, .help-toc)::-webkit-scrollbar-corner { background: transparent; }
+
+:is(.ds-dialog, .ds-listbox, .ds-scroll, .help-toc)::-webkit-scrollbar-thumb {
+    min-height: 2.5rem;
+    border: 4px solid transparent;
+    border-radius: var(--ds-radius-pill);
+    background: var(--_scroll-thumb) padding-box;
+}
+
+:is(.ds-dialog, .ds-listbox, .ds-scroll, .help-toc)::-webkit-scrollbar-thumb:hover,
+:is(.ds-dialog, .ds-listbox, .ds-scroll, .help-toc)::-webkit-scrollbar-thumb:active { background-color: var(--_scroll-thumb-hover); border-width: 3px; }
+
+@supports not selector(::-webkit-scrollbar) {
+    :is(.ds-dialog, .ds-listbox, .ds-scroll, .help-toc) { scrollbar-width: thin; scrollbar-color: var(--_scroll-thumb) transparent; }
 }
 
 /* Tabs */

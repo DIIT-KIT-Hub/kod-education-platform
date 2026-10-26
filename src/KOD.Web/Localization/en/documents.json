@@ -138,5 +138,8 @@
   "До серверів надавачів передаються лише публічні запити: перевірка статусу сертифіката та позначка часу.": "Only public requests are sent to provider servers: certificate status checks and timestamps.",
   "Апаратні та хмарні ключі": "Hardware tokens and cloud keys",
   "Поточна версія бібліотеки підтримує лише файлові ключі. Токени (Алмаз-1К, Кристал-1), хмарні ключі та «Дія.Підпис» потребують окремих компонентів надавачів — підключіть їх, коли вони знадобляться вашій організації.": "The current library version supports file keys only. Hardware tokens (Almaz-1K, Krystal-1), cloud keys and Diia.Signature require separate provider components — connect them when your organization needs them.",
-  "Підписані мною": "Signed by me"
+  "Підписані мною": "Signed by me",
+  "Це оригінал без підписів. Підписані файли завантажуйте в розділі «Підписи».": "This is the original without signatures. Download the signed files in the “Signatures” section.",
+  "Підписаний PDF": "Signed PDF",
+  "Файл підпису": "Signature file"
 }

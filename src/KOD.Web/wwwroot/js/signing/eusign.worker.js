@@ -528,8 +528,13 @@ const handlers = {
 
         if (/\.pdf$/i.test(container.name)) {
             format = "PAdES";
-            const count = euSign.PDFGetSignsCount(container.data);
             const claimed = pdfClaimedTimes(container.data);
+            if (claimed.length === 0) {
+                // The library reports a PDF without signatures as damaged data; say what actually happened.
+                throw new Error(t("У цьому PDF немає підписів. Якщо файл завантажено з картки документа, візьміть підписаний PDF у розділі «Підписи», а не оригінал документа."));
+            }
+
+            const count = euSign.PDFGetSignsCount(container.data);
             for (let i = 0; i < count; i++) {
                 signatures.push(describeSignature(euSign.PDFVerifyData(i, container.data), claimed[i] || null));
             }

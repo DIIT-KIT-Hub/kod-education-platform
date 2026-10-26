@@ -12,6 +12,7 @@
  *   data-theme-toggle       switches between the light and dark themes
  *   data-sidebar-toggle     collapses / expands the desktop sidebar (<html data-sidebar>, remembered per browser)
  *   data-busy-on-submit     on a <form>: shows a spinner on the submit button while submitting
+ *   data-password-toggle    shows / hides the password input of its .ds-password wrapper (hidden again on submit)
  *   .ds-dropzone            highlights while a file is dragged over and shows the chosen file names
  *   .ds-btn and other        the hover fill grows from the point where the pointer entered and shrinks towards where it left
  *   button-like controls     (segmented options, pagination, calendar and picker buttons, chips)
@@ -111,6 +112,36 @@
     }
 
     /**
+     * Shows or hides the password of a .ds-password wrapper, keeping the caret where it was.
+     * @param {Element} toggle The [data-password-toggle] button.
+     * @param {boolean} [hide] Forces the hidden state.
+     */
+    function togglePassword(toggle, hide) {
+        var input = toggle.parentElement ? toggle.parentElement.querySelector("input") : null;
+        if (!(input instanceof HTMLInputElement)) {
+            return;
+        }
+
+        var show = hide ? false : input.type === "password";
+        var focused = document.activeElement === input;
+        var start = input.selectionStart;
+        var end = input.selectionEnd;
+        input.type = show ? "text" : "password";
+        toggle.setAttribute("aria-pressed", show ? "true" : "false");
+        var label = show ? t("Сховати пароль") : t("Показати пароль");
+        toggle.setAttribute("aria-label", label);
+        toggle.setAttribute("title", label);
+        if (focused && !hide) {
+            input.focus();
+            try {
+                input.setSelectionRange(start, end);
+            } catch (e) {
+                /* Some input types do not support selection. */
+            }
+        }
+    }
+
+    /**
      * Applies and persists a theme.
      * @param {"light"|"dark"} theme The theme.
      */
@@ -174,6 +205,12 @@
             return;
         }
 
+        var passwordToggle = target.closest("[data-password-toggle]");
+        if (passwordToggle) {
+            togglePassword(passwordToggle);
+            return;
+        }
+
         var sidebarToggle = target.closest("[data-sidebar-toggle]");
         if (sidebarToggle) {
             setSidebar(document.documentElement.getAttribute("data-sidebar") !== "collapsed", true);
@@ -223,6 +260,13 @@
         }
     });
 
+    // The password toggle does not take the focus: the user keeps typing where the caret was.
+    document.addEventListener("mousedown", function (event) {
+        if (event.target instanceof Element && event.target.closest("[data-password-toggle]")) {
+            event.preventDefault();
+        }
+    });
+
     document.addEventListener("submit", function (event) {
         var form = /** @type {HTMLFormElement} */ (event.target);
         if (!(form instanceof HTMLFormElement)) {
@@ -247,6 +291,11 @@
             dialog.showModal();
             return;
         }
+
+        // A shown password is hidden again, so the browser never treats it as a plain text field.
+        form.querySelectorAll('[data-password-toggle][aria-pressed="true"]').forEach(function (toggle) {
+            togglePassword(toggle, true);
+        });
 
         if (form.hasAttribute("data-busy-on-submit")) {
             var button = form.querySelector('button[type="submit"]');
@@ -277,7 +326,7 @@
     });
 
     /** Controls with the hover fill; segmented options carry the origin for their label (custom properties inherit). */
-    var INK = ".ds-btn, .ds-segmented__option, .ds-pagination__page, .ds-calendar__nav, .ds-datepicker__toggle, .ds-chip__remove";
+    var INK = ".ds-btn, .ds-segmented__option, .ds-pagination__page, .ds-calendar__nav, .ds-datepicker__toggle, .ds-password__toggle, .ds-chip__remove";
 
     /**
      * Moves the origin of a control's hover fill (--_x / --_y) to the pointer.
@@ -355,5 +404,5 @@
 
     syncSidebarToggles();
 
-    window.kodDs = { t: t, toast: toast, openDialog: openDialog, setTheme: setTheme, restoreTheme: restoreTheme, setSidebar: setSidebar };
+    window.kodDs = { t: t, toast: toast, togglePassword: togglePassword, openDialog: openDialog, setTheme: setTheme, restoreTheme: restoreTheme, setSidebar: setSidebar };
 })();

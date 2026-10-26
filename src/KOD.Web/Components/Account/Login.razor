@@ -21,7 +21,9 @@
         <ValidationError For="() => Input.Email" />
     </Field>
     <Field Label="@T("Пароль")" For="login-password">
-        <InputText id="login-password" type="password" @bind-Value="Input.Password" class="ds-input" autocomplete="current-password" />
+        <PasswordReveal>
+            <InputText id="login-password" type="password" @bind-Value="Input.Password" class="ds-input" autocomplete="current-password" />
+        </PasswordReveal>
         <ValidationError For="() => Input.Password" />
     </Field>
     <label class="ds-check">

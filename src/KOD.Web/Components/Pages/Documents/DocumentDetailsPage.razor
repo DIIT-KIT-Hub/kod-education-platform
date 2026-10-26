@@ -95,6 +95,10 @@ else
                     <Button Href="@($"/api/v1/documents/{Document.Id}/file")" Variant="ButtonVariant.Secondary" Size="ControlSize.Small" Icon="download" download>@T("Завантажити")</Button>
                 </div>
                 <p class="ds-text-xs ds-muted">SHA-256: <span class="ds-mono">@Document.File.Sha256</span></p>
+                @if (Document.Signatures.Count > 0)
+                {
+                    <p class="ds-text-sm ds-muted">@T("Це оригінал без підписів. Підписані файли завантажуйте в розділі «Підписи».")</p>
+                }
             </Card>
 
             <Card Title="@T("Відомості")">
@@ -148,7 +152,9 @@ else
                                         }
                                     </span>
                                 </div>
-                                <Button Href="@($"/api/v1/documents/{Document.Id}/signatures/{signature.Id}/file")" Variant="ButtonVariant.Ghost" Size="ControlSize.Small" Icon="download" IconOnly aria-label="@T("Завантажити підпис")" title="@signature.FileName" download />
+                                <Button Href="@($"/api/v1/documents/{Document.Id}/signatures/{signature.Id}/file")" Variant="ButtonVariant.Secondary" Size="ControlSize.Small" Icon="download" title="@signature.FileName" download>
+                                    @(signature.Format == SignatureFormat.PAdES ? T("Підписаний PDF") : T("Файл підпису"))
+                                </Button>
                             </li>
                         }
                     </ul>

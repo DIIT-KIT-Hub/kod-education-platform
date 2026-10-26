@@ -164,16 +164,17 @@ function alert(tone, text, title) {
 /**
  * Creates a labelled field.
  * @param {string} label The label.
- * @param {HTMLElement} control The control.
+ * @param {HTMLElement} control The control, or a wrapper around it (the label points at the input inside).
  * @param {string} [hint] The hint.
  * @returns {HTMLElement} The field.
  */
 function field(label, control, hint) {
-    if (!control.id) {
-        control.id = `sig-${Math.random().toString(36).slice(2, 9)}`;
+    const target = control.matches("input, select, textarea") ? control : control.querySelector("input, select, textarea") || control;
+    if (!target.id) {
+        target.id = `sig-${Math.random().toString(36).slice(2, 9)}`;
     }
 
-    return el("div", { class: "ds-field" }, el("label", { class: "ds-label", for: control.id, text: label }), control, hint ? el("span", { class: "ds-hint", text: hint }) : null);
+    return el("div", { class: "ds-field" }, el("label", { class: "ds-label", for: target.id, text: label }), control, hint ? el("span", { class: "ds-hint", text: hint }) : null);
 }
 
 /**
@@ -384,6 +385,15 @@ function keyPanel(client, ready, onKey) {
     ready.then((info) => info.providers.forEach((name, index) => provider.append(el("option", { value: String(index), text: name })))).catch(() => { });
 
     const password = /** @type {HTMLInputElement} */ (el("input", { type: "password", class: "ds-input", autocomplete: "off", spellcheck: "false" }));
+    const passwordField = el(
+        "div",
+        { class: "ds-password" },
+        password,
+        el(
+            "button",
+            { type: "button", class: "ds-password__toggle", "data-password-toggle": true, "aria-pressed": "false", "aria-label": t("Показати пароль"), title: t("Показати пароль") },
+            icon("eye", "ds-password__show"),
+            icon("eye-off", "ds-password__hide")));
     const status = el("div", { class: "ds-stack ds-stack--sm", "aria-live": "polite" });
     const readButton = button(t("Зчитати ключ"), { icon: "key-round", type: "submit", block: true });
 
@@ -416,7 +426,7 @@ function keyPanel(client, ready, onKey) {
         ], "file", () => { }),
         field(t("Надавач електронних довірчих послуг"), provider),
         keyDrop.root,
-        field(t("Пароль захисту ключа"), password, t("Пароль не передається на сервер.")),
+        field(t("Пароль захисту ключа"), passwordField, t("Пароль не передається на сервер.")),
         el(
             "details",
             {},
@@ -437,6 +447,7 @@ function keyPanel(client, ready, onKey) {
         const hadKey = owner !== null;
         owner = null;
         password.value = "";
+        window.kodDs?.togglePassword(passwordField.querySelector("[data-password-toggle]"), true);
         keyDrop.clear();
         certificateDrop.clear();
         status.replaceChildren();
@@ -539,7 +550,8 @@ function parametersBlock(context) {
         }
 
         const meta = FORMATS().find((f) => f.id === format);
-        root.replaceChildren(
+        // replaceChildren() would print a null as the text "null", so the optional packaging field is filtered out.
+        root.replaceChildren(...[
             field(t("Формат підпису"), segmented("sign-format", available, format, (value) => {
                 format = value;
                 render();
@@ -549,7 +561,8 @@ function parametersBlock(context) {
                     packaging = value;
                 }))
                 : null,
-            field(t("Рівень підпису"), levelSelect, t("B-LT містить усе для перевірки через роки (рекомендовано).")));
+            field(t("Рівень підпису"), levelSelect, t("B-LT містить усе для перевірки через роки (рекомендовано).")),
+        ].filter(Boolean));
     };
 
     render();

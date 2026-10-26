@@ -111,4 +111,5 @@ window.kodI18n = Object.assign(window.kodI18n || {}, {
     "Це зовнішній підпис: додайте також файл, який було підписано.": "This is a detached signature: also add the file that was signed.",
     "У файлі не знайдено підписів.": "No signatures found in the file.",
     "Час підпису (вказаний у документі)": "Signing time (as stated in the document)",
+    "У цьому PDF немає підписів. Якщо файл завантажено з картки документа, візьміть підписаний PDF у розділі «Підписи», а не оригінал документа.": "This PDF has no signatures. If you downloaded it from a document card, take the signed PDF from the “Signatures” section, not the original document.",
 });

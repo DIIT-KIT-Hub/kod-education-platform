@@ -39,11 +39,15 @@ else if (MustSetPassword)
     <EditForm Model="Password" method="post" OnValidSubmit="SetPasswordAsync" FormName="first-password" class="ds-form" Enhance data-busy-on-submit>
         <DataAnnotationsValidator />
         <Field Label="@T("Новий пароль")" For="first-password-new" Hint="@T("Від 12 символів: великі й малі літери та цифри. Паролі з відомих витоків не приймаються.")">
-            <InputText id="first-password-new" type="password" @bind-Value="Password.NewPassword" class="ds-input" autocomplete="new-password" />
+            <PasswordReveal>
+                <InputText id="first-password-new" type="password" @bind-Value="Password.NewPassword" class="ds-input" autocomplete="new-password" />
+            </PasswordReveal>
             <ValidationError For="() => Password.NewPassword" />
         </Field>
         <Field Label="@T("Повторіть пароль")" For="first-password-confirm">
-            <InputText id="first-password-confirm" type="password" @bind-Value="Password.ConfirmPassword" class="ds-input" autocomplete="new-password" />
+            <PasswordReveal>
+                <InputText id="first-password-confirm" type="password" @bind-Value="Password.ConfirmPassword" class="ds-input" autocomplete="new-password" />
+            </PasswordReveal>
             <ValidationError For="() => Password.ConfirmPassword" />
         </Field>
         <Button Type="submit" Size="ControlSize.Large" Block IconEnd="arrow-right">@T("Зберегти пароль")</Button>

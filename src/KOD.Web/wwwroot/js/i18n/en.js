@@ -11,6 +11,8 @@ window.kodI18n = Object.assign(window.kodI18n || {}, {
     "Скопійовано": "Copied",
     "Не вдалося скопіювати": "Could not copy",
     "Оберіть дату": "Choose a date",
+    "Показати пароль": "Show password",
+    "Сховати пароль": "Hide password",
     "Попередній рік": "Previous year",
     "Попередній місяць": "Previous month",
     "Наступний місяць": "Next month",
