@@ -261,6 +261,7 @@ public static class Display
         "documents.deleted" => Texts.In("audit", "Документ видалено"),
         "news.changed" => Texts.In("audit", "Зміна новини"),
         "news.deleted" => Texts.In("audit", "Видалення новини"),
+        "signing.files-signed" => Texts.In("audit", "Підписано файли"),
         _ => action,
     };
 }

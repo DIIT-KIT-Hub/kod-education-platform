@@ -24,7 +24,6 @@
   "Відкрити": "Open",
   "Документів, що очікують вашого підпису, немає.": "No documents are awaiting your signature.",
   "Спробуйте змінити параметри пошуку або фільтри.": "Try changing your search or filters.",
-
   "Документ не знайдено": "Document not found",
   "Документ не існує або у вас немає до нього доступу.": "The document does not exist or you don't have access to it.",
   "До реєстру": "Back to registry",
@@ -70,7 +69,6 @@
   "Відмову зафіксовано": "Decline recorded",
   "Вкажіть причину відмови.": "Enter the reason for declining.",
   "Причина не може бути довшою за 1000 символів.": "The reason cannot be longer than 1000 characters.",
-
   "Редагування документа": "Edit document",
   "Змініть файл, реквізити або маршрут і збережіть документ або надішліть його на підпис.": "Change the file, details or route, then save the document or send it for signing.",
   "Редагування": "Editing",
@@ -118,7 +116,6 @@
   "Не вдалося прочитати файл. Спробуйте ще раз.": "Couldn't read the file. Please try again.",
   "Вкажіть назву документа.": "Enter the document title.",
   "Оберіть підрозділ.": "Select a unit.",
-
   "Підписання файлів": "File signing",
   "Накладіть кваліфікований електронний підпис на будь-який файл. Підпис створюється у вашому браузері — файл і ключ нікуди не передаються.": "Apply a qualified electronic signature to any file. The signature is created in your browser — the file and key are never sent anywhere.",
   "Інструменти підпису": "Signature tools",
@@ -140,5 +137,6 @@
   "Використовується офіційна бібліотека ІІТ «Користувач ЦСК» (EUSignCP-JS).": "The official IIT “CA User” library (EUSignCP-JS) is used.",
   "До серверів надавачів передаються лише публічні запити: перевірка статусу сертифіката та позначка часу.": "Only public requests are sent to provider servers: certificate status checks and timestamps.",
   "Апаратні та хмарні ключі": "Hardware tokens and cloud keys",
-  "Поточна версія бібліотеки підтримує лише файлові ключі. Токени (Алмаз-1К, Кристал-1), хмарні ключі та «Дія.Підпис» потребують окремих компонентів надавачів — підключіть їх, коли вони знадобляться вашій організації.": "The current library version supports file keys only. Hardware tokens (Almaz-1K, Krystal-1), cloud keys and Diia.Signature require separate provider components — connect them when your organization needs them."
+  "Поточна версія бібліотеки підтримує лише файлові ключі. Токени (Алмаз-1К, Кристал-1), хмарні ключі та «Дія.Підпис» потребують окремих компонентів надавачів — підключіть їх, коли вони знадобляться вашій організації.": "The current library version supports file keys only. Hardware tokens (Almaz-1K, Krystal-1), cloud keys and Diia.Signature require separate provider components — connect them when your organization needs them.",
+  "Підписані мною": "Signed by me"
 }

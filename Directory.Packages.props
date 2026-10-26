@@ -31,6 +31,11 @@
     <PackageVersion Include="Scalar.AspNetCore" Version="2.18.3" />
   </ItemGroup>
 
+  <ItemGroup Label="Logging">
+    <PackageVersion Include="Serilog.AspNetCore" Version="10.0.0" />
+    <PackageVersion Include="Serilog.Sinks.Postgresql.Alternative" Version="4.3.0" />
+  </ItemGroup>
+
   <ItemGroup Label="Testing">
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.11.0" />
     <PackageVersion Include="xunit.v3" Version="4.0.2" />

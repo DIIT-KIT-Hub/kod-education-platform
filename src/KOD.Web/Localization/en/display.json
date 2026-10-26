@@ -72,5 +72,6 @@
   "audit|Документ в архіві": "Document archived",
   "audit|Документ видалено": "Document deleted",
   "audit|Зміна новини": "News article changed",
-  "audit|Видалення новини": "News article deleted"
+  "audit|Видалення новини": "News article deleted",
+  "audit|Підписано файли": "Files signed"
 }

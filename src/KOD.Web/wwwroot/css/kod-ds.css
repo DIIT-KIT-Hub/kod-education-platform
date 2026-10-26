@@ -124,6 +124,10 @@
     --ds-duration-base: 250ms;
     --ds-duration-slow: 450ms;
 
+    /* Hover fill of buttons ("ink"): long and soft, so the colour flows in rather than snapping. */
+    --ds-ink-duration: 700ms;
+    --ds-ink-ease: cubic-bezier(0.45, 0, 0.15, 1);
+
     /* Layout */
     --ds-container: 1360px;
     --ds-control-height: 3rem;
@@ -377,8 +381,6 @@ hr {
     --_fill: var(--ds-color-primary-hover);
     --_fill-fg: var(--ds-color-on-primary);
     --_fill-border: var(--_border);
-    --_x: 50%;
-    --_y: 50%;
     position: relative;
     isolation: isolate;
     overflow: hidden;
@@ -399,8 +401,8 @@ hr {
     white-space: nowrap;
     cursor: pointer;
     user-select: none;
-    transition: color var(--ds-duration-slow) var(--ds-ease-out),
-        border-color var(--ds-duration-slow) var(--ds-ease-out),
+    transition: color var(--ds-ink-duration) var(--ds-ink-ease),
+        border-color var(--ds-ink-duration) var(--ds-ink-ease),
         background-color var(--ds-duration-base) var(--ds-ease-out),
         transform var(--ds-duration-fast) var(--ds-ease-out),
         box-shadow var(--ds-duration-base) var(--ds-ease-out);
@@ -413,13 +415,69 @@ hr {
     z-index: -1;
     border-radius: inherit;
     background: var(--_fill);
-    clip-path: circle(0 at var(--_x) var(--_y));
-    transition: clip-path var(--ds-duration-slow) var(--ds-ease-out);
+    clip-path: circle(0 at var(--_x, 50%) var(--_y, 50%));
+    transition: clip-path var(--ds-ink-duration) var(--ds-ink-ease);
     pointer-events: none;
 }
 
 .ds-btn:hover { color: var(--_fill-fg); border-color: var(--_fill-border); box-shadow: var(--ds-shadow-md); }
-.ds-btn:hover::before { clip-path: circle(160% at var(--_x) var(--_y)); }
+.ds-btn:hover::before { clip-path: circle(160% at var(--_x, 50%) var(--_y, 50%)); }
+
+/* On inverse surfaces (the home banner, inverse cards and alerts) the contrast colour is the surface itself, so the
+   fill takes the opposite colour: white on a black banner, black on a white one. */
+:is(.ds-card--inverse, .ds-alert--inverse, .home-hero) .ds-btn {
+    --_bg: var(--ds-color-on-inverse);
+    --_fg: var(--ds-color-inverse);
+    --_fill: color-mix(in srgb, var(--ds-color-on-inverse) 82%, var(--ds-color-inverse));
+    --_fill-fg: var(--ds-color-inverse);
+}
+
+:is(.ds-card--inverse, .ds-alert--inverse, .home-hero) :is(.ds-btn--secondary, .ds-btn--ghost) {
+    --_bg: transparent;
+    --_fg: var(--ds-color-on-inverse);
+    --_fill: var(--ds-color-on-inverse);
+    --_fill-fg: var(--ds-color-inverse);
+    --_fill-border: var(--ds-color-on-inverse);
+}
+
+:is(.ds-card--inverse, .ds-alert--inverse, .home-hero) .ds-btn--secondary { --_border: var(--ds-color-on-inverse); }
+
+/* The same ink on other button-like controls: segmented options, pagination, calendar and picker buttons, chips. */
+.ds-segmented__label,
+.ds-pagination__page,
+.ds-calendar__nav,
+.ds-datepicker__toggle,
+.ds-chip__remove {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+}
+
+.ds-segmented__label::before,
+.ds-pagination__page::before,
+.ds-calendar__nav::before,
+.ds-datepicker__toggle::before,
+.ds-chip__remove::before {
+    content: "";
+    position: absolute;
+    inset: -2px;
+    z-index: -1;
+    border-radius: inherit;
+    background: var(--ds-color-inverse);
+    clip-path: circle(0 at var(--_x, 50%) var(--_y, 50%));
+    transition: clip-path var(--ds-ink-duration) var(--ds-ink-ease);
+    pointer-events: none;
+}
+
+.ds-segmented__option:hover input:not(:checked, :disabled) + .ds-segmented__label::before,
+.ds-pagination__page:not([aria-current="page"]):hover::before,
+.ds-calendar__nav:hover::before,
+.ds-datepicker__toggle:hover::before,
+.ds-datepicker[data-open] .ds-datepicker__toggle::before,
+.ds-chip__remove:hover::before { clip-path: circle(160% at var(--_x, 50%) var(--_y, 50%)); }
+
+.ds-segmented__option:hover input:not(:checked, :disabled) + .ds-segmented__label { color: var(--ds-color-on-inverse); border-color: var(--ds-color-inverse); }
+.ds-segmented__option:hover input:not(:checked, :disabled) + .ds-segmented__label small { color: inherit; opacity: 0.75; }
 .ds-btn:active { transform: scale(0.97); }
 .ds-btn:disabled,
 .ds-btn[aria-disabled="true"] { opacity: 0.45; pointer-events: none; box-shadow: none; }
@@ -616,7 +674,8 @@ hr {
     .ds-form-grid > .ds-span-full { grid-column: 1 / -1; }
 }
 
-.ds-field { display: grid; gap: var(--ds-space-2); min-width: 0; }
+/* align-content: start keeps the control its own height when a neighbour in the form row is taller (e.g. has a hint). */
+.ds-field { display: grid; gap: var(--ds-space-2); min-width: 0; align-content: start; }
 .ds-label { font-weight: 700; font-size: var(--ds-fs-sm); }
 .ds-label__required { color: var(--ds-color-danger); margin-left: 0.15em; }
 .ds-hint { color: var(--ds-color-text-muted); font-size: var(--ds-fs-sm); }
@@ -761,12 +820,29 @@ hr {
     border-radius: var(--ds-radius-md);
     background: var(--ds-color-surface);
     font-weight: 700;
-    transition: all var(--ds-duration-fast) var(--ds-ease-out);
+    transition: color var(--ds-ink-duration) var(--ds-ink-ease), border-color var(--ds-ink-duration) var(--ds-ink-ease), background-color var(--ds-duration-base) var(--ds-ease-out);
 }
 
-.ds-segmented__label small { font-weight: 500; color: var(--ds-color-text-muted); font-size: var(--ds-fs-xs); }
+.ds-segmented__label small { font-weight: 500; color: var(--ds-color-text-muted); font-size: var(--ds-fs-xs); transition: color var(--ds-ink-duration) var(--ds-ink-ease); }
 .ds-segmented__option input:checked + .ds-segmented__label { background: var(--ds-color-primary); color: var(--ds-color-on-primary); border-color: var(--ds-color-primary); }
 .ds-segmented__option input:checked + .ds-segmented__label small { color: inherit; opacity: 0.75; }
+
+/* The chosen option carries a check mark, so it stays distinguishable from an option filled by the hover. */
+.ds-segmented__option input:checked + .ds-segmented__label::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    right: var(--ds-space-4);
+    width: 1.25rem;
+    height: 1.25rem;
+    transform: translateY(-50%);
+    background: currentColor;
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpath d='m8 12 3 3 5-6'/%3E%3C/svg%3E") center / contain no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpath d='m8 12 3 3 5-6'/%3E%3C/svg%3E") center / contain no-repeat;
+    animation: ds-pop var(--ds-duration-slow) var(--ds-ease-spring) both;
+}
+
+.ds-segmented__option input:checked + .ds-segmented__label { padding-right: calc(var(--ds-space-4) + 1.75rem); }
 .ds-segmented__option input:focus-visible + .ds-segmented__label { outline: 2px solid var(--ds-color-focus); outline-offset: 2px; }
 .ds-segmented__option input:disabled + .ds-segmented__label { opacity: 0.4; }
 
@@ -895,11 +971,11 @@ hr {
     color: var(--ds-color-text-muted);
     cursor: pointer;
     transform: translateY(-50%);
-    transition: background-color var(--ds-duration-base) var(--ds-ease-out), color var(--ds-duration-base) var(--ds-ease-out);
+    transition: color var(--ds-ink-duration) var(--ds-ink-ease);
 }
 
 .ds-datepicker__toggle:hover,
-.ds-datepicker[data-open] .ds-datepicker__toggle { background: var(--ds-color-inverse); color: var(--ds-color-on-inverse); }
+.ds-datepicker[data-open] .ds-datepicker__toggle { color: var(--ds-color-on-inverse); }
 .ds-datepicker[data-open] .ds-datepicker__input { border-color: var(--ds-color-text); }
 
 .ds-toolbar .ds-datepicker { flex: 0 1 11.5rem; }
@@ -932,7 +1008,7 @@ hr {
 }
 
 .ds-calendar__nav { width: 2.25rem; height: 2.25rem; border-radius: 50%; color: var(--ds-color-text-muted); }
-.ds-calendar__nav:hover { background: var(--ds-color-inverse); color: var(--ds-color-on-inverse); }
+.ds-calendar__nav:hover { color: var(--ds-color-on-inverse); }
 .ds-calendar__nav .ds-icon { width: 1.1rem; height: 1.1rem; }
 
 .ds-calendar__grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 2px; }
@@ -1169,10 +1245,10 @@ hr {
     border-radius: var(--ds-radius-pill);
     font-weight: 700;
     text-decoration: none;
-    transition: background-color var(--ds-duration-fast), color var(--ds-duration-fast), transform var(--ds-duration-fast);
+    transition: background-color var(--ds-duration-fast), color var(--ds-ink-duration) var(--ds-ink-ease), transform var(--ds-duration-fast);
 }
 
-.ds-pagination__page:hover { background: var(--ds-color-surface-3); }
+.ds-pagination__page:not([aria-current="page"]):hover { color: var(--ds-color-on-inverse); }
 .ds-pagination__page:active { transform: scale(0.94); }
 .ds-pagination__page[aria-current="page"] { background: var(--ds-color-primary); color: var(--ds-color-on-primary); }
 .ds-pagination__page[aria-disabled="true"] { opacity: 0.3; pointer-events: none; }
@@ -1582,7 +1658,7 @@ hr {
     cursor: pointer;
 }
 
-.ds-chip__remove:hover { background: var(--ds-color-surface); }
+.ds-chip__remove:hover { color: var(--ds-color-on-inverse); }
 
 /* Code / secrets */
 .ds-code {

@@ -3,7 +3,6 @@
   "Запис не знайдено.": "The record was not found.",
   "Недостатньо прав для виконання дії.": "You don't have permission to perform this action.",
   "Потрібна автентифікація.": "Authentication is required.",
-
   "Документ не знайдено.": "The document was not found.",
   "Цей тип файлу не підтримується.": "This file type is not supported.",
   "Розмір файлу не може перевищувати {0} МБ.": "The file size cannot exceed {0} MB.",
@@ -18,7 +17,6 @@
   "Не вдалося визначити сертифікат підписувача.": "Could not determine the signer's certificate.",
   "Підпис не знайдено.": "The signature was not found.",
   "Цю дію може виконати лише автор документа.": "Only the author of the document can perform this action.",
-
   "Новину не знайдено.": "The news article was not found.",
   "Ця новина належить організації, новинами якої ви не керуєте.": "This news article belongs to an organization whose news you don't manage.",
   "Новини для всього кабінету публікує лише адміністратор усіх організацій. Оберіть свою організацію.": "Only the administrator of all organizations publishes news for the entire cabinet. Select your organization.",
@@ -26,7 +24,6 @@
   "Ви можете публікувати новини лише своїх організацій.": "You can publish news only for your own organizations.",
   "Зображення не може бути більшим за 5 МБ.": "The image cannot be larger than 5 MB.",
   "Підтримуються лише зображення PNG, JPEG або WebP.": "Only PNG, JPEG or WebP images are supported.",
-
   "Підрозділ не знайдено.": "The unit was not found.",
   "Підрозділ належить організації, структурою якої ви не керуєте.": "The unit belongs to an organization whose structure you don't manage.",
   "Організації верхнього рівня створює й переміщує лише адміністратор усіх організацій. Оберіть батьківський підрозділ у своїй організації.": "Only the administrator of all organizations creates and moves top-level organizations. Select a parent unit in your organization.",
@@ -35,26 +32,22 @@
   "Оберіть тип підрозділу.": "Select a unit type.",
   "Батьківський підрозділ не знайдено.": "The parent unit was not found.",
   "Верхній рівень структури займають лише організації. Оберіть батьківський підрозділ або тип, позначений як організація (тип «{0}» ним не є).": "Only organizations can be at the top level of the structure. Select a parent unit or a type marked as an organization (the “{0}” type is not).",
-
   "Тип підрозділу не знайдено.": "The unit type was not found.",
   "Каталог типів підрозділів спільний для всіх організацій кабінету, тому змінювати його може лише адміністратор усіх організацій.": "The unit type catalog is shared by all organizations of the cabinet, so only the administrator of all organizations can change it.",
   "Цей тип мають організації верхнього рівня, тому він має лишатися організацією. Спершу змініть їхній тип або вкладіть їх в іншу організацію.": "Top-level organizations have this type, so it must remain an organization. First change their type or nest them in another organization.",
   "Тип «{0}» мають підрозділи ({1}). Спершу змініть їхній тип.": "Units have the “{0}” type ({1}). First change their type.",
   "Тип із кодом «{0}» вже існує.": "A type with the code “{0}” already exists.",
   "Тип «{0}» вже існує.": "The “{0}” type already exists.",
-
   "Новий пароль має відрізнятися від поточного.": "The new password must differ from the current one.",
   "Спочатку підключіть застосунок-автентифікатор.": "Set up an authenticator app first.",
   "Код неправильний або вже використаний. Введіть наступний код із застосунку.": "The code is incorrect or has already been used. Enter the next code from the app.",
   "Сесію не знайдено.": "The session was not found.",
   "Не вдалося визначити поточну сесію. Увійдіть знову та повторіть дію.": "Could not determine the current session. Sign in again and repeat the action.",
-
   "Роль не знайдено.": "The role was not found.",
   "Код ролі може містити лише малі латинські літери, цифри та «-».": "The role code may contain only lowercase Latin letters, digits and “-”.",
   "Роль із кодом «{0}» вже існує.": "A role with the code “{0}” already exists.",
   "Системну роль не можна видалити.": "A system role cannot be deleted.",
   "Роль призначена користувачам — спочатку змініть їхні посади.": "The role is assigned to users — change their positions first.",
-
   "Користувача не знайдено.": "The user was not found.",
   "Ви можете призначати посади лише в підрозділах організацій, якими керуєте.": "You can assign positions only in units of the organizations you manage.",
   "Призначте хоча б одну посаду в підрозділі своєї організації: обліковий запис без посад бачить лише адміністратор усіх організацій. Щоб припинити доступ, заблокуйте обліковий запис.": "Assign at least one position in a unit of your organization: an account without positions is visible only to the administrator of all organizations. To revoke access, block the account.",
@@ -78,7 +71,6 @@
   "Обрану роль не знайдено.": "The selected role was not found.",
   "Ви не можете призначати роль «{0}», оскільки вона надає більше прав, ніж маєте ви.": "You cannot assign the role “{0}” because it grants more permissions than you have.",
   "Цей обліковий запис має більше прав, ніж ви, тому ви не можете ним керувати.": "This account has more permissions than you, so you cannot manage it.",
-
   "Організація": "Organization",
   "Самостійна організація: компанія, установа, заклад, фонд, громадська організація.": "An independent organization: a company, institution, establishment, foundation or non-profit.",
   "Департамент": "Department",
@@ -94,5 +86,6 @@
   "Група / команда": "Group / team",
   "Робоча або проєктна група.": "A working or project group.",
   "Філія / представництво": "Branch / representative office",
-  "Відокремлений підрозділ організації в іншому місці.": "A separate unit of the organization in another location."
+  "Відокремлений підрозділ організації в іншому місці.": "A separate unit of the organization in another location.",
+  "Некоректний перелік підписаних файлів.": "Invalid list of signed files."
 }

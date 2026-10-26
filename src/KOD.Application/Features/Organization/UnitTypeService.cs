@@ -58,7 +58,7 @@ internal sealed class UnitTypeService(IApplicationDbContext db, ICurrentUser cur
             return Error.Forbidden();
         }
 
-        var type = await Items().FirstOrDefaultAsync(t => t.Id == id, cancellationToken);
+        var type = await Items(id).FirstOrDefaultAsync(cancellationToken);
         return type is null ? Error.NotFound(Texts.T("Тип підрозділу не знайдено.")) : type;
     }
 
@@ -151,12 +151,15 @@ internal sealed class UnitTypeService(IApplicationDbContext db, ICurrentUser cur
     }
 
     /// <summary>
-    /// Projects the types with their usage in display order.
+    /// Projects the types with their usage in display order. The id filter goes before the projection: EF Core cannot
+    /// translate a filter on a property of the projected record.
     /// </summary>
+    /// <param name="id">The type to load, or <see langword="null"/> for all of them.</param>
     /// <returns>The query.</returns>
-    private IQueryable<UnitTypeItem> Items()
+    private IQueryable<UnitTypeItem> Items(Guid? id = null)
         => db.UnitTypes
             .AsNoTracking()
+            .Where(t => id == null || t.Id == id)
             .OrderBy(static t => t.SortOrder)
             .ThenBy(static t => t.Name)
             .Select(t => new UnitTypeItem(

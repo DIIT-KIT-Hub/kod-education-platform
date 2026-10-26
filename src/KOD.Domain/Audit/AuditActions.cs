@@ -94,4 +94,7 @@ public static class AuditActions
 
     /// <summary>News article deleted.</summary>
     public const string NewsDeleted = "news.deleted";
+
+    /// <summary>Files signed with the file signing tool (only their names and the signature parameters reach the server).</summary>
+    public const string FilesSigned = "signing.files-signed";
 }

@@ -32,7 +32,7 @@
                 <StatCard Label="@T("Очікують мого підпису")" Value="@Summary.AwaitingMyDecision.ToString(Display.Culture)" Icon="signature" Href="/documents?scope=AwaitingMe" Inverse="Summary.AwaitingMyDecision > 0" />
                 <StatCard Label="@T("Мої чернетки")" Value="@Summary.MyDrafts.ToString(Display.Culture)" Icon="pencil" Href="/documents?scope=Authored&status=Draft" />
                 <StatCard Label="@T("Мої на підписанні")" Value="@Summary.MyInSigning.ToString(Display.Culture)" Icon="hourglass" Href="/documents?scope=Authored&status=InSigning" />
-                <StatCard Label="@T("Підписано цього місяця")" Value="@Summary.SignedThisMonth.ToString(Display.Culture)" Icon="badge-check" Href="/documents?scope=Authored&status=Signed" />
+                <StatCard Label="@T("Підписано мною цього місяця")" Value="@Summary.SignedThisMonth.ToString(Display.Culture)" Icon="badge-check" Href="/documents?scope=SignedByMe" />
             </section>
         }
 

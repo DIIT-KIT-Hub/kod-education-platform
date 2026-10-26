@@ -233,6 +233,30 @@ function dropzone(options) {
 }
 
 /**
+ * Reports a file signing to the audit log (names and parameters only). A failure never affects the signature the user
+ * already has, so it is not shown.
+ * @param {any} owner The key owner.
+ * @param {string[]} fileNames The signed file names.
+ * @param {{format: string, level: string}} meta The signature parameters.
+ */
+function recordFilesSigned(owner, fileNames, meta) {
+    const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute("content") || "";
+    fetch("/api/v1/signing/journal", {
+        method: "POST",
+        credentials: "same-origin",
+        headers: { "Content-Type": "application/json", "X-CSRF-TOKEN": token },
+        body: JSON.stringify({
+            fileNames,
+            format: meta.format,
+            level: meta.level || null,
+            signerName: owner.fullName || owner.commonName || null,
+            certificateSerial: owner.serial || null,
+            issuer: owner.issuer || null,
+        }),
+    }).catch(() => { /* The log entry is best effort. */ });
+}
+
+/**
  * Formats an ISO date in Kyiv time.
  * @param {string|null} iso The ISO date.
  * @returns {string} The formatted date.
@@ -711,6 +735,11 @@ function renderSigning(host, client, visible, ready) {
             return;
         }
 
+        if (!documentMode) {
+            // The files stay on this device; only their names and the signature parameters go to the audit log.
+            recordFilesSigned(owner, files.map((f) => f.name), { format, level });
+        }
+
         await key.forget();
         if (documentMode) {
             host.replaceChildren(successCard(t("Документ підписано"), t("Підпис збережено. Сторінка оновиться автоматично.")));
@@ -843,7 +872,10 @@ function renderVerification(host, client, ready) {
                         [t("ЄДРПОУ"), signature.signer.edrpou],
                         [t("Надавач"), signature.signer.issuer],
                         [t("Сертифікат №"), signature.signer.serial],
-                        [signature.isTimeStamp ? t("Позначка часу") : t("Час підпису"), formatDate(signature.time)],
+                        [
+                            signature.isTimeStamp ? t("Позначка часу") : signature.isClaimed ? t("Час підпису (вказаний у документі)") : t("Час підпису"),
+                            formatDate(signature.time),
+                        ],
                     ])));
             });
 

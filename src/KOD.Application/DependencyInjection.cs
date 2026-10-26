@@ -6,6 +6,7 @@ using KOD.Application.Features.News;
 using KOD.Application.Features.Organization;
 using KOD.Application.Features.Profile;
 using KOD.Application.Features.Roles;
+using KOD.Application.Features.Signing;
 using KOD.Application.Features.Users;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -37,6 +38,7 @@ public static class DependencyInjection
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IProfileService, ProfileService>();
             services.AddScoped<IAuditService, AuditService>();
+            services.AddScoped<ISigningJournal, SigningJournal>();
 
             return services;
         }

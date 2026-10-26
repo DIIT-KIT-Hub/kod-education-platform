@@ -184,6 +184,46 @@ function clearSearch(root) {
 }
 
 /**
+ * Topics skip layout while off screen (content-visibility: auto in app.css), and keep the last height they were rendered
+ * with. Renders every topic once so those heights are real: then anchors land exactly and the scrollbar does not jump.
+ * Measured again after the column width changes (sidebar, window), since text then wraps differently.
+ * @param {HTMLElement} root The manual root.
+ * @returns {() => void} Stops watching the width.
+ */
+function rememberTopicHeights(root) {
+    const content = root.querySelector(".help-content");
+    if (!content) {
+        return () => {};
+    }
+
+    const measure = () => {
+        root.setAttribute("data-help-measuring", "");
+        void content.offsetHeight;
+        // The remembered size is recorded at the next rendering opportunity, so the topics stay rendered for two frames.
+        requestAnimationFrame(() => requestAnimationFrame(() => root.removeAttribute("data-help-measuring")));
+    };
+
+    let width = content.clientWidth;
+    let timer = 0;
+    const observer = new ResizeObserver(() => {
+        if (content.clientWidth === width) {
+            return;
+        }
+
+        width = content.clientWidth;
+        window.clearTimeout(timer);
+        timer = window.setTimeout(measure, 400);
+    });
+
+    measure();
+    observer.observe(content);
+    return () => {
+        window.clearTimeout(timer);
+        observer.disconnect();
+    };
+}
+
+/**
  * Mounts the manual behaviors.
  * @param {HTMLElement} root The element marked with [data-help].
  */
@@ -225,6 +265,14 @@ export function mountHelp(root) {
         target.scrollIntoView({ behavior: "smooth", block: "start" });
     });
 
+    const stopMeasuring = rememberTopicHeights(root);
+
+    // Opened with an address like /help#topic: the browser scrolled before the real heights were known, so scroll again.
+    const initial = window.location.hash ? document.getElementById(decodeURIComponent(window.location.hash.slice(1))) : null;
+    if (initial) {
+        requestAnimationFrame(() => requestAnimationFrame(() => initial.scrollIntoView({ block: "start" })));
+    }
+
     const stop = trackActiveTopic(root);
     wireSearch(root);
     root.querySelector("[data-help-print]")?.addEventListener("click", () => window.print());
@@ -234,6 +282,7 @@ export function mountHelp(root) {
         const onLoad = () => {
             if (!root.isConnected) {
                 stop();
+                stopMeasuring();
                 desktop.removeEventListener("change", syncToc);
                 if (typeof CSS !== "undefined" && "highlights" in CSS) {
                     CSS.highlights.delete(HIGHLIGHT);

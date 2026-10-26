@@ -545,8 +545,6 @@ html[data-navigating] .app-page { filter: opacity(0.55); transition: filter var(
 
 .home-hero h1 { font-size: var(--ds-fs-3xl); }
 .home-hero p { opacity: 0.75; font-size: var(--ds-fs-lg); max-width: 50ch; }
-.home-hero .ds-btn { --_bg: var(--ds-color-on-inverse); --_fg: var(--ds-color-inverse); }
-.home-hero .ds-btn--secondary { --_bg: transparent; --_fg: var(--ds-color-on-inverse); --_border: var(--ds-color-on-inverse); }
 
 @media (min-width: 768px) {
     .home-hero { padding: var(--ds-space-10); }
@@ -888,7 +886,15 @@ html[data-navigating] .app-page { filter: opacity(0.55); transition: filter var(
     border-radius: var(--ds-radius-lg);
     background: var(--ds-color-surface);
     scroll-margin-top: 5rem;
+
+    /* The manual is long: topics outside the viewport skip layout and paint, so resizing the page (the sidebar
+       animation, window resizes) reflows only what is on screen. "auto" remembers the last rendered height. */
+    content-visibility: auto;
+    contain-intrinsic-size: auto 28rem;
 }
+
+/* js/help.js renders every topic once (and after width changes) so the remembered heights are real. */
+[data-help-measuring] .help-topic { content-visibility: visible; }
 
 .help-topic__title { display: flex; align-items: center; gap: var(--ds-space-2); font-size: var(--ds-fs-xl); line-height: 1.25; }
 .help-topic__anchor { display: inline-grid; place-items: center; flex: none; width: 1.75rem; height: 1.75rem; border-radius: var(--ds-radius-sm); color: var(--ds-color-text-subtle); opacity: 0.5; transition: opacity var(--ds-duration-fast), background-color var(--ds-duration-fast); }
@@ -965,6 +971,7 @@ html[data-navigating] .app-page { filter: opacity(0.55); transition: filter var(
 
 @media print {
     .app-sidebar, .app-topbar, .app-tabbar, .help-toc, .help-search, .help-topic__anchor, [data-help-print] { display: none !important; }
+    .help-topic { content-visibility: visible; }
     .help-layout { display: block; }
     .help-chapter { break-before: page; }
     .help-chapter__header { border: 2px solid #000; background: none; color: #000; }

@@ -110,4 +110,5 @@ window.kodI18n = Object.assign(window.kodI18n || {}, {
     "Невідомий формат підпису.": "Unknown signature format.",
     "Це зовнішній підпис: додайте також файл, який було підписано.": "This is a detached signature: also add the file that was signed.",
     "У файлі не знайдено підписів.": "No signatures found in the file.",
+    "Час підпису (вказаний у документі)": "Signing time (as stated in the document)",
 });

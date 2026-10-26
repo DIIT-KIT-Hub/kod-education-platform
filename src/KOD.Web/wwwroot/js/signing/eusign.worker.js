@@ -328,17 +328,65 @@ function describeOwner(owner, certificate) {
 }
 
 /**
- * Describes a verified signature.
+ * Converts a library time value into an ISO string.
+ * @param {Date|string|number|null|undefined} value The time.
+ * @returns {string|null} The ISO time, or null when absent or invalid.
+ */
+function isoTime(value) {
+    if (!value) {
+        return null;
+    }
+
+    const date = value instanceof Date ? value : new Date(value);
+    return Number.isNaN(date.getTime()) ? null : date.toISOString();
+}
+
+/**
+ * Reads the signing times that PDF signature dictionaries claim (/M), in the order of the signatures in the file.
+ * PAdES forbids the signing-time attribute, so without a signature time-stamp this is the only time a PDF carries.
+ * @param {Uint8Array} bytes The PDF.
+ * @returns {(string|null)[]} The ISO times (null where a signature has none).
+ */
+function pdfClaimedTimes(bytes) {
+    const text = new TextDecoder("latin1").decode(bytes);
+    const times = [];
+    const byteRange = /\/ByteRange\s*\[/g;
+    let match;
+    while ((match = byteRange.exec(text)) !== null) {
+        const start = Math.max(0, text.lastIndexOf(" obj", match.index));
+        const end = text.indexOf("endobj", match.index);
+        const dictionary = text.slice(start, end === -1 ? undefined : end);
+        const m = /\/M\s*\(D:(\d{4})(\d{2})?(\d{2})?(\d{2})?(\d{2})?(\d{2})?([Z+-])?(\d{2})?'?(\d{2})?'?\)/.exec(dictionary);
+        if (!m) {
+            times.push(null);
+            continue;
+        }
+
+        const [, year, month = "01", day = "01", hour = "00", minute = "00", second = "00", sign, offsetHours = "00", offsetMinutes = "00"] = m;
+        const zone = !sign || sign === "Z" ? "Z" : `${sign}${offsetHours}:${offsetMinutes}`;
+        times.push(isoTime(`${year}-${month}-${day}T${hour}:${minute}:${second}${zone}`));
+    }
+
+    return times;
+}
+
+/**
+ * Describes a verified signature. The time is the signing-time attribute, otherwise the signature time-stamp,
+ * otherwise (PDF only) the time the signature dictionary claims.
  * @param {any} signInfo The library sign info.
+ * @param {string|null} [claimedTime] The time claimed by the container (PDF /M).
  * @returns {object} The summary.
  */
-function describeSignature(signInfo) {
+function describeSignature(signInfo, claimedTime) {
     const owner = signInfo.ownerInfo || {};
     const time = signInfo.timeInfo || {};
+    const signed = time.isTimeAvail ? isoTime(time.time) : null;
+    const stamp = time.isSignTimeStampAvail ? isoTime(time.signTimeStamp) : null;
     return {
         signer: describeOwner(owner, null),
-        time: time.isTimeAvail && time.time ? new Date(time.time).toISOString() : null,
-        isTimeStamp: Boolean(time.isTimeStamp),
+        time: signed || stamp || claimedTime || null,
+        isTimeStamp: signed ? Boolean(time.isTimeStamp) : Boolean(stamp),
+        isClaimed: !signed && !stamp && Boolean(claimedTime),
     };
 }
 
@@ -481,8 +529,9 @@ const handlers = {
         if (/\.pdf$/i.test(container.name)) {
             format = "PAdES";
             const count = euSign.PDFGetSignsCount(container.data);
+            const claimed = pdfClaimedTimes(container.data);
             for (let i = 0; i < count; i++) {
-                signatures.push(describeSignature(euSign.PDFVerifyData(i, container.data)));
+                signatures.push(describeSignature(euSign.PDFVerifyData(i, container.data), claimed[i] || null));
             }
         } else if (/\.(asics|asice|scs|sce|zip)$/i.test(container.name)) {
             format = "ASiC";

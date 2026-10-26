@@ -38,6 +38,7 @@ internal static class WebApplicationExtensions
         {
             // First: the client address and scheme from trusted reverse proxies (rate limits, audit, session IPs, HTTPS).
             app.UseForwardedHeaders();
+            app.UseRequestLogging();
 
             if (app.Environment.IsDevelopment())
             {

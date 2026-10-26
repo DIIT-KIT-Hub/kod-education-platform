@@ -44,7 +44,8 @@ internal sealed class DashboardService(
             var mine = db.Documents.AsNoTracking().Where(d => d.AuthorId == me);
             drafts = await mine.CountAsync(static d => d.Status == DocumentStatus.Draft, cancellationToken);
             inSigning = await mine.CountAsync(static d => d.Status == DocumentStatus.InSigning, cancellationToken);
-            signedThisMonth = await mine.CountAsync(d => d.Status == DocumentStatus.Signed && d.CompletedAt >= monthStart, cancellationToken);
+            signedThisMonth = await db.Documents.AsNoTracking()
+                .CountAsync(d => d.Signers.Any(s => s.UserId == me && s.Status == SignerStatus.Signed && s.DecidedAt >= monthStart), cancellationToken);
         }
 
         var latestNews = currentUser.Has(Permissions.News.View)

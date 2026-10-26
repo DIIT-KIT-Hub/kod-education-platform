@@ -13,7 +13,8 @@
  *   data-sidebar-toggle     collapses / expands the desktop sidebar (<html data-sidebar>, remembered per browser)
  *   data-busy-on-submit     on a <form>: shows a spinner on the submit button while submitting
  *   .ds-dropzone            highlights while a file is dragged over and shows the chosen file names
- *   .ds-btn                 the hover fill grows from the point where the pointer entered and shrinks towards where it left
+ *   .ds-btn and other        the hover fill grows from the point where the pointer entered and shrinks towards where it left
+ *   button-like controls     (segmented options, pagination, calendar and picker buttons, chips)
  *
  * Public API: `window.kodDs.toast(message, tone)`, `window.kodDs.t(text, ...args)`.
  */
@@ -275,13 +276,16 @@
         }
     });
 
+    /** Controls with the hover fill; segmented options carry the origin for their label (custom properties inherit). */
+    var INK = ".ds-btn, .ds-segmented__option, .ds-pagination__page, .ds-calendar__nav, .ds-datepicker__toggle, .ds-chip__remove";
+
     /**
-     * Moves the origin of a button's hover fill (--_x / --_y) to the pointer.
+     * Moves the origin of a control's hover fill (--_x / --_y) to the pointer.
      * @param {Event} event A pointerenter / pointerleave event.
      */
     function trackButtonPointer(event) {
         var button = event.target;
-        if (!(button instanceof HTMLElement) || !button.classList.contains("ds-btn") || !(event instanceof PointerEvent)) {
+        if (!(button instanceof HTMLElement) || !button.matches(INK) || !(event instanceof PointerEvent)) {
             return;
         }
 

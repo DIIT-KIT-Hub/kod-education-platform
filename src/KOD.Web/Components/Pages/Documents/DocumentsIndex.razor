@@ -15,6 +15,7 @@
     <TabLink Href="@ScopeHref(DocumentScope.AwaitingMe)" Active="@(CurrentScope == DocumentScope.AwaitingMe)" Icon="signature">@T("Очікують мого підпису")</TabLink>
     <TabLink Href="@ScopeHref(DocumentScope.Authored)" Active="@(CurrentScope == DocumentScope.Authored)" Icon="pen-line">@T("Створені мною")</TabLink>
     <TabLink Href="@ScopeHref(DocumentScope.Involved)" Active="@(CurrentScope == DocumentScope.Involved)" Icon="users">@T("Я в маршруті")</TabLink>
+    <TabLink Href="@ScopeHref(DocumentScope.SignedByMe)" Active="@(CurrentScope == DocumentScope.SignedByMe)" Icon="badge-check">@T("Підписані мною")</TabLink>
     <TabLink Href="@ScopeHref(DocumentScope.Accessible)" Active="@(CurrentScope == DocumentScope.Accessible)" Icon="layers">@T("Усі доступні")</TabLink>
 </Tabs>
 

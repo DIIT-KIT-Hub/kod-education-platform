@@ -16,4 +16,7 @@ public enum DocumentScope
 
     /// <summary>Documents where the user is on the signing route.</summary>
     Involved = 3,
+
+    /// <summary>Documents the user has signed.</summary>
+    SignedByMe = 4,
 }

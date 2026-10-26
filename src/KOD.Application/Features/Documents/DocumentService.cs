@@ -69,6 +69,7 @@ internal sealed class DocumentService(
                         || !d.Signers.Any(o => o.Status == SignerStatus.Pending && o.Order < s.Order)))),
             DocumentScope.Authored => documents.Where(d => d.AuthorId == me),
             DocumentScope.Involved => documents.Where(d => d.Signers.Any(s => s.UserId == me)),
+            DocumentScope.SignedByMe => documents.Where(d => d.Signers.Any(s => s.UserId == me && s.Status == SignerStatus.Signed)),
             _ => await accessScope.VisibleDocumentsAsync(documents, cancellationToken),
         };
 
