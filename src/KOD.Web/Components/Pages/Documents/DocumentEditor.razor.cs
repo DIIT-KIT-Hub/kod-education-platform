@@ -26,6 +26,19 @@ public sealed partial class DocumentEditor : IDisposable
     public Guid? Id { get; set; }
 
     /// <summary>
+    /// Gets or sets the document being edited. Persisted from prerendering (like <see cref="AuthorUnits"/>), so the
+    /// interactive render shows the same form at once instead of a skeleton while loading it again.
+    /// </summary>
+    [PersistentState]
+    public DocumentEditModel? Existing { get; set; }
+
+    /// <summary>
+    /// Gets or sets the units the current user may author documents in; <see langword="null"/> until loaded.
+    /// </summary>
+    [PersistentState]
+    public IReadOnlyList<UnitOption>? AuthorUnits { get; set; }
+
+    /// <summary>
     /// Gets or sets the document service.
     /// </summary>
     [Inject]
@@ -41,11 +54,6 @@ public sealed partial class DocumentEditor : IDisposable
     /// Gets a value indicating whether an existing document is edited.
     /// </summary>
     private bool IsEdit => Id is not null;
-
-    /// <summary>
-    /// Gets or sets the document being edited.
-    /// </summary>
-    private DocumentEditModel? Existing { get; set; }
 
     /// <summary>
     /// Gets or sets the reason the document cannot be edited.
@@ -114,7 +122,8 @@ public sealed partial class DocumentEditor : IDisposable
     /// <inheritdoc />
     protected override async Task OnInitializedAsync()
     {
-        Units = await Documents.GetAuthorUnitsAsync(CancellationToken.None);
+        AuthorUnits ??= await Documents.GetAuthorUnitsAsync(CancellationToken.None);
+        Units = AuthorUnits;
         if (Id is not { } id)
         {
             if (Units.Count == 1)
@@ -125,14 +134,18 @@ public sealed partial class DocumentEditor : IDisposable
             return;
         }
 
-        var result = await Documents.GetForEditAsync(id, CancellationToken.None);
-        if (!result.IsSuccess)
+        if (Existing?.Id != id)
         {
-            LoadError = result.Error.Message;
-            return;
+            var result = await Documents.GetForEditAsync(id, CancellationToken.None);
+            if (!result.IsSuccess)
+            {
+                LoadError = result.Error.Message;
+                return;
+            }
+
+            Existing = result.Value;
         }
 
-        Existing = result.Value;
         Model.Title = Existing.Title;
         Model.Description = Existing.Description;
         Model.Kind = Existing.Kind;

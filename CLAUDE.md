@@ -158,6 +158,13 @@ Use `[LoggerMessage]` partial methods for new log statements.
 - **Streaming + `<PageTitle>`:** a `PageTitle` that first appears in a later streamed chunk does not reach `<head>`, and
   changing it during streaming can crash the renderer ("The renderer does not have a component with ID…"). Pages whose
   header depends on loaded data are not streamed; streamed pages render `PageHeader` in the first chunk.
+- **`enhancedload` also fires for every streaming update** (skeleton → data), even on a full page load. One-time
+  effects of a navigation (the page entrance in `app.js`) run only after `enhancednavigationstart`.
+- **Interactive pages are prerendered, then rendered again by the circuit.** Data loaded in `OnInitialized/OnParametersSet`
+  goes into public `[PersistentState]` properties and is loaded only when missing, or the form blinks back to the
+  skeleton (and a "New …" heading) when the circuit starts. Keep this for new interactive editors.
+- **Font preloads use the plain `fonts/…` paths** that `kod-ds.css` references, not `@Assets[…]` (a fingerprinted URL
+  is a different resource: the font downloads twice and the first paint uses the fallback font).
 - **`replaceChildren(…, null)`** prints "null"; filter optional children first.
 - `<html>` attributes are re-synced by enhanced navigation: theme/sidebar/navigation state are restored on `enhancedload`.
 - Help page performance: topics use `content-visibility: auto`; `help.js` renders them once to remember real heights so

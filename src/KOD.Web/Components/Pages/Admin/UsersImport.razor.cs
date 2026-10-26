@@ -27,6 +27,13 @@ public partial class UsersImport
     private const string ImportColumns = "Email, Прізвище, Ім'я, По батькові, Телефон, Код підрозділу, Код ролі, Посада, Статус";
 
     /// <summary>
+    /// Gets or sets the role options; <see langword="null"/> until loaded. Persisted from prerendering, so the
+    /// interactive render shows the same page at once instead of loading them again.
+    /// </summary>
+    [PersistentState]
+    public IReadOnlyList<RoleOption>? RoleOptions { get; set; }
+
+    /// <summary>
     /// Gets or sets the authentication state.
     /// </summary>
     [CascadingParameter]
@@ -66,9 +73,9 @@ public partial class UsersImport
     private UserImportReport? Report { get; set; }
 
     /// <summary>
-    /// Gets or sets the role options.
+    /// Gets the role options.
     /// </summary>
-    private IReadOnlyList<RoleOption> Roles { get; set; } = [];
+    private IReadOnlyList<RoleOption> Roles => RoleOptions ?? [];
 
     /// <summary>
     /// Gets or sets the error page number.
@@ -111,7 +118,7 @@ public partial class UsersImport
         var user = (await AuthenticationState).User;
         CanImport = user.HasPermission(Permissions.Users.Import);
         CanExport = user.HasPermission(Permissions.Users.Export);
-        Roles = await RoleService.GetOptionsAsync(CancellationToken.None);
+        RoleOptions ??= await RoleService.GetOptionsAsync(CancellationToken.None);
     }
 
     /// <summary>

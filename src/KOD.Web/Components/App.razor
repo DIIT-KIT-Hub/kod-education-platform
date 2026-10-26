@@ -9,9 +9,11 @@
     <meta name="csrf-token" content="@CsrfToken" />
     <base href="/" />
     <script src="@Assets[DesignTokens.ThemeScript]"></script>
+    @* Not @Assets[…]: the preload must use the same URL as the @font-face rules in kod-ds.css, or the browser
+       downloads the font twice and paints the page in a fallback font first. *@
     @foreach (var font in DesignTokens.Fonts)
     {
-        <link rel="preload" href="@Assets[font]" as="font" type="font/woff2" crossorigin />
+        <link rel="preload" href="@font" as="font" type="font/woff2" crossorigin />
     }
     <ResourcePreloader />
     <link rel="stylesheet" href="@Assets[DesignTokens.Stylesheet]" />

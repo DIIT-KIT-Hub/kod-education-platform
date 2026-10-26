@@ -346,6 +346,20 @@
             return;
         }
 
+        // A one-time code is sent once: the auto-submit on the last digit and an Enter or a click right after it would
+        // post the same code twice, and the second post fails as already used. The server markup of the next response
+        // has no data-submitting, so enhanced navigation clears the mark; the timeout covers a lost response.
+        if (form.querySelector("[data-otp]")) {
+            if (form.hasAttribute("data-submitting")) {
+                event.preventDefault();
+                event.stopImmediatePropagation();
+                return;
+            }
+
+            form.setAttribute("data-submitting", "");
+            window.setTimeout(function () { form.removeAttribute("data-submitting"); }, 10000);
+        }
+
         // A shown password is hidden again, so the browser never treats it as a plain text field.
         form.querySelectorAll('[data-password-toggle][aria-pressed="true"]').forEach(function (toggle) {
             togglePassword(toggle, true);

@@ -21,6 +21,25 @@ public partial class UnitEditor
     public Guid? Id { get; set; }
 
     /// <summary>
+    /// Gets or sets the edited unit. Persisted from prerendering (like the option lists), so the interactive render
+    /// shows the same form at once instead of a skeleton while loading it again.
+    /// </summary>
+    [PersistentState]
+    public UnitDetails? Existing { get; set; }
+
+    /// <summary>
+    /// Gets or sets the unit options; <see langword="null"/> until loaded.
+    /// </summary>
+    [PersistentState]
+    public IReadOnlyList<UnitOption>? UnitOptions { get; set; }
+
+    /// <summary>
+    /// Gets or sets the unit types; <see langword="null"/> until loaded.
+    /// </summary>
+    [PersistentState]
+    public IReadOnlyList<UnitTypeRef>? TypeOptions { get; set; }
+
+    /// <summary>
     /// Gets or sets the parent preselected from the query string.
     /// </summary>
     [SupplyParameterFromQuery]
@@ -62,14 +81,14 @@ public partial class UnitEditor
     private UnitModel Model { get; set; } = new();
 
     /// <summary>
-    /// Gets or sets the unit options.
+    /// Gets the unit options.
     /// </summary>
-    private IReadOnlyList<UnitOption> Units { get; set; } = [];
+    private IReadOnlyList<UnitOption> Units => UnitOptions ?? [];
 
     /// <summary>
-    /// Gets or sets the unit types.
+    /// Gets the unit types.
     /// </summary>
-    private IReadOnlyList<UnitTypeRef> Types { get; set; } = [];
+    private IReadOnlyList<UnitTypeRef> Types => TypeOptions ?? [];
 
     /// <summary>
     /// Gets or sets a value indicating whether the current user manages the structure of every organization.
@@ -110,18 +129,23 @@ public partial class UnitEditor
     protected override async Task OnParametersSetAsync()
     {
         CabinetWide = (await AuthenticationState).User.HasPermission(Permissions.Administration.AllOrganizations);
-        Units = await Organization.GetOptionsAsync(Permissions.Structure.Manage, CancellationToken.None);
-        Types = await UnitTypes.GetOptionsAsync(CancellationToken.None);
+        UnitOptions ??= await Organization.GetOptionsAsync(Permissions.Structure.Manage, CancellationToken.None);
+        TypeOptions ??= await UnitTypes.GetOptionsAsync(CancellationToken.None);
         if (Id is { } id)
         {
-            var result = await Organization.GetAsync(id, CancellationToken.None);
-            if (!result.IsSuccess)
+            if (Existing?.Id != id)
             {
-                Navigation.NavigateTo("/admin/units");
-                return;
+                var result = await Organization.GetAsync(id, CancellationToken.None);
+                if (!result.IsSuccess)
+                {
+                    Navigation.NavigateTo("/admin/units");
+                    return;
+                }
+
+                Existing = result.Value;
             }
 
-            var unit = result.Value;
+            var unit = Existing;
             WasTopLevel = unit.ParentId is null;
             ReadOnly = !unit.CanManage;
             ErrorMessage = ReadOnly ? Texts.T("Підрозділ належить організації, структурою якої ви не керуєте, тому його можна лише переглянути.") : null;

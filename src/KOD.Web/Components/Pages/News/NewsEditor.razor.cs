@@ -26,6 +26,19 @@ public partial class NewsEditor
     public Guid? Id { get; set; }
 
     /// <summary>
+    /// Gets or sets the loaded article. Persisted from prerendering (like <see cref="OrganizationOptions"/>), so the
+    /// interactive render shows the same form at once instead of a skeleton while loading it again.
+    /// </summary>
+    [PersistentState]
+    public NewsArticleDto? Existing { get; set; }
+
+    /// <summary>
+    /// Gets or sets the organizations whose news the current user manages; <see langword="null"/> until loaded.
+    /// </summary>
+    [PersistentState]
+    public IReadOnlyList<UnitOption>? OrganizationOptions { get; set; }
+
+    /// <summary>
     /// Gets or sets the authentication state.
     /// </summary>
     [CascadingParameter]
@@ -61,19 +74,14 @@ public partial class NewsEditor
     private EditorModel Model { get; set; } = new();
 
     /// <summary>
-    /// Gets or sets the loaded article.
-    /// </summary>
-    private NewsArticleDto? Existing { get; set; }
-
-    /// <summary>
     /// Gets or sets the chosen cover image.
     /// </summary>
     private IBrowserFile? CoverFile { get; set; }
 
     /// <summary>
-    /// Gets or sets the organizations whose news the current user manages.
+    /// Gets the organizations whose news the current user manages.
     /// </summary>
-    private IReadOnlyList<UnitOption> Organizations { get; set; } = [];
+    private IReadOnlyList<UnitOption> Organizations => OrganizationOptions ?? [];
 
     /// <summary>
     /// Gets or sets a value indicating whether the current user manages the news of every organization (and of the whole cabinet).
@@ -99,18 +107,22 @@ public partial class NewsEditor
     protected override async Task OnParametersSetAsync()
     {
         CabinetWide = (await AuthenticationState).User.HasPermission(Permissions.Administration.AllOrganizations);
-        Organizations = [.. (await Organization.GetOptionsAsync(Permissions.News.Manage, CancellationToken.None)).Where(static u => u.IsOrganization)];
+        OrganizationOptions ??= [.. (await Organization.GetOptionsAsync(Permissions.News.Manage, CancellationToken.None)).Where(static u => u.IsOrganization)];
         Model.OrganizationId ??= CabinetWide || Organizations.Count == 0 ? null : Organizations[0].Id;
         if (Id is { } id)
         {
-            var result = await News.GetAsync(id, CancellationToken.None);
-            if (!result.IsSuccess)
+            if (Existing?.Id != id)
             {
-                Navigation.NavigateTo("/news/manage");
-                return;
+                var result = await News.GetAsync(id, CancellationToken.None);
+                if (!result.IsSuccess)
+                {
+                    Navigation.NavigateTo("/news/manage");
+                    return;
+                }
+
+                Existing = result.Value;
             }
 
-            Existing = result.Value;
             Model = new EditorModel
             {
                 Title = Existing.Title,

@@ -1,6 +1,6 @@
 /**
  * Application-level behaviors (ES module).
- *  - Replays the page entrance animation after Blazor enhanced navigation.
+ *  - Replays the page entrance animation after Blazor enhanced navigation (not after streaming updates).
  *  - Closes the mobile drawer after navigating.
  *  - Shows toasts passed through the `toast` query parameter and removes it from the address bar.
  *  - Mounts the signing UI on pages that contain [data-signing].
@@ -214,8 +214,19 @@ wireNavigationProgress();
 onPageReady();
 
 if (window.Blazor) {
+    // `enhancedload` also fires for every streaming update (the content replacing a skeleton), including on the first
+    // full page load. Replaying the entrance then would blink the whole page away and back once the data arrives, so
+    // the entrance plays only for the first update of an enhanced navigation.
+    let entering = false;
+    window.Blazor.addEventListener("enhancednavigationstart", () => {
+        entering = true;
+    });
     window.Blazor.addEventListener("enhancedload", () => {
-        animatePage();
+        if (entering) {
+            entering = false;
+            animatePage();
+        }
+
         onPageReady();
     });
 }

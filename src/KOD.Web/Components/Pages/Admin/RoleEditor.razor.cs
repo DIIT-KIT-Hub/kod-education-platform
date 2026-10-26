@@ -18,6 +18,13 @@ public partial class RoleEditor
     public Guid? Id { get; set; }
 
     /// <summary>
+    /// Gets or sets the loaded role. Persisted from prerendering, so the interactive render shows the same form at once
+    /// instead of a skeleton while loading it again.
+    /// </summary>
+    [PersistentState]
+    public RoleDetails? Existing { get; set; }
+
+    /// <summary>
     /// Gets or sets the role service.
     /// </summary>
     [Inject]
@@ -39,11 +46,6 @@ public partial class RoleEditor
     /// Gets or sets the form model.
     /// </summary>
     private RoleModel Model { get; set; } = new();
-
-    /// <summary>
-    /// Gets or sets the loaded role.
-    /// </summary>
-    private RoleDetails? Existing { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether the data is loaded.
@@ -70,14 +72,18 @@ public partial class RoleEditor
     {
         if (Id is { } id)
         {
-            var result = await Roles.GetAsync(id, CancellationToken.None);
-            if (!result.IsSuccess)
+            if (Existing?.Id != id)
             {
-                Navigation.NavigateTo("/admin/roles");
-                return;
+                var result = await Roles.GetAsync(id, CancellationToken.None);
+                if (!result.IsSuccess)
+                {
+                    Navigation.NavigateTo("/admin/roles");
+                    return;
+                }
+
+                Existing = result.Value;
             }
 
-            Existing = result.Value;
             Model = new RoleModel
             {
                 Code = Existing.Code,

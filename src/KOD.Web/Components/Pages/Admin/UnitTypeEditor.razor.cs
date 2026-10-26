@@ -27,6 +27,13 @@ public partial class UnitTypeEditor
     public Guid? Id { get; set; }
 
     /// <summary>
+    /// Gets or sets the type being edited. Persisted from prerendering, so the interactive render shows the same form
+    /// at once instead of a skeleton while loading it again.
+    /// </summary>
+    [PersistentState]
+    public UnitTypeItem? Existing { get; set; }
+
+    /// <summary>
     /// Gets or sets the unit type service.
     /// </summary>
     [Inject]
@@ -62,11 +69,6 @@ public partial class UnitTypeEditor
     private UnitTypeModel Model { get; set; } = new();
 
     /// <summary>
-    /// Gets or sets the type being edited.
-    /// </summary>
-    private UnitTypeItem? Existing { get; set; }
-
-    /// <summary>
     /// Gets or sets a value indicating whether the data is loaded.
     /// </summary>
     private bool Loaded { get; set; }
@@ -87,14 +89,18 @@ public partial class UnitTypeEditor
         CabinetWide = (await AuthenticationState).User.HasPermission(Permissions.Administration.AllOrganizations);
         if (Id is { } id)
         {
-            var result = await UnitTypes.GetAsync(id, CancellationToken.None);
-            if (!result.IsSuccess)
+            if (Existing?.Id != id)
             {
-                Navigation.NavigateTo("/admin/unit-types");
-                return;
+                var result = await UnitTypes.GetAsync(id, CancellationToken.None);
+                if (!result.IsSuccess)
+                {
+                    Navigation.NavigateTo("/admin/unit-types");
+                    return;
+                }
+
+                Existing = result.Value;
             }
 
-            Existing = result.Value;
             Model = new UnitTypeModel
             {
                 Code = Existing.Code,

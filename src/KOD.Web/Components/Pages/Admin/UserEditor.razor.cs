@@ -26,6 +26,25 @@ public partial class UserEditor
     public Guid? Id { get; set; }
 
     /// <summary>
+    /// Gets or sets the loaded user. Persisted from prerendering (like the option lists), so the interactive render
+    /// shows the same form at once instead of a skeleton while loading it again.
+    /// </summary>
+    [PersistentState]
+    public UserDetails? Details { get; set; }
+
+    /// <summary>
+    /// Gets or sets the unit options; <see langword="null"/> until loaded.
+    /// </summary>
+    [PersistentState]
+    public IReadOnlyList<UnitOption>? UnitOptions { get; set; }
+
+    /// <summary>
+    /// Gets or sets the role options; <see langword="null"/> until loaded.
+    /// </summary>
+    [PersistentState]
+    public IReadOnlyList<RoleOption>? RoleOptions { get; set; }
+
+    /// <summary>
     /// Gets or sets the authentication state.
     /// </summary>
     [CascadingParameter]
@@ -67,19 +86,14 @@ public partial class UserEditor
     private UserModel Model { get; set; } = new();
 
     /// <summary>
-    /// Gets or sets the loaded user.
+    /// Gets the unit options.
     /// </summary>
-    private UserDetails? Details { get; set; }
+    private IReadOnlyList<UnitOption> Units => UnitOptions ?? [];
 
     /// <summary>
-    /// Gets or sets the unit options.
+    /// Gets the role options.
     /// </summary>
-    private IReadOnlyList<UnitOption> Units { get; set; } = [];
-
-    /// <summary>
-    /// Gets or sets the role options.
-    /// </summary>
-    private IReadOnlyList<RoleOption> Roles { get; set; } = [];
+    private IReadOnlyList<RoleOption> Roles => RoleOptions ?? [];
 
     /// <summary>
     /// Gets or sets the effective permissions of the user.
@@ -148,9 +162,17 @@ public partial class UserEditor
         CanManage = user.HasPermission(Permissions.Users.Manage);
         CanSecurity = user.HasPermission(Permissions.Users.Security);
         CanManageRoles = user.HasPermission(Permissions.Roles.Manage);
-        Units = await Organization.GetOptionsAsync(Permissions.Users.Manage, CancellationToken.None);
-        Roles = await RoleService.GetOptionsAsync(CancellationToken.None);
-        await LoadAsync();
+        UnitOptions ??= await Organization.GetOptionsAsync(Permissions.Users.Manage, CancellationToken.None);
+        RoleOptions ??= await RoleService.GetOptionsAsync(CancellationToken.None);
+        if (Details is { } restored && restored.Id == Id)
+        {
+            Show(restored);
+        }
+        else
+        {
+            await LoadAsync();
+        }
+
         Loaded = true;
     }
 
@@ -172,7 +194,16 @@ public partial class UserEditor
             return;
         }
 
-        Details = result.Value;
+        Show(result.Value);
+    }
+
+    /// <summary>
+    /// Shows a loaded user in the form.
+    /// </summary>
+    /// <param name="details">The user.</param>
+    private void Show(UserDetails details)
+    {
+        Details = details;
         Effective = Details.EffectivePermissions;
         Model = new UserModel
         {

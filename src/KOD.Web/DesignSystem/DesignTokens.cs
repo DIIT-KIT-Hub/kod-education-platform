@@ -31,7 +31,8 @@ public static class DesignTokens
     public const string IconSprite = "icons/sprite.svg";
 
     /// <summary>
-    /// Gets the variable font files to preload.
+    /// Gets the variable font files to preload. They are preloaded by these plain paths (not fingerprinted), because
+    /// the <c>@font-face</c> rules of <see cref="Stylesheet"/> reference them so.
     /// </summary>
     public static IReadOnlyList<string> Fonts { get; } =
     [
