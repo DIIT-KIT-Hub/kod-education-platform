@@ -1,0 +1,11 @@
+@* The real input lies transparent over the cells: typing, paste and one-time-code autofill work as usual, and
+   js/kod-ds.js draws its digits into the cells (data-otp). *@
+<div class="ds-otp @Class" data-otp data-otp-autosubmit="@(AutoSubmit ? string.Empty : null)">
+    @ChildContent
+    <div class="ds-otp__cells" aria-hidden="true">
+        @for (var i = 0; i < Length; i++)
+        {
+            <span class="ds-otp__cell"></span>
+        }
+    </div>
+</div>

@@ -41,6 +41,11 @@ internal sealed class DocumentService(
     private const long InspectableSignatureSize = 10L * 1024 * 1024;
 
     /// <summary>
+    /// How many times a signature is attached when concurrent signers of a parallel route keep saving first.
+    /// </summary>
+    private const int MaxSaveAttempts = 3;
+
+    /// <summary>
     /// Allowed clock skew between the signer's browser and the server.
     /// </summary>
     private static readonly TimeSpan AllowedClockSkew = TimeSpan.FromMinutes(10);
@@ -178,7 +183,7 @@ internal sealed class DocumentService(
                 .ToList(),
             document.Signatures
                 .OrderBy(static s => s.SignedAt)
-                .Select(static s => new DocumentSignatureItem(s.Id, s.UserId, s.User!.FullName, s.Format, s.Packaging, s.Level, s.KeyMedia, s.Certificate, s.SignedAt, s.File.FileName, s.File.Size))
+                .Select(s => new DocumentSignatureItem(s.Id, s.UserId, s.User!.FullName, s.Format, s.Packaging, s.Level, s.KeyMedia, s.Certificate, s.SignedAt, SignedFileName.For(document.File.FileName, s.Format), s.File.Size))
                 .ToList(),
             actions);
     }
@@ -495,16 +500,36 @@ internal sealed class DocumentService(
                 : now;
 
             var blob = await fileStorage.SaveAsync(content, "signatures", FileRules.MaxSignatureSize, cancellationToken);
-            var (extension, contentType) = SignatureFileType(command.Format);
-            var fileName = $"{document.RegistrationNumber.Replace('/', '-')}_{Sanitize(certificate.SubjectFullName)}{extension}";
-            var file = new StoredFile(fileName, contentType, blob.Size, blob.Sha256, blob.StorageKey);
+            var contentType = SignatureContentType(command.Format);
 
             var result = await DomainErrors.GuardAsync<Guid>(async () =>
             {
-                var signature = document.AddSignature(me, command.Format, command.Packaging, command.Level, command.KeyMedia, file, certificate, signedAt, now);
-                audit.Add(AuditActions.DocumentSigned, nameof(Document), document.Id.ToString(), $"{document.RegistrationNumber}: {command.Format}, {certificate.IssuerName}, № {certificate.SerialNumber}");
-                await db.SaveChangesAsync(cancellationToken);
-                return signature.Id;
+                for (var attempt = 1; ; attempt++)
+                {
+                    try
+                    {
+                        var file = new StoredFile(SignedFileName.For(document.File.FileName, command.Format), contentType, blob.Size, blob.Sha256, blob.StorageKey);
+                        var signature = document.AddSignature(me, command.Format, command.Packaging, command.Level, command.KeyMedia, file, certificate, signedAt, now);
+                        audit.Add(AuditActions.DocumentSigned, nameof(Document), document.Id.ToString(), $"{document.RegistrationNumber}: {command.Format}, {certificate.IssuerName}, № {certificate.SerialNumber}");
+                        await db.SaveChangesAsync(cancellationToken);
+                        return signature.Id;
+                    }
+                    catch (DbUpdateConcurrencyException) when (attempt < MaxSaveAttempts)
+                    {
+                        // Another signer of a parallel route (or the author) saved the document first. Every signature
+                        // covers the same document file, so this one is still valid: reload the route and attach it
+                        // again. If the document no longer waits for this user, AddSignature reports why.
+                        db.DiscardChanges();
+                        document = await db.Documents
+                            .Include(static d => d.Signers)
+                            .Include(static d => d.Signatures)
+                            .FirstOrDefaultAsync(d => d.Id == command.DocumentId, cancellationToken);
+                        if (document is null)
+                        {
+                            return Error.NotFound(Texts.T("Документ не знайдено."));
+                        }
+                    }
+                }
             });
 
             if (!result.IsSuccess)
@@ -634,18 +659,20 @@ internal sealed class DocumentService(
             return Error.NotFound(Texts.T("Документ не знайдено."));
         }
 
-        var file = await db.DocumentSignatures
+        var signature = await db.DocumentSignatures
             .AsNoTracking()
             .Where(s => s.Id == signatureId && s.DocumentId == id)
-            .Select(static s => s.File)
+            .Select(static s => new { s.File, s.Format })
             .FirstOrDefaultAsync(cancellationToken);
-        if (file is null)
+        if (signature is null)
         {
             return Error.NotFound(Texts.T("Підпис не знайдено."));
         }
 
-        var stream = await fileStorage.OpenReadAsync(file.StorageKey, cancellationToken);
-        return new DownloadableFile(stream, file.FileName, file.ContentType);
+        // Named after the document at download time, so signatures stored under older names download the same way.
+        var documentName = await db.Documents.AsNoTracking().Where(d => d.Id == id).Select(static d => d.File.FileName).FirstAsync(cancellationToken);
+        var stream = await fileStorage.OpenReadAsync(signature.File.StorageKey, cancellationToken);
+        return new DownloadableFile(stream, SignedFileName.For(documentName, signature.Format), signature.File.ContentType);
     }
 
     /// <inheritdoc />
@@ -709,30 +736,18 @@ internal sealed class DocumentService(
     }
 
     /// <summary>
-    /// Maps a signature format to its file extension and MIME type.
+    /// Maps a signature format to the MIME type of its file (the name comes from <see cref="SignedFileName"/>).
     /// </summary>
     /// <param name="format">The format.</param>
-    /// <returns>The extension and MIME type.</returns>
-    private static (string Extension, string ContentType) SignatureFileType(SignatureFormat format) => format switch
+    /// <returns>The MIME type.</returns>
+    private static string SignatureContentType(SignatureFormat format) => format switch
     {
-        SignatureFormat.XAdES => (".xml", "application/xml"),
-        SignatureFormat.PAdES => (".pdf", "application/pdf"),
-        SignatureFormat.AsicS => (".asics", "application/vnd.etsi.asic-s+zip"),
-        SignatureFormat.AsicE => (".asice", "application/vnd.etsi.asic-e+zip"),
-        _ => (".p7s", "application/pkcs7-signature"),
+        SignatureFormat.XAdES => "application/xml",
+        SignatureFormat.PAdES => "application/pdf",
+        SignatureFormat.AsicS => "application/vnd.etsi.asic-s+zip",
+        SignatureFormat.AsicE => "application/vnd.etsi.asic-e+zip",
+        _ => "application/pkcs7-signature",
     };
-
-    /// <summary>
-    /// Makes a value safe for use in a file name.
-    /// </summary>
-    /// <param name="value">The value.</param>
-    /// <returns>The sanitized value.</returns>
-    private static string Sanitize(string value)
-    {
-        var invalid = Path.GetInvalidFileNameChars();
-        var cleaned = new string([.. value.Select(c => invalid.Contains(c) || char.IsWhiteSpace(c) ? '_' : c)]);
-        return cleaned.Length > 60 ? cleaned[..60] : cleaned;
-    }
 
     /// <summary>
     /// Checks whether the current user can see the document.

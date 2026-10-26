@@ -82,6 +82,11 @@ public interface IApplicationDbContext
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Stops tracking every loaded entity and discards their pending changes (e.g. to reload after a concurrency conflict).
+    /// </summary>
+    void DiscardChanges();
+
+    /// <summary>
     /// Runs <paramref name="operation"/> inside a database transaction using the configured execution strategy.
     /// </summary>
     /// <typeparam name="T">The result type.</typeparam>

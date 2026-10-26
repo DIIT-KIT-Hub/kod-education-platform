@@ -97,7 +97,9 @@ else
     <EditForm Model="Input" method="post" OnValidSubmit="EnrollAsync" FormName="setup-authenticator" class="ds-form" Enhance data-busy-on-submit>
         <DataAnnotationsValidator />
         <Field Label="@T("Код з застосунку")" For="enroll-code">
-            <InputText id="enroll-code" @bind-Value="Input.Code" class="ds-input ds-input--code" autocomplete="one-time-code" inputmode="numeric" maxlength="7" placeholder="000000" />
+            <OtpInput AutoSubmit>
+                <InputText id="enroll-code" @bind-Value="Input.Code" class="ds-input ds-otp__input" autocomplete="one-time-code" inputmode="numeric" maxlength="7" />
+            </OtpInput>
             <ValidationError For="() => Input.Code" />
         </Field>
         <Button Type="submit" Size="ControlSize.Large" Block Icon="shield-check">@T("Підтвердити та увійти")</Button>

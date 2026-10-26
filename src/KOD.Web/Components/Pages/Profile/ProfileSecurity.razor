@@ -51,8 +51,10 @@
                 @* Step-up: a valid session alone is not enough to replace the recovery codes. *@
                 <form method="post" @formname="regenerate-codes" @onsubmit="RegenerateAsync" class="ds-row ds-row--wrap" data-confirm="@T("Згенерувати нові коди? Старі перестануть діяти.")">
                     <AntiforgeryToken />
-                    <input name="StepUpCode" class="ds-input ds-input--code profile-stepup" inputmode="numeric" autocomplete="one-time-code" maxlength="7" required
-                           placeholder="000000" aria-label="@T("Код із застосунку-автентифікатора")" />
+                    <OtpInput>
+                        <input name="StepUpCode" class="ds-input ds-otp__input" inputmode="numeric" autocomplete="one-time-code" maxlength="7" required
+                               aria-label="@T("Код із застосунку-автентифікатора")" />
+                    </OtpInput>
                     <Button Type="submit" Variant="ButtonVariant.Secondary" Icon="refresh-cw">@T("Нові коди")</Button>
                 </form>
             </Footer>

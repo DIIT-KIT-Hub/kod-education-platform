@@ -19,7 +19,9 @@
     <input type="hidden" name="ReturnUrl" value="@ReturnUrl" />
     <input type="hidden" name="RememberMe" value="@RememberMe.ToString()" />
     <Field Label="@T("Код підтвердження")" For="otp-code">
-        <InputText id="otp-code" @bind-Value="Input.Code" class="ds-input ds-input--code" autocomplete="one-time-code" inputmode="numeric" maxlength="7" placeholder="000000" autofocus />
+        <OtpInput AutoSubmit>
+            <InputText id="otp-code" @bind-Value="Input.Code" class="ds-input ds-otp__input" autocomplete="one-time-code" inputmode="numeric" maxlength="7" autofocus />
+        </OtpInput>
         <ValidationError For="() => Input.Code" />
     </Field>
     <Button Type="submit" Size="ControlSize.Large" Block Icon="shield-check">@T("Увійти")</Button>

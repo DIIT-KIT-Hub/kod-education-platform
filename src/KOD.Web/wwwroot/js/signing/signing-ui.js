@@ -327,7 +327,8 @@ async function sha256(buffer) {
 }
 
 /**
- * Suggests the file name of a signature.
+ * Suggests the file name of a signature: a signed PDF keeps the document's name, containers add their extension
+ * (the same rule as the server's SignedFileName).
  * @param {string} format The format.
  * @param {string[]} names The signed file names.
  * @returns {string} The file name.
@@ -339,7 +340,7 @@ function signatureFileName(format, names) {
         case "XAdES":
             return names.length === 1 ? `${first}.xml` : "signature.xml";
         case "PAdES":
-            return `${base}_signed.pdf`;
+            return `${base}.pdf`;
         case "AsicS":
             return `${first}.asics`;
         case "AsicE":

@@ -62,6 +62,9 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
     public DbSet<DataProtectionKey> DataProtectionKeys => Set<DataProtectionKey>();
 
     /// <inheritdoc />
+    public void DiscardChanges() => ChangeTracker.Clear();
+
+    /// <inheritdoc />
     public Task<T> InTransactionAsync<T>(Func<CancellationToken, Task<T>> operation, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(operation);

@@ -13,6 +13,8 @@
  *   data-sidebar-toggle     collapses / expands the desktop sidebar (<html data-sidebar>, remembered per browser)
  *   data-busy-on-submit     on a <form>: shows a spinner on the submit button while submitting
  *   data-password-toggle    shows / hides the password input of its .ds-password wrapper (hidden again on submit)
+ *   data-otp                a one-time code input drawn as digit cells (OtpInput); data-otp-autosubmit submits the form
+ *                           once every cell is filled
  *   .ds-dropzone            highlights while a file is dragged over and shows the chosen file names
  *   .ds-btn and other        the hover fill grows from the point where the pointer entered and shrinks towards where it left
  *   button-like controls     (segmented options, pagination, calendar and picker buttons, chips)
@@ -139,6 +141,58 @@
                 /* Some input types do not support selection. */
             }
         }
+    }
+
+    /**
+     * Keeps only digits in a one-time code input and mirrors them into its cells.
+     * @param {Element} root The [data-otp] element.
+     * @returns {boolean} Whether every cell is filled.
+     */
+    function syncOtp(root) {
+        var input = root.querySelector("input");
+        var cells = root.querySelectorAll(".ds-otp__cell");
+        if (!(input instanceof HTMLInputElement) || cells.length === 0) {
+            return false;
+        }
+
+        var digits = input.value.replace(/[^0-9]/g, "").slice(0, cells.length);
+        if (input.value !== digits) {
+            input.value = digits;
+        }
+
+        var active = Math.min(digits.length, cells.length - 1);
+        cells.forEach(function (cell, index) {
+            var digit = digits.charAt(index);
+            if (cell.textContent !== digit) {
+                cell.textContent = digit;
+            }
+
+            cell.toggleAttribute("data-filled", digit !== "");
+            cell.toggleAttribute("data-active", index === active);
+        });
+
+        return digits.length === cells.length;
+    }
+
+    /**
+     * Mirrors every one-time code input on the page (initial load, enhanced navigation, server-rendered values).
+     */
+    function syncAllOtp() {
+        document.querySelectorAll("[data-otp]").forEach(syncOtp);
+    }
+
+    /**
+     * Keeps the caret of a one-time code input at its end, where the next digit goes.
+     * @param {HTMLInputElement} input The input.
+     */
+    function otpCaretToEnd(input) {
+        window.requestAnimationFrame(function () {
+            try {
+                input.setSelectionRange(input.value.length, input.value.length);
+            } catch (e) {
+                /* Not supported by this input type. */
+            }
+        });
     }
 
     /**
@@ -305,6 +359,32 @@
         }
     }, true);
 
+    document.addEventListener("input", function (event) {
+        var root = event.target instanceof Element ? event.target.closest("[data-otp]") : null;
+        if (!root) {
+            return;
+        }
+
+        var input = /** @type {HTMLInputElement} */ (event.target);
+        if (syncOtp(root) && root.hasAttribute("data-otp-autosubmit") && input.form) {
+            input.form.requestSubmit();
+        }
+    });
+
+    document.addEventListener("focusin", function (event) {
+        var root = event.target instanceof Element ? event.target.closest("[data-otp]") : null;
+        if (root && event.target instanceof HTMLInputElement) {
+            syncOtp(root);
+            otpCaretToEnd(event.target);
+        }
+    });
+
+    document.addEventListener("click", function (event) {
+        if (event.target instanceof HTMLInputElement && event.target.closest("[data-otp]")) {
+            otpCaretToEnd(event.target);
+        }
+    });
+
     document.addEventListener("change", function (event) {
         var target = event.target;
         if (!(target instanceof HTMLElement)) {
@@ -389,8 +469,11 @@
         window.Blazor.addEventListener("enhancedload", function () {
             restoreTheme();
             restoreSidebar();
+            syncAllOtp();
         });
     }
+
+    syncAllOtp();
 
     new MutationObserver(function () {
         if (!document.documentElement.hasAttribute("data-theme")) {
