@@ -16,7 +16,11 @@
     <PackageReference Include="ClosedXML" />
     <PackageReference Include="CsvHelper" />
     <PackageReference Include="EFCore.NamingConventions" />
+    <PackageReference Include="HtmlSanitizer" />
     <PackageReference Include="Markdig" />
+    <!-- libvips: fast, low-memory image processing with an AVIF (AV1) encoder; native binaries for Windows, Linux and macOS. -->
+    <PackageReference Include="NetVips" />
+    <PackageReference Include="NetVips.Native" />
     <PackageReference Include="Microsoft.AspNetCore.DataProtection.EntityFrameworkCore" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />

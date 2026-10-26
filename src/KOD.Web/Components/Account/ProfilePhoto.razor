@@ -1,0 +1,38 @@
+@page "/account/photo"
+@attribute [Authorize]
+
+<PageTitle>@T("Фото профілю · КОД")</PageTitle>
+
+<header class="auth-card__header">
+    <span class="ds-stat__icon ds-animate-pop"><Icon Name="camera" /></span>
+    <h1>@(IsRequired ? T("Додайте фото профілю") : T("Фото профілю"))</h1>
+    <p>
+        @if (IsRequired)
+        {
+            <span>@T("Колеги бачать ваше фото в документах, новинах і структурі. Без фото кабінетом користуватися не можна.")</span>
+        }
+        else
+        {
+            <span>@T("Нове фото замінить поточне всюди в кабінеті.")</span>
+        }
+    </p>
+</header>
+
+@if (Error is not null)
+{
+    <Alert Tone="Tone.Danger">@Error</Alert>
+}
+
+<PhotoUploadForm ReturnUrl="@IdentityRedirectManager.SafeLocal(ReturnUrl)" SubmitText="@T("Зберегти фото")" Block />
+
+@if (IsRequired)
+{
+    <form method="post" action="/account/logout">
+        <AntiforgeryToken />
+        <Button Type="submit" Variant="ButtonVariant.Ghost" Icon="log-out" Block>@T("Вийти")</Button>
+    </form>
+}
+else
+{
+    <Button Href="/profile" Variant="ButtonVariant.Ghost" Icon="arrow-left">@T("Повернутися")</Button>
+}

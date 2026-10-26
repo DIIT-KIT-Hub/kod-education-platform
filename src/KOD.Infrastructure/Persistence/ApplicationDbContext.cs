@@ -3,6 +3,7 @@ using KOD.Domain.Access;
 using KOD.Domain.Audit;
 using KOD.Domain.Common;
 using KOD.Domain.Documents;
+using KOD.Domain.Media;
 using KOD.Domain.News;
 using KOD.Domain.Organization;
 using KOD.Domain.Sessions;
@@ -51,6 +52,18 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
 
     /// <inheritdoc />
     public DbSet<NewsArticle> NewsArticles => Set<NewsArticle>();
+
+    /// <inheritdoc />
+    public DbSet<NewsComment> NewsComments => Set<NewsComment>();
+
+    /// <inheritdoc />
+    public DbSet<NewsReaction> NewsReactions => Set<NewsReaction>();
+
+    /// <inheritdoc />
+    public DbSet<NewsView> NewsViews => Set<NewsView>();
+
+    /// <inheritdoc />
+    public DbSet<MediaFile> MediaFiles => Set<MediaFile>();
 
     /// <inheritdoc />
     public DbSet<AuditEntry> AuditEntries => Set<AuditEntry>();
@@ -113,5 +126,8 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
         configurationBuilder.Properties<SignaturePackaging>().HaveConversion<string>().HaveMaxLength(32);
         configurationBuilder.Properties<KeyMediaType>().HaveConversion<string>().HaveMaxLength(32);
         configurationBuilder.Properties<NewsCategory>().HaveConversion<string>().HaveMaxLength(32);
+        configurationBuilder.Properties<NewsBodyFormat>().HaveConversion<string>().HaveMaxLength(16);
+        configurationBuilder.Properties<ReactionKind>().HaveConversion<string>().HaveMaxLength(16);
+        configurationBuilder.Properties<MediaPurpose>().HaveConversion<string>().HaveMaxLength(16);
     }
 }

@@ -36,14 +36,17 @@ Write tool and run them with `node`. `/tmp` in Git Bash is not visible to Window
 
 ```
 src/KOD.Domain          Entities + invariants (User, Role, StaffPosition, OrganizationUnit, UnitType, Document with
-                        signers and signatures, NewsArticle, AuditEntry, UserSession), permission catalog, system roles,
-                        Guard, DomainException, localization catalog (Localization/Texts.cs, Languages.cs).
+                        signers and signatures, NewsArticle with NewsComment/NewsReaction/NewsView, MediaFile, AuditEntry,
+                        UserSession), permission catalog, system roles, Guard, DomainException, localization catalog
+                        (Localization/Texts.cs, Languages.cs).
 src/KOD.Application     Use-case services (DocumentService, UserService, OrganizationService, UnitTypeService, RoleService,
-                        NewsService, ProfileService, DashboardService, AuditService, SigningJournal), DTOs, Result<T>/Error,
-                        paging, access rules (IPermissionResolver, IAccessScope, AdministrationScope), abstractions.
+                        NewsService, NewsDiscussionService, MediaService + MediaLibrary, ProfileService, DashboardService,
+                        AuditService, SigningJournal), DTOs, Result<T>/Error, paging, access rules (IPermissionResolver,
+                        IAccessScope, AdministrationScope), abstractions.
 src/KOD.Infrastructure  EF Core + PostgreSQL (snake_case, citext, xmin concurrency), migrations, seeding, Identity
                         (SignInManager with mandatory 2FA, claims factory, server-side session store), file storage,
-                        XLSX/CSV, Markdig, CMS signature inspector, audit logger.
+                        images (libvips/NetVips → AVIF, media storage, cleanup job), HTML sanitizer, XLSX/CSV, Markdig,
+                        CMS signature inspector, audit logger.
 src/KOD.Web             Host: Blazor Web App pages (Components/), REST API (Api/, /api/v1), security middleware,
                         signing proxy and trust list (Signing/), localization provider (Localization/), logging (Hosting/).
   DesignSystem/         Razor components (Components/) + DesignTokens; CSS/JS/icons/fonts live in wwwroot.
@@ -63,6 +66,26 @@ Dependencies point inward: Web → Infrastructure → Application → Domain. Ce
   `kod-pickers.js` (custom select drop-down and date picker calendar), `app.js` (ES module: page entrance, navigation
   progress bar, lazy signing UI / manual), `kod-wizard.js`, `help.js`, `signing/*`.
 - Strict CSP: no inline scripts, no `eval`. New scripts are static files referenced through `DesignTokens` / `@Assets[...]`.
+
+### Images, news editor, discussion
+
+- **Images** (`MediaFile`): every upload goes through `MediaLibrary` → `IImageProcessor` (`VipsImageProcessor`: loader
+  allow-list, EXIF orientation, sRGB, metadata stripped, AVIF with quality/size lowered until the main rendition fits
+  its budget — news 1600 px / 100 KB, avatars 320 px square) → `IMediaStorage` (`App_Data/storage/media/xx/{id}.avif` +
+  `.thumb.avif`). Served by `GET /media/{id}` and `/media/{id}/thumb` to signed-in users, `immutable` cache. Use
+  `MediaUrls` for URLs, `<Avatar PhotoId=…>` / `<PersonName>` to show people. `MediaLibrary.SaveChangesAsync` deletes
+  files of removed images only after the database save. `MediaCleanupService` removes unattached images after a day.
+- **Profile photo is mandatory**: claim `kod:photo` (claims factory) → `AccountSetupMiddleware` (temporary password
+  first, then `/account/photo`; API gets 403). The photo form posts to `POST /account/photo` (plain multipart form,
+  crop fractions from `js/photo-cropper.js`) and refreshes the sign-in cookie. New user DTOs carry `PhotoId`.
+- **News body** is HTML from the Tiptap editor (`RichTextEditor` component + `js/rich-text.js`; the Tiptap bundle is
+  `wwwroot/lib/tiptap/tiptap.js`, rebuilt from `tools/rich-text` with `npm ci && npm run build`). The server sanitizes it
+  (`IRichTextSanitizer`, allow-list; images must be `/media/…`). Older articles keep `NewsBodyFormat.Markdown` until edited.
+  `NewsService.SyncImagesAsync` attaches the images an article uses and removes the dropped ones. Galleries are
+  `<div data-type="gallery">` of thumbnails with `data-full`; `js/lightbox.js` opens them.
+- **Discussion**: `NewsDiscussionPanel` is an interactive island on the static article page; reactions (one per reader
+  and target) and one-level comments via `INewsDiscussionService`; `INewsDiscussionEvents` (in-process) refreshes open
+  pages — replace it with a message bus implementation when running several servers.
 
 ## Conventions
 

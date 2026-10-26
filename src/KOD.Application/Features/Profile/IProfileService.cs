@@ -1,3 +1,5 @@
+using KOD.Application.Abstractions;
+using KOD.Application.Common.Files;
 using KOD.Application.Common.Results;
 
 namespace KOD.Application.Features.Profile;
@@ -29,6 +31,15 @@ public interface IProfileService
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The result.</returns>
     Task<Result> SetLanguageAsync(string language, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Replaces the profile photo: the chosen square is optimized to AVIF and the previous photo is deleted.
+    /// </summary>
+    /// <param name="file">The uploaded photo.</param>
+    /// <param name="crop">The square chosen by the user (the centre when <see langword="null"/>).</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The identifier of the new photo.</returns>
+    Task<Result<Guid>> SetPhotoAsync(FileUpload file, ImageCrop? crop, CancellationToken cancellationToken);
 
     /// <summary>
     /// Changes the password and clears the "must change password" flag.

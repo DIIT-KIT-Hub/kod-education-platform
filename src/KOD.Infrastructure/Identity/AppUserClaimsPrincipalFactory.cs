@@ -7,7 +7,7 @@ using Microsoft.Extensions.Options;
 namespace KOD.Infrastructure.Identity;
 
 /// <summary>
-/// Adds the user's names, interface language, effective permissions and password-change flag to the authentication principal.
+/// Adds the user's names, photo, interface language, effective permissions and password-change flag to the authentication principal.
 /// The factory runs at sign-in and at every periodic security stamp validation, so permission changes propagate automatically.
 /// </summary>
 /// <param name="userManager">The user manager.</param>
@@ -29,6 +29,11 @@ internal sealed class AppUserClaimsPrincipalFactory(
         if (user.Language is { } language)
         {
             identity.AddClaim(new Claim(AppClaimTypes.Language, language));
+        }
+
+        if (user.PhotoId is { } photo)
+        {
+            identity.AddClaim(new Claim(AppClaimTypes.Photo, photo.ToString("N")));
         }
 
         if (user.MustChangePassword)

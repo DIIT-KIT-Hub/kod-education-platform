@@ -92,7 +92,8 @@ internal sealed class UserService(
                 u.IsActive,
                 u.TwoFactorEnabled,
                 u.LockoutEnd != null && u.LockoutEnd > now,
-                u.LastSignInAt))
+                u.LastSignInAt,
+                u.PhotoId))
             .ToPagedResultAsync(query, cancellationToken);
     }
 
@@ -161,7 +162,8 @@ internal sealed class UserService(
             effective,
             CanEditAccount: withinHierarchy && manageScope.Covers(units),
             CanEditPositions: withinHierarchy && manageScope.Overlaps(units),
-            CanManageSecurity: withinHierarchy && securityScope.Covers(units));
+            CanManageSecurity: withinHierarchy && securityScope.Covers(units),
+            PhotoId: user.PhotoId);
     }
 
     /// <inheritdoc />

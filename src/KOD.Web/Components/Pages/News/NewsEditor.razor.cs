@@ -6,6 +6,7 @@ using KOD.Application.Features.Organization;
 using KOD.Domain.Access;
 using KOD.Domain.Localization;
 using KOD.Domain.News;
+using KOD.Web.DesignSystem.Components;
 using KOD.Web.Security;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
@@ -69,9 +70,19 @@ public partial class NewsEditor
     private IJSRuntime JS { get; set; } = default!;
 
     /// <summary>
-    /// Gets or sets the form model.
+    /// Gets or sets the form model; setting it also creates a new <see cref="Context"/>.
     /// </summary>
-    private EditorModel Model { get; set; } = new();
+    private EditorModel Model { get; set => Context = new EditContext(field = value); } = default!;
+
+    /// <summary>
+    /// Gets or sets the validation context of <see cref="Model"/>.
+    /// </summary>
+    private EditContext Context { get; set; } = default!;
+
+    /// <summary>
+    /// Gets or sets the rich text editor of the body.
+    /// </summary>
+    private RichTextEditor? Editor { get; set; }
 
     /// <summary>
     /// Gets or sets the chosen cover image.
@@ -104,6 +115,9 @@ public partial class NewsEditor
     private string? ErrorMessage { get; set; }
 
     /// <inheritdoc />
+    protected override void OnInitialized() => Model = new EditorModel();
+
+    /// <inheritdoc />
     protected override async Task OnParametersSetAsync()
     {
         CabinetWide = (await AuthenticationState).User.HasPermission(Permissions.Administration.AllOrganizations);
@@ -127,9 +141,10 @@ public partial class NewsEditor
             {
                 Title = Existing.Title,
                 Summary = Existing.Summary,
-                Body = Existing.Body,
+                Body = Existing.BodyHtml,
                 Category = Existing.Category,
                 IsPinned = Existing.IsPinned,
+                AllowComments = Existing.AllowComments,
                 Publish = Existing.PublishedAt is not null,
                 OrganizationId = Existing.Organization?.Id,
             };
@@ -144,8 +159,31 @@ public partial class NewsEditor
     /// <param name="args">The file selection.</param>
     private void SelectCover(InputFileChangeEventArgs args)
     {
-        ErrorMessage = args.File.Size > FileRules.MaxImageSize ? Texts.T("Зображення не може бути більшим за 5 МБ.") : null;
+        ErrorMessage = args.File.Size > FileRules.MaxImageSize ? Texts.T("Зображення не може бути більшим за {0} МБ.", FileRules.MaxImageSize / 1024 / 1024) : null;
         CoverFile = ErrorMessage is null ? args.File : null;
+    }
+
+    /// <summary>
+    /// Reads the body from the editor, validates the form and saves it.
+    /// </summary>
+    /// <returns>A task that completes when saved or rejected.</returns>
+    private async Task SubmitAsync()
+    {
+        if (Editor is not null)
+        {
+            if (await Editor.IsUploadingAsync())
+            {
+                ErrorMessage = Texts.T("Дочекайтеся, поки завантажаться фото.");
+                return;
+            }
+
+            Model.Body = await Editor.GetHtmlAsync();
+        }
+
+        if (Context.Validate())
+        {
+            await SaveAsync();
+        }
     }
 
     /// <summary>
@@ -160,7 +198,7 @@ public partial class NewsEditor
         {
             await using var cover = CoverFile?.OpenReadStream(FileRules.MaxImageSize);
             var upload = CoverFile is null || cover is null ? null : new FileUpload(cover, CoverFile.Name, CoverFile.ContentType, CoverFile.Size);
-            var command = new SaveNewsCommand(Model.Title, Model.Summary, Model.Body, Model.Category, Model.IsPinned, Model.Publish, upload, Model.RemoveCover, Model.OrganizationId);
+            var command = new SaveNewsCommand(Model.Title, Model.Summary, Model.Body, Model.Category, Model.IsPinned, Model.Publish, upload, Model.RemoveCover, Model.OrganizationId, Model.AllowComments);
 
             if (Id is { } id)
             {
@@ -225,7 +263,7 @@ public partial class NewsEditor
         public string Summary { get; set; } = string.Empty;
 
         /// <summary>
-        /// Gets or sets the Markdown body.
+        /// Gets or sets the HTML body (read from the editor when the form is submitted).
         /// </summary>
         [Required(ErrorMessage = "Напишіть текст новини.")]
         [StringLength(NewsArticle.BodyMaxLength)]
@@ -240,6 +278,11 @@ public partial class NewsEditor
         /// Gets or sets a value indicating whether the article is pinned.
         /// </summary>
         public bool IsPinned { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether readers may comment.
+        /// </summary>
+        public bool AllowComments { get; set; } = true;
 
         /// <summary>
         /// Gets or sets a value indicating whether the article is published.

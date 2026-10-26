@@ -1,0 +1,31 @@
+@* A plain multipart form (not enhanced): the server saves the photo, reissues the sign-in cookie and redirects. Without
+   scripts the centre of the photo is used; js/photo-cropper.js adds the preview where the square can be moved and zoomed. *@
+<form method="post" action="/account/photo" enctype="multipart/form-data" class="photo-upload ds-form" data-photo-cropper data-busy-on-submit>
+    <AntiforgeryToken />
+    <input type="hidden" name="returnUrl" value="@ReturnUrl" />
+    <input type="hidden" name="cropLeft" data-crop="left" />
+    <input type="hidden" name="cropTop" data-crop="top" />
+    <input type="hidden" name="cropWidth" data-crop="width" />
+    <input type="hidden" name="cropHeight" data-crop="height" />
+
+    <div class="photo-upload__stage" data-photo-stage hidden>
+        <div class="photo-upload__frame" data-photo-frame>
+            <img data-photo-image alt="@T("Попередній перегляд фото")" draggable="false" />
+        </div>
+        <label class="photo-upload__zoom">
+            <Icon Name="zoom-out" Size="IconSize.Small" />
+            <input type="range" min="1" max="4" step="0.01" value="1" data-photo-zoom aria-label="@T("Масштаб")" />
+            <Icon Name="zoom-in" Size="IconSize.Small" />
+        </label>
+        <p class="ds-text-sm ds-muted">@T("Перетягніть фото та змініть масштаб, щоб обличчя було в колі.")</p>
+    </div>
+
+    <label class="ds-dropzone">
+        <input type="file" name="photo" accept="@FileRules.ImageAccept" required data-photo-input />
+        <Icon Name="camera" />
+        <span class="ds-dropzone__title" data-file-names data-empty="@T("Оберіть або перетягніть фото")">@T("Оберіть або перетягніть фото")</span>
+        <span class="ds-dropzone__hint">@T("JPEG, PNG, WebP, AVIF або GIF до 15 МБ. Фото буде стиснуто, метадані (зокрема геолокацію) видалено.")</span>
+    </label>
+
+    <Button Type="submit" Icon="save" Block="@Block">@SubmitText</Button>
+</form>

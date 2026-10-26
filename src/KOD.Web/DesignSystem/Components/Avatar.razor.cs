@@ -3,7 +3,8 @@ using Microsoft.AspNetCore.Components;
 namespace KOD.Web.DesignSystem.Components;
 
 /// <summary>
-/// A round avatar with the person's initials.
+/// A round avatar: the person's profile photo (the thumbnail, or the main rendition when large), or their initials
+/// until a photo is uploaded.
 /// </summary>
 public partial class Avatar
 {
@@ -14,10 +15,22 @@ public partial class Avatar
     public string? Name { get; set; }
 
     /// <summary>
+    /// Gets or sets the profile photo.
+    /// </summary>
+    [Parameter]
+    public Guid? PhotoId { get; set; }
+
+    /// <summary>
     /// Gets or sets the size.
     /// </summary>
     [Parameter]
     public ControlSize Size { get; set; } = ControlSize.Medium;
+
+    /// <summary>
+    /// Gets or sets a value indicating whether the name is shown next to the avatar, so the photo needs no text alternative.
+    /// </summary>
+    [Parameter]
+    public bool Decorative { get; set; } = true;
 
     /// <summary>
     /// Gets the initials: first letters of the last and first names.

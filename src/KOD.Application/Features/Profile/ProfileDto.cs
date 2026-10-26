@@ -18,6 +18,7 @@ namespace KOD.Application.Features.Profile;
 /// <param name="CreatedAt">The account creation moment.</param>
 /// <param name="LastSignInAt">The last sign-in moment.</param>
 /// <param name="Language">The chosen interface language, or <see langword="null"/> when not chosen.</param>
+/// <param name="PhotoId">The profile photo, if uploaded.</param>
 public sealed record ProfileDto(
     Guid Id,
     string FullName,
@@ -30,4 +31,5 @@ public sealed record ProfileDto(
     int RecoveryCodesLeft,
     DateTimeOffset CreatedAt,
     DateTimeOffset? LastSignInAt,
-    string? Language);
+    string? Language,
+    Guid? PhotoId);

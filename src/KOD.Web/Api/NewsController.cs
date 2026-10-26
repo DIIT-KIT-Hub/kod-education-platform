@@ -69,7 +69,7 @@ public sealed class NewsController(INewsService news) : ApiControllerBase
     }
 
     /// <summary>
-    /// Replaces the cover image (PNG, JPEG or WebP up to 5 MB).
+    /// Replaces the cover image (JPEG, PNG, WebP, AVIF or GIF up to 15 MB, stored as AVIF).
     /// </summary>
     /// <param name="id">The identifier.</param>
     /// <param name="file">The image.</param>
@@ -94,13 +94,14 @@ public sealed class NewsController(INewsService news) : ApiControllerBase
         var command = new SaveNewsCommand(
             article.Title,
             article.Summary,
-            article.Body,
+            article.BodyHtml,
             article.Category,
             article.IsPinned,
             article.PublishedAt is not null,
             new FileUpload(content, file.FileName, file.ContentType, file.Length),
             RemoveCover: false,
-            article.Organization?.Id);
+            article.Organization?.Id,
+            article.AllowComments);
         return FromResult(await news.UpdateAsync(id, command, cancellationToken));
     }
 

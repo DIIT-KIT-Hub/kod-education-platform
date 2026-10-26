@@ -20,9 +20,9 @@ public sealed class NewsArticle : AuditableEntity
     public const int SummaryMaxLength = 500;
 
     /// <summary>
-    /// Maximum length of <see cref="Body"/>.
+    /// Maximum length of <see cref="Body"/> (HTML markup included).
     /// </summary>
-    public const int BodyMaxLength = 50_000;
+    public const int BodyMaxLength = 200_000;
 
     /// <summary>
     /// Maximum length of <see cref="Slug"/>.
@@ -35,15 +35,17 @@ public sealed class NewsArticle : AuditableEntity
     /// <param name="slug">The unique URL-friendly identifier.</param>
     /// <param name="title">The title.</param>
     /// <param name="summary">The short lead shown in lists.</param>
-    /// <param name="body">The body in Markdown.</param>
+    /// <param name="body">The body.</param>
+    /// <param name="format">The markup of <paramref name="body"/>.</param>
     /// <param name="category">The category.</param>
     /// <param name="authorId">The author's user identifier.</param>
-    public NewsArticle(string slug, string title, string summary, string body, NewsCategory category, Guid authorId)
+    public NewsArticle(string slug, string title, string summary, string body, NewsBodyFormat format, NewsCategory category, Guid authorId)
     {
         Slug = Guard.Text(slug, SlugMaxLength, "Адреса");
         Title = Guard.Text(title, TitleMaxLength, "Заголовок");
         Summary = Guard.Text(summary, SummaryMaxLength, "Анонс");
         Body = Guard.Text(body, BodyMaxLength, "Текст");
+        BodyFormat = format;
         Category = category;
         AuthorId = authorId;
     }
@@ -75,9 +77,19 @@ public sealed class NewsArticle : AuditableEntity
     public string Summary { get; private set; }
 
     /// <summary>
-    /// Gets the body in Markdown (raw HTML is not allowed).
+    /// Gets the body: sanitized HTML of the rich text editor, or Markdown without raw HTML (see <see cref="BodyFormat"/>).
     /// </summary>
     public string Body { get; private set; }
+
+    /// <summary>
+    /// Gets the markup of <see cref="Body"/>.
+    /// </summary>
+    public NewsBodyFormat BodyFormat { get; private set; }
+
+    /// <summary>
+    /// Gets a value indicating whether readers may comment on the article (reactions are always allowed).
+    /// </summary>
+    public bool AllowComments { get; private set; } = true;
 
     /// <summary>
     /// Gets the category.
@@ -129,17 +141,26 @@ public sealed class NewsArticle : AuditableEntity
     /// </summary>
     /// <param name="title">The title.</param>
     /// <param name="summary">The lead.</param>
-    /// <param name="body">The Markdown body.</param>
+    /// <param name="html">The sanitized HTML body (an edited article is always stored as HTML).</param>
     /// <param name="category">The category.</param>
     /// <param name="isPinned">Whether the article is pinned.</param>
-    public void Update(string title, string summary, string body, NewsCategory category, bool isPinned)
+    /// <param name="allowComments">Whether readers may comment.</param>
+    public void Update(string title, string summary, string html, NewsCategory category, bool isPinned, bool allowComments)
     {
         Title = Guard.Text(title, TitleMaxLength, "Заголовок");
         Summary = Guard.Text(summary, SummaryMaxLength, "Анонс");
-        Body = Guard.Text(body, BodyMaxLength, "Текст");
+        Body = Guard.Text(html, BodyMaxLength, "Текст");
+        BodyFormat = NewsBodyFormat.Html;
         Category = category;
         IsPinned = isPinned;
+        AllowComments = allowComments;
     }
+
+    /// <summary>
+    /// Pins the article to the top of the feed or unpins it.
+    /// </summary>
+    /// <param name="isPinned">Whether the article is pinned.</param>
+    public void Pin(bool isPinned) => IsPinned = isPinned;
 
     /// <summary>
     /// Assigns the article to an organization.

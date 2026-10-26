@@ -31,3 +31,4 @@ Thumbs.db
 
 # Local tooling
 .claude/
+node_modules/

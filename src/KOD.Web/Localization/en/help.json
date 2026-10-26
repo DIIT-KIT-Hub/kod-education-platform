@@ -58,11 +58,11 @@
   "help|Перевірка підпису": "Verifying a signature",
   "Повідомлення про помилки та що робити": "Error messages and what to do",
   "Новини": "News",
-  "Новини та оголошення: читання, створення, публікація.": "News and announcements: reading, creating, publishing.",
+  "Новини та оголошення: читання, реакції й коментарі, створення, публікація.": "News and announcements: reading, reactions and comments, creating, publishing.",
   "Читання новин": "Reading news",
   "Керування публікаціями": "Managing posts",
   "Створення та редагування публікації": "Creating and editing a post",
-  "Форматування тексту (Markdown)": "Text formatting (Markdown)",
+  "Форматування тексту, фото та галереї": "Text formatting, photos and galleries",
   "Структура": "Structure",
   "Організації, їхні підрозділи та працівники; власні типи підрозділів для будь-якої сфери.": "Organizations, their units and employees; custom unit types for any domain.",
   "Дерево організацій і підрозділів": "Tree of organizations and units",
@@ -71,7 +71,7 @@
   "Керування організаціями та підрозділами": "Managing organizations and units",
   "Типи підрозділів": "Unit types",
   "Профіль": "Profile",
-  "Особисті дані, посади, дозволи, безпека облікового запису та сесії.": "Personal data, positions, permissions, account security and sessions.",
+  "Особисті дані, фото, посади, дозволи, безпека облікового запису та сесії.": "Personal data, photo, positions, permissions, account security and sessions.",
   "Мій профіль": "My profile",
   "Безпека: пароль, 2FA, резервні коди": "Security: password, 2FA, recovery codes",
   "Активні сесії": "Active sessions",
@@ -152,5 +152,7 @@
   "Працівник": "Employee",
   "Працівник без особливих повноважень.": "An employee without special powers.",
   "Зовнішній користувач": "External user",
-  "Особа поза штатом (контрагент, клієнт, слухач, здобувач освіти): власні документи та новини, без доступу до структури.": "A person outside the staff (contractor, client, trainee, student): own documents and news, no access to the structure."
+  "Особа поза штатом (контрагент, клієнт, слухач, здобувач освіти): власні документи та новини, без доступу до структури.": "A person outside the staff (contractor, client, trainee, student): own documents and news, no access to the structure.",
+  "Реакції та коментарі": "Reactions and comments",
+  "Фото профілю": "Profile photo"
 }

@@ -10,4 +10,5 @@ namespace KOD.Application.Features.Organization;
 /// <param name="PhoneNumber">The phone number.</param>
 /// <param name="IsPrimary">Whether this is the main position of the user.</param>
 /// <param name="IsLeadership">Whether the position's role is a leadership position.</param>
-public sealed record UnitStaffItem(Guid UserId, string FullName, string Position, string Email, string? PhoneNumber, bool IsPrimary, bool IsLeadership);
+/// <param name="PhotoId">The profile photo, if uploaded.</param>
+public sealed record UnitStaffItem(Guid UserId, string FullName, string Position, string Email, string? PhoneNumber, bool IsPrimary, bool IsLeadership, Guid? PhotoId);

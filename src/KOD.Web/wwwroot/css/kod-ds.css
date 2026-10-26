@@ -272,6 +272,12 @@ button, input, select, textarea {
     border-radius: 6px;
 }
 
+/* Blazor moves the focus to the page heading after navigation (for screen readers); it is not a control, so no ring. */
+h1:focus,
+[tabindex="-1"]:focus {
+    outline: none;
+}
+
 ::selection {
     background: var(--ds-color-inverse);
     color: var(--ds-color-on-inverse);
@@ -1458,6 +1464,25 @@ hr {
 
 .ds-avatar--sm { width: 2rem; height: 2rem; font-size: var(--ds-fs-xs); }
 .ds-avatar--lg { width: 4.5rem; height: 4.5rem; font-size: var(--ds-fs-xl); }
+
+/* A photo: the placeholder colour shows only until the image decodes. */
+img.ds-avatar {
+    object-fit: cover;
+    background: var(--ds-color-surface-3);
+}
+
+/* A person in a list cell or a picker: photo + name. */
+.ds-person {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--ds-space-3);
+    min-width: 0;
+}
+
+.ds-person__text {
+    display: grid;
+    min-width: 0;
+}
 
 /* Description list */
 .ds-dl {

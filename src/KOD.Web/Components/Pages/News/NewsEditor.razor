@@ -15,7 +15,7 @@
 
 @if (Loaded)
 {
-    <EditForm Model="Model" OnValidSubmit="SaveAsync" class="ds-split ds-split--wide-aside">
+    <EditForm EditContext="Context" OnSubmit="SubmitAsync" class="ds-split ds-split--wide-aside">
         <DataAnnotationsValidator />
         <div class="ds-stack ds-stack--lg">
             @if (ErrorMessage is not null)
@@ -32,8 +32,8 @@
                         <InputTextArea id="news-summary" @bind-Value="Model.Summary" class="ds-textarea" maxlength="500" rows="3" />
                         <ValidationError For="() => Model.Summary" />
                     </Field>
-                    <Field Label="@T("Текст (Markdown)")" For="news-body" Required Hint="@T("Підтримуються заголовки (##), списки, посилання, цитати (>), таблиці. HTML не підтримується з міркувань безпеки.")">
-                        <InputTextArea id="news-body" @bind-Value="Model.Body" class="ds-textarea ds-mono" rows="16" />
+                    <Field Label="@T("Текст")" Required Hint="@T("Заголовки, списки, цитати, таблиці, посилання, фото в тексті та галереї. Фото можна вставити з буфера обміну або перетягнути; вони стискаються до 10–100 КБ.")">
+                        <RichTextEditor @ref="Editor" Value="@Model.Body" Label="@T("Текст новини")" Placeholder="@T("Почніть писати новину…")" />
                         <ValidationError For="() => Model.Body" />
                     </Field>
                 </div>
@@ -71,6 +71,10 @@
                         <InputCheckbox @bind-Value="Model.IsPinned" />
                         <span class="ds-check__text"><span>@T("Закріпити зверху")</span></span>
                     </label>
+                    <label class="ds-check">
+                        <InputCheckbox @bind-Value="Model.AllowComments" />
+                        <span class="ds-check__text"><span>@T("Дозволити коментарі")</span><span class="ds-check__hint">@T("Реакції доступні завжди.")</span></span>
+                    </label>
                 </div>
             </Card>
 
@@ -84,9 +88,9 @@
                     </label>
                 }
                 <label class="ds-dropzone">
-                    <InputFile OnChange="SelectCover" accept="image/png,image/jpeg,image/webp" />
+                    <InputFile OnChange="SelectCover" accept="@FileRules.ImageAccept" />
                     <span class="ds-dropzone__title">@(CoverFile?.Name ?? T("Оберіть зображення"))</span>
-                    <span class="ds-dropzone__hint">@T("PNG, JPEG або WebP до 5 МБ, бажано 16:9.")</span>
+                    <span class="ds-dropzone__hint">@T("JPEG, PNG, WebP, AVIF або GIF до 15 МБ, бажано 16:9. Буде стиснуто в AVIF.")</span>
                 </label>
             </Card>
 

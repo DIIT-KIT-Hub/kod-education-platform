@@ -5,6 +5,7 @@ using KOD.Domain.Users;
 using KOD.Infrastructure.Auditing;
 using KOD.Infrastructure.Files;
 using KOD.Infrastructure.Identity;
+using KOD.Infrastructure.Media;
 using KOD.Infrastructure.Persistence;
 using KOD.Infrastructure.Persistence.Seeding;
 using KOD.Infrastructure.Signatures;
@@ -73,6 +74,10 @@ public static class DependencyInjection
             services.AddSingleton<IPublicAssetStorage, PublicAssetStorage>();
             services.AddSingleton<IUserSpreadsheet, UserSpreadsheet>();
             services.AddSingleton<IMarkdownRenderer, MarkdigRenderer>();
+            services.AddSingleton<IRichTextSanitizer, RichTextSanitizer>();
+            services.AddSingleton<IImageProcessor, VipsImageProcessor>();
+            services.AddSingleton<IMediaStorage, LocalMediaStorage>();
+            services.AddHostedService<MediaCleanupService>();
             services.AddSingleton<ISignatureInspector, CmsSignatureInspector>();
 
             return services;

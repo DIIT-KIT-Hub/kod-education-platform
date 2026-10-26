@@ -22,8 +22,6 @@
   "Новини для всього кабінету публікує лише адміністратор усіх організацій. Оберіть свою організацію.": "Only the administrator of all organizations publishes news for the entire cabinet. Select your organization.",
   "Оберіть організацію новини.": "Select the organization of the news article.",
   "Ви можете публікувати новини лише своїх організацій.": "You can publish news only for your own organizations.",
-  "Зображення не може бути більшим за 5 МБ.": "The image cannot be larger than 5 MB.",
-  "Підтримуються лише зображення PNG, JPEG або WebP.": "Only PNG, JPEG or WebP images are supported.",
   "Підрозділ не знайдено.": "The unit was not found.",
   "Підрозділ належить організації, структурою якої ви не керуєте.": "The unit belongs to an organization whose structure you don't manage.",
   "Організації верхнього рівня створює й переміщує лише адміністратор усіх організацій. Оберіть батьківський підрозділ у своїй організації.": "Only the administrator of all organizations creates and moves top-level organizations. Select a parent unit in your organization.",
@@ -90,5 +88,12 @@
   "Некоректний перелік підписаних файлів.": "Invalid list of signed files.",
   "Документ зараз підписує {0}. Додати свій підпис можна буде, щойно він завершить.": "{0} is signing the document right now. You can add your signature as soon as they finish.",
   "інший підписант": "another signer",
-  "Файл підпису не містить попередніх підписів документа. Підпишіть останню версію ще раз.": "The signature file does not contain the document's previous signatures. Sign the latest version again."
+  "Файл підпису не містить попередніх підписів документа. Підпишіть останню версію ще раз.": "The signature file does not contain the document's previous signatures. Sign the latest version again.",
+  "Зображення не може бути більшим за {0} МБ.": "The image cannot be larger than {0} MB.",
+  "Оберіть фото у форматі JPEG, PNG, WebP, AVIF або GIF.": "Choose a JPEG, PNG, WebP, AVIF or GIF photo.",
+  "Видаляти чужі коментарі можуть лише редактори новин.": "Only news editors can delete other people's comments.",
+  "Коментар не знайдено.": "Comment not found.",
+  "Коментарі до цієї новини вимкнено.": "Comments on this post are turned off.",
+  "Реакції доступні лише для опублікованих новин.": "Reactions are available only for published posts.",
+  "Редагувати можна лише власні коментарі.": "You can edit only your own comments."
 }

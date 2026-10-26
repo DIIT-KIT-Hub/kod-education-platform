@@ -1,14 +1,16 @@
 using KOD.Application.Abstractions;
 using KOD.Application.Common.Access;
 using KOD.Application.Common.Errors;
-using KOD.Application.Common.Files;
+using KOD.Application.Common.Media;
 using KOD.Application.Common.Models;
 using KOD.Application.Common.Paging;
 using KOD.Application.Common.Results;
 using KOD.Application.Common.Text;
+using KOD.Application.Features.Media;
 using KOD.Domain.Access;
 using KOD.Domain.Audit;
 using KOD.Domain.Localization;
+using KOD.Domain.Media;
 using KOD.Domain.News;
 using Microsoft.EntityFrameworkCore;
 
@@ -20,8 +22,10 @@ namespace KOD.Application.Features.News;
 /// <param name="db">The database context.</param>
 /// <param name="currentUser">The current user.</param>
 /// <param name="accessScope">The data access rules of the current user.</param>
-/// <param name="markdown">The Markdown renderer.</param>
-/// <param name="assets">The public asset storage.</param>
+/// <param name="markdown">The Markdown renderer (articles written before the rich text editor).</param>
+/// <param name="sanitizer">The rich text sanitizer.</param>
+/// <param name="media">The image library.</param>
+/// <param name="assets">The public assets of earlier versions (old covers).</param>
 /// <param name="audit">The audit logger.</param>
 /// <param name="timeProvider">The clock.</param>
 internal sealed class NewsService(
@@ -29,6 +33,8 @@ internal sealed class NewsService(
     ICurrentUser currentUser,
     IAccessScope accessScope,
     IMarkdownRenderer markdown,
+    IRichTextSanitizer sanitizer,
+    MediaLibrary media,
     IPublicAssetStorage assets,
     IAuditLogger audit,
     TimeProvider timeProvider) : INewsService
@@ -77,7 +83,7 @@ internal sealed class NewsService(
         };
 
         return await articles
-            .Select(static a => new NewsListItem(
+            .Select(a => new NewsListItem(
                 a.Id,
                 a.Slug,
                 a.Title,
@@ -87,8 +93,12 @@ internal sealed class NewsService(
                 a.IsPinned,
                 a.PublishedAt,
                 a.Author!.LastName + " " + a.Author.FirstName,
+                a.Author.PhotoId,
                 a.UpdatedAt ?? a.CreatedAt,
-                a.Organization != null ? new UnitRef(a.Organization.Id, a.Organization.Name) : null))
+                a.Organization != null ? new UnitRef(a.Organization.Id, a.Organization.Name) : null,
+                db.NewsComments.Count(c => c.ArticleId == a.Id && !c.IsDeleted),
+                db.NewsReactions.Count(r => r.ArticleId == a.Id && r.CommentId == null),
+                db.NewsViews.Count(v => v.ArticleId == a.Id)))
             .ToPagedResultAsync(query, cancellationToken);
     }
 
@@ -102,9 +112,12 @@ internal sealed class NewsService(
 
         var article = await db.NewsArticles.AsNoTracking().Include(static a => a.Author).Include(static a => a.Organization).FirstOrDefaultAsync(a => a.Slug == slug, cancellationToken);
         var canManage = article is not null && CanManage(article, await ManageScopeAsync(cancellationToken));
-        return article is null || (!article.IsPublished && !canManage)
-            ? Error.NotFound(Texts.T("Новину не знайдено."))
-            : ToDto(article, canManage);
+        if (article is null || (!article.IsPublished && !canManage))
+        {
+            return Error.NotFound(Texts.T("Новину не знайдено."));
+        }
+
+        return ToDto(article, canManage, await db.NewsViews.CountAsync(v => v.ArticleId == article.Id, cancellationToken));
     }
 
     /// <inheritdoc />
@@ -121,7 +134,9 @@ internal sealed class NewsService(
             return Error.NotFound(Texts.T("Новину не знайдено."));
         }
 
-        return CanManage(article, await ManageScopeAsync(cancellationToken)) ? ToDto(article, canManage: true) : Error.Forbidden(Texts.T(OutsideScopeMessage));
+        return CanManage(article, await ManageScopeAsync(cancellationToken))
+            ? ToDto(article, canManage: true, await db.NewsViews.CountAsync(v => v.ArticleId == article.Id, cancellationToken))
+            : Error.Forbidden(Texts.T(OutsideScopeMessage));
     }
 
     /// <inheritdoc />
@@ -139,14 +154,20 @@ internal sealed class NewsService(
             return organizationError;
         }
 
+        var html = sanitizer.Sanitize(command.Body);
+        if (sanitizer.IsEmpty(html))
+        {
+            return Error.Validation(Texts.T("Напишіть текст новини."));
+        }
+
         return await DomainErrors.GuardAsync<Guid>(async () =>
         {
             var slug = await UniqueSlugAsync(command.Title, cancellationToken);
-            var article = new NewsArticle(slug, command.Title, command.Summary, command.Body, command.Category, me);
-            article.Update(command.Title, command.Summary, command.Body, command.Category, command.IsPinned);
+            var article = new NewsArticle(slug, command.Title, command.Summary, html, NewsBodyFormat.Html, command.Category, me);
+            article.Update(command.Title, command.Summary, html, command.Category, command.IsPinned, command.AllowComments);
             article.AssignTo(command.OrganizationId);
 
-            var coverError = await ApplyCoverAsync(article, command, cancellationToken);
+            var coverError = await ApplyCoverAsync(article, command, me, cancellationToken);
             if (coverError is not null)
             {
                 return coverError;
@@ -158,8 +179,9 @@ internal sealed class NewsService(
             }
 
             db.NewsArticles.Add(article);
+            await SyncImagesAsync(article, cancellationToken);
             audit.Add(AuditActions.NewsChanged, nameof(NewsArticle), article.Id.ToString(), $"Створено «{article.Title}»");
-            await db.SaveChangesAsync(cancellationToken);
+            await media.SaveChangesAsync(cancellationToken);
             return article.Id;
         });
     }
@@ -168,7 +190,7 @@ internal sealed class NewsService(
     public async Task<Result> UpdateAsync(Guid id, SaveNewsCommand command, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(command);
-        if (!currentUser.Has(Permissions.News.Manage))
+        if (currentUser.Id is not { } me || !currentUser.Has(Permissions.News.Manage))
         {
             return Error.Forbidden();
         }
@@ -191,11 +213,17 @@ internal sealed class NewsService(
             return organizationError;
         }
 
+        var html = sanitizer.Sanitize(command.Body);
+        if (sanitizer.IsEmpty(html))
+        {
+            return Error.Validation(Texts.T("Напишіть текст новини."));
+        }
+
         return await DomainErrors.GuardAsync(async () =>
         {
-            article.Update(command.Title, command.Summary, command.Body, command.Category, command.IsPinned);
+            article.Update(command.Title, command.Summary, html, command.Category, command.IsPinned, command.AllowComments);
             article.AssignTo(command.OrganizationId);
-            var coverError = await ApplyCoverAsync(article, command, cancellationToken);
+            var coverError = await ApplyCoverAsync(article, command, me, cancellationToken);
             if (coverError is not null)
             {
                 return coverError;
@@ -210,8 +238,9 @@ internal sealed class NewsService(
                 article.Unpublish();
             }
 
+            await SyncImagesAsync(article, cancellationToken);
             audit.Add(AuditActions.NewsChanged, nameof(NewsArticle), article.Id.ToString(), $"Змінено «{article.Title}»");
-            await db.SaveChangesAsync(cancellationToken);
+            await media.SaveChangesAsync(cancellationToken);
             return Result.Success();
         });
     }
@@ -235,9 +264,14 @@ internal sealed class NewsService(
             return Error.Forbidden(Texts.T(OutsideScopeMessage));
         }
 
+        foreach (var image in await db.MediaFiles.Where(m => m.NewsArticleId == id).ToListAsync(cancellationToken))
+        {
+            media.Remove(image);
+        }
+
         db.NewsArticles.Remove(article);
         audit.Add(AuditActions.NewsDeleted, nameof(NewsArticle), article.Id.ToString(), $"Видалено «{article.Title}»");
-        await db.SaveChangesAsync(cancellationToken);
+        await media.SaveChangesAsync(cancellationToken);
         if (article.CoverImageUrl is { } cover)
         {
             assets.Delete(cover);
@@ -245,6 +279,35 @@ internal sealed class NewsService(
 
         return Result.Success();
     }
+
+    /// <inheritdoc />
+    public async Task RecordViewAsync(Guid id, CancellationToken cancellationToken)
+    {
+        if (currentUser.Id is not { } me || await db.NewsViews.AnyAsync(v => v.ArticleId == id && v.UserId == me, cancellationToken))
+        {
+            return;
+        }
+
+        db.NewsViews.Add(new NewsView(id, me, timeProvider.GetUtcNow()));
+        try
+        {
+            await db.SaveChangesAsync(cancellationToken);
+        }
+        catch (DbUpdateException)
+        {
+            // The same reader opened the article in another tab at the same moment: the view is already counted.
+            db.DiscardChanges();
+        }
+    }
+
+    /// <summary>
+    /// Determines whether an article is in the scope; news of the whole cabinet belong only to the cabinet-wide scope.
+    /// </summary>
+    /// <param name="article">The article.</param>
+    /// <param name="scope">The <c>news.manage</c> scope.</param>
+    /// <returns><see langword="true"/> when the article may be managed.</returns>
+    internal static bool CanManage(NewsArticle article, AdministrationScope scope)
+        => scope.IsCabinetWide || (article.OrganizationId is { } organizationId && scope.Contains(organizationId));
 
     /// <summary>
     /// Restricts a query to the articles of the scope: every article in the cabinet-wide scope, otherwise the articles of its organizations.
@@ -262,15 +325,6 @@ internal sealed class NewsService(
         var units = scoped.ToList();
         return articles.Where(a => a.OrganizationId != null && units.Contains(a.OrganizationId.Value));
     }
-
-    /// <summary>
-    /// Determines whether an article is in the scope; news of the whole cabinet belong only to the cabinet-wide scope.
-    /// </summary>
-    /// <param name="article">The article.</param>
-    /// <param name="scope">The <c>news.manage</c> scope.</param>
-    /// <returns><see langword="true"/> when the article may be managed.</returns>
-    private static bool CanManage(NewsArticle article, AdministrationScope scope)
-        => scope.IsCabinetWide || (article.OrganizationId is { } organizationId && scope.Contains(organizationId));
 
     /// <summary>
     /// Returns where <c>news.manage</c> of the current user applies.
@@ -303,29 +357,27 @@ internal sealed class NewsService(
     }
 
     /// <summary>
-    /// Stores a new cover image or removes the existing one.
+    /// Optimizes and sets a new cover image or removes the existing one (an uploaded cover is removed with the other
+    /// unused images by <see cref="SyncImagesAsync"/>, an old public file right away).
     /// </summary>
     /// <param name="article">The article.</param>
     /// <param name="command">The command.</param>
+    /// <param name="me">The current user.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>An error when the image is invalid; otherwise <see langword="null"/>.</returns>
-    private async Task<Error?> ApplyCoverAsync(NewsArticle article, SaveNewsCommand command, CancellationToken cancellationToken)
+    private async Task<Error?> ApplyCoverAsync(NewsArticle article, SaveNewsCommand command, Guid me, CancellationToken cancellationToken)
     {
         var previous = article.CoverImageUrl;
         if (command.CoverImage is { } image)
         {
-            if (image.Length > FileRules.MaxImageSize)
+            var added = await media.AddAsync(image, MediaPurpose.News, me, crop: null, cancellationToken);
+            if (!added.IsSuccess)
             {
-                return Error.Validation(Texts.T("Зображення не може бути більшим за 5 МБ."));
+                return added.Error;
             }
 
-            var url = await assets.SaveImageAsync(image.Content, "news", cancellationToken);
-            if (url is null)
-            {
-                return Error.Validation(Texts.T("Підтримуються лише зображення PNG, JPEG або WebP."));
-            }
-
-            article.SetCover(url);
+            added.Value.AttachTo(article.Id);
+            article.SetCover(MediaUrls.Of(added.Value.Id));
         }
         else if (command.RemoveCover)
         {
@@ -338,6 +390,37 @@ internal sealed class NewsService(
         }
 
         return null;
+    }
+
+    /// <summary>
+    /// Attaches the uploaded images the article uses (text, galleries, cover) and removes those it no longer uses.
+    /// </summary>
+    /// <param name="article">The article.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that completes when the images are tracked.</returns>
+    private async Task SyncImagesAsync(NewsArticle article, CancellationToken cancellationToken)
+    {
+        var used = MediaUrls.IdsIn(article.Body).ToHashSet();
+        if (MediaUrls.TryParse(article.CoverImageUrl, out var cover))
+        {
+            used.Add(cover);
+        }
+
+        var ids = used.ToList();
+        var candidates = await db.MediaFiles
+            .Where(m => m.Purpose == MediaPurpose.News && (m.NewsArticleId == article.Id || (m.NewsArticleId == null && ids.Contains(m.Id))))
+            .ToListAsync(cancellationToken);
+        foreach (var image in candidates)
+        {
+            if (used.Contains(image.Id))
+            {
+                image.AttachTo(article.Id);
+            }
+            else
+            {
+                media.Remove(image);
+            }
+        }
     }
 
     /// <summary>
@@ -363,20 +446,24 @@ internal sealed class NewsService(
     /// </summary>
     /// <param name="article">The article with its author and organization.</param>
     /// <param name="canManage">Whether the current user may edit the article.</param>
+    /// <param name="viewCount">How many readers opened the article.</param>
     /// <returns>The DTO.</returns>
-    private NewsArticleDto ToDto(NewsArticle article, bool canManage) => new(
+    private NewsArticleDto ToDto(NewsArticle article, bool canManage, int viewCount) => new(
         article.Id,
         article.Slug,
         article.Title,
         article.Summary,
         article.Body,
-        markdown.ToHtml(article.Body),
+        article.BodyFormat,
+        article.BodyFormat == NewsBodyFormat.Html ? article.Body : markdown.ToHtml(article.Body),
         article.Category,
         article.CoverImageUrl,
         article.IsPinned,
         article.PublishedAt,
-        article.Author?.FullName ?? string.Empty,
+        new UserRef(article.AuthorId, article.Author?.FullName ?? string.Empty, article.Author?.PhotoId),
         article.UpdatedAt ?? article.CreatedAt,
         article.Organization is { } organization ? new UnitRef(organization.Id, organization.Name) : null,
+        article.AllowComments,
+        viewCount,
         canManage);
 }

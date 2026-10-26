@@ -1,6 +1,7 @@
 using KOD.Domain.Access;
 using KOD.Domain.Audit;
 using KOD.Domain.Documents;
+using KOD.Domain.Media;
 using KOD.Domain.News;
 using KOD.Domain.Organization;
 using KOD.Domain.Sessions;
@@ -63,6 +64,26 @@ public interface IApplicationDbContext
     /// Gets the news articles.
     /// </summary>
     DbSet<NewsArticle> NewsArticles { get; }
+
+    /// <summary>
+    /// Gets the comments on news articles.
+    /// </summary>
+    DbSet<NewsComment> NewsComments { get; }
+
+    /// <summary>
+    /// Gets the reactions to news articles and their comments.
+    /// </summary>
+    DbSet<NewsReaction> NewsReactions { get; }
+
+    /// <summary>
+    /// Gets the views of news articles (one per reader).
+    /// </summary>
+    DbSet<NewsView> NewsViews { get; }
+
+    /// <summary>
+    /// Gets the uploaded images.
+    /// </summary>
+    DbSet<MediaFile> MediaFiles { get; }
 
     /// <summary>
     /// Gets the audit trail.

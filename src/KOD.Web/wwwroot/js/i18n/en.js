@@ -19,4 +19,11 @@ window.kodI18n = Object.assign(window.kodI18n || {}, {
     "Наступний рік": "Next year",
     "Сьогодні": "Today",
     "Очистити": "Clear",
+    "Закрити": "Close",
+    "Наступне фото": "Next photo",
+    "Перегляд фото": "Photo viewer",
+    "Попереднє фото": "Previous photo",
+    "{0} / {1} символів": "{0} / {1} characters",
+    "Завантаження фото… ({0})": "Uploading photos… ({0})",
+    "Не вдалося завантажити фото «{0}».": "Could not upload the photo “{0}”.",
 });

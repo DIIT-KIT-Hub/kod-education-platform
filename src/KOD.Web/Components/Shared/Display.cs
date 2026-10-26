@@ -181,6 +181,54 @@ public static class Display
     };
 
     /// <summary>
+    /// Returns the name of a reaction.
+    /// </summary>
+    /// <param name="kind">The reaction.</param>
+    /// <returns>The text.</returns>
+    public static string Text(ReactionKind kind) => kind switch
+    {
+        ReactionKind.Like => Texts.T("Подобається"),
+        ReactionKind.Love => Texts.T("Любов"),
+        ReactionKind.Celebrate => Texts.T("Вітаю"),
+        ReactionKind.Laugh => Texts.T("Смішно"),
+        ReactionKind.Wow => Texts.T("Вражає"),
+        _ => Texts.T("Сумно"),
+    };
+
+    /// <summary>
+    /// Returns the emoji of a reaction.
+    /// </summary>
+    /// <param name="kind">The reaction.</param>
+    /// <returns>The emoji.</returns>
+    public static string Emoji(ReactionKind kind) => kind switch
+    {
+        ReactionKind.Like => "👍",
+        ReactionKind.Love => "❤️",
+        ReactionKind.Celebrate => "🎉",
+        ReactionKind.Laugh => "😄",
+        ReactionKind.Wow => "😮",
+        _ => "😢",
+    };
+
+    /// <summary>
+    /// Formats a recent moment relative to now («щойно», «5 хв тому»), older ones as a date and time.
+    /// </summary>
+    /// <param name="moment">The moment.</param>
+    /// <param name="now">The current moment.</param>
+    /// <returns>The text.</returns>
+    public static string Ago(DateTimeOffset moment, DateTimeOffset now)
+    {
+        var elapsed = now - moment;
+        return elapsed.TotalMinutes switch
+        {
+            < 1 => Texts.T("щойно"),
+            < 60 => Texts.T("{0} хв тому", (int)elapsed.TotalMinutes),
+            < 24 * 60 => Texts.T("{0} год тому", (int)elapsed.TotalHours),
+            _ => DateTime(moment),
+        };
+    }
+
+    /// <summary>
     /// Returns the name of a module.
     /// </summary>
     /// <param name="module">The module.</param>
@@ -261,6 +309,8 @@ public static class Display
         "documents.deleted" => Texts.In("audit", "Документ видалено"),
         "news.changed" => Texts.In("audit", "Зміна новини"),
         "news.deleted" => Texts.In("audit", "Видалення новини"),
+        "news.comment-deleted" => Texts.In("audit", "Видалення коментаря"),
+        "users.photo-changed" => Texts.In("audit", "Нове фото профілю"),
         "signing.files-signed" => Texts.In("audit", "Підписано файли"),
         _ => action,
     };

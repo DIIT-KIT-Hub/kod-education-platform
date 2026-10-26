@@ -39,7 +39,7 @@
             <GridColumn TItem="NewsListItem" Title="@T("Опубліковано")" Class="ds-nowrap">@Display.DateTime(context.PublishedAt)</GridColumn>
             <GridColumn TItem="NewsListItem" Title="@T("Змінено")" SortKey="updated" Class="ds-nowrap">@Display.DateTime(context.UpdatedAt)</GridColumn>
             <GridColumn TItem="NewsListItem" Title="@T("Організація")">@(context.Organization?.Name ?? T("Увесь кабінет"))</GridColumn>
-            <GridColumn TItem="NewsListItem" Title="@T("Автор")">@context.AuthorName</GridColumn>
+            <GridColumn TItem="NewsListItem" Title="@T("Автор")"><PersonName Name="@context.AuthorName" PhotoId="@context.AuthorPhotoId" /></GridColumn>
             <GridColumn TItem="NewsListItem" Title="@T("Дії")" Actions>
                 <Button Href="@($"/news/manage/{context.Id}")" Variant="ButtonVariant.Ghost" Size="ControlSize.Small" Icon="pencil">@T("Редагувати")</Button>
             </GridColumn>

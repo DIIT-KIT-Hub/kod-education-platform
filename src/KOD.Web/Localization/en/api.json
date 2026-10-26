@@ -4,5 +4,8 @@
   "Некоректний запит.": "Bad request.",
   "Сталася внутрішня помилка. Спробуйте пізніше.": "An internal error occurred. Try again later.",
   "КОД REST API": "KOD REST API",
-  "Потрібно змінити тимчасовий пароль.": "You need to change your temporary password."
+  "Потрібно змінити тимчасовий пароль.": "You need to change your temporary password.",
+  "Оберіть фото.": "Choose a photo.",
+  "Фото профілю збережено": "Profile photo saved",
+  "Додайте фото профілю, щоб користуватися кабінетом.": "Add a profile photo to use the cabinet."
 }

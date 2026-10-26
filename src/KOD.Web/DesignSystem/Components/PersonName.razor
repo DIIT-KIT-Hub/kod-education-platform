@@ -1,0 +1,17 @@
+<span class="ds-person">
+    <Avatar Name="@Name" PhotoId="@PhotoId" Size="@Size" />
+    <span class="ds-person__text">
+        @if (Href is null)
+        {
+            <span class="ds-strong ds-truncate">@Name</span>
+        }
+        else
+        {
+            <a class="ds-link ds-strong ds-truncate" href="@Href">@Name</a>
+        }
+        @if (!string.IsNullOrEmpty(Meta))
+        {
+            <span class="ds-text-xs ds-muted ds-truncate">@Meta</span>
+        }
+    </span>
+</span>

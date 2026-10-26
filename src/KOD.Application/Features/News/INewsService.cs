@@ -56,4 +56,12 @@ public interface INewsService
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The result.</returns>
     Task<Result> DeleteAsync(Guid id, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Counts the current user as a reader of an article (once per reader).
+    /// </summary>
+    /// <param name="id">The article identifier.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that completes when recorded.</returns>
+    Task RecordViewAsync(Guid id, CancellationToken cancellationToken);
 }

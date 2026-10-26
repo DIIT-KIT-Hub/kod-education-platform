@@ -7,4 +7,5 @@ namespace KOD.Application.Common.Models;
 /// <param name="FullName">The full name.</param>
 /// <param name="Email">The e-mail address.</param>
 /// <param name="Position">The primary position description.</param>
-public sealed record UserLookupItem(Guid Id, string FullName, string Email, string? Position);
+/// <param name="PhotoId">The profile photo, if uploaded.</param>
+public sealed record UserLookupItem(Guid Id, string FullName, string Email, string? Position, Guid? PhotoId);

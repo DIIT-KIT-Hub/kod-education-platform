@@ -456,8 +456,8 @@ public sealed partial class DatabaseInitializer(
 
         foreach (var item in items)
         {
-            var article = new NewsArticle(item.Slug, item.Title, item.Summary, item.Body, item.Category, author.Id);
-            article.Update(item.Title, item.Summary, item.Body, item.Category, item.Pinned);
+            var article = new NewsArticle(item.Slug, item.Title, item.Summary, item.Body, NewsBodyFormat.Markdown, item.Category, author.Id);
+            article.Pin(item.Pinned);
             article.AssignTo(item.Organization);
             article.Publish(now.AddDays(-item.DaysAgo));
             db.NewsArticles.Add(article);

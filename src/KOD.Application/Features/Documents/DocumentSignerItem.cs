@@ -12,6 +12,7 @@ namespace KOD.Application.Features.Documents;
 /// <param name="Status">The decision state.</param>
 /// <param name="DecidedAt">The decision moment.</param>
 /// <param name="Comment">The comment (rejection reason).</param>
+/// <param name="PhotoId">The signer's profile photo.</param>
 public sealed record DocumentSignerItem(
     Guid UserId,
     string FullName,
@@ -19,4 +20,5 @@ public sealed record DocumentSignerItem(
     int Order,
     SignerStatus Status,
     DateTimeOffset? DecidedAt,
-    string? Comment);
+    string? Comment,
+    Guid? PhotoId);

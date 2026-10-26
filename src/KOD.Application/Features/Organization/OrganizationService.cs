@@ -111,7 +111,8 @@ internal sealed class OrganizationService(IApplicationDbContext db, ICurrentUser
                 p.User.Email!,
                 p.User.PhoneNumber,
                 p.IsPrimary,
-                p.Role!.IsLeadership))
+                p.Role!.IsLeadership,
+                p.User.PhotoId))
             .ToPagedResultAsync(request, cancellationToken);
     }
 

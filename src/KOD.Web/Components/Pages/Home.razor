@@ -55,7 +55,7 @@
                                 {
                                     <li>
                                         <a class="ds-list__item" href="@($"/documents/{document.Id}")">
-                                            <span class="ds-stat__icon"><Icon Name="file-text" /></span>
+                                            <Avatar Name="@document.AuthorName" PhotoId="@document.AuthorPhotoId" />
                                             <span class="ds-list__body">
                                                 <span class="ds-list__title">@document.Title</span>
                                                 <span class="ds-list__meta">@T("№ {0}", document.RegistrationNumber) · @Display.Text(document.Kind) · @document.AuthorName</span>

@@ -12,6 +12,7 @@ namespace KOD.Application.Features.Audit;
 /// <param name="EntityId">The affected entity identifier.</param>
 /// <param name="Details">The description.</param>
 /// <param name="IpAddress">The client IP address.</param>
+/// <param name="UserPhotoId">The current profile photo of the user.</param>
 public sealed record AuditEntryDto(
     Guid Id,
     DateTimeOffset OccurredAt,
@@ -21,4 +22,5 @@ public sealed record AuditEntryDto(
     string? EntityType,
     string? EntityId,
     string? Details,
-    string? IpAddress);
+    string? IpAddress,
+    Guid? UserPhotoId);

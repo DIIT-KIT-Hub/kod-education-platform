@@ -10,6 +10,11 @@
         @if (Details is not null)
         {
             <div class="ds-cluster">
+                <Avatar Name="@Details.FullName" PhotoId="@Details.PhotoId" />
+                @if (Details.PhotoId is null)
+                {
+                    <Badge Tone="Tone.Dashed" Icon="camera">@T("Без фото")</Badge>
+                }
                 @if (Details.IsActive)
                 {
                     <Badge Tone="Tone.Inverse">@T("Активний")</Badge>

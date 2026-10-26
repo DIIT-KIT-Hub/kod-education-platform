@@ -1,1 +1,8 @@
-<span class="@CssClass" aria-hidden="true">@Initials</span>
+@if (PhotoId is { } photo)
+{
+    <img class="@CssClass" src="@(Size == ControlSize.Large ? MediaUrls.Of(photo) : MediaUrls.ThumbnailOf(photo))" alt="@(Decorative ? string.Empty : Name)" loading="lazy" decoding="async" />
+}
+else
+{
+    <span class="@CssClass" aria-hidden="true">@Initials</span>
+}

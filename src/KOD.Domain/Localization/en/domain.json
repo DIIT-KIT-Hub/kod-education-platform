@@ -99,5 +99,8 @@
   "Особа поза штатом (контрагент, клієнт, слухач, здобувач освіти): власні документи та новини, без доступу до структури.": "A person outside the staff (contractor, client, trainee, student): own documents and news, no access to the structure.",
   "Зараз документ підписує інший підписант. Зачекайте, поки він завершить.": "Another signer is signing the document right now. Wait until they finish.",
   "Підпишіть документ у тому ж форматі й типі підпису, що й перший підписант.": "Sign the document in the same signature format and type as the first signer.",
-  "Поки ви підписували, документ підписав інший підписант. Підпишіть останню версію ще раз.": "Another signer signed the document while you were signing. Sign the latest version again."
+  "Поки ви підписували, документ підписав інший підписант. Підпишіть останню версію ще раз.": "Another signer signed the document while you were signing. Sign the latest version again.",
+  "Некоректне зображення.": "Invalid image.",
+  "Коментар": "Comment",
+  "Коментар видалено.": "The comment was deleted."
 }

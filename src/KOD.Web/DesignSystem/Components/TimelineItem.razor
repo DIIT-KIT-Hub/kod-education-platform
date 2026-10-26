@@ -14,7 +14,10 @@
         }
     </span>
     <div class="ds-timeline__content">
-        <span class="ds-timeline__title">@Title</span>
+        @if (!string.IsNullOrEmpty(Title))
+        {
+            <span class="ds-timeline__title">@Title</span>
+        }
         @if (Meta is not null)
         {
             <span class="ds-timeline__meta">@Meta</span>

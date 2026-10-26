@@ -1,0 +1,68 @@
+@* The editor content is owned by js/rich-text.js (Tiptap): this component renders only the toolbar and an empty host,
+   so later renders never touch what the script built. *@
+<div class="rte" @ref="_host" id="@Id" data-upload-url="@UploadUrl" data-placeholder="@Placeholder" data-label="@Label">
+    <div class="rte__toolbar" role="toolbar" aria-label="@T("Форматування тексту")">
+        <div class="rte__group">
+            <button type="button" class="rte__button" data-command="paragraph" title="@T("Звичайний текст")" aria-label="@T("Звичайний текст")"><Icon Name="pilcrow" /></button>
+            <button type="button" class="rte__button" data-command="h2" title="@T("Заголовок")" aria-label="@T("Заголовок")"><Icon Name="heading-2" /></button>
+            <button type="button" class="rte__button" data-command="h3" title="@T("Підзаголовок")" aria-label="@T("Підзаголовок")"><Icon Name="heading-3" /></button>
+            <button type="button" class="rte__button" data-command="h4" title="@T("Малий заголовок")" aria-label="@T("Малий заголовок")"><Icon Name="heading-4" /></button>
+        </div>
+        <div class="rte__group">
+            <button type="button" class="rte__button" data-command="bold" title="@T("Жирний (Ctrl+B)")" aria-label="@T("Жирний")"><Icon Name="bold" /></button>
+            <button type="button" class="rte__button" data-command="italic" title="@T("Курсив (Ctrl+I)")" aria-label="@T("Курсив")"><Icon Name="italic" /></button>
+            <button type="button" class="rte__button" data-command="underline" title="@T("Підкреслений (Ctrl+U)")" aria-label="@T("Підкреслений")"><Icon Name="underline" /></button>
+            <button type="button" class="rte__button" data-command="strike" title="@T("Закреслений")" aria-label="@T("Закреслений")"><Icon Name="strikethrough" /></button>
+            <button type="button" class="rte__button" data-command="code" title="@T("Код")" aria-label="@T("Код")"><Icon Name="code" /></button>
+        </div>
+        <div class="rte__group">
+            <button type="button" class="rte__button" data-command="bulletList" title="@T("Маркований список")" aria-label="@T("Маркований список")"><Icon Name="list" /></button>
+            <button type="button" class="rte__button" data-command="orderedList" title="@T("Нумерований список")" aria-label="@T("Нумерований список")"><Icon Name="list-ordered" /></button>
+            <button type="button" class="rte__button" data-command="blockquote" title="@T("Цитата")" aria-label="@T("Цитата")"><Icon Name="quote" /></button>
+            <button type="button" class="rte__button" data-command="rule" title="@T("Розділювач")" aria-label="@T("Розділювач")"><Icon Name="minus" /></button>
+        </div>
+        <div class="rte__group">
+            <button type="button" class="rte__button" data-command="alignLeft" title="@T("По лівому краю")" aria-label="@T("По лівому краю")"><Icon Name="align-left" /></button>
+            <button type="button" class="rte__button" data-command="alignCenter" title="@T("По центру")" aria-label="@T("По центру")"><Icon Name="align-center" /></button>
+            <button type="button" class="rte__button" data-command="alignRight" title="@T("По правому краю")" aria-label="@T("По правому краю")"><Icon Name="align-right" /></button>
+        </div>
+        <div class="rte__group">
+            <button type="button" class="rte__button" data-command="link" title="@T("Посилання")" aria-label="@T("Посилання")"><Icon Name="link" /></button>
+            <button type="button" class="rte__button" data-command="unlink" title="@T("Прибрати посилання")" aria-label="@T("Прибрати посилання")"><Icon Name="unlink" /></button>
+        </div>
+        <div class="rte__group">
+            <button type="button" class="rte__button" data-command="image" title="@T("Фото в тексті")" aria-label="@T("Фото в тексті")"><Icon Name="image" /></button>
+            <button type="button" class="rte__button" data-command="gallery" title="@T("Галерея фото")" aria-label="@T("Галерея фото")"><Icon Name="images" /></button>
+            <button type="button" class="rte__button" data-command="table" title="@T("Таблиця")" aria-label="@T("Таблиця")"><Icon Name="table" /></button>
+        </div>
+        <div class="rte__group rte__group--end">
+            <button type="button" class="rte__button" data-command="undo" title="@T("Скасувати (Ctrl+Z)")" aria-label="@T("Скасувати")"><Icon Name="undo-2" /></button>
+            <button type="button" class="rte__button" data-command="redo" title="@T("Повторити (Ctrl+Shift+Z)")" aria-label="@T("Повторити")"><Icon Name="redo-2" /></button>
+        </div>
+    </div>
+
+    <div class="rte__tools" data-rte-table-tools hidden>
+        <span class="ds-text-xs ds-muted">@T("Таблиця:")</span>
+        <button type="button" class="ds-btn ds-btn--ghost ds-btn--sm" data-command="rowAfter"><Icon Name="plus" Size="IconSize.Small" />@T("Рядок")</button>
+        <button type="button" class="ds-btn ds-btn--ghost ds-btn--sm" data-command="columnAfter"><Icon Name="plus" Size="IconSize.Small" />@T("Стовпець")</button>
+        <button type="button" class="ds-btn ds-btn--ghost ds-btn--sm" data-command="deleteRow"><Icon Name="minus" Size="IconSize.Small" />@T("Рядок")</button>
+        <button type="button" class="ds-btn ds-btn--ghost ds-btn--sm" data-command="deleteColumn"><Icon Name="minus" Size="IconSize.Small" />@T("Стовпець")</button>
+        <button type="button" class="ds-btn ds-btn--ghost ds-btn--sm" data-command="deleteTable"><Icon Name="trash-2" Size="IconSize.Small" />@T("Видалити таблицю")</button>
+    </div>
+
+    <div class="rte__tools" data-rte-linkbar hidden>
+        <Icon Name="link" Size="IconSize.Small" />
+        <input type="url" class="ds-input ds-input--sm" placeholder="https://…" aria-label="@T("Адреса посилання")" />
+        <button type="button" class="ds-btn ds-btn--secondary ds-btn--sm" data-link-apply>@T("Застосувати")</button>
+        <button type="button" class="ds-btn ds-btn--ghost ds-btn--sm" data-link-cancel>@T("Скасувати")</button>
+    </div>
+
+    <div class="rte__content" data-rte-content></div>
+
+    <div class="rte__footer">
+        <span class="rte__status" data-rte-status role="status"></span>
+        <span class="rte__count" data-rte-count></span>
+    </div>
+
+    <input type="file" accept="@FileRules.ImageAccept" multiple hidden data-rte-file />
+</div>

@@ -32,6 +32,11 @@ public static class ClaimsPrincipalExtensions
         public Guid? SessionId => Guid.TryParse(principal.FindFirstValue(AppClaimTypes.SessionId), out var id) ? id : null;
 
         /// <summary>
+        /// Gets the profile photo, or <see langword="null"/> until the user uploads one.
+        /// </summary>
+        public Guid? PhotoId => Guid.TryParseExact(principal.FindFirstValue(AppClaimTypes.Photo), "N", out var id) ? id : null;
+
+        /// <summary>
         /// Gets a value indicating whether the user must replace a temporary password.
         /// </summary>
         public bool MustChangePassword => principal.HasClaim(AppClaimTypes.MustChangePassword, "true");

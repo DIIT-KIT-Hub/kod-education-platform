@@ -1,3 +1,4 @@
+using KOD.Domain.Media;
 using KOD.Domain.Users;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -36,5 +37,10 @@ internal sealed class UserConfiguration : IEntityTypeConfiguration<User>
             .WithOne()
             .HasForeignKey(static o => o.UserId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasOne<MediaFile>()
+            .WithMany()
+            .HasForeignKey(static u => u.PhotoId)
+            .OnDelete(DeleteBehavior.SetNull);
     }
 }

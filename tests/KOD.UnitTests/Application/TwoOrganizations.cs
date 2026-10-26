@@ -1,14 +1,18 @@
 using KOD.Application.Abstractions;
 using KOD.Application.Common.Access;
 using KOD.Application.Common.Results;
+using KOD.Application.Features.Media;
 using KOD.Application.Features.News;
+using KOD.Application.Features.News.Discussion;
 using KOD.Application.Features.Organization;
 using KOD.Application.Features.Users;
 using KOD.Domain.Access;
+using KOD.Domain.Media;
 using KOD.Domain.News;
 using KOD.Domain.Organization;
 using KOD.Domain.Users;
 using KOD.Infrastructure.Persistence;
+using KOD.Infrastructure.Text;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 
@@ -41,7 +45,7 @@ internal sealed class TwoOrganizations : IDisposable
         BProj = Unit("B-PROJ", DivisionType, B);
 
         Hr = Role(SystemRoles.HrSpecialist, Permissions.Users.View, Permissions.Users.Manage, Permissions.Users.Import, Permissions.Users.Export, Permissions.Users.Security, Permissions.Documents.View);
-        Employee = Role(SystemRoles.Employee, Permissions.Documents.View);
+        Employee = Role(SystemRoles.Employee, Permissions.Documents.View, Permissions.News.View);
         Steward = Role("steward", Permissions.Structure.View, Permissions.Structure.Manage, Permissions.News.View, Permissions.News.Manage, Permissions.Documents.View);
         Administrator = Role(SystemRoles.Administrator);
 
@@ -116,6 +120,9 @@ internal sealed class TwoOrganizations : IDisposable
     /// <summary>Gets the system administrator.</summary>
     public User Admin { get; }
 
+    /// <summary>Gets the image storage shared by the services.</summary>
+    public MemoryMediaStorage Storage { get; } = new();
+
     /// <summary>Gets or sets the rows the fake spreadsheet returns.</summary>
     public IReadOnlyList<UserSheetRow> SheetRows { get; set; } = [];
 
@@ -133,11 +140,14 @@ internal sealed class TwoOrganizations : IDisposable
         var currentUser = new FakeCurrentUser(user.Id, permissions);
         var scope = new AccessScope(Db, currentUser);
         var audit = new FakeAudit();
+        var media = new MediaLibrary(Db, new FakeImageProcessor(), Storage);
         return new Services(
             scope,
             new UserService(Db, currentUser, new FakeIdentity(Db), new PermissionResolver(Db), scope, new FakeSpreadsheet(this), audit, TimeProvider.System),
             new OrganizationService(Db, currentUser, scope, audit),
-            new NewsService(Db, currentUser, scope, new FakeMarkdown(), new FakeAssets(), audit, TimeProvider.System));
+            new NewsService(Db, currentUser, scope, new FakeMarkdown(), new RichTextSanitizer(), media, new FakeAssets(), audit, TimeProvider.System),
+            new NewsDiscussionService(Db, currentUser, scope, new NewsDiscussionEvents(), audit, TimeProvider.System),
+            new MediaService(currentUser, media));
     }
 
     /// <summary>
@@ -148,7 +158,7 @@ internal sealed class TwoOrganizations : IDisposable
     /// <returns>The article.</returns>
     public NewsArticle News(string title, OrganizationUnit? organization)
     {
-        var article = new NewsArticle(Guid.NewGuid().ToString("N"), title, "Анонс", "Текст", NewsCategory.News, Admin.Id);
+        var article = new NewsArticle(Guid.NewGuid().ToString("N"), title, "Анонс", "<p>Текст</p>", NewsBodyFormat.Html, NewsCategory.News, Admin.Id);
         article.AssignTo(organization?.Id);
         article.Publish(DateTimeOffset.UtcNow);
         Db.NewsArticles.Add(article);
@@ -205,7 +215,39 @@ internal sealed class TwoOrganizations : IDisposable
     /// <param name="Users">The user service.</param>
     /// <param name="Organization">The organization service.</param>
     /// <param name="News">The news service.</param>
-    internal sealed record Services(IAccessScope Scope, IUserService Users, IOrganizationService Organization, INewsService News);
+    /// <param name="Discussion">The news discussion service.</param>
+    /// <param name="Media">The image upload service.</param>
+    internal sealed record Services(
+        IAccessScope Scope,
+        IUserService Users,
+        IOrganizationService Organization,
+        INewsService News,
+        INewsDiscussionService Discussion,
+        IMediaService Media);
+
+    /// <summary>
+    /// An in-memory image storage.
+    /// </summary>
+    internal sealed class MemoryMediaStorage : IMediaStorage
+    {
+        /// <summary>
+        /// Gets the stored images.
+        /// </summary>
+        public HashSet<Guid> Stored { get; } = [];
+
+        /// <inheritdoc />
+        public Task SaveAsync(Guid id, ProcessedImage image, CancellationToken cancellationToken)
+        {
+            Stored.Add(id);
+            return Task.CompletedTask;
+        }
+
+        /// <inheritdoc />
+        public Stream? OpenRead(Guid id, bool thumbnail) => Stored.Contains(id) ? new MemoryStream([1]) : null;
+
+        /// <inheritdoc />
+        public void Delete(Guid id) => Stored.Remove(id);
+    }
 
     /// <summary>
     /// A fixed current user.
@@ -331,11 +373,18 @@ internal sealed class TwoOrganizations : IDisposable
     private sealed class FakeAssets : IPublicAssetStorage
     {
         /// <inheritdoc />
-        public Task<string?> SaveImageAsync(Stream content, string folder, CancellationToken cancellationToken) => Task.FromResult<string?>(null);
-
-        /// <inheritdoc />
         public void Delete(string url)
         {
         }
+    }
+
+    /// <summary>
+    /// An image processor that accepts any non-empty file as a 100×100 image.
+    /// </summary>
+    private sealed class FakeImageProcessor : IImageProcessor
+    {
+        /// <inheritdoc />
+        public Task<ProcessedImage?> ProcessAsync(ReadOnlyMemory<byte> source, MediaPurpose purpose, ImageCrop? crop, CancellationToken cancellationToken)
+            => Task.FromResult<ProcessedImage?>(new ProcessedImage([1, 2, 3], [1], 100, 100));
     }
 }

@@ -19,5 +19,12 @@
   "Мова інтерфейсу": "Interface language",
   "Застосувати": "Apply",
   "Мова зберігається у профілі й застосовується на всіх ваших пристроях.": "The language is saved in your profile and applies on all your devices.",
-  "Некоректний номер телефону.": "Invalid phone number."
+  "Некоректний номер телефону.": "Invalid phone number.",
+  "Змінити фото": "Change photo",
+  "Додайте фото профілю": "Add a profile photo",
+  "Зберегти фото": "Save photo",
+  "Колеги бачать ваше фото в документах, новинах і структурі. Без фото кабінетом користуватися не можна.": "Colleagues see your photo in documents, news and the structure. The cabinet cannot be used without a photo.",
+  "Нове фото замінить поточне всюди в кабінеті.": "The new photo replaces the current one everywhere in the cabinet.",
+  "Фото профілю": "Profile photo",
+  "Фото профілю · КОД": "Profile photo · KOD"
 }

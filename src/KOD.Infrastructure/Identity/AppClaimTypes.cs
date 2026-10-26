@@ -20,6 +20,9 @@ public static class AppClaimTypes
     /// <summary>The chosen interface language (<c>uk</c>, <c>en</c>); absent when the user has not chosen one.</summary>
     public const string Language = "kod:lang";
 
+    /// <summary>The profile photo (a media identifier); absent until the user uploads one.</summary>
+    public const string Photo = "kod:photo";
+
     /// <summary>The identifier of the server-side session.</summary>
     public const string SessionId = "kod:sid";
 

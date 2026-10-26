@@ -1,0 +1,39 @@
+@using KOD.Domain.News
+
+<div class="reactions @(Compact ? "reactions--compact" : null)">
+    @foreach (var count in Summary.Counts)
+    {
+        var mine = Summary.Mine == count.Kind;
+        <button type="button" class="reactions__chip" aria-pressed="@(mine ? "true" : "false")" disabled="@(!CanReact || Busy)"
+                title="@Display.Text(count.Kind)" @onclick="() => ReactAsync(count.Kind)">
+            <span class="reactions__emoji" aria-hidden="true">@Display.Emoji(count.Kind)</span>
+            <span class="ds-visually-hidden">@Display.Text(count.Kind):</span>
+            <span>@count.Count</span>
+        </button>
+    }
+    @if (CanReact)
+    {
+        <span class="reactions__picker">
+            <button type="button" class="reactions__add" aria-expanded="@(Open ? "true" : "false")" disabled="@Busy"
+                    title="@T("Поставити реакцію")" aria-label="@T("Поставити реакцію")" @onclick="() => Open = !Open">
+                <Icon Name="smile-plus" Size="IconSize.Small" />
+                @if (!Compact && Summary.Counts.Count == 0)
+                {
+                    <span>@T("Реакція")</span>
+                }
+            </button>
+            @if (Open)
+            {
+                <span class="reactions__menu" role="menu" @onkeydown="CloseOnEscape">
+                    @foreach (var kind in Enum.GetValues<ReactionKind>())
+                    {
+                        <button type="button" role="menuitemradio" class="reactions__option" aria-checked="@(Summary.Mine == kind ? "true" : "false")"
+                                title="@Display.Text(kind)" aria-label="@Display.Text(kind)" @onclick="() => ReactAsync(kind)">
+                            @Display.Emoji(kind)
+                        </button>
+                    }
+                </span>
+            }
+        </span>
+    }
+</div>

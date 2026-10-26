@@ -123,7 +123,8 @@ internal sealed class DocumentService(
                 d.Status == DocumentStatus.InSigning
                     && d.Signers.Any(s => s.UserId == me && s.Status == SignerStatus.Pending
                         && (d.SigningMode == SigningMode.Parallel
-                            || !d.Signers.Any(o => o.Status == SignerStatus.Pending && o.Order < s.Order)))))
+                            || !d.Signers.Any(o => o.Status == SignerStatus.Pending && o.Order < s.Order))),
+                d.Author.PhotoId))
             .ToPagedResultAsync(query, cancellationToken);
     }
 
@@ -176,7 +177,7 @@ internal sealed class DocumentService(
             document.Kind,
             document.Status,
             document.SigningMode,
-            new UserRef(document.AuthorId, document.Author!.FullName),
+            new UserRef(document.AuthorId, document.Author!.FullName, document.Author.PhotoId),
             new UnitRef(document.OrganizationUnitId, document.OrganizationUnit!.Name),
             new DocumentFileInfo(document.File.FileName, document.File.ContentType, document.File.Size, document.File.Sha256, document.File.IsPdf),
             document.CreatedAt,
@@ -184,7 +185,7 @@ internal sealed class DocumentService(
             document.CompletedAt,
             document.Signers
                 .OrderBy(static s => s.Order)
-                .Select(s => new DocumentSignerItem(s.UserId, s.User!.FullName, positions.GetValueOrDefault(s.UserId), s.Order, s.Status, s.DecidedAt, s.Comment))
+                .Select(s => new DocumentSignerItem(s.UserId, s.User!.FullName, positions.GetValueOrDefault(s.UserId), s.Order, s.Status, s.DecidedAt, s.Comment, s.User.PhotoId))
                 .ToList(),
             document.Signatures
                 .OrderBy(static s => s.SignedAt)
@@ -304,7 +305,8 @@ internal sealed class DocumentService(
                 StoredText.PositionInUnit(
                     u.Positions.Where(static p => p.IsPrimary).Select(static p => p.Title).FirstOrDefault(),
                     u.Positions.Where(static p => p.IsPrimary).Select(static p => p.Role!.Name).FirstOrDefault(),
-                    u.Positions.Where(static p => p.IsPrimary).Select(static p => p.OrganizationUnit!.Name).FirstOrDefault())))
+                    u.Positions.Where(static p => p.IsPrimary).Select(static p => p.OrganizationUnit!.Name).FirstOrDefault()),
+                u.PhotoId))
             .ToDictionaryAsync(static u => u.Id, cancellationToken);
         var unit = await db.OrganizationUnits
             .AsNoTracking()
@@ -843,7 +845,8 @@ internal sealed class DocumentService(
                 StoredText.PositionInUnit(
                     u.Positions.Where(static p => p.IsPrimary).Select(static p => p.Title).FirstOrDefault(),
                     u.Positions.Where(static p => p.IsPrimary).Select(static p => p.Role!.Name).FirstOrDefault(),
-                    u.Positions.Where(static p => p.IsPrimary).Select(static p => p.OrganizationUnit!.Name).FirstOrDefault())))
+                    u.Positions.Where(static p => p.IsPrimary).Select(static p => p.OrganizationUnit!.Name).FirstOrDefault()),
+                u.PhotoId))
             .ToListAsync(cancellationToken);
     }
 

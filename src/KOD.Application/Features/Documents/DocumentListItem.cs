@@ -16,6 +16,7 @@ namespace KOD.Application.Features.Documents;
 /// <param name="SignedCount">The number of collected signatures.</param>
 /// <param name="SignersCount">The number of signers on the route.</param>
 /// <param name="AwaitingMe">Whether the document waits for the current user's signature.</param>
+/// <param name="AuthorPhotoId">The author's profile photo.</param>
 public sealed record DocumentListItem(
     Guid Id,
     string RegistrationNumber,
@@ -27,4 +28,5 @@ public sealed record DocumentListItem(
     DateTimeOffset CreatedAt,
     int SignedCount,
     int SignersCount,
-    bool AwaitingMe);
+    bool AwaitingMe,
+    Guid? AuthorPhotoId);

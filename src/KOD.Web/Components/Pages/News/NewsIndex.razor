@@ -39,7 +39,7 @@ else
                 <div class="news-card__media">
                     @if (article.CoverImageUrl is not null)
                     {
-                        <img class="news-card__cover" src="@article.CoverImageUrl" alt="" loading="lazy" />
+                        <img class="news-card__cover" src="@article.CoverThumbnailUrl" alt="" loading="lazy" decoding="async" />
                     }
                     else
                     {
@@ -57,6 +57,14 @@ else
                     <span class="news-card__title">@article.Title</span>
                     <span class="news-card__summary">@article.Summary</span>
                     <span class="ds-text-sm ds-muted">@Display.Date(article.PublishedAt)@(article.Organization is { } organization ? $" · {organization.Name}" : null)</span>
+                    <span class="news-card__footer">
+                        <PersonName Name="@article.AuthorName" PhotoId="@article.AuthorPhotoId" />
+                        <span class="news-card__stats ds-text-sm ds-muted">
+                            <span title="@T("Переглядів")"><Icon Name="eye" Size="IconSize.Small" />@article.ViewCount</span>
+                            <span title="@T("Реакцій")"><Icon Name="smile-plus" Size="IconSize.Small" />@article.ReactionCount</span>
+                            <span title="@T("Коментарів")"><Icon Name="message-circle" Size="IconSize.Small" />@article.CommentCount</span>
+                        </span>
+                    </span>
                 </div>
             </a>
         }

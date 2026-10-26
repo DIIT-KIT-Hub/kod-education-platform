@@ -4,6 +4,7 @@ using KOD.Infrastructure.Persistence.Seeding;
 using KOD.Web.Components;
 using KOD.Web.Identity;
 using KOD.Web.Localization;
+using KOD.Web.Media;
 using KOD.Web.Security;
 using KOD.Web.Signing;
 using Microsoft.Extensions.FileProviders;
@@ -67,7 +68,7 @@ internal static class WebApplicationExtensions
             app.UseRequestLocalization();
             app.UseAuthorization();
             app.UseRateLimiter();
-            app.UseMiddleware<PasswordChangeEnforcementMiddleware>();
+            app.UseMiddleware<AccountSetupMiddleware>();
             app.UseAntiforgery();
 
             app.MapStaticAssets().AllowAnonymous();
@@ -75,6 +76,7 @@ internal static class WebApplicationExtensions
             app.MapEuSignProxy();
             app.MapTrustList();
             app.MapAccountEndpoints();
+            app.MapMediaEndpoints();
             app.MapLanguageEndpoint();
             app.MapRazorComponents<App>()
                 .AddInteractiveServerRenderMode();

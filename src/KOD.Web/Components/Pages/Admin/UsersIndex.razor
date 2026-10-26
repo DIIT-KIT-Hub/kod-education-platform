@@ -51,7 +51,7 @@
         <Columns>
             <GridColumn TItem="UserListItem" Title="@T("Користувач")" SortKey="name" Primary>
                 <div class="ds-row">
-                    <Avatar Name="@context.FullName" Size="ControlSize.Small" />
+                    <Avatar Name="@context.FullName" PhotoId="@context.PhotoId" Size="ControlSize.Small" />
                     <div class="ds-stack ds-stack--sm" style="gap:0">
                         <a class="ds-table__primary" href="@($"/admin/users/{context.Id}")">@context.FullName</a>
                         <span class="ds-table__secondary">@context.Email</span>

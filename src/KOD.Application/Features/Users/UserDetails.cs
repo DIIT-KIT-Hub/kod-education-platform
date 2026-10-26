@@ -24,6 +24,7 @@ namespace KOD.Application.Features.Users;
 /// <param name="CanEditAccount">Whether the current user may change the account as a whole: personal data, e-mail, status and individual permissions.</param>
 /// <param name="CanEditPositions">Whether the current user may change the positions in the organizations they manage.</param>
 /// <param name="CanManageSecurity">Whether the current user may reset the password and authenticator and end the sessions.</param>
+/// <param name="PhotoId">The profile photo, if uploaded.</param>
 public sealed record UserDetails(
     Guid Id,
     string Email,
@@ -45,4 +46,5 @@ public sealed record UserDetails(
     IReadOnlySet<string> EffectivePermissions,
     bool CanEditAccount,
     bool CanEditPositions,
-    bool CanManageSecurity);
+    bool CanManageSecurity,
+    Guid? PhotoId);

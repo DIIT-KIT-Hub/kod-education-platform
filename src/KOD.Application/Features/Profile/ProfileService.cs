@@ -1,12 +1,15 @@
 using KOD.Application.Abstractions;
 using KOD.Application.Common.Access;
 using KOD.Application.Common.Errors;
+using KOD.Application.Common.Files;
 using KOD.Application.Common.Models;
 using KOD.Application.Common.Results;
 using KOD.Application.Common.Text;
+using KOD.Application.Features.Media;
 using KOD.Domain.Access;
 using KOD.Domain.Audit;
 using KOD.Domain.Localization;
+using KOD.Domain.Media;
 using KOD.Domain.Users;
 using Microsoft.EntityFrameworkCore;
 
@@ -21,6 +24,7 @@ namespace KOD.Application.Features.Profile;
 /// <param name="identity">The identity service.</param>
 /// <param name="permissions">The permission resolver.</param>
 /// <param name="audit">The audit logger.</param>
+/// <param name="media">The image library.</param>
 /// <param name="timeProvider">The clock.</param>
 internal sealed class ProfileService(
     IApplicationDbContext db,
@@ -29,6 +33,7 @@ internal sealed class ProfileService(
     IIdentityService identity,
     IPermissionResolver permissions,
     IAuditLogger audit,
+    MediaLibrary media,
     TimeProvider timeProvider) : IProfileService
 {
     /// <inheritdoc />
@@ -57,7 +62,8 @@ internal sealed class ProfileService(
             await identity.CountRecoveryCodesAsync(user),
             user.CreatedAt,
             user.LastSignInAt,
-            user.Language);
+            user.Language,
+            user.PhotoId);
     }
 
     /// <inheritdoc />
@@ -75,6 +81,34 @@ internal sealed class ProfileService(
             await db.SaveChangesAsync(cancellationToken);
             return Result.Success();
         });
+    }
+
+    /// <inheritdoc />
+    public async Task<Result<Guid>> SetPhotoAsync(FileUpload file, ImageCrop? crop, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(file);
+        var user = currentUser.Id is { } me ? await db.Users.FirstOrDefaultAsync(u => u.Id == me, cancellationToken) : null;
+        if (user is null)
+        {
+            return Error.Unauthorized();
+        }
+
+        var added = await media.AddAsync(file, MediaPurpose.Avatar, user.Id, crop, cancellationToken);
+        if (!added.IsSuccess)
+        {
+            return added.Error;
+        }
+
+        var previous = user.PhotoId is { } old ? await db.MediaFiles.FirstOrDefaultAsync(m => m.Id == old, cancellationToken) : null;
+        user.SetPhoto(added.Value.Id);
+        if (previous is not null)
+        {
+            media.Remove(previous);
+        }
+
+        audit.Add(AuditActions.ProfilePhotoChanged, nameof(User), user.Id.ToString(), null);
+        await media.SaveChangesAsync(cancellationToken);
+        return added.Value.Id;
     }
 
     /// <inheritdoc />

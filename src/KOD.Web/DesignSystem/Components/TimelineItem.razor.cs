@@ -20,11 +20,10 @@ public partial class TimelineItem
     public string? Marker { get; set; }
 
     /// <summary>
-    /// Gets or sets the title.
+    /// Gets or sets the title; leave empty when <see cref="ChildContent"/> starts with its own heading (e.g. a person).
     /// </summary>
     [Parameter]
-    [EditorRequired]
-    public string Title { get; set; } = string.Empty;
+    public string? Title { get; set; }
 
     /// <summary>
     /// Gets or sets the secondary text.

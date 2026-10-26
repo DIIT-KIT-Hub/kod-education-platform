@@ -64,7 +64,7 @@ else
                     <Columns>
                         <GridColumn TItem="UnitStaffItem" Title="@T("Працівник")" Primary>
                             <div class="ds-row">
-                                <Avatar Name="@context.FullName" Size="ControlSize.Small" />
+                                <Avatar Name="@context.FullName" PhotoId="@context.PhotoId" Size="ControlSize.Small" />
                                 <span class="ds-strong">@context.FullName</span>
                                 @if (context.IsLeadership)
                                 {

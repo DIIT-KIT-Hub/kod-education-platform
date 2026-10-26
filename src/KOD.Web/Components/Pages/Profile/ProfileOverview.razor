@@ -9,7 +9,11 @@
         <div class="ds-stack ds-stack--lg ds-stagger">
             <Card>
                 <div class="ds-row ds-row--wrap">
-                    <Avatar Name="@Profile.FullName" Size="ControlSize.Large" />
+                    <a class="profile-photo" href="/account/photo?returnUrl=%2Fprofile" title="@T("Змінити фото")">
+                        <Avatar Name="@Profile.FullName" PhotoId="@Profile.PhotoId" Size="ControlSize.Large" Decorative="false" />
+                        <span class="profile-photo__edit" aria-hidden="true"><Icon Name="camera" Size="IconSize.Small" /></span>
+                        <span class="ds-visually-hidden">@T("Змінити фото")</span>
+                    </a>
                     <div class="ds-stack ds-stack--sm">
                         <h2 class="ds-card__title">@Profile.FullName</h2>
                         <span class="ds-muted">@Profile.Email</span>

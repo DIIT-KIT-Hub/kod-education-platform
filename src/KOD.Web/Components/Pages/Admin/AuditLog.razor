@@ -33,7 +33,16 @@
                     <span class="ds-table__secondary">@context.Details</span>
                 }
             </GridColumn>
-            <GridColumn TItem="AuditEntryDto" Title="@T("Користувач")">@(context.UserName ?? "—")</GridColumn>
+            <GridColumn TItem="AuditEntryDto" Title="@T("Користувач")">
+                @if (context.UserName is null)
+                {
+                    <span>—</span>
+                }
+                else
+                {
+                    <PersonName Name="@context.UserName" PhotoId="@context.UserPhotoId" />
+                }
+            </GridColumn>
             <GridColumn TItem="AuditEntryDto" Title="IP"><span class="ds-mono">@(context.IpAddress ?? "—")</span></GridColumn>
         </Columns>
     </DataGrid>

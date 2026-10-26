@@ -5,6 +5,7 @@
  *  - Shows toasts passed through the `toast` query parameter and removes it from the address bar.
  *  - Mounts the signing UI on pages that contain [data-signing].
  *  - Mounts the user manual behaviors on the page that contains [data-help].
+ *  - Mounts the crop preview of profile photo forms and the image viewer of news articles.
  *  - Shows menu item tooltips while the desktop sidebar is collapsed to an icon rail.
  *  - Shows a progress bar and dims the page while the next page loads (links and form submissions).
  */
@@ -67,6 +68,36 @@ async function mountHelpPage() {
     root.setAttribute("data-help-mounted", "true");
     const { mountHelp } = await import("./help.js");
     mountHelp(/** @type {HTMLElement} */ (root));
+}
+
+/**
+ * Lazily loads the crop preview of profile photo forms.
+ */
+async function mountPhotoForms() {
+    const forms = document.querySelectorAll("form[data-photo-cropper]:not([data-photo-mounted])");
+    if (forms.length === 0) {
+        return;
+    }
+
+    const { mountPhotoCropper } = await import("./photo-cropper.js");
+    forms.forEach((form) => {
+        form.setAttribute("data-photo-mounted", "true");
+        mountPhotoCropper(/** @type {HTMLFormElement} */ (form));
+    });
+}
+
+/**
+ * Lazily loads the image viewer of article pages (images and galleries in the text open full size).
+ */
+async function mountArticleImages() {
+    const article = document.querySelector(".prose[data-article-body]:not([data-lightbox-mounted])");
+    if (!article || !article.querySelector("img")) {
+        return;
+    }
+
+    article.setAttribute("data-lightbox-mounted", "true");
+    const { mountLightbox } = await import("./lightbox.js");
+    mountLightbox(/** @type {HTMLElement} */ (article));
 }
 
 /**
@@ -188,6 +219,8 @@ function onPageReady() {
     showQueryToast();
     mountSigning().catch((error) => console.error("Signing UI failed to load", error));
     mountHelpPage().catch((error) => console.error("Manual behaviors failed to load", error));
+    mountPhotoForms().catch((error) => console.error("Photo cropper failed to load", error));
+    mountArticleImages().catch((error) => console.error("Image viewer failed to load", error));
 }
 
 /**

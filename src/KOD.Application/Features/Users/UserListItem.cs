@@ -12,6 +12,7 @@ namespace KOD.Application.Features.Users;
 /// <param name="TwoFactorEnabled">Whether the authenticator is enrolled.</param>
 /// <param name="IsLockedOut">Whether the account is temporarily locked out.</param>
 /// <param name="LastSignInAt">The last sign-in moment.</param>
+/// <param name="PhotoId">The profile photo, if uploaded.</param>
 public sealed record UserListItem(
     Guid Id,
     string FullName,
@@ -21,4 +22,5 @@ public sealed record UserListItem(
     bool IsActive,
     bool TwoFactorEnabled,
     bool IsLockedOut,
-    DateTimeOffset? LastSignInAt);
+    DateTimeOffset? LastSignInAt,
+    Guid? PhotoId);

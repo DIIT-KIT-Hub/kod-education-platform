@@ -54,7 +54,17 @@ internal sealed class AuditService(IApplicationDbContext db, ICurrentUser curren
 
         return await entries
             .OrderByDirection(static e => e.OccurredAt, query.SortBy != "occurred" || query.Descending)
-            .Select(static e => new AuditEntryDto(e.Id, e.OccurredAt, e.Action, e.UserId, e.UserName, e.EntityType, e.EntityId, e.Details, e.IpAddress))
+            .Select(e => new AuditEntryDto(
+                e.Id,
+                e.OccurredAt,
+                e.Action,
+                e.UserId,
+                e.UserName,
+                e.EntityType,
+                e.EntityId,
+                e.Details,
+                e.IpAddress,
+                db.Users.Where(u => u.Id == e.UserId).Select(static u => u.PhotoId).FirstOrDefault()))
             .ToPagedResultAsync(query, cancellationToken);
     }
 }

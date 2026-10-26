@@ -22,13 +22,13 @@ else
                         <Badge Tone="Tone.Dashed">@T("Чернетка")</Badge>
                     }
                     <span>@Display.Date(Article.PublishedAt ?? Article.UpdatedAt)</span>
-                    <span>·</span>
-                    <span>@Article.AuthorName</span>
                     @if (Article.Organization is { } organization)
                     {
                         <span>·</span>
                         <span>@organization.Name</span>
                     }
+                    <span>·</span>
+                    <span class="ds-row" title="@T("Переглядів")"><Icon Name="eye" Size="IconSize.Small" />@Article.ViewCount</span>
                 </div>
             </ChildContent>
             <Actions>
@@ -40,11 +40,15 @@ else
         </PageHeader>
         @if (Article.CoverImageUrl is not null)
         {
-            <img class="article__cover ds-animate-scale" src="@Article.CoverImageUrl" alt="" />
+            <img class="article__cover ds-animate-scale" src="@Article.CoverImageUrl" alt="" fetchpriority="high" />
         }
+        <div class="article__byline">
+            <PersonName Name="@Article.Author.FullName" PhotoId="@Article.Author.PhotoId" Meta="@T("Автор публікації")" Size="ControlSize.Medium" />
+        </div>
         <p class="article__lead">@Article.Summary</p>
-        <div class="prose ds-animate-in">@((MarkupString)Article.BodyHtml)</div>
+        <div class="prose ds-animate-in" data-article-body>@((MarkupString)Article.BodyHtml)</div>
         <hr />
+        <NewsDiscussionPanel @rendermode="InteractiveServer" ArticleId="Article.Id" />
         <Button Href="/news" Variant="ButtonVariant.Ghost" Icon="arrow-left">@T("Усі новини")</Button>
     </article>
 }

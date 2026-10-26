@@ -487,11 +487,67 @@ namespace KOD.Infrastructure.Persistence.Migrations
                     b.ToTable("document_signers", (string)null);
                 });
 
+            modelBuilder.Entity("KOD.Domain.Media.MediaFile", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<int>("Height")
+                        .HasColumnType("integer")
+                        .HasColumnName("height");
+
+                    b.Property<Guid?>("NewsArticleId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("news_article_id");
+
+                    b.Property<Guid>("OwnerId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("owner_id");
+
+                    b.Property<string>("Purpose")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)")
+                        .HasColumnName("purpose");
+
+                    b.Property<long>("Size")
+                        .HasColumnType("bigint")
+                        .HasColumnName("size");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<int>("Width")
+                        .HasColumnType("integer")
+                        .HasColumnName("width");
+
+                    b.HasKey("Id")
+                        .HasName("pk_media_files");
+
+                    b.HasIndex("NewsArticleId")
+                        .HasDatabaseName("ix_media_files_news_article_id");
+
+                    b.HasIndex("Purpose", "CreatedAt")
+                        .HasDatabaseName("ix_media_files_purpose_created_at");
+
+                    b.ToTable("media_files", (string)null);
+                });
+
             modelBuilder.Entity("KOD.Domain.News.NewsArticle", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid")
                         .HasColumnName("id");
+
+                    b.Property<bool>("AllowComments")
+                        .HasColumnType("boolean")
+                        .HasColumnName("allow_comments");
 
                     b.Property<Guid>("AuthorId")
                         .HasColumnType("uuid")
@@ -499,9 +555,15 @@ namespace KOD.Infrastructure.Persistence.Migrations
 
                     b.Property<string>("Body")
                         .IsRequired()
-                        .HasMaxLength(50000)
-                        .HasColumnType("character varying(50000)")
+                        .HasMaxLength(200000)
+                        .HasColumnType("character varying(200000)")
                         .HasColumnName("body");
+
+                    b.Property<string>("BodyFormat")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)")
+                        .HasColumnName("body_format");
 
                     b.Property<string>("Category")
                         .IsRequired()
@@ -569,6 +631,134 @@ namespace KOD.Infrastructure.Persistence.Migrations
                         .HasDatabaseName("ix_news_articles_is_pinned_published_at");
 
                     b.ToTable("news_articles", (string)null);
+                });
+
+            modelBuilder.Entity("KOD.Domain.News.NewsComment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("ArticleId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("article_id");
+
+                    b.Property<Guid>("AuthorId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("author_id");
+
+                    b.Property<string>("Body")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("body");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateTimeOffset?>("EditedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("edited_at");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<Guid?>("ParentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("parent_id");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_news_comments");
+
+                    b.HasIndex("AuthorId")
+                        .HasDatabaseName("ix_news_comments_author_id");
+
+                    b.HasIndex("ParentId")
+                        .HasDatabaseName("ix_news_comments_parent_id");
+
+                    b.HasIndex("ArticleId", "ParentId", "CreatedAt")
+                        .HasDatabaseName("ix_news_comments_article_id_parent_id_created_at");
+
+                    b.ToTable("news_comments", (string)null);
+                });
+
+            modelBuilder.Entity("KOD.Domain.News.NewsReaction", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("ArticleId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("article_id");
+
+                    b.Property<Guid?>("CommentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("comment_id");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)")
+                        .HasColumnName("kind");
+
+                    b.Property<DateTimeOffset>("ReactedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("reacted_at");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_news_reactions");
+
+                    b.HasIndex("ArticleId")
+                        .HasDatabaseName("ix_news_reactions_article_id");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("ix_news_reactions_user_id");
+
+                    b.HasIndex("ArticleId", "UserId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_news_reactions_article_reader")
+                        .HasFilter("comment_id IS NULL");
+
+                    b.HasIndex("CommentId", "UserId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_news_reactions_comment_reader")
+                        .HasFilter("comment_id IS NOT NULL");
+
+                    b.ToTable("news_reactions", (string)null);
+                });
+
+            modelBuilder.Entity("KOD.Domain.News.NewsView", b =>
+                {
+                    b.Property<Guid>("ArticleId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("article_id");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.Property<DateTimeOffset>("ViewedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("viewed_at");
+
+                    b.HasKey("ArticleId", "UserId")
+                        .HasName("pk_news_views");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("ix_news_views_user_id");
+
+                    b.ToTable("news_views", (string)null);
                 });
 
             modelBuilder.Entity("KOD.Domain.Organization.OrganizationUnit", b =>
@@ -878,6 +1068,10 @@ namespace KOD.Infrastructure.Persistence.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("phone_number_confirmed");
 
+                    b.Property<Guid?>("PhotoId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("photo_id");
+
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("text")
                         .HasColumnName("security_stamp");
@@ -904,6 +1098,9 @@ namespace KOD.Infrastructure.Persistence.Migrations
                     b.HasIndex("NormalizedUserName")
                         .IsUnique()
                         .HasDatabaseName("UserNameIndex");
+
+                    b.HasIndex("PhotoId")
+                        .HasDatabaseName("ix_users_photo_id");
 
                     b.HasIndex("LastName", "FirstName")
                         .HasDatabaseName("ix_users_last_name_first_name");
@@ -1094,6 +1291,15 @@ namespace KOD.Infrastructure.Persistence.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("KOD.Domain.Media.MediaFile", b =>
+                {
+                    b.HasOne("KOD.Domain.News.NewsArticle", null)
+                        .WithMany()
+                        .HasForeignKey("NewsArticleId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("fk_media_files_news_articles_news_article_id");
+                });
+
             modelBuilder.Entity("KOD.Domain.News.NewsArticle", b =>
                 {
                     b.HasOne("KOD.Domain.Users.User", "Author")
@@ -1112,6 +1318,71 @@ namespace KOD.Infrastructure.Persistence.Migrations
                     b.Navigation("Author");
 
                     b.Navigation("Organization");
+                });
+
+            modelBuilder.Entity("KOD.Domain.News.NewsComment", b =>
+                {
+                    b.HasOne("KOD.Domain.News.NewsArticle", null)
+                        .WithMany()
+                        .HasForeignKey("ArticleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_news_comments_news_articles_article_id");
+
+                    b.HasOne("KOD.Domain.Users.User", "Author")
+                        .WithMany()
+                        .HasForeignKey("AuthorId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_news_comments_users_author_id");
+
+                    b.HasOne("KOD.Domain.News.NewsComment", null)
+                        .WithMany()
+                        .HasForeignKey("ParentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .HasConstraintName("fk_news_comments_news_comments_parent_id");
+
+                    b.Navigation("Author");
+                });
+
+            modelBuilder.Entity("KOD.Domain.News.NewsReaction", b =>
+                {
+                    b.HasOne("KOD.Domain.News.NewsArticle", null)
+                        .WithMany()
+                        .HasForeignKey("ArticleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_news_reactions_news_articles_article_id");
+
+                    b.HasOne("KOD.Domain.News.NewsComment", null)
+                        .WithMany()
+                        .HasForeignKey("CommentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .HasConstraintName("fk_news_reactions_news_comments_comment_id");
+
+                    b.HasOne("KOD.Domain.Users.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_news_reactions_asp_net_users_user_id");
+                });
+
+            modelBuilder.Entity("KOD.Domain.News.NewsView", b =>
+                {
+                    b.HasOne("KOD.Domain.News.NewsArticle", null)
+                        .WithMany()
+                        .HasForeignKey("ArticleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_news_views_news_articles_article_id");
+
+                    b.HasOne("KOD.Domain.Users.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_news_views_asp_net_users_user_id");
                 });
 
             modelBuilder.Entity("KOD.Domain.Organization.OrganizationUnit", b =>
@@ -1162,6 +1433,15 @@ namespace KOD.Infrastructure.Persistence.Migrations
                     b.Navigation("Role");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("KOD.Domain.Users.User", b =>
+                {
+                    b.HasOne("KOD.Domain.Media.MediaFile", null)
+                        .WithMany()
+                        .HasForeignKey("PhotoId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("fk_users_media_files_photo_id");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<System.Guid>", b =>

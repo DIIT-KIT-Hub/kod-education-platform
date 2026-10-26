@@ -121,7 +121,7 @@ else
                     <dt>@T("Підрозділ")</dt>
                     <dd><a class="ds-link" href="@($"/structure/{Document.Unit.Id}")">@Document.Unit.Name</a></dd>
                     <dt>@T("Автор")</dt>
-                    <dd>@Document.Author.FullName</dd>
+                    <dd><PersonName Name="@Document.Author.FullName" PhotoId="@Document.Author.PhotoId" /></dd>
                     <dt>@T("Порядок підписання")</dt>
                     <dd>@Display.Text(Document.SigningMode)</dd>
                     <dt>@T("Створено")</dt>
@@ -191,8 +191,8 @@ else
                 <Timeline>
                     @foreach (var signer in Document.Signers)
                     {
-                        <TimelineItem State="@StateOf(signer)" Marker="@signer.Order.ToString(Display.Culture)" Title="@signer.FullName"
-                                      Meta="@(signer.Position ?? Display.Text(signer.Status))">
+                        <TimelineItem State="@StateOf(signer)" Marker="@signer.Order.ToString(Display.Culture)">
+                            <PersonName Name="@signer.FullName" PhotoId="@signer.PhotoId" Meta="@(signer.Position ?? Display.Text(signer.Status))" />
                             <span class="ds-text-sm ds-muted">
                                 @Display.Text(signer.Status)@(signer.DecidedAt is null ? null : $" · {Display.DateTime(signer.DecidedAt)}")
                             </span>

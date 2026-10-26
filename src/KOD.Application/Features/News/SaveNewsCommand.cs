@@ -8,13 +8,14 @@ namespace KOD.Application.Features.News;
 /// </summary>
 /// <param name="Title">The title.</param>
 /// <param name="Summary">The lead.</param>
-/// <param name="Body">The Markdown body.</param>
+/// <param name="Body">The HTML body from the rich text editor (sanitized by the service).</param>
 /// <param name="Category">The category.</param>
 /// <param name="IsPinned">Whether the article is pinned.</param>
 /// <param name="Publish">Whether the article is published.</param>
 /// <param name="CoverImage">A new cover image, if any.</param>
-/// <param name="RemoveCover">Whether to remove the existing cover image.</param>
+/// <param name="RemoveCover">Whether to remove the existing cover.</param>
 /// <param name="OrganizationId">The organization of the article; <see langword="null"/> for news of the whole cabinet.</param>
+/// <param name="AllowComments">Whether readers may comment.</param>
 public sealed record SaveNewsCommand(
     string Title,
     string Summary,
@@ -24,4 +25,5 @@ public sealed record SaveNewsCommand(
     bool Publish,
     FileUpload? CoverImage,
     bool RemoveCover,
-    Guid? OrganizationId);
+    Guid? OrganizationId,
+    bool AllowComments = true);

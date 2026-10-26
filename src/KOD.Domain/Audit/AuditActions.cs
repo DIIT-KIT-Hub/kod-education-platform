@@ -95,6 +95,12 @@ public static class AuditActions
     /// <summary>News article deleted.</summary>
     public const string NewsDeleted = "news.deleted";
 
+    /// <summary>A moderator deleted someone else's comment on a news article.</summary>
+    public const string NewsCommentDeleted = "news.comment-deleted";
+
+    /// <summary>A user uploaded a new profile photo.</summary>
+    public const string ProfilePhotoChanged = "users.photo-changed";
+
     /// <summary>Files signed with the file signing tool (only their names and the signature parameters reach the server).</summary>
     public const string FilesSigned = "signing.files-signed";
 }

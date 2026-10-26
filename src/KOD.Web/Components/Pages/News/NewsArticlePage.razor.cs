@@ -7,7 +7,8 @@ using Microsoft.AspNetCore.Components.Authorization;
 namespace KOD.Web.Components.Pages.News;
 
 /// <summary>
-/// A news article. The body is Markdown rendered to sanitized HTML (raw HTML disabled, unsafe URLs removed).
+/// A news article (static rendering) with an interactive discussion below. The body is HTML sanitized when it was saved
+/// (or Markdown rendered without raw HTML for older articles). Opening the page counts the reader once.
 /// </summary>
 public partial class NewsArticlePage
 {
@@ -45,5 +46,9 @@ public partial class NewsArticlePage
         var result = await News.GetBySlugAsync(Slug, CancellationToken.None);
         Article = result.IsSuccess ? result.Value : null;
         CanManage = (await AuthenticationState).User.HasPermission(Permissions.News.Manage) && Article?.CanManage == true;
+        if (Article?.PublishedAt is not null)
+        {
+            await News.RecordViewAsync(Article.Id, CancellationToken.None);
+        }
     }
 }

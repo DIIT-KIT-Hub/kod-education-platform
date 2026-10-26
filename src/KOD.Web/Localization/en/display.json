@@ -73,5 +73,16 @@
   "audit|Документ видалено": "Document deleted",
   "audit|Зміна новини": "News article changed",
   "audit|Видалення новини": "News article deleted",
-  "audit|Підписано файли": "Files signed"
+  "audit|Підписано файли": "Files signed",
+  "audit|Видалення коментаря": "Comment deleted",
+  "audit|Нове фото профілю": "New profile photo",
+  "{0} год тому": "{0} h ago",
+  "{0} хв тому": "{0} min ago",
+  "щойно": "just now",
+  "Подобається": "Like",
+  "Любов": "Love",
+  "Вітаю": "Congratulations",
+  "Смішно": "Funny",
+  "Вражає": "Wow",
+  "Сумно": "Sad"
 }

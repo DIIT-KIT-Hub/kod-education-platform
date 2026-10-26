@@ -23,9 +23,14 @@ public static class FileRules
     public const long MaxImportSize = 5L * 1024 * 1024;
 
     /// <summary>
-    /// Maximum size of a news cover image (5 MB).
+    /// Maximum size of an uploaded photo before optimization (15 MB): news images, covers and profile photos.
     /// </summary>
-    public const long MaxImageSize = 5L * 1024 * 1024;
+    public const long MaxImageSize = 15L * 1024 * 1024;
+
+    /// <summary>
+    /// The image types accepted by photo inputs (the server checks the content, not the type).
+    /// </summary>
+    public const string ImageAccept = "image/jpeg,image/png,image/webp,image/avif,image/gif";
 
     /// <summary>
     /// Gets the allowed document extensions mapped to their canonical MIME types.

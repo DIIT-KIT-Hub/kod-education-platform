@@ -106,6 +106,12 @@ public sealed class User : IdentityUser<Guid>, IAuditable
     /// </summary>
     public string? Language { get; private set; }
 
+    /// <summary>
+    /// Gets the profile photo (a <see cref="Media.MediaFile"/>), or <see langword="null"/> until the user uploads one.
+    /// The cabinet cannot be used without a photo.
+    /// </summary>
+    public Guid? PhotoId { get; private set; }
+
     /// <inheritdoc />
     public DateTimeOffset CreatedAt { get; set; }
 
@@ -161,6 +167,12 @@ public sealed class User : IdentityUser<Guid>, IAuditable
     /// <param name="language">A supported language code (<see cref="Languages"/>).</param>
     public void SetLanguage(string language)
         => Language = Languages.Normalize(language) ?? throw new DomainException(Texts.T("Непідтримувана мова інтерфейсу."));
+
+    /// <summary>
+    /// Sets the profile photo.
+    /// </summary>
+    /// <param name="photoId">The uploaded avatar image.</param>
+    public void SetPhoto(Guid photoId) => PhotoId = photoId;
 
     /// <summary>
     /// Replaces the positions held by the user.

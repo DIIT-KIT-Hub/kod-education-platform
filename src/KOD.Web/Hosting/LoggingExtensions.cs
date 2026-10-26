@@ -117,5 +117,6 @@ internal static class LoggingExtensions
     private static bool IsInfrastructure(PathString path)
         => path.StartsWithSegments("/_framework", StringComparison.OrdinalIgnoreCase)
             || path.StartsWithSegments("/_blazor", StringComparison.OrdinalIgnoreCase)
+            || path.StartsWithSegments("/media", StringComparison.OrdinalIgnoreCase)
             || Path.HasExtension(path.Value);
 }
