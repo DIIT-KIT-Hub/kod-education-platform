@@ -2,8 +2,10 @@ using KOD.Application.Abstractions;
 using KOD.Application.Common.Errors;
 using KOD.Application.Common.Paging;
 using KOD.Application.Common.Results;
+using KOD.Application.Common.Text;
 using KOD.Domain.Access;
 using KOD.Domain.Audit;
+using KOD.Domain.Localization;
 using Microsoft.EntityFrameworkCore;
 
 namespace KOD.Application.Features.Roles;
@@ -43,8 +45,8 @@ internal sealed class RoleService(IApplicationDbContext db, ICurrentUser current
             .Select(r => new RoleListItem(
                 r.Id,
                 r.Code,
-                r.Name,
-                r.Description,
+                StoredText.Display(r.Name),
+                StoredText.Display(r.Description),
                 r.IsSystem,
                 r.IsLeadership,
                 r.Permissions.Count,
@@ -63,7 +65,7 @@ internal sealed class RoleService(IApplicationDbContext db, ICurrentUser current
         var role = await db.Roles.AsNoTracking().Include(static r => r.Permissions).FirstOrDefaultAsync(r => r.Id == id, cancellationToken);
         if (role is null)
         {
-            return Error.NotFound("Роль не знайдено.");
+            return Error.NotFound(Texts.T("Роль не знайдено."));
         }
 
         var users = await db.StaffPositions.Where(p => p.RoleId == id).Select(static p => p.UserId).Distinct().CountAsync(cancellationToken);
@@ -85,7 +87,7 @@ internal sealed class RoleService(IApplicationDbContext db, ICurrentUser current
             .AsNoTracking()
             .OrderByDescending(static r => r.IsSystem)
             .ThenBy(static r => r.CreatedAt)
-            .Select(static r => new RoleOption(r.Id, r.Code, r.Name))
+            .Select(static r => new RoleOption(r.Id, r.Code, StoredText.Display(r.Name)))
             .ToListAsync(cancellationToken);
 
     /// <inheritdoc />
@@ -100,12 +102,12 @@ internal sealed class RoleService(IApplicationDbContext db, ICurrentUser current
         var code = command.Code?.Trim().ToLowerInvariant() ?? string.Empty;
         if (code.Length == 0 || !code.All(static c => char.IsAsciiLetterLower(c) || char.IsAsciiDigit(c) || c == '-'))
         {
-            return Error.Validation("Код ролі може містити лише малі латинські літери, цифри та «-».");
+            return Error.Validation(Texts.T("Код ролі може містити лише малі латинські літери, цифри та «-»."));
         }
 
         if (await db.Roles.AnyAsync(r => r.Code == code, cancellationToken))
         {
-            return Error.Conflict($"Роль із кодом «{code}» вже існує.");
+            return Error.Conflict(Texts.T("Роль із кодом «{0}» вже існує.", code));
         }
 
         return await DomainErrors.GuardAsync<Guid>(async () =>
@@ -132,7 +134,7 @@ internal sealed class RoleService(IApplicationDbContext db, ICurrentUser current
         var role = await db.Roles.Include(static r => r.Permissions).FirstOrDefaultAsync(r => r.Id == id, cancellationToken);
         if (role is null)
         {
-            return Error.NotFound("Роль не знайдено.");
+            return Error.NotFound(Texts.T("Роль не знайдено."));
         }
 
         // Holders get the new permissions at the next periodic session validation.
@@ -157,17 +159,17 @@ internal sealed class RoleService(IApplicationDbContext db, ICurrentUser current
         var role = await db.Roles.FirstOrDefaultAsync(r => r.Id == id, cancellationToken);
         if (role is null)
         {
-            return Error.NotFound("Роль не знайдено.");
+            return Error.NotFound(Texts.T("Роль не знайдено."));
         }
 
         if (role.IsSystem)
         {
-            return Error.Validation("Системну роль не можна видалити.");
+            return Error.Validation(Texts.T("Системну роль не можна видалити."));
         }
 
         if (await db.StaffPositions.AnyAsync(p => p.RoleId == id, cancellationToken))
         {
-            return Error.Conflict("Роль призначена користувачам — спочатку змініть їхні посади.");
+            return Error.Conflict(Texts.T("Роль призначена користувачам — спочатку змініть їхні посади."));
         }
 
         db.Roles.Remove(role);

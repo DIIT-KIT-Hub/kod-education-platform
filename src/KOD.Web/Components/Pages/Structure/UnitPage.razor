@@ -3,8 +3,8 @@
 
 @if (Unit is null)
 {
-    <PageHeader Title="Підрозділ" Breadcrumbs="@([new("Структура", "/structure"), new("Підрозділ")])" />
-    <Card><EmptyState Icon="network" Title="Підрозділ не знайдено" /></Card>
+    <PageHeader Title="@T("Підрозділ")" Breadcrumbs="@([new(T("Структура"), "/structure"), new(T("Підрозділ"))])" />
+    <Card><EmptyState Icon="network" Title="@T("Підрозділ не знайдено")" /></Card>
 }
 else
 {
@@ -14,7 +14,7 @@ else
                 <Badge Tone="Tone.Dashed">@Unit.Code</Badge>
                 @if (Unit.Organization.Id != Unit.Id)
                 {
-                    <a href="@($"/structure/{Unit.Organization.Id}")"><Badge Tone="Tone.Outline">Організація: @Unit.Organization.Name</Badge></a>
+                    <a href="@($"/structure/{Unit.Organization.Id}")"><Badge Tone="Tone.Outline">@T("Організація: {0}", Unit.Organization.Name)</Badge></a>
                 }
                 @if (Unit.ShortName is not null)
                 {
@@ -22,15 +22,15 @@ else
                 }
                 @if (!Unit.IsActive)
                 {
-                    <Badge Tone="Tone.Danger">Неактивний</Badge>
+                    <Badge Tone="Tone.Danger">@T("Неактивний")</Badge>
                 }
             </div>
         </ChildContent>
         <Actions>
             @if (CanManage)
             {
-                <Button Href="@($"/admin/units/new?parent={Unit.Id}")" Variant="ButtonVariant.Secondary" Icon="plus">Додати підрозділ</Button>
-                <Button Href="@($"/admin/units/{Unit.Id}")" Variant="ButtonVariant.Secondary" Icon="pencil">Редагувати</Button>
+                <Button Href="@($"/admin/units/new?parent={Unit.Id}")" Variant="ButtonVariant.Secondary" Icon="plus">@T("Додати підрозділ")</Button>
+                <Button Href="@($"/admin/units/{Unit.Id}")" Variant="ButtonVariant.Secondary" Icon="pencil">@T("Редагувати")</Button>
             }
         </Actions>
     </PageHeader>
@@ -38,7 +38,7 @@ else
     <div class="ds-stack ds-stack--lg">
         @if (Unit.Children.Count > 0)
         {
-            <section class="ds-cols ds-stagger" aria-label="Вкладені підрозділи">
+            <section class="ds-cols ds-stagger" aria-label="@T("Вкладені підрозділи")">
                 @foreach (var child in Unit.Children)
                 {
                     <Card Href="@($"/structure/{child.Id}")">
@@ -46,7 +46,7 @@ else
                             <span class="ds-stat__icon"><Icon Name="@child.Type.Icon" /></span>
                             <div class="ds-stack ds-stack--sm">
                                 <span class="ds-strong">@child.Name</span>
-                                <span class="ds-text-sm ds-muted">@child.Type.Name · працівників: @child.StaffCount</span>
+                                <span class="ds-text-sm ds-muted">@child.Type.Name · @T("працівників: {0}", child.StaffCount)</span>
                             </div>
                         </div>
                     </Card>
@@ -55,32 +55,32 @@ else
         }
 
         <div>
-            <h2 class="ds-card__title" style="margin-bottom:1rem">Працівники</h2>
-            <GridToolbar Search="@Search" Placeholder="Пошук працівника" />
+            <h2 class="ds-card__title" style="margin-bottom:1rem">@T("Працівники")</h2>
+            <GridToolbar Search="@Search" Placeholder="@T("Пошук працівника")" />
             @if (Staff is not null)
             {
                 <DataGrid TItem="UnitStaffItem" Items="Staff.Items" Page="Staff.Page" PageSize="Staff.PageSize" TotalCount="Staff.TotalCount"
-                          Caption="Працівники підрозділу" EmptyIcon="users" EmptyTitle="Працівників не знайдено" EmptyText="@null">
+                          Caption="@T("Працівники підрозділу")" EmptyIcon="users" EmptyTitle="@T("Працівників не знайдено")" EmptyText="@null">
                     <Columns>
-                        <GridColumn TItem="UnitStaffItem" Title="Працівник" Primary>
+                        <GridColumn TItem="UnitStaffItem" Title="@T("Працівник")" Primary>
                             <div class="ds-row">
                                 <Avatar Name="@context.FullName" Size="ControlSize.Small" />
                                 <span class="ds-strong">@context.FullName</span>
                                 @if (context.IsLeadership)
                                 {
-                                    <Badge Tone="Tone.Inverse">Керівник</Badge>
+                                    <Badge Tone="Tone.Inverse">@T("Керівник")</Badge>
                                 }
                             </div>
                         </GridColumn>
-                        <GridColumn TItem="UnitStaffItem" Title="Посада">
+                        <GridColumn TItem="UnitStaffItem" Title="@T("Посада")">
                             @context.Position
                             @if (!context.IsPrimary)
                             {
-                                <span class="ds-text-xs ds-muted"> (сумісництво)</span>
+                                <span class="ds-text-xs ds-muted">@(" " + T("(сумісництво)"))</span>
                             }
                         </GridColumn>
-                        <GridColumn TItem="UnitStaffItem" Title="E-mail"><a class="ds-link" href="@($"mailto:{context.Email}")">@context.Email</a></GridColumn>
-                        <GridColumn TItem="UnitStaffItem" Title="Телефон">@(context.PhoneNumber ?? "—")</GridColumn>
+                        <GridColumn TItem="UnitStaffItem" Title="@T("E-mail")"><a class="ds-link" href="@($"mailto:{context.Email}")">@context.Email</a></GridColumn>
+                        <GridColumn TItem="UnitStaffItem" Title="@T("Телефон")">@(context.PhoneNumber ?? "—")</GridColumn>
                     </Columns>
                 </DataGrid>
             }

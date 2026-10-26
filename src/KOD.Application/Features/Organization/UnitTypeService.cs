@@ -2,8 +2,10 @@ using KOD.Application.Abstractions;
 using KOD.Application.Common.Errors;
 using KOD.Application.Common.Models;
 using KOD.Application.Common.Results;
+using KOD.Application.Common.Text;
 using KOD.Domain.Access;
 using KOD.Domain.Audit;
+using KOD.Domain.Localization;
 using KOD.Domain.Organization;
 using Microsoft.EntityFrameworkCore;
 
@@ -35,7 +37,8 @@ internal sealed class UnitTypeService(IApplicationDbContext db, ICurrentUser cur
             return Error.Forbidden();
         }
 
-        return Result<IReadOnlyList<UnitTypeItem>>.Success(await Items().ToListAsync(cancellationToken));
+        var types = await Items().ToListAsync(cancellationToken);
+        return Result<IReadOnlyList<UnitTypeItem>>.Success([.. types.Select(static t => t with { Name = StoredText.Display(t.Name), Description = StoredText.Display(t.Description) })]);
     }
 
     /// <inheritdoc />
@@ -44,7 +47,7 @@ internal sealed class UnitTypeService(IApplicationDbContext db, ICurrentUser cur
             .AsNoTracking()
             .OrderBy(static t => t.SortOrder)
             .ThenBy(static t => t.Name)
-            .Select(static t => new UnitTypeRef(t.Id, t.Name, t.Icon, t.IsOrganization))
+            .Select(static t => new UnitTypeRef(t.Id, StoredText.Display(t.Name), t.Icon, t.IsOrganization))
             .ToListAsync(cancellationToken);
 
     /// <inheritdoc />
@@ -56,7 +59,7 @@ internal sealed class UnitTypeService(IApplicationDbContext db, ICurrentUser cur
         }
 
         var type = await Items().FirstOrDefaultAsync(t => t.Id == id, cancellationToken);
-        return type is null ? Error.NotFound("Тип підрозділу не знайдено.") : type;
+        return type is null ? Error.NotFound(Texts.T("Тип підрозділу не знайдено.")) : type;
     }
 
     /// <inheritdoc />
@@ -65,7 +68,7 @@ internal sealed class UnitTypeService(IApplicationDbContext db, ICurrentUser cur
         ArgumentNullException.ThrowIfNull(command);
         if (!CanEditCatalog)
         {
-            return Error.Forbidden(CatalogMessage);
+            return Error.Forbidden(Texts.T(CatalogMessage));
         }
 
         var validation = await ValidateAsync(null, command, cancellationToken);
@@ -91,13 +94,13 @@ internal sealed class UnitTypeService(IApplicationDbContext db, ICurrentUser cur
         ArgumentNullException.ThrowIfNull(command);
         if (!CanEditCatalog)
         {
-            return Error.Forbidden(CatalogMessage);
+            return Error.Forbidden(Texts.T(CatalogMessage));
         }
 
         var type = await db.UnitTypes.FirstOrDefaultAsync(t => t.Id == id, cancellationToken);
         if (type is null)
         {
-            return Error.NotFound("Тип підрозділу не знайдено.");
+            return Error.NotFound(Texts.T("Тип підрозділу не знайдено."));
         }
 
         var validation = await ValidateAsync(id, command, cancellationToken);
@@ -109,7 +112,7 @@ internal sealed class UnitTypeService(IApplicationDbContext db, ICurrentUser cur
         if (type.IsOrganization && !command.IsOrganization
             && await db.OrganizationUnits.AnyAsync(u => u.TypeId == id && u.ParentId == null, cancellationToken))
         {
-            return Error.Conflict("Цей тип мають організації верхнього рівня, тому він має лишатися організацією. Спершу змініть їхній тип або вкладіть їх в іншу організацію.");
+            return Error.Conflict(Texts.T("Цей тип мають організації верхнього рівня, тому він має лишатися організацією. Спершу змініть їхній тип або вкладіть їх в іншу організацію."));
         }
 
         return await DomainErrors.GuardAsync(async () =>
@@ -126,19 +129,19 @@ internal sealed class UnitTypeService(IApplicationDbContext db, ICurrentUser cur
     {
         if (!CanEditCatalog)
         {
-            return Error.Forbidden(CatalogMessage);
+            return Error.Forbidden(Texts.T(CatalogMessage));
         }
 
         var type = await db.UnitTypes.FirstOrDefaultAsync(t => t.Id == id, cancellationToken);
         if (type is null)
         {
-            return Error.NotFound("Тип підрозділу не знайдено.");
+            return Error.NotFound(Texts.T("Тип підрозділу не знайдено."));
         }
 
         var used = await db.OrganizationUnits.CountAsync(u => u.TypeId == id, cancellationToken);
         if (used > 0)
         {
-            return Error.Conflict($"Тип «{type.Name}» мають підрозділи ({used}). Спершу змініть їхній тип.");
+            return Error.Conflict(Texts.T("Тип «{0}» мають підрозділи ({1}). Спершу змініть їхній тип.", Texts.T(type.Name), used));
         }
 
         db.UnitTypes.Remove(type);
@@ -178,12 +181,12 @@ internal sealed class UnitTypeService(IApplicationDbContext db, ICurrentUser cur
         var code = command.Code?.Trim().ToUpperInvariant() ?? string.Empty;
         if (await db.UnitTypes.AnyAsync(t => t.Code == code && t.Id != id, cancellationToken))
         {
-            return Error.Conflict($"Тип із кодом «{code}» вже існує.");
+            return Error.Conflict(Texts.T("Тип із кодом «{0}» вже існує.", code));
         }
 
         var name = command.Name?.Trim() ?? string.Empty;
         return await db.UnitTypes.AnyAsync(t => t.Name == name && t.Id != id, cancellationToken)
-            ? Error.Conflict($"Тип «{name}» вже існує.")
+            ? Error.Conflict(Texts.T("Тип «{0}» вже існує.", name))
             : null;
     }
 }

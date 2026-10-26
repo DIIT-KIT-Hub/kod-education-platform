@@ -1,3 +1,4 @@
+using KOD.Domain.Localization;
 using Microsoft.AspNetCore.Components;
 
 namespace KOD.Web.DesignSystem.Components;
@@ -17,7 +18,7 @@ public partial class EmptyState
     /// Gets or sets the title.
     /// </summary>
     [Parameter]
-    public string Title { get; set; } = "Тут поки порожньо";
+    public string Title { get; set; } = Texts.T("Тут поки порожньо");
 
     /// <summary>
     /// Gets or sets the explanation.

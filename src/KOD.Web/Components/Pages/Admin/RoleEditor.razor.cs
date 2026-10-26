@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using KOD.Application.Features.Roles;
+using KOD.Domain.Localization;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 
@@ -130,7 +131,7 @@ public partial class RoleEditor
 
             if (ErrorMessage is null)
             {
-                Navigation.NavigateTo($"/admin/roles?toast={Uri.EscapeDataString("Роль збережено")}");
+                Navigation.NavigateTo($"/admin/roles?toast={Uri.EscapeDataString(Texts.T("Роль збережено"))}");
             }
         }
         finally
@@ -145,7 +146,7 @@ public partial class RoleEditor
     /// <returns>A task that completes when deleted.</returns>
     private async Task DeleteAsync()
     {
-        if (Id is not { } id || !await JS.InvokeAsync<bool>("confirm", "Видалити роль?"))
+        if (Id is not { } id || !await JS.InvokeAsync<bool>("confirm", Texts.T("Видалити роль?")))
         {
             return;
         }
@@ -153,7 +154,7 @@ public partial class RoleEditor
         var result = await Roles.DeleteAsync(id, CancellationToken.None);
         if (result.IsSuccess)
         {
-            Navigation.NavigateTo($"/admin/roles?toast={Uri.EscapeDataString("Роль видалено")}");
+            Navigation.NavigateTo($"/admin/roles?toast={Uri.EscapeDataString(Texts.T("Роль видалено"))}");
             return;
         }
 

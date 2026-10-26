@@ -2,38 +2,42 @@
 @attribute [RequirePermission(Permissions.Audit.View)]
 @attribute [StreamRendering]
 
-<PageHeader Title="Журнал аудиту" Subtitle="Входи в систему, зміни прав і облікових записів, дії з документами."
-            Breadcrumbs="@([new("Адміністрування", "/admin"), new("Журнал аудиту")])" />
+<PageHeader Title="@T("Журнал аудиту")" Subtitle="@T("Входи в систему, зміни прав і облікових записів, дії з документами.")"
+            Breadcrumbs="@([new(T("Адміністрування"), "/admin"), new(T("Журнал аудиту"))])" />
 
-<GridToolbar Search="@Search" Placeholder="Користувач, деталі або IP">
-    <select name="action" class="ds-select" aria-label="Категорія" data-autosubmit>
-        <option value="">Усі події</option>
-        <option value="auth." selected="@(Action == "auth.")">Автентифікація</option>
-        <option value="documents." selected="@(Action == "documents.")">Документи</option>
-        <option value="users." selected="@(Action == "users.")">Користувачі</option>
-        <option value="roles." selected="@(Action == "roles.")">Ролі</option>
-        <option value="structure." selected="@(Action == "structure.")">Структура</option>
-        <option value="news." selected="@(Action == "news.")">Новини</option>
+<GridToolbar Search="@Search" Placeholder="@T("Користувач, деталі або IP")">
+    <select name="category" class="ds-select" aria-label="@T("Категорія")" data-autosubmit>
+        <option value="">@T("Усі події")</option>
+        <option value="auth." selected="@(Action == "auth.")">@T("Автентифікація")</option>
+        <option value="documents." selected="@(Action == "documents.")">@T("Документи")</option>
+        <option value="users." selected="@(Action == "users.")">@T("Користувачі")</option>
+        <option value="roles." selected="@(Action == "roles.")">@T("Ролі")</option>
+        <option value="structure." selected="@(Action == "structure.")">@T("Структура")</option>
+        <option value="news." selected="@(Action == "news.")">@T("Новини")</option>
     </select>
-    <input type="date" name="from" class="ds-input" style="width:auto" value="@From?.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture)" aria-label="З дати" />
-    <input type="date" name="to" class="ds-input" style="width:auto" value="@To?.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture)" aria-label="По дату" />
+    <DatePicker Name="from" Value="From" Max="To" Label="@T("З дати")" Placeholder="@T("З дати")" AutoSubmit />
+    <DatePicker Name="to" Value="To" Min="From" Label="@T("По дату")" Placeholder="@T("По дату")" AutoSubmit />
 </GridToolbar>
 
 @if (Result is not null)
 {
     <DataGrid TItem="AuditEntryDto" Items="Result.Items" Page="Result.Page" PageSize="Result.PageSize" TotalCount="Result.TotalCount"
-              SortBy="@SortBy" Descending="Descending" Caption="Журнал аудиту" EmptyIcon="history" EmptyTitle="Подій не знайдено">
+              SortBy="@SortBy" Descending="Descending" Caption="@T("Журнал аудиту")" EmptyIcon="history" EmptyTitle="@T("Подій не знайдено")">
         <Columns>
-            <GridColumn TItem="AuditEntryDto" Title="Час" SortKey="occurred" Class="ds-nowrap">@Display.DateTime(context.OccurredAt)</GridColumn>
-            <GridColumn TItem="AuditEntryDto" Title="Подія" Primary>
+            <GridColumn TItem="AuditEntryDto" Title="@T("Час")" SortKey="occurred" Class="ds-nowrap">@Display.DateTime(context.OccurredAt)</GridColumn>
+            <GridColumn TItem="AuditEntryDto" Title="@T("Подія")" Primary>
                 <span class="ds-strong">@Display.AuditAction(context.Action)</span>
                 @if (context.Details is not null)
                 {
                     <span class="ds-table__secondary">@context.Details</span>
                 }
             </GridColumn>
-            <GridColumn TItem="AuditEntryDto" Title="Користувач">@(context.UserName ?? "—")</GridColumn>
+            <GridColumn TItem="AuditEntryDto" Title="@T("Користувач")">@(context.UserName ?? "—")</GridColumn>
             <GridColumn TItem="AuditEntryDto" Title="IP"><span class="ds-mono">@(context.IpAddress ?? "—")</span></GridColumn>
         </Columns>
     </DataGrid>
+}
+else
+{
+    <GridSkeleton Columns="4" />
 }

@@ -1,0 +1,6 @@
+{
+  "Поле «{0}» є обов'язковим.": "The “{0}” field is required.",
+  "Поле «{0}» не може бути довшим за {1} символів.": "The “{0}” field cannot be longer than {1} characters.",
+  "Код може містити лише латинські літери, цифри, «-» та «_».": "The code may contain only Latin letters, digits, “-” and “_”.",
+  "Непідтримувана мова інтерфейсу.": "Unsupported interface language."
+}

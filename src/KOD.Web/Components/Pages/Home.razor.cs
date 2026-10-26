@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using KOD.Application.Features.Dashboard;
+using KOD.Domain.Localization;
 using KOD.Web.Components.Shared;
 using KOD.Web.Security;
 using Microsoft.AspNetCore.Components;
@@ -62,10 +63,10 @@ public partial class Home
             var hour = int.Parse(Display.DateTime(TimeProvider.GetUtcNow())[^5..^3], Display.Culture);
             return hour switch
             {
-                < 5 => "Доброї ночі,",
-                < 12 => "Доброго ранку,",
-                < 18 => "Доброго дня,",
-                _ => "Доброго вечора,",
+                < 5 => Texts.T("Доброї ночі,"),
+                < 12 => Texts.T("Доброго ранку,"),
+                < 18 => Texts.T("Доброго дня,"),
+                _ => Texts.T("Доброго вечора,"),
             };
         }
     }

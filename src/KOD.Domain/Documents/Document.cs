@@ -1,4 +1,5 @@
 using KOD.Domain.Common;
+using KOD.Domain.Localization;
 using KOD.Domain.Organization;
 using KOD.Domain.Users;
 
@@ -206,7 +207,7 @@ public sealed class Document : AuditableEntity
         var distinct = signerIds.Distinct().ToList();
         if (distinct.Count > MaxSigners)
         {
-            throw new DomainException($"Маршрут не може містити більше {MaxSigners} підписантів.");
+            throw new DomainException(Texts.T("Маршрут не може містити більше {0} підписантів.", MaxSigners));
         }
 
         var unchanged = mode == SigningMode && _signers.OrderBy(static s => s.Order).Select(static s => s.UserId).SequenceEqual(distinct);
@@ -231,12 +232,12 @@ public sealed class Document : AuditableEntity
     {
         if (!IsEditable)
         {
-            throw new DomainException("Надіслати на підпис можна лише чернетку або відхилений документ.");
+            throw new DomainException(Texts.T("Надіслати на підпис можна лише чернетку або відхилений документ."));
         }
 
         if (_signers.Count == 0)
         {
-            throw new DomainException("Додайте щонайменше одного підписанта.");
+            throw new DomainException(Texts.T("Додайте щонайменше одного підписанта."));
         }
 
         foreach (var signer in _signers)
@@ -269,10 +270,10 @@ public sealed class Document : AuditableEntity
     /// </summary>
     public void Withdraw()
     {
-        EnsureStatus(DocumentStatus.InSigning, "Відкликати можна лише документ на підписанні.");
+        EnsureStatus(DocumentStatus.InSigning, Texts.T("Відкликати можна лише документ на підписанні."));
         if (_signatures.Count > 0)
         {
-            throw new DomainException("Документ уже має підписи, його не можна відкликати.");
+            throw new DomainException(Texts.T("Документ уже має підписи, його не можна відкликати."));
         }
 
         Status = DocumentStatus.Draft;
@@ -330,12 +331,12 @@ public sealed class Document : AuditableEntity
 
         if (!IsAwaitingSignatureFrom(userId))
         {
-            throw new DomainException("Документ зараз не очікує вашого підпису.");
+            throw new DomainException(Texts.T("Документ зараз не очікує вашого підпису."));
         }
 
         if (format == SignatureFormat.PAdES && !File.IsPdf)
         {
-            throw new DomainException("Формат PAdES доступний лише для PDF-документів.");
+            throw new DomainException(Texts.T("Формат PAdES доступний лише для PDF-документів."));
         }
 
         var signature = new DocumentSignature(Id, userId, format, packaging, level, keyMedia, file, certificate, signedAt, moment);
@@ -364,7 +365,7 @@ public sealed class Document : AuditableEntity
     {
         if (!IsAwaitingSignatureFrom(userId))
         {
-            throw new DomainException("Документ зараз не очікує вашого рішення.");
+            throw new DomainException(Texts.T("Документ зараз не очікує вашого рішення."));
         }
 
         _signers.First(s => s.UserId == userId && s.Status == SignerStatus.Pending).MarkRejected(reason, moment);
@@ -380,7 +381,7 @@ public sealed class Document : AuditableEntity
     {
         if (Status is not (DocumentStatus.Signed or DocumentStatus.Rejected))
         {
-            throw new DomainException("Архівувати можна лише підписаний або відхилений документ.");
+            throw new DomainException(Texts.T("Архівувати можна лише підписаний або відхилений документ."));
         }
 
         Status = DocumentStatus.Archived;
@@ -393,7 +394,7 @@ public sealed class Document : AuditableEntity
     {
         if (_signatures.Count > 0)
         {
-            throw new DomainException("Документ із підписами не можна видалити — його можна лише архівувати.");
+            throw new DomainException(Texts.T("Документ із підписами не можна видалити — його можна лише архівувати."));
         }
     }
 
@@ -417,7 +418,7 @@ public sealed class Document : AuditableEntity
     {
         if (!IsEditable)
         {
-            throw new DomainException("Змінювати можна лише чернетку або відхилений документ.");
+            throw new DomainException(Texts.T("Змінювати можна лише чернетку або відхилений документ."));
         }
     }
 }

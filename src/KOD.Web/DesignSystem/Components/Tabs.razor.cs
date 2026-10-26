@@ -1,3 +1,4 @@
+using KOD.Domain.Localization;
 using Microsoft.AspNetCore.Components;
 
 namespace KOD.Web.DesignSystem.Components;
@@ -11,7 +12,7 @@ public partial class Tabs
     /// Gets or sets the accessible name of the tab bar.
     /// </summary>
     [Parameter]
-    public string Label { get; set; } = "Розділи";
+    public string Label { get; set; } = Texts.T("Розділи");
 
     /// <summary>
     /// Gets or sets the <see cref="TabLink"/> items.

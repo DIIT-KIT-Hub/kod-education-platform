@@ -1,6 +1,7 @@
 using System.Security.Cryptography;
 using KOD.Application.Abstractions;
 using KOD.Application.Common.Results;
+using KOD.Domain.Localization;
 using KOD.Domain.Users;
 using Microsoft.AspNetCore.Identity;
 
@@ -58,7 +59,7 @@ internal sealed class IdentityService(UserManager<User> userManager) : IIdentity
         // Wrong current passwords count toward the lockout, so a stolen session cannot be used to guess the password.
         if (await userManager.IsLockedOutAsync(user))
         {
-            return Error.Validation("Забагато невдалих спроб. Спробуйте пізніше.", "identity");
+            return Error.Validation(Texts.T("Забагато невдалих спроб. Спробуйте пізніше."), "identity");
         }
 
         var result = await userManager.ChangePasswordAsync(user, currentPassword, newPassword);

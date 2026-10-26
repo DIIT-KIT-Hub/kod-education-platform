@@ -21,4 +21,9 @@
   <ItemGroup>
     <AdditionalFiles Include="$(MSBuildThisFileDirectory)stylecop.json" Link="stylecop.json" />
   </ItemGroup>
+
+  <!-- Interface translations (KOD.Domain.Localization.Texts): Localization/<language>/*.json, keyed by the Ukrainian text. -->
+  <ItemGroup>
+    <EmbeddedResource Include="Localization\**\*.json" LogicalName="kod-i18n:%(RecursiveDir)%(Filename)%(Extension)" WithCulture="false" />
+  </ItemGroup>
 </Project>

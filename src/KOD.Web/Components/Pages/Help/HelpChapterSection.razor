@@ -2,9 +2,9 @@
     <header class="help-chapter__header">
         <span class="help-chapter__icon"><Icon Name="@Chapter.Icon" Size="IconSize.Large" /></span>
         <div class="help-chapter__heading">
-            <span class="help-chapter__number">Розділ @Number</span>
-            <h2 id="@($"{Chapter.Id}-title")" class="help-chapter__title">@Chapter.Title</h2>
-            <p class="ds-muted">@Chapter.Summary</p>
+            <span class="help-chapter__number">@T("Розділ {0}", Number)</span>
+            <h2 id="@($"{Chapter.Id}-title")" class="help-chapter__title">@In("help", Chapter.Title)</h2>
+            <p class="ds-muted">@In("help", Chapter.Summary)</p>
             <div class="ds-cluster"><HelpAccess Permissions="Chapter.Permissions" /></div>
         </div>
     </header>

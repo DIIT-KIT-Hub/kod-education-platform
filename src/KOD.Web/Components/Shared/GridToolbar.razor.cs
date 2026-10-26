@@ -1,3 +1,4 @@
+using KOD.Domain.Localization;
 using Microsoft.AspNetCore.Components;
 
 namespace KOD.Web.Components.Shared;
@@ -18,7 +19,7 @@ public partial class GridToolbar
     /// Gets or sets the placeholder of the search input.
     /// </summary>
     [Parameter]
-    public string Placeholder { get; set; } = "Пошук";
+    public string Placeholder { get; set; } = Texts.T("Пошук");
 
     /// <summary>
     /// Gets or sets query parameters that must survive a new search (e.g. the selected tab).

@@ -1,0 +1,12 @@
+@* A plain (not enhanced) form: the new language needs a full page load, interactive circuits keep the culture they started with. *@
+<form method="post" action="/account/language" class="@Class">
+    <AntiforgeryToken />
+    <input type="hidden" name="returnUrl" value="@ReturnUrl" />
+    @foreach (var language in Languages.All.Where(static l => l != Languages.Current))
+    {
+        <button type="submit" name="language" value="@language" class="ds-btn ds-btn--ghost ds-btn--sm" lang="@language" title="@T("Мова інтерфейсу")">
+            <Icon Name="languages" />
+            <span>@Languages.NativeName(language)</span>
+        </button>
+    }
+</form>

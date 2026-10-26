@@ -1,4 +1,5 @@
 using KOD.Domain.Common;
+using KOD.Domain.Localization;
 
 namespace KOD.Domain.Organization;
 
@@ -130,7 +131,7 @@ public sealed class OrganizationUnit : AuditableEntity
 
         if (parentId == Id || (parentId is { } id && descendantIds.Contains(id)))
         {
-            throw new DomainException("Підрозділ не може бути вкладений сам у себе.");
+            throw new DomainException(Texts.T("Підрозділ не може бути вкладений сам у себе."));
         }
 
         ParentId = parentId;

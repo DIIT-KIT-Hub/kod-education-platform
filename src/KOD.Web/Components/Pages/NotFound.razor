@@ -2,9 +2,9 @@
 @attribute [AllowAnonymous]
 @layout MainLayout
 
-<PageHeader Title="Сторінку не знайдено" />
+<PageHeader Title="@T("Сторінку не знайдено")" />
 <Card>
-    <EmptyState Icon="search" Title="Такої сторінки не існує" Text="Можливо, посилання застаріло або містить помилку.">
-        <Button Href="/" Icon="house">На головну</Button>
+    <EmptyState Icon="search" Title="@T("Такої сторінки не існує")" Text="@T("Можливо, посилання застаріло або містить помилку.")">
+        <Button Href="/" Icon="house">@T("На головну")</Button>
     </EmptyState>
 </Card>

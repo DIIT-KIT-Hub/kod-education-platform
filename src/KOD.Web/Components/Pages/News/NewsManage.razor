@@ -2,47 +2,51 @@
 @attribute [RequirePermission(Permissions.News.Manage)]
 @attribute [StreamRendering]
 
-<PageHeader Title="Керування новинами" Subtitle="Чернетки та опубліковані матеріали організацій, новинами яких ви керуєте."
-            Breadcrumbs="@([new("Новини", "/news"), new("Керування")])">
+<PageHeader Title="@T("Керування новинами")" Subtitle="@T("Чернетки та опубліковані матеріали організацій, новинами яких ви керуєте.")"
+            Breadcrumbs="@([new(T("Новини"), "/news"), new(T("Керування"))])">
     <Actions>
-        <Button Href="/news/manage/new" Icon="plus">Нова публікація</Button>
+        <Button Href="/news/manage/new" Icon="plus">@T("Нова публікація")</Button>
     </Actions>
 </PageHeader>
 
-<GridToolbar Search="@Search" Placeholder="Заголовок або анонс" />
+<GridToolbar Search="@Search" Placeholder="@T("Заголовок або анонс")" />
 
 @if (Result is not null)
 {
     <DataGrid TItem="NewsListItem" Items="Result.Items" Page="Result.Page" PageSize="Result.PageSize" TotalCount="Result.TotalCount"
-              SortBy="@SortBy" Descending="Descending" Caption="Новини" EmptyIcon="newspaper" EmptyTitle="Публікацій ще немає">
+              SortBy="@SortBy" Descending="Descending" Caption="@T("Новини")" EmptyIcon="newspaper" EmptyTitle="@T("Публікацій ще немає")">
         <Columns>
-            <GridColumn TItem="NewsListItem" Title="Заголовок" SortKey="title" Primary>
+            <GridColumn TItem="NewsListItem" Title="@T("Заголовок")" SortKey="title" Primary>
                 <a class="ds-table__primary" href="@($"/news/manage/{context.Id}")">@context.Title</a>
                 <span class="ds-table__secondary">@Display.Text(context.Category)</span>
             </GridColumn>
-            <GridColumn TItem="NewsListItem" Title="Статус">
+            <GridColumn TItem="NewsListItem" Title="@T("Статус")">
                 <div class="ds-cluster">
                     @if (context.PublishedAt is null)
                     {
-                        <Badge Tone="Tone.Dashed">Чернетка</Badge>
+                        <Badge Tone="Tone.Dashed">@T("Чернетка")</Badge>
                     }
                     else
                     {
-                        <Badge Tone="Tone.Inverse" Icon="check">Опубліковано</Badge>
+                        <Badge Tone="Tone.Inverse" Icon="check">@T("Опубліковано")</Badge>
                     }
                     @if (context.IsPinned)
                     {
-                        <Badge Icon="pin">Закріплено</Badge>
+                        <Badge Icon="pin">@T("Закріплено")</Badge>
                     }
                 </div>
             </GridColumn>
-            <GridColumn TItem="NewsListItem" Title="Опубліковано" Class="ds-nowrap">@Display.DateTime(context.PublishedAt)</GridColumn>
-            <GridColumn TItem="NewsListItem" Title="Змінено" SortKey="updated" Class="ds-nowrap">@Display.DateTime(context.UpdatedAt)</GridColumn>
-            <GridColumn TItem="NewsListItem" Title="Організація">@(context.Organization?.Name ?? "Увесь кабінет")</GridColumn>
-            <GridColumn TItem="NewsListItem" Title="Автор">@context.AuthorName</GridColumn>
-            <GridColumn TItem="NewsListItem" Title="Дії" Actions>
-                <Button Href="@($"/news/manage/{context.Id}")" Variant="ButtonVariant.Ghost" Size="ControlSize.Small" Icon="pencil">Редагувати</Button>
+            <GridColumn TItem="NewsListItem" Title="@T("Опубліковано")" Class="ds-nowrap">@Display.DateTime(context.PublishedAt)</GridColumn>
+            <GridColumn TItem="NewsListItem" Title="@T("Змінено")" SortKey="updated" Class="ds-nowrap">@Display.DateTime(context.UpdatedAt)</GridColumn>
+            <GridColumn TItem="NewsListItem" Title="@T("Організація")">@(context.Organization?.Name ?? T("Увесь кабінет"))</GridColumn>
+            <GridColumn TItem="NewsListItem" Title="@T("Автор")">@context.AuthorName</GridColumn>
+            <GridColumn TItem="NewsListItem" Title="@T("Дії")" Actions>
+                <Button Href="@($"/news/manage/{context.Id}")" Variant="ButtonVariant.Ghost" Size="ControlSize.Small" Icon="pencil">@T("Редагувати")</Button>
             </GridColumn>
         </Columns>
     </DataGrid>
+}
+else
+{
+    <GridSkeleton Columns="7" />
 }

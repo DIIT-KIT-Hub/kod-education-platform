@@ -1,11 +1,11 @@
 @page "/account/lockout"
 @attribute [AllowAnonymous]
 
-<PageTitle>Вхід тимчасово заблоковано · КОД</PageTitle>
+<PageTitle>@T("Вхід тимчасово заблоковано · КОД")</PageTitle>
 
 <header class="auth-card__header">
     <span class="ds-stat__icon ds-animate-pop"><Icon Name="timer" /></span>
-    <h1>Забагато спроб</h1>
-    <p>Вхід до облікового запису тимчасово заблоковано на 15 хвилин через кілька невдалих спроб. Спробуйте пізніше або зверніться до адміністратора.</p>
+    <h1>@T("Забагато спроб")</h1>
+    <p>@T("Вхід до облікового запису тимчасово заблоковано на 15 хвилин через кілька невдалих спроб. Спробуйте пізніше або зверніться до адміністратора.")</p>
 </header>
-<Button Href="/account/login" Variant="ButtonVariant.Secondary" Icon="arrow-left">До сторінки входу</Button>
+<Button Href="/account/login" Variant="ButtonVariant.Secondary" Icon="arrow-left">@T("До сторінки входу")</Button>

@@ -3,8 +3,10 @@ using System.Security.Claims;
 using System.Text.Json.Serialization;
 using System.Threading.RateLimiting;
 using KOD.Application.Abstractions;
+using KOD.Domain.Localization;
 using KOD.Infrastructure.Identity;
 using KOD.Web.Identity;
+using KOD.Web.Localization;
 using KOD.Web.Security;
 using KOD.Web.Signing;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -81,9 +83,11 @@ internal static class WebServiceCollectionExtensions
 
             services.AddRequestLocalization(static options =>
             {
-                options.SetDefaultCulture("uk-UA");
-                options.AddSupportedCultures("uk-UA");
-                options.AddSupportedUICultures("uk-UA");
+                var cultures = Languages.All.Select(Languages.CultureOf).ToArray();
+                options.SetDefaultCulture(Languages.CultureOf(Languages.Ukrainian));
+                options.AddSupportedCultures(cultures);
+                options.AddSupportedUICultures(cultures);
+                options.RequestCultureProviders = [new LanguageCultureProvider()];
             });
 
             return services;

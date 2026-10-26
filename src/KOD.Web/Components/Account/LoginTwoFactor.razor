@@ -1,12 +1,12 @@
 @page "/account/login-2fa"
 @attribute [AllowAnonymous]
 
-<PageTitle>Підтвердження входу · КОД</PageTitle>
+<PageTitle>@T("Підтвердження входу · КОД")</PageTitle>
 
 <header class="auth-card__header">
     <span class="ds-stat__icon ds-animate-pop"><Icon Name="smartphone" /></span>
-    <h1>Код з автентифікатора</h1>
-    <p>Відкрийте застосунок-автентифікатор і введіть 6-значний код для облікового запису КОД.</p>
+    <h1>@T("Код з автентифікатора")</h1>
+    <p>@T("Відкрийте застосунок-автентифікатор і введіть 6-значний код для облікового запису КОД.")</p>
 </header>
 
 @if (ErrorMessage is not null)
@@ -18,13 +18,13 @@
     <DataAnnotationsValidator />
     <input type="hidden" name="ReturnUrl" value="@ReturnUrl" />
     <input type="hidden" name="RememberMe" value="@RememberMe.ToString()" />
-    <Field Label="Код підтвердження" For="otp-code">
+    <Field Label="@T("Код підтвердження")" For="otp-code">
         <InputText id="otp-code" @bind-Value="Input.Code" class="ds-input ds-input--code" autocomplete="one-time-code" inputmode="numeric" maxlength="7" placeholder="000000" autofocus />
-        <ValidationMessage For="() => Input.Code" />
+        <ValidationError For="() => Input.Code" />
     </Field>
-    <Button Type="submit" Size="ControlSize.Large" Block Icon="shield-check">Увійти</Button>
+    <Button Type="submit" Size="ControlSize.Large" Block Icon="shield-check">@T("Увійти")</Button>
 </EditForm>
 
 <p class="ds-text-sm ds-muted">
-    Немає доступу до телефону? <a class="ds-link" href="@RecoveryHref">Увійти за резервним кодом</a>.
+    @T("Немає доступу до телефону?") <a class="ds-link" href="@RecoveryHref">@T("Увійти за резервним кодом")</a>.
 </p>

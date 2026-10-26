@@ -17,6 +17,7 @@ namespace KOD.Application.Features.Profile;
 /// <param name="RecoveryCodesLeft">The number of unused recovery codes.</param>
 /// <param name="CreatedAt">The account creation moment.</param>
 /// <param name="LastSignInAt">The last sign-in moment.</param>
+/// <param name="Language">The chosen interface language, or <see langword="null"/> when not chosen.</param>
 public sealed record ProfileDto(
     Guid Id,
     string FullName,
@@ -28,4 +29,5 @@ public sealed record ProfileDto(
     bool TwoFactorEnabled,
     int RecoveryCodesLeft,
     DateTimeOffset CreatedAt,
-    DateTimeOffset? LastSignInAt);
+    DateTimeOffset? LastSignInAt,
+    string? Language);

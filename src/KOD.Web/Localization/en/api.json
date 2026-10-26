@@ -1,0 +1,8 @@
+{
+  "Сесію сторінки оновлено. Оновіть сторінку та повторіть дію.": "The page session has been renewed. Refresh the page and repeat the action.",
+  "Недопустимий перехід стану.": "Invalid state transition.",
+  "Некоректний запит.": "Bad request.",
+  "Сталася внутрішня помилка. Спробуйте пізніше.": "An internal error occurred. Try again later.",
+  "КОД REST API": "KOD REST API",
+  "Потрібно змінити тимчасовий пароль.": "You need to change your temporary password."
+}

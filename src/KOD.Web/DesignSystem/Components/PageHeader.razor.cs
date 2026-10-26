@@ -1,3 +1,4 @@
+using KOD.Domain.Localization;
 using Microsoft.AspNetCore.Components;
 
 namespace KOD.Web.DesignSystem.Components;
@@ -7,11 +8,6 @@ namespace KOD.Web.DesignSystem.Components;
 /// </summary>
 public partial class PageHeader
 {
-    /// <summary>
-    /// The product name appended to the document title.
-    /// </summary>
-    private const string Product = "КОД";
-
     /// <summary>
     /// Gets or sets the page title.
     /// </summary>
@@ -42,4 +38,9 @@ public partial class PageHeader
     /// </summary>
     [Parameter]
     public RenderFragment? ChildContent { get; set; }
+
+    /// <summary>
+    /// Gets the product name appended to the document title.
+    /// </summary>
+    private static string Product => Texts.T("КОД");
 }

@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using KOD.Application.Abstractions;
 using KOD.Domain.Audit;
+using KOD.Domain.Localization;
 using KOD.Domain.Users;
 using KOD.Web.Identity;
 using Microsoft.AspNetCore.Components;
@@ -15,9 +16,9 @@ namespace KOD.Web.Components.Account;
 public partial class Login
 {
     /// <summary>
-    /// The answer for every failed attempt.
+    /// Gets the answer for every failed attempt.
     /// </summary>
-    private const string GenericError = "Неправильна електронна пошта або пароль. Після кількох невдалих спроб вхід тимчасово блокується.";
+    private static string GenericError => Texts.T("Неправильна електронна пошта або пароль. Після кількох невдалих спроб вхід тимчасово блокується.");
 
     /// <summary>
     /// Gets or sets the form model.
@@ -99,7 +100,7 @@ public partial class Login
             if (await UserManager.CheckPasswordAsync(user, Input.Password))
             {
                 await Audit.WriteAsync(AuditActions.SignInFailed, user.Id, user.FullName, "Обліковий запис заблоковано", CancellationToken.None);
-                ErrorMessage = "Обліковий запис заблоковано. Зверніться до адміністратора.";
+                ErrorMessage = Texts.T("Обліковий запис заблоковано. Зверніться до адміністратора.");
             }
             else
             {

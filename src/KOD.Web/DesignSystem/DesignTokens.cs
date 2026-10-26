@@ -16,6 +16,11 @@ public static class DesignTokens
     public const string Script = "js/kod-ds.js";
 
     /// <summary>
+    /// The custom select drop-down and date picker script (loaded after <see cref="Script"/>).
+    /// </summary>
+    public const string PickersScript = "js/kod-pickers.js";
+
+    /// <summary>
     /// The theme bootstrap script that must run in <c>&lt;head&gt;</c> before the first paint.
     /// </summary>
     public const string ThemeScript = "js/kod-theme.js";
@@ -33,4 +38,14 @@ public static class DesignTokens
         "fonts/manrope-cyrillic.woff2",
         "fonts/manrope-latin.woff2",
     ];
+
+    /// <summary>
+    /// Returns the scripts with the client-side translations of a language (<c>window.kodI18n</c>, read by <c>kodDs.t</c>).
+    /// They load before the behaviors scripts. Ukrainian is the source language and needs none.
+    /// </summary>
+    /// <param name="language">The language code.</param>
+    /// <returns>The script paths.</returns>
+    public static IReadOnlyList<string> TranslationScripts(string language) => language == KOD.Domain.Localization.Languages.English
+        ? ["js/i18n/en.js", "js/i18n/en.signing.js", "js/i18n/en.help.js"]
+        : [];
 }

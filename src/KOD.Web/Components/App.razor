@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="uk">
+<html lang="@Languages.Current">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="color-scheme" content="light dark" />
     <meta name="theme-color" content="#000000" />
-    <meta name="description" content="Кабінет організаційних документів — електронний документообіг для будь-якої організації." />
+    <meta name="description" content="@T("Кабінет організаційних документів — електронний документообіг для будь-якої організації.")" />
     <meta name="csrf-token" content="@CsrfToken" />
     <base href="/" />
     <script src="@Assets[DesignTokens.ThemeScript]"></script>
@@ -21,8 +21,13 @@
 </head>
 <body>
     <Routes />
+    @foreach (var script in DesignTokens.TranslationScripts(Languages.Current))
+    {
+        <script src="@Assets[script]"></script>
+    }
     <script src="@Assets["_framework/blazor.web.js"]"></script>
     <script src="@Assets[DesignTokens.Script]"></script>
+    <script src="@Assets[DesignTokens.PickersScript]"></script>
     <script src="@Assets["js/app.js"]" type="module"></script>
 </body>
 </html>

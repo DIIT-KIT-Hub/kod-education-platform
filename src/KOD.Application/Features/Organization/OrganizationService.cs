@@ -4,8 +4,10 @@ using KOD.Application.Common.Errors;
 using KOD.Application.Common.Models;
 using KOD.Application.Common.Paging;
 using KOD.Application.Common.Results;
+using KOD.Application.Common.Text;
 using KOD.Domain.Access;
 using KOD.Domain.Audit;
+using KOD.Domain.Localization;
 using KOD.Domain.Organization;
 using Microsoft.EntityFrameworkCore;
 
@@ -54,7 +56,7 @@ internal sealed class OrganizationService(IApplicationDbContext db, ICurrentUser
         var unit = units.Find(u => u.Id == id);
         if (unit is null)
         {
-            return Error.NotFound("Підрозділ не знайдено.");
+            return Error.NotFound(Texts.T("Підрозділ не знайдено."));
         }
 
         var byId = units.ToDictionary(static u => u.Id);
@@ -105,7 +107,7 @@ internal sealed class OrganizationService(IApplicationDbContext db, ICurrentUser
             .Select(static p => new UnitStaffItem(
                 p.UserId,
                 p.User!.LastName + " " + p.User.FirstName + (p.User.MiddleName != null ? " " + p.User.MiddleName : string.Empty),
-                p.Title ?? p.Role!.Name,
+                p.Title ?? StoredText.Display(p.Role!.Name),
                 p.User.Email!,
                 p.User.PhoneNumber,
                 p.IsPrimary,
@@ -160,7 +162,7 @@ internal sealed class OrganizationService(IApplicationDbContext db, ICurrentUser
                 u.Id,
                 u.Code,
                 u.Name,
-                new UnitTypeRef(u.TypeId, u.Type!.Name, u.Type.Icon, u.Type.IsOrganization),
+                new UnitTypeRef(u.TypeId, StoredText.Display(u.Type!.Name), u.Type.Icon, u.Type.IsOrganization),
                 u.Parent != null ? u.Parent.Name : null,
                 u.IsActive,
                 db.StaffPositions.Count(p => p.OrganizationUnitId == u.Id)))
@@ -217,12 +219,12 @@ internal sealed class OrganizationService(IApplicationDbContext db, ICurrentUser
         {
             if (!scope.IsCabinetWide)
             {
-                return Error.Forbidden(TopLevelMessage);
+                return Error.Forbidden(Texts.T(TopLevelMessage));
             }
         }
         else if (!scope.Contains(parentId))
         {
-            return Error.Forbidden(OutsideScopeMessage);
+            return Error.Forbidden(Texts.T(OutsideScopeMessage));
         }
 
         return await DomainErrors.GuardAsync<Guid>(async () =>
@@ -249,13 +251,13 @@ internal sealed class OrganizationService(IApplicationDbContext db, ICurrentUser
         var unit = await db.OrganizationUnits.FirstOrDefaultAsync(u => u.Id == id, cancellationToken);
         if (unit is null)
         {
-            return Error.NotFound("Підрозділ не знайдено.");
+            return Error.NotFound(Texts.T("Підрозділ не знайдено."));
         }
 
         var scope = await accessScope.GetAdministrationScopeAsync(Permissions.Structure.Manage, cancellationToken);
         if (!scope.Contains(id))
         {
-            return Error.Forbidden(OutsideScopeMessage);
+            return Error.Forbidden(Texts.T(OutsideScopeMessage));
         }
 
         var validation = await ValidateAsync(id, command, cancellationToken);
@@ -270,12 +272,12 @@ internal sealed class OrganizationService(IApplicationDbContext db, ICurrentUser
             {
                 if (!scope.IsCabinetWide)
                 {
-                    return Error.Forbidden(TopLevelMessage);
+                    return Error.Forbidden(Texts.T(TopLevelMessage));
                 }
             }
             else if (!scope.Contains(parentId))
             {
-                return Error.Forbidden(OutsideScopeMessage);
+                return Error.Forbidden(Texts.T(OutsideScopeMessage));
             }
         }
 
@@ -284,7 +286,7 @@ internal sealed class OrganizationService(IApplicationDbContext db, ICurrentUser
             && await db.UnitTypes.AnyAsync(t => t.Id == unit.TypeId && t.IsOrganization, cancellationToken)
             && !await db.UnitTypes.AnyAsync(t => t.Id == command.TypeId && t.IsOrganization, cancellationToken))
         {
-            return Error.Forbidden("Перетворити організацію на звичайний підрозділ може лише адміністратор усіх організацій: це змінює межі організацій і права їхніх працівників.");
+            return Error.Forbidden(Texts.T("Перетворити організацію на звичайний підрозділ може лише адміністратор усіх організацій: це змінює межі організацій і права їхніх працівників."));
         }
 
         var links = await db.OrganizationUnits.AsNoTracking().Select(static u => new { u.Id, u.ParentId }).ToListAsync(cancellationToken);
@@ -338,7 +340,7 @@ internal sealed class OrganizationService(IApplicationDbContext db, ICurrentUser
                 u.Code,
                 u.Name,
                 u.ShortName,
-                new UnitTypeRef(u.TypeId, u.Type!.Name, u.Type.Icon, u.Type.IsOrganization),
+                new UnitTypeRef(u.TypeId, StoredText.Display(u.Type!.Name), u.Type.Icon, u.Type.IsOrganization),
                 u.IsActive,
                 u.SortOrder,
                 db.StaffPositions.Count(p => p.OrganizationUnitId == u.Id)))
@@ -356,23 +358,23 @@ internal sealed class OrganizationService(IApplicationDbContext db, ICurrentUser
         var code = command.Code?.Trim().ToUpperInvariant() ?? string.Empty;
         if (await db.OrganizationUnits.AnyAsync(u => u.Code == code && u.Id != id, cancellationToken))
         {
-            return Error.Conflict($"Підрозділ із кодом «{code}» вже існує.");
+            return Error.Conflict(Texts.T("Підрозділ із кодом «{0}» вже існує.", code));
         }
 
         var type = await db.UnitTypes.AsNoTracking().FirstOrDefaultAsync(t => t.Id == command.TypeId, cancellationToken);
         if (type is null)
         {
-            return Error.Validation("Оберіть тип підрозділу.");
+            return Error.Validation(Texts.T("Оберіть тип підрозділу."));
         }
 
         if (command.ParentId is { } parentId && !await db.OrganizationUnits.AnyAsync(u => u.Id == parentId, cancellationToken))
         {
-            return Error.Validation("Батьківський підрозділ не знайдено.");
+            return Error.Validation(Texts.T("Батьківський підрозділ не знайдено."));
         }
 
         if (command.ParentId is null && !type.IsOrganization)
         {
-            return Error.Validation($"Верхній рівень структури займають лише організації. Оберіть батьківський підрозділ або тип, позначений як організація (тип «{type.Name}» ним не є).");
+            return Error.Validation(Texts.T("Верхній рівень структури займають лише організації. Оберіть батьківський підрозділ або тип, позначений як організація (тип «{0}» ним не є).", Texts.T(type.Name)));
         }
 
         return null;

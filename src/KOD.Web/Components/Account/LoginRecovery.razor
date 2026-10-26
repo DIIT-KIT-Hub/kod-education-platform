@@ -1,12 +1,12 @@
 @page "/account/login-recovery"
 @attribute [AllowAnonymous]
 
-<PageTitle>Резервний код · КОД</PageTitle>
+<PageTitle>@T("Резервний код · КОД")</PageTitle>
 
 <header class="auth-card__header">
     <span class="ds-stat__icon ds-animate-pop"><Icon Name="key-round" /></span>
-    <h1>Вхід за резервним кодом</h1>
-    <p>Використайте один із резервних кодів, отриманих під час підключення автентифікатора. Кожен код діє лише один раз.</p>
+    <h1>@T("Вхід за резервним кодом")</h1>
+    <p>@T("Використайте один із резервних кодів, отриманих під час підключення автентифікатора. Кожен код діє лише один раз.")</p>
 </header>
 
 @if (ErrorMessage is not null)
@@ -16,11 +16,11 @@
 
 <EditForm Model="Input" method="post" OnValidSubmit="VerifyAsync" FormName="login-recovery" class="ds-form" Enhance data-busy-on-submit>
     <DataAnnotationsValidator />
-    <Field Label="Резервний код" For="recovery-code">
+    <Field Label="@T("Резервний код")" For="recovery-code">
         <InputText id="recovery-code" @bind-Value="Input.Code" class="ds-input ds-mono" autocomplete="off" autofocus />
-        <ValidationMessage For="() => Input.Code" />
+        <ValidationError For="() => Input.Code" />
     </Field>
-    <Button Type="submit" Size="ControlSize.Large" Block>Увійти</Button>
+    <Button Type="submit" Size="ControlSize.Large" Block>@T("Увійти")</Button>
 </EditForm>
 
-<p class="ds-text-sm ds-muted">Після входу згенеруйте нові резервні коди у профілі.</p>
+<p class="ds-text-sm ds-muted">@T("Після входу згенеруйте нові резервні коди у профілі.")</p>

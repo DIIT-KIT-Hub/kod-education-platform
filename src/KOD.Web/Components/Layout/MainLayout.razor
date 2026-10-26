@@ -1,14 +1,21 @@
 @inherits LayoutComponentBase
 
-<a class="app-skip" href="#main">Перейти до змісту</a>
+<a class="app-skip" href="#main">@T("Перейти до змісту")</a>
 
 <div class="app-shell">
-    <aside id="app-sidebar" class="app-sidebar" aria-label="Головне меню">
+    <aside id="app-sidebar" class="app-sidebar" aria-label="@T("Головне меню")">
         <a class="app-brand" href="/">
-            <span class="app-brand__mark" aria-hidden="true">К</span>
+            <span class="app-brand__mark" aria-hidden="true">@T("К")</span>
             <span class="app-brand__text">
-                <strong>КОД</strong>
-                <small>Кабінет організаційних<br />документів</small>
+                <strong>@T("КОД")</strong>
+                @if (Languages.Current == Languages.English)
+                {
+                    <small>Organizational<br />Documents Cabinet</small>
+                }
+                else
+                {
+                    <small>Кабінет організаційних<br />документів</small>
+                }
             </span>
         </a>
         <NavMenu Items="Items" />
@@ -18,21 +25,21 @@
     </aside>
 
     @* Collapses the desktop sidebar to an icon rail; outside the aside so its scroll area does not clip the button. *@
-    <button type="button" class="app-sidebar-toggle" data-sidebar-toggle aria-controls="app-sidebar" aria-expanded="true" aria-label="Згорнути меню" title="Згорнути меню">
+    <button type="button" class="app-sidebar-toggle" data-sidebar-toggle aria-controls="app-sidebar" aria-expanded="true" aria-label="@T("Згорнути меню")" title="@T("Згорнути меню")">
         <Icon Name="chevron-left" />
     </button>
 
     <header class="app-topbar">
         <a class="app-brand app-brand--compact" href="/">
-            <span class="app-brand__mark" aria-hidden="true">К</span>
-            <strong>КОД</strong>
+            <span class="app-brand__mark" aria-hidden="true">@T("К")</span>
+            <strong>@T("КОД")</strong>
         </a>
         <div class="ds-row">
-            <button type="button" class="ds-btn ds-btn--ghost ds-btn--icon ds-btn--sm" data-theme-toggle aria-label="Змінити тему">
+            <button type="button" class="ds-btn ds-btn--ghost ds-btn--icon ds-btn--sm" data-theme-toggle aria-label="@T("Змінити тему")">
                 <Icon Name="moon" Class="app-theme-dark" />
                 <Icon Name="sun" Class="app-theme-light" />
             </button>
-            <button type="button" class="ds-btn ds-btn--ghost ds-btn--icon ds-btn--sm" popovertarget="app-drawer" aria-label="Меню">
+            <button type="button" class="ds-btn ds-btn--ghost ds-btn--icon ds-btn--sm" popovertarget="app-drawer" aria-label="@T("Меню")">
                 <Icon Name="menu" />
             </button>
         </div>
@@ -40,8 +47,8 @@
 
     <div id="app-drawer" class="app-drawer" popover>
         <div class="app-drawer__header">
-            <span class="ds-strong">Меню</span>
-            <button type="button" class="ds-btn ds-btn--ghost ds-btn--icon ds-btn--sm" popovertarget="app-drawer" popovertargetaction="hide" aria-label="Закрити меню">
+            <span class="ds-strong">@T("Меню")</span>
+            <button type="button" class="ds-btn ds-btn--ghost ds-btn--icon ds-btn--sm" popovertarget="app-drawer" popovertargetaction="hide" aria-label="@T("Закрити меню")">
                 <Icon Name="x" />
             </button>
         </div>
@@ -55,7 +62,7 @@
         </div>
     </main>
 
-    <nav class="app-tabbar" aria-label="Швидка навігація">
+    <nav class="app-tabbar" aria-label="@T("Швидка навігація")">
         @foreach (var item in Items.Where(static i => i.ShowInTabBar).Take(5))
         {
             <NavLink class="app-tabbar__item" href="@item.Href" Match="@(item.Href == "/" ? NavLinkMatch.All : NavLinkMatch.Prefix)">
@@ -68,6 +75,6 @@
 
 <div id="blazor-error-ui" class="app-error-ui" data-nosnippet>
     <Icon Name="triangle-alert" />
-    <span>Сталася помилка. Оновіть сторінку.</span>
-    <a href="." class="reload ds-btn ds-btn--sm ds-btn--secondary">Оновити</a>
+    <span>@T("Сталася помилка. Оновіть сторінку.")</span>
+    <a href="." class="reload ds-btn ds-btn--sm ds-btn--secondary">@T("Оновити")</a>
 </div>

@@ -49,6 +49,29 @@
 
 .app-page[data-entering="true"] { animation: none; }
 
+/* Next page loading (js/app.js): a progress bar at the top, the current page dimmed. */
+.app-progress {
+    position: fixed;
+    z-index: var(--ds-z-toast);
+    inset: 0 0 auto;
+    height: 3px;
+    background: var(--ds-color-inverse);
+    transform: scaleX(0);
+    transform-origin: left;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--ds-duration-base) var(--ds-ease-out);
+}
+
+html[data-navigating] .app-progress { opacity: 1; animation: app-progress 8s cubic-bezier(0.1, 0.7, 0.2, 1) forwards; }
+/* filter, not opacity: the entrance animation of .app-page holds opacity at 1. */
+html[data-navigating] .app-page { filter: opacity(0.55); transition: filter var(--ds-duration-base) var(--ds-ease-out); }
+
+@keyframes app-progress {
+    from { transform: scaleX(0); }
+    to { transform: scaleX(0.92); }
+}
+
 .app-loading {
     display: flex;
     justify-content: center;
@@ -393,7 +416,7 @@
 
 .auth-card__header { display: grid; gap: var(--ds-space-2); }
 .auth-card__header p { color: var(--ds-color-text-muted); }
-.auth-theme { position: absolute; top: var(--ds-space-4); right: var(--ds-gutter); }
+.auth-tools { position: absolute; top: var(--ds-space-4); right: var(--ds-gutter); display: flex; gap: var(--ds-space-1); align-items: center; }
 .auth-mobile-brand { display: flex; align-items: center; gap: var(--ds-space-3); font-weight: 800; letter-spacing: 0.04em; }
 
 @media (min-width: 1024px) {

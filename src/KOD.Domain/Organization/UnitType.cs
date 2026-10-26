@@ -1,5 +1,6 @@
 using System.Collections.Frozen;
 using KOD.Domain.Common;
+using KOD.Domain.Localization;
 
 namespace KOD.Domain.Organization;
 
@@ -113,7 +114,7 @@ public sealed class UnitType : AuditableEntity
         var iconName = string.IsNullOrWhiteSpace(icon) ? DefaultIcon : icon.Trim();
         if (!Icons.Contains(iconName))
         {
-            throw new DomainException($"Невідома іконка «{iconName}».");
+            throw new DomainException(Texts.T("Невідома іконка «{0}».", iconName));
         }
 
         Code = Guard.Code(code, CodeMaxLength);

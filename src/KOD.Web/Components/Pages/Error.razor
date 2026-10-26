@@ -2,15 +2,15 @@
 @attribute [AllowAnonymous]
 @layout AuthLayout
 
-<PageTitle>Помилка · КОД</PageTitle>
+<PageTitle>@T("Помилка · КОД")</PageTitle>
 
 <header class="auth-card__header">
     <span class="ds-stat__icon ds-animate-pop"><Icon Name="triangle-alert" /></span>
-    <h1>Щось пішло не так</h1>
-    <p>Під час обробки запиту сталася помилка. Ми вже записали її в журнал. Спробуйте ще раз трохи згодом.</p>
+    <h1>@T("Щось пішло не так")</h1>
+    <p>@T("Під час обробки запиту сталася помилка. Ми вже записали її в журнал. Спробуйте ще раз трохи згодом.")</p>
     @if (RequestId is not null)
     {
-        <p class="ds-text-sm ds-muted">Ідентифікатор запиту: <code class="ds-code">@RequestId</code></p>
+        <p class="ds-text-sm ds-muted">@T("Ідентифікатор запиту:") <code class="ds-code">@RequestId</code></p>
     }
 </header>
-<Button Href="/" Icon="house">На головну</Button>
+<Button Href="/" Icon="house">@T("На головну")</Button>

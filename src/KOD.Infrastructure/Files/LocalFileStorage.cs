@@ -4,6 +4,7 @@ using System.Security.Cryptography;
 using System.Text.RegularExpressions;
 using KOD.Application.Abstractions;
 using KOD.Domain.Common;
+using KOD.Domain.Localization;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 
@@ -68,7 +69,7 @@ internal sealed partial class LocalFileStorage : IFileStorage
                     size += read;
                     if (size > maxSize)
                     {
-                        throw new DomainException($"Розмір файлу перевищує {maxSize / 1024 / 1024} МБ.");
+                        throw new DomainException(Texts.T("Розмір файлу перевищує {0} МБ.", maxSize / 1024 / 1024));
                     }
 
                     hash.AppendData(buffer, 0, read);
@@ -78,7 +79,7 @@ internal sealed partial class LocalFileStorage : IFileStorage
 
             if (size == 0)
             {
-                throw new DomainException("Файл порожній.");
+                throw new DomainException(Texts.T("Файл порожній."));
             }
         }
         catch

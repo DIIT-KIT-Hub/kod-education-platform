@@ -3,8 +3,8 @@
 @attribute [RequirePermission(Permissions.Structure.Manage)]
 @rendermode InteractiveServer
 
-<PageHeader Title="@(Id is null ? (Top ? "Нова організація" : "Новий підрозділ") : Model.Name)"
-            Breadcrumbs="@([new("Адміністрування", "/admin"), new("Структура", "/admin/units"), new(Id is null ? "Новий" : "Редагування")])" />
+<PageHeader Title="@(Id is null ? (Top ? T("Нова організація") : T("Новий підрозділ")) : Model.Name)"
+            Breadcrumbs="@([new(T("Адміністрування"), "/admin"), new(T("Структура"), "/admin/units"), new(Id is null ? T("Новий") : T("Редагування"))])" />
 
 @if (Loaded)
 {
@@ -17,23 +17,23 @@
         <DataAnnotationsValidator />
         <Card>
             <fieldset disabled="@ReadOnly" class="ds-form-grid" style="border:0;padding:0;margin:0">
-                <Field Label="Повна назва" For="unit-name" Required Class="ds-span-full">
+                <Field Label="@T("Повна назва")" For="unit-name" Required Class="ds-span-full">
                     <InputText id="unit-name" @bind-Value="Model.Name" class="ds-input" maxlength="256" />
-                    <ValidationMessage For="() => Model.Name" />
+                    <ValidationError For="() => Model.Name" />
                 </Field>
-                <Field Label="Скорочена назва" For="unit-short">
+                <Field Label="@T("Скорочена назва")" For="unit-short">
                     <InputText id="unit-short" @bind-Value="Model.ShortName" class="ds-input" maxlength="64" />
                 </Field>
-                <Field Label="Код" For="unit-code" Required Hint="Латиниця, цифри, «-», «_». Унікальний серед усіх організацій; використовується в імпорті.">
+                <Field Label="@T("Код")" For="unit-code" Required Hint="@T("Латиниця, цифри, «-», «_». Унікальний серед усіх організацій; використовується в імпорті.")">
                     <InputText id="unit-code" @bind-Value="Model.Code" class="ds-input ds-mono" maxlength="32" />
-                    <ValidationMessage For="() => Model.Code" />
+                    <ValidationError For="() => Model.Code" />
                 </Field>
-                <Field Label="Тип" For="unit-type" Required>
+                <Field Label="@T("Тип")" For="unit-type" Required>
                     <InputSelect id="unit-type" @bind-Value="Model.TypeId" class="ds-select">
-                        <option value="">— оберіть тип —</option>
+                        <option value="">@T("— оберіть тип —")</option>
                         @foreach (var group in Types.GroupBy(static t => t.IsOrganization).OrderByDescending(static g => g.Key))
                         {
-                            <optgroup label="@(group.Key ? "Організації" : "Підрозділи")">
+                            <optgroup label="@(group.Key ? T("Організації") : T("Підрозділи"))">
                                 @foreach (var type in group)
                                 {
                                     <option value="@type.Id">@type.Name</option>
@@ -41,17 +41,17 @@
                             </optgroup>
                         }
                     </InputSelect>
-                    <ValidationMessage For="() => Model.TypeId" />
+                    <ValidationError For="() => Model.TypeId" />
                     @if (CabinetWide)
                     {
-                        <span class="ds-hint">Немає потрібного типу? <a class="ds-link" href="/admin/unit-types/new">Додайте його</a>.</span>
+                        <span class="ds-hint">@T("Немає потрібного типу?") <a class="ds-link" href="/admin/unit-types/new">@T("Додайте його")</a>.</span>
                     }
                 </Field>
-                <Field Label="Батьківський підрозділ" For="unit-parent" Hint="@(CanBeTopLevel ? "Без батьківського підрозділу — окрема організація верхнього рівня." : "Лише підрозділи організацій, структурою яких ви керуєте.")">
+                <Field Label="@T("Батьківський підрозділ")" For="unit-parent" Hint="@(CanBeTopLevel ? T("Без батьківського підрозділу — окрема організація верхнього рівня.") : T("Лише підрозділи організацій, структурою яких ви керуєте."))">
                     <InputSelect id="unit-parent" @bind-Value="Model.ParentId" class="ds-select">
                         @if (CanBeTopLevel)
                         {
-                            <option value="">— немає (організація верхнього рівня) —</option>
+                            <option value="">@T("— немає (організація верхнього рівня) —")</option>
                         }
                         @foreach (var unit in Units.Where(u => u.Id != Id))
                         {
@@ -59,20 +59,24 @@
                         }
                     </InputSelect>
                 </Field>
-                <Field Label="Порядок відображення" For="unit-order">
+                <Field Label="@T("Порядок відображення")" For="unit-order">
                     <InputNumber id="unit-order" @bind-Value="Model.SortOrder" class="ds-input" />
                 </Field>
                 <label class="ds-check">
                     <InputCheckbox @bind-Value="Model.IsActive" />
-                    <span class="ds-check__text"><span>Активний</span><span class="ds-check__hint">Неактивні підрозділи зберігаються для історії документів.</span></span>
+                    <span class="ds-check__text"><span>@T("Активний")</span><span class="ds-check__hint">@T("Неактивні підрозділи зберігаються для історії документів.")</span></span>
                 </label>
             </fieldset>
         </Card>
         @if (!ReadOnly)
         {
             <Card Variant="CardVariant.Muted">
-                <Button Type="submit" Block Icon="save" Disabled="Busy">Зберегти</Button>
+                <Button Type="submit" Block Icon="save" Disabled="Busy">@T("Зберегти")</Button>
             </Card>
         }
     </EditForm>
+}
+else
+{
+    <FormSkeleton Cards="1" Fields="4" />
 }

@@ -1,5 +1,6 @@
 using KOD.Domain.Access;
 using KOD.Domain.Common;
+using KOD.Domain.Localization;
 using Microsoft.AspNetCore.Identity;
 
 namespace KOD.Domain.Users;
@@ -100,6 +101,11 @@ public sealed class User : IdentityUser<Guid>, IAuditable
     /// </summary>
     public DateTimeOffset? LastSignInAt { get; private set; }
 
+    /// <summary>
+    /// Gets the chosen interface language (<see cref="Languages"/>), or <see langword="null"/> when the user has not chosen one.
+    /// </summary>
+    public string? Language { get; private set; }
+
     /// <inheritdoc />
     public DateTimeOffset CreatedAt { get; set; }
 
@@ -150,6 +156,13 @@ public sealed class User : IdentityUser<Guid>, IAuditable
     public void RecordSignIn(DateTimeOffset moment) => LastSignInAt = moment;
 
     /// <summary>
+    /// Sets the interface language.
+    /// </summary>
+    /// <param name="language">A supported language code (<see cref="Languages"/>).</param>
+    public void SetLanguage(string language)
+        => Language = Languages.Normalize(language) ?? throw new DomainException(Texts.T("Непідтримувана мова інтерфейсу."));
+
+    /// <summary>
     /// Replaces the positions held by the user.
     /// </summary>
     /// <param name="positions">The new positions (unit, role, title, primary flag).</param>
@@ -160,7 +173,7 @@ public sealed class User : IdentityUser<Guid>, IAuditable
         var list = positions.DistinctBy(static p => (p.UnitId, p.RoleId)).ToList();
         if (list.Count(static p => p.IsPrimary) > 1)
         {
-            throw new DomainException("Основною може бути лише одна посада.");
+            throw new DomainException(Texts.T("Основною може бути лише одна посада."));
         }
 
         _positions.RemoveAll(existing => !list.Exists(p => p.UnitId == existing.OrganizationUnitId && p.RoleId == existing.RoleId));
@@ -197,13 +210,13 @@ public sealed class User : IdentityUser<Guid>, IAuditable
         var denySet = denied.ToHashSet(StringComparer.Ordinal);
         if (grantSet.Overlaps(denySet))
         {
-            throw new DomainException("Дозвіл не може бути одночасно наданий і заборонений.");
+            throw new DomainException(Texts.T("Дозвіл не може бути одночасно наданий і заборонений."));
         }
 
         var unknown = grantSet.Concat(denySet).FirstOrDefault(static p => !Permissions.Codes.Contains(p));
         if (unknown is not null)
         {
-            throw new DomainException($"Невідомий дозвіл «{unknown}».");
+            throw new DomainException(Texts.T("Невідомий дозвіл «{0}».", unknown));
         }
 
         _permissionOverrides.Clear();

@@ -1,7 +1,9 @@
+using KOD.Domain.Localization;
 using KOD.Infrastructure.Files;
 using KOD.Infrastructure.Persistence.Seeding;
 using KOD.Web.Components;
 using KOD.Web.Identity;
+using KOD.Web.Localization;
 using KOD.Web.Security;
 using KOD.Web.Signing;
 using Microsoft.Extensions.FileProviders;
@@ -55,11 +57,13 @@ internal static class WebApplicationExtensions
                 static context => !context.Request.Path.StartsWithSegments("/api", StringComparison.OrdinalIgnoreCase),
                 static branch => branch.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true));
             app.UseHttpsRedirection();
-            app.UseRequestLocalization();
             app.UsePublicUploads();
 
             app.UseRouting();
             app.UseAuthentication();
+
+            // After authentication: the language saved in the user's profile is a claim.
+            app.UseRequestLocalization();
             app.UseAuthorization();
             app.UseRateLimiter();
             app.UseMiddleware<PasswordChangeEnforcementMiddleware>();
@@ -70,13 +74,14 @@ internal static class WebApplicationExtensions
             app.MapEuSignProxy();
             app.MapTrustList();
             app.MapAccountEndpoints();
+            app.MapLanguageEndpoint();
             app.MapRazorComponents<App>()
                 .AddInteractiveServerRenderMode();
 
             if (app.Environment.IsDevelopment())
             {
                 app.MapOpenApi().AllowAnonymous();
-                app.MapScalarApiReference(static options => options.WithTitle("КОД REST API")).AllowAnonymous();
+                app.MapScalarApiReference(static options => options.WithTitle(Texts.T("КОД REST API"))).AllowAnonymous();
             }
 
             return app;

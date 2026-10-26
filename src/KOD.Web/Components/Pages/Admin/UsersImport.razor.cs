@@ -2,6 +2,7 @@ using KOD.Application.Common.Files;
 using KOD.Application.Features.Roles;
 using KOD.Application.Features.Users;
 using KOD.Domain.Access;
+using KOD.Domain.Localization;
 using KOD.Web.Security;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
@@ -19,6 +20,11 @@ public partial class UsersImport
     /// The number of error rows per page.
     /// </summary>
     private const int ErrorPageSize = 20;
+
+    /// <summary>
+    /// The column headers of the import file; part of the file format, so they stay Ukrainian in every interface language.
+    /// </summary>
+    private const string ImportColumns = "Email, Прізвище, Ім'я, По батькові, Телефон, Код підрозділу, Код ролі, Посада, Статус";
 
     /// <summary>
     /// Gets or sets the authentication state.
@@ -120,7 +126,7 @@ public partial class UsersImport
         FileBytes = null;
         if (args.File.Size > FileRules.MaxImportSize)
         {
-            ErrorMessage = "Файл імпорту не може бути більшим за 5 МБ.";
+            ErrorMessage = Texts.T("Файл імпорту не може бути більшим за 5 МБ.");
             return;
         }
 

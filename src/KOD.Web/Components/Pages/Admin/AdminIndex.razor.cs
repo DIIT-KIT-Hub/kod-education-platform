@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using KOD.Domain.Access;
+using KOD.Domain.Localization;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 
@@ -11,17 +12,17 @@ namespace KOD.Web.Components.Pages.Admin;
 public partial class AdminIndex
 {
     /// <summary>
-    /// The administration sections.
+    /// Gets the administration sections (in the interface language).
     /// </summary>
-    private static readonly AdminSection[] Sections =
+    private static AdminSection[] Sections =>
     [
-        new("/admin/users", "Користувачі", "Облікові записи, посади, блокування, скидання пароля та 2FA.", "users", [Permissions.Users.View]),
-        new("/admin/users/import", "Імпорт і експорт", "Масове додавання користувачів з XLSX/CSV та вивантаження.", "file-spreadsheet", [Permissions.Users.Import, Permissions.Users.Export]),
-        new("/admin/roles", "Ролі та дозволи", "Набори дозволів для посад і модулів.", "shield", [Permissions.Roles.Manage]),
-        new("/admin/units", "Структура", "Організації та їхні підрозділи: департаменти, відділи, філії.", "network", [Permissions.Structure.Manage]),
-        new("/admin/unit-types", "Типи підрозділів", "Назви рівнів структури: організація, департамент, відділ, сектор…", "layers", [Permissions.Structure.Manage]),
-        new("/news/manage", "Новини", "Публікації та оголошення.", "newspaper", [Permissions.News.Manage]),
-        new("/admin/audit", "Журнал аудиту", "Входи, зміни прав, підписання документів.", "history", [Permissions.Audit.View]),
+        new("/admin/users", Texts.T("Користувачі"), Texts.T("Облікові записи, посади, блокування, скидання пароля та 2FA."), "users", [Permissions.Users.View]),
+        new("/admin/users/import", Texts.T("Імпорт і експорт"), Texts.T("Масове додавання користувачів з XLSX/CSV та вивантаження."), "file-spreadsheet", [Permissions.Users.Import, Permissions.Users.Export]),
+        new("/admin/roles", Texts.T("Ролі та дозволи"), Texts.T("Набори дозволів для посад і модулів."), "shield", [Permissions.Roles.Manage]),
+        new("/admin/units", Texts.T("Структура"), Texts.T("Організації та їхні підрозділи: департаменти, відділи, філії."), "network", [Permissions.Structure.Manage]),
+        new("/admin/unit-types", Texts.T("Типи підрозділів"), Texts.T("Назви рівнів структури: організація, департамент, відділ, сектор…"), "layers", [Permissions.Structure.Manage]),
+        new("/news/manage", Texts.T("Новини"), Texts.T("Публікації та оголошення."), "newspaper", [Permissions.News.Manage]),
+        new("/admin/audit", Texts.T("Журнал аудиту"), Texts.T("Входи, зміни прав, підписання документів."), "history", [Permissions.Audit.View]),
     ];
 
     /// <summary>

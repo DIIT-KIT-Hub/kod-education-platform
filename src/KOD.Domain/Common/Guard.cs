@@ -1,7 +1,9 @@
+using KOD.Domain.Localization;
+
 namespace KOD.Domain.Common;
 
 /// <summary>
-/// Small set of invariant checks that throw <see cref="DomainException"/> with user-facing messages.
+/// Small set of invariant checks that throw <see cref="DomainException"/> with user-facing messages (in the interface language).
 /// </summary>
 public static class Guard
 {
@@ -10,18 +12,18 @@ public static class Guard
     /// </summary>
     /// <param name="value">The value to check.</param>
     /// <param name="maxLength">The maximum allowed length.</param>
-    /// <param name="fieldName">The user-facing name of the field.</param>
+    /// <param name="fieldName">The user-facing (Ukrainian, translated here) name of the field.</param>
     /// <returns>The trimmed value.</returns>
     public static string Text(string? value, int maxLength, string fieldName)
     {
         var trimmed = value?.Trim();
         if (string.IsNullOrEmpty(trimmed))
         {
-            throw new DomainException($"Поле «{fieldName}» є обов'язковим.");
+            throw new DomainException(Texts.T("Поле «{0}» є обов'язковим.", Texts.T(fieldName)));
         }
 
         return trimmed.Length > maxLength
-            ? throw new DomainException($"Поле «{fieldName}» не може бути довшим за {maxLength} символів.")
+            ? throw new DomainException(Texts.T("Поле «{0}» не може бути довшим за {1} символів.", Texts.T(fieldName), maxLength))
             : trimmed;
     }
 
@@ -36,7 +38,7 @@ public static class Guard
         var code = Text(value, maxLength, "Код").ToUpperInvariant();
         return code.All(static c => char.IsAsciiLetterOrDigit(c) || c is '-' or '_')
             ? code
-            : throw new DomainException("Код може містити лише латинські літери, цифри, «-» та «_».");
+            : throw new DomainException(Texts.T("Код може містити лише латинські літери, цифри, «-» та «_»."));
     }
 
     /// <summary>
@@ -44,7 +46,7 @@ public static class Guard
     /// </summary>
     /// <param name="value">The value to check.</param>
     /// <param name="maxLength">The maximum allowed length.</param>
-    /// <param name="fieldName">The user-facing name of the field.</param>
+    /// <param name="fieldName">The user-facing (Ukrainian, translated here) name of the field.</param>
     /// <returns>The trimmed value or <see langword="null"/>.</returns>
     public static string? OptionalText(string? value, int maxLength, string fieldName)
     {
@@ -55,7 +57,7 @@ public static class Guard
         }
 
         return trimmed.Length > maxLength
-            ? throw new DomainException($"Поле «{fieldName}» не може бути довшим за {maxLength} символів.")
+            ? throw new DomainException(Texts.T("Поле «{0}» не може бути довшим за {1} символів.", Texts.T(fieldName), maxLength))
             : trimmed;
     }
 }

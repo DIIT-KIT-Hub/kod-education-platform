@@ -3,8 +3,10 @@ using KOD.Application.Common.Access;
 using KOD.Application.Common.Errors;
 using KOD.Application.Common.Models;
 using KOD.Application.Common.Results;
+using KOD.Application.Common.Text;
 using KOD.Domain.Access;
 using KOD.Domain.Audit;
+using KOD.Domain.Localization;
 using KOD.Domain.Users;
 using Microsoft.EntityFrameworkCore;
 
@@ -47,14 +49,15 @@ internal sealed class ProfileService(
             user.PhoneNumber,
             user.Positions
                 .OrderByDescending(static p => p.IsPrimary)
-                .Select(static p => new PositionDto(p.OrganizationUnitId, p.OrganizationUnit!.Name, p.RoleId, p.Role!.Name, p.Title, p.IsPrimary))
+                .Select(static p => new PositionDto(p.OrganizationUnitId, p.OrganizationUnit!.Name, p.RoleId, StoredText.Display(p.Role!.Name), p.Title, p.IsPrimary))
                 .ToList(),
             [.. definitions.Select(static d => d.Module).Distinct().Order()],
             definitions,
             user.TwoFactorEnabled,
             await identity.CountRecoveryCodesAsync(user),
             user.CreatedAt,
-            user.LastSignInAt);
+            user.LastSignInAt,
+            user.Language);
     }
 
     /// <inheritdoc />
@@ -75,6 +78,23 @@ internal sealed class ProfileService(
     }
 
     /// <inheritdoc />
+    public async Task<Result> SetLanguageAsync(string language, CancellationToken cancellationToken)
+    {
+        var user = currentUser.Id is { } me ? await db.Users.FirstOrDefaultAsync(u => u.Id == me, cancellationToken) : null;
+        if (user is null)
+        {
+            return Error.Unauthorized();
+        }
+
+        return await DomainErrors.GuardAsync(async () =>
+        {
+            user.SetLanguage(language);
+            await db.SaveChangesAsync(cancellationToken);
+            return Result.Success();
+        });
+    }
+
+    /// <inheritdoc />
     public async Task<Result> ChangePasswordAsync(string currentPassword, string newPassword, CancellationToken cancellationToken)
     {
         var user = await LoadAsync(cancellationToken);
@@ -85,7 +105,7 @@ internal sealed class ProfileService(
 
         if (string.Equals(currentPassword, newPassword, StringComparison.Ordinal))
         {
-            return Error.Validation("Новий пароль має відрізнятися від поточного.");
+            return Error.Validation(Texts.T("Новий пароль має відрізнятися від поточного."));
         }
 
         user.RequirePasswordChange(false);
@@ -112,13 +132,13 @@ internal sealed class ProfileService(
 
         if (!user.TwoFactorEnabled)
         {
-            return Error.Validation("Спочатку підключіть застосунок-автентифікатор.");
+            return Error.Validation(Texts.T("Спочатку підключіть застосунок-автентифікатор."));
         }
 
         if (!await identity.VerifyAuthenticatorCodeAsync(user, authenticatorCode))
         {
             await audit.WriteAsync(AuditActions.SignInFailed, user.Id, user.FullName, "Неправильний код підтвердження (нові резервні коди)", cancellationToken);
-            return Error.Validation("Код неправильний або вже використаний. Введіть наступний код із застосунку.");
+            return Error.Validation(Texts.T("Код неправильний або вже використаний. Введіть наступний код із застосунку."));
         }
 
         var codes = await identity.GenerateRecoveryCodesAsync(user);
@@ -157,7 +177,7 @@ internal sealed class ProfileService(
         var deleted = await db.UserSessions.Where(s => s.Id == sessionId && s.UserId == me).ExecuteDeleteAsync(cancellationToken);
         if (deleted == 0)
         {
-            return Error.NotFound("Сесію не знайдено.");
+            return Error.NotFound(Texts.T("Сесію не знайдено."));
         }
 
         await audit.WriteAsync(AuditActions.SessionRevoked, me, currentUser.DisplayName, "Завершено одну сесію", cancellationToken);
@@ -175,7 +195,7 @@ internal sealed class ProfileService(
         // Without a known current session the filter below would also end the session of this request.
         if (sessionContext.CurrentSessionId is not { } current)
         {
-            return Error.Validation("Не вдалося визначити поточну сесію. Увійдіть знову та повторіть дію.");
+            return Error.Validation(Texts.T("Не вдалося визначити поточну сесію. Увійдіть знову та повторіть дію."));
         }
 
         var deleted = await db.UserSessions.Where(s => s.UserId == me && s.Id != current).ExecuteDeleteAsync(cancellationToken);

@@ -4,6 +4,7 @@ using KOD.Application.Common.Results;
 using KOD.Application.Features.Documents;
 using KOD.Domain.Access;
 using KOD.Domain.Documents;
+using KOD.Domain.Localization;
 using KOD.Web.Api.Contracts;
 using KOD.Web.Security;
 using Microsoft.AspNetCore.Mvc;
@@ -111,7 +112,7 @@ public sealed class DocumentsController(IDocumentService documents) : ApiControl
             DocumentStatus.InSigning => await documents.SubmitAsync(id, cancellationToken),
             DocumentStatus.Draft => await documents.WithdrawAsync(id, cancellationToken),
             DocumentStatus.Archived => await documents.ArchiveAsync(id, cancellationToken),
-            _ => Result.Failure(Error.Validation("Недопустимий перехід стану.")),
+            _ => Result.Failure(Error.Validation(Texts.T("Недопустимий перехід стану."))),
         };
 
         return FromResult(result);

@@ -1,5 +1,6 @@
 using KOD.Application.Common.Paging;
 using KOD.Application.Features.Profile;
+using KOD.Domain.Localization;
 using Microsoft.AspNetCore.Components;
 
 namespace KOD.Web.Components.Pages.Profile;
@@ -77,7 +78,7 @@ public partial class ProfileSessions
     {
         if (string.IsNullOrEmpty(userAgent))
         {
-            return "Невідомий пристрій";
+            return Texts.T("Невідомий пристрій");
         }
 
         var browser = userAgent switch
@@ -87,7 +88,7 @@ public partial class ProfileSessions
             _ when userAgent.Contains("Firefox/", StringComparison.Ordinal) => "Firefox",
             _ when userAgent.Contains("Chrome/", StringComparison.Ordinal) => "Chrome",
             _ when userAgent.Contains("Safari/", StringComparison.Ordinal) => "Safari",
-            _ => "Браузер",
+            _ => Texts.T("Браузер"),
         };
         var os = userAgent switch
         {
@@ -96,7 +97,7 @@ public partial class ProfileSessions
             _ when userAgent.Contains("iPhone", StringComparison.Ordinal) || userAgent.Contains("iPad", StringComparison.Ordinal) => "iOS",
             _ when userAgent.Contains("Mac OS", StringComparison.Ordinal) => "macOS",
             _ when userAgent.Contains("Linux", StringComparison.Ordinal) => "Linux",
-            _ => "ОС невідома",
+            _ => Texts.T("ОС невідома"),
         };
         return $"{browser} · {os}";
     }
@@ -109,7 +110,7 @@ public partial class ProfileSessions
     private async Task RevokeAsync(Guid id)
     {
         await ProfileService.RevokeSessionAsync(id, CancellationToken.None);
-        Navigation.NavigateTo($"/profile/sessions?toast={Uri.EscapeDataString("Сесію завершено")}");
+        Navigation.NavigateTo($"/profile/sessions?toast={Uri.EscapeDataString(Texts.T("Сесію завершено"))}");
     }
 
     /// <summary>
@@ -120,6 +121,6 @@ public partial class ProfileSessions
     {
         var result = await ProfileService.RevokeOtherSessionsAsync(CancellationToken.None);
         var count = result.IsSuccess ? result.Value : 0;
-        Navigation.NavigateTo($"/profile/sessions?toast={Uri.EscapeDataString($"Завершено сесій: {count}")}");
+        Navigation.NavigateTo($"/profile/sessions?toast={Uri.EscapeDataString(Texts.T("Завершено сесій: {0}", count))}");
     }
 }

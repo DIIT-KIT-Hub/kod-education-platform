@@ -13,32 +13,56 @@
  *
  * The key file and password are read into memory, transferred to the Web Worker and never sent to the server.
  * All dynamic text is inserted with textContent (no innerHTML), so certificate fields cannot inject markup.
+ * Interface texts are Ukrainian keys translated into the page language with `t()` (kodDs.t, catalog js/i18n/en.signing.js).
  */
 
 import { createWizard } from "/js/kod-wizard.js";
 import { EUSignClient } from "./eusign-client.js";
 
-/** Signature formats supported by euscp.ex.js. */
-const FORMATS = [
-    { id: "CAdES", title: "CAdES", hint: "*.p7s · будь-який файл", packaging: true, multiple: false },
-    { id: "XAdES", title: "XAdES", hint: "*.xml · один або кілька файлів", packaging: true, multiple: true },
-    { id: "PAdES", title: "PAdES", hint: "підписаний PDF", packaging: false, multiple: false, pdf: true },
-    { id: "AsicS", title: "ASiC-S", hint: "контейнер з 1 файлом", packaging: false, multiple: false },
-    { id: "AsicE", title: "ASiC-E", hint: "контейнер з кількох файлів", packaging: false, multiple: true },
+/**
+ * Translates a Ukrainian interface text into the page language (see kod-ds.js).
+ * @param {string} text The Ukrainian text.
+ * @param {...(string|number)} args The placeholder values.
+ * @returns {string} The text.
+ */
+const t = (text, ...args) => (window.kodDs ? window.kodDs.t(text, ...args) : text);
+
+/**
+ * Returns the locale for dates and numbers of the page language.
+ * @returns {string} The locale.
+ */
+const locale = () => (document.documentElement.lang === "en" ? "en-GB" : "uk-UA");
+
+/**
+ * Signature formats supported by euscp.ex.js (built on use, so the texts follow the page language).
+ * @returns {{id: string, title: string, hint: string, packaging: boolean, multiple: boolean, pdf?: boolean}[]} The formats.
+ */
+const FORMATS = () => [
+    { id: "CAdES", title: "CAdES", hint: t("*.p7s · будь-який файл"), packaging: true, multiple: false },
+    { id: "XAdES", title: "XAdES", hint: t("*.xml · один або кілька файлів"), packaging: true, multiple: true },
+    { id: "PAdES", title: "PAdES", hint: t("підписаний PDF"), packaging: false, multiple: false, pdf: true },
+    { id: "AsicS", title: "ASiC-S", hint: t("контейнер з 1 файлом"), packaging: false, multiple: false },
+    { id: "AsicE", title: "ASiC-E", hint: t("контейнер з кількох файлів"), packaging: false, multiple: true },
 ];
 
-/** Packaging options of CAdES and XAdES. */
-const PACKAGINGS = [
-    { id: "Detached", title: "Окремо від даних", hint: "файл підпису поруч із документом" },
-    { id: "Enveloped", title: "Разом з даними", hint: "дані всередині підпису" },
+/**
+ * Packaging options of CAdES and XAdES.
+ * @returns {{id: string, title: string, hint: string}[]} The options.
+ */
+const PACKAGINGS = () => [
+    { id: "Detached", title: t("Окремо від даних"), hint: t("файл підпису поруч із документом") },
+    { id: "Enveloped", title: t("Разом з даними"), hint: t("дані всередині підпису") },
 ];
 
-/** Signature levels (ETSI baseline profiles). */
-const LEVELS = [
-    { id: "B-B", title: "B-B — базовий" },
-    { id: "B-T", title: "B-T — з позначкою часу" },
-    { id: "B-LT", title: "B-LT — з даними для довготривалої перевірки" },
-    { id: "B-LTA", title: "B-LTA — архівний" },
+/**
+ * Signature levels (ETSI baseline profiles).
+ * @returns {{id: string, title: string}[]} The levels.
+ */
+const LEVELS = () => [
+    { id: "B-B", title: t("B-B — базовий") },
+    { id: "B-T", title: t("B-T — з позначкою часу") },
+    { id: "B-LT", title: t("B-LT — з даними для довготривалої перевірки") },
+    { id: "B-LTA", title: t("B-LTA — архівний") },
 ];
 
 /** File key extensions. */
@@ -218,7 +242,7 @@ function formatDate(iso) {
         return "—";
     }
 
-    return new Intl.DateTimeFormat("uk-UA", { dateStyle: "long", timeStyle: "short", timeZone: "Europe/Kyiv" }).format(new Date(iso));
+    return new Intl.DateTimeFormat(locale(), { dateStyle: "long", timeStyle: "short", timeZone: "Europe/Kyiv" }).format(new Date(iso));
 }
 
 /**
@@ -227,7 +251,7 @@ function formatDate(iso) {
  * @returns {string} The formatted size.
  */
 function formatSize(bytes) {
-    const units = ["Б", "КБ", "МБ"];
+    const units = [t("Б"), t("КБ"), t("МБ")];
     let value = bytes;
     let unit = 0;
     while (value >= 1024 && unit < units.length - 1) {
@@ -235,7 +259,7 @@ function formatSize(bytes) {
         unit++;
     }
 
-    return `${new Intl.NumberFormat("uk-UA", { maximumFractionDigits: unit === 0 ? 0 : 1 }).format(value)} ${units[unit]}`;
+    return `${new Intl.NumberFormat(locale(), { maximumFractionDigits: unit === 0 ? 0 : 1 }).format(value)} ${units[unit]}`;
 }
 
 /**
@@ -262,7 +286,7 @@ function descriptionList(rows) {
  */
 function downloadLink(bytes, fileName) {
     const url = URL.createObjectURL(new Blob([bytes], { type: "application/octet-stream" }));
-    const link = /** @type {HTMLAnchorElement} */ (el("a", { class: "ds-btn", href: url, download: fileName }, icon("download"), el("span", { text: `Завантажити ${fileName}` })));
+    const link = /** @type {HTMLAnchorElement} */ (el("a", { class: "ds-btn", href: url, download: fileName }, icon("download"), el("span", { text: t("Завантажити {0}", fileName) })));
     window.setTimeout(() => URL.revokeObjectURL(url), 10 * 60 * 1000);
     return link;
 }
@@ -332,15 +356,15 @@ function keyPanel(client, ready, onKey) {
     let owner = null;
 
     const root = el("div", { class: "ds-stack" });
-    const provider = /** @type {HTMLSelectElement} */ (el("select", { class: "ds-select" }, el("option", { value: "-1", text: "Визначити автоматично" })));
+    const provider = /** @type {HTMLSelectElement} */ (el("select", { class: "ds-select" }, el("option", { value: "-1", text: t("Визначити автоматично") })));
     ready.then((info) => info.providers.forEach((name, index) => provider.append(el("option", { value: String(index), text: name })))).catch(() => { });
 
     const password = /** @type {HTMLInputElement} */ (el("input", { type: "password", class: "ds-input", autocomplete: "off", spellcheck: "false" }));
     const status = el("div", { class: "ds-stack ds-stack--sm", "aria-live": "polite" });
-    const readButton = button("Зчитати ключ", { icon: "key-round", type: "submit", block: true });
+    const readButton = button(t("Зчитати ключ"), { icon: "key-round", type: "submit", block: true });
 
     const keyDrop = dropzone({
-        title: "Оберіть файл ключа",
+        title: t("Оберіть файл ключа"),
         hint: "Key-6.dat, *.pfx, *.p12, *.pk8, *.jks, *.zs2",
         accept: KEY_ACCEPT,
         onFiles: (files) => {
@@ -349,7 +373,7 @@ function keyPanel(client, ready, onKey) {
     });
 
     const certificateDrop = dropzone({
-        title: "Файли сертифікатів",
+        title: t("Файли сертифікатів"),
         hint: "*.cer, *.crt, *.p7b",
         accept: ".cer,.crt,.der,.p7b",
         multiple: true,
@@ -362,17 +386,17 @@ function keyPanel(client, ready, onKey) {
         "form",
         { class: "ds-stack" },
         segmented("key-type", [
-            { id: "file", title: "Файловий ключ", hint: "Key-6.dat, PFX, JKS…" },
-            { id: "token", title: "Захищений носій", hint: "потребує агента ІІТ", disabled: true },
-            { id: "cloud", title: "Хмарний / Дія.Підпис", hint: "потребує сервісу надавача", disabled: true },
+            { id: "file", title: t("Файловий ключ"), hint: "Key-6.dat, PFX, JKS…" },
+            { id: "token", title: t("Захищений носій"), hint: t("потребує агента ІІТ"), disabled: true },
+            { id: "cloud", title: t("Хмарний / Дія.Підпис"), hint: t("потребує сервісу надавача"), disabled: true },
         ], "file", () => { }),
-        field("Надавач електронних довірчих послуг", provider),
+        field(t("Надавач електронних довірчих послуг"), provider),
         keyDrop.root,
-        field("Пароль захисту ключа", password, "Пароль не передається на сервер."),
+        field(t("Пароль захисту ключа"), password, t("Пароль не передається на сервер.")),
         el(
             "details",
             {},
-            el("summary", { class: "ds-link ds-text-sm", text: "Додати сертифікати вручну (якщо надавач не підтримує автоматичне завантаження)" }),
+            el("summary", { class: "ds-link ds-text-sm", text: t("Додати сертифікати вручну (якщо надавач не підтримує автоматичне завантаження)") }),
             el("div", { class: "ds-stack ds-stack--sm" }, certificateDrop.root)),
         status,
         readButton));
@@ -406,12 +430,12 @@ function keyPanel(client, ready, onKey) {
         event.preventDefault();
         status.replaceChildren();
         if (!keyFile) {
-            status.append(alert("danger", "Оберіть файл ключа."));
+            status.append(alert("danger", t("Оберіть файл ключа.")));
             return;
         }
 
         if (!password.value) {
-            status.append(alert("danger", "Введіть пароль."));
+            status.append(alert("danger", t("Введіть пароль.")));
             password.focus();
             return;
         }
@@ -451,15 +475,15 @@ function ownerCard(owner, onForget) {
     return el(
         "div",
         { class: "sign-owner" },
-        el("div", { class: "ds-row ds-row--between" }, el("strong", { text: owner.fullName || owner.commonName }), button("Інший ключ", { variant: "ghost", icon: "refresh-cw", onclick: onForget })),
+        el("div", { class: "ds-row ds-row--between" }, el("strong", { text: owner.fullName || owner.commonName }), button(t("Інший ключ"), { variant: "ghost", icon: "refresh-cw", onclick: onForget })),
         descriptionList([
-            ["Організація", owner.organization],
-            ["Посада", owner.title],
-            ["РНОКПП", owner.drfo],
-            ["ЄДРПОУ", owner.edrpou],
-            ["Надавач", owner.issuer],
-            ["Сертифікат №", owner.serial],
-            ["Дійсний до", owner.validTo ? formatDate(owner.validTo) : null],
+            [t("Організація"), owner.organization],
+            [t("Посада"), owner.title],
+            [t("РНОКПП"), owner.drfo],
+            [t("ЄДРПОУ"), owner.edrpou],
+            [t("Надавач"), owner.issuer],
+            [t("Сертифікат №"), owner.serial],
+            [t("Дійсний до"), owner.validTo ? formatDate(owner.validTo) : null],
         ]));
 }
 
@@ -474,13 +498,13 @@ function parametersBlock(context) {
     let level = "B-LT";
     const root = el("div", { class: "ds-stack" });
 
-    const levelSelect = /** @type {HTMLSelectElement} */ (el("select", { class: "ds-select" }, ...LEVELS.map((l) => el("option", { value: l.id, text: l.title, selected: l.id === level }))));
+    const levelSelect = /** @type {HTMLSelectElement} */ (el("select", { class: "ds-select" }, ...LEVELS().map((l) => el("option", { value: l.id, text: l.title, selected: l.id === level }))));
     levelSelect.addEventListener("change", () => {
         level = levelSelect.value;
     });
 
     const render = () => {
-        const available = FORMATS.map((f) => ({
+        const available = FORMATS().map((f) => ({
             id: f.id,
             title: f.title,
             hint: f.hint,
@@ -490,25 +514,25 @@ function parametersBlock(context) {
             format = available.find((f) => !f.disabled)?.id || "CAdES";
         }
 
-        const meta = FORMATS.find((f) => f.id === format);
+        const meta = FORMATS().find((f) => f.id === format);
         root.replaceChildren(
-            field("Формат підпису", segmented("sign-format", available, format, (value) => {
+            field(t("Формат підпису"), segmented("sign-format", available, format, (value) => {
                 format = value;
                 render();
             })),
             meta.packaging
-                ? field("Тип підпису", segmented("sign-packaging", PACKAGINGS, packaging, (value) => {
+                ? field(t("Тип підпису"), segmented("sign-packaging", PACKAGINGS(), packaging, (value) => {
                     packaging = value;
                 }))
                 : null,
-            field("Рівень підпису", levelSelect, "B-LT містить усе для перевірки через роки (рекомендовано)."));
+            field(t("Рівень підпису"), levelSelect, t("B-LT містить усе для перевірки через роки (рекомендовано).")));
     };
 
     render();
     return {
         root,
         refresh: render,
-        value: () => ({ format, packaging: FORMATS.find((f) => f.id === format).packaging ? packaging : "Enveloped", level }),
+        value: () => ({ format, packaging: FORMATS().find((f) => f.id === format).packaging ? packaging : "Enveloped", level }),
     };
 }
 
@@ -518,10 +542,10 @@ function parametersBlock(context) {
  * @returns {[string, string][]} Term/value pairs.
  */
 function describeParameters(value) {
-    const format = FORMATS.find((f) => f.id === value.format);
+    const format = FORMATS().find((f) => f.id === value.format);
     return [
-        ["Формат", format.packaging ? `${format.title} · ${PACKAGINGS.find((p) => p.id === value.packaging).title.toLowerCase()}` : format.title],
-        ["Рівень", LEVELS.find((l) => l.id === value.level).title],
+        [t("Формат"), format.packaging ? `${format.title} · ${PACKAGINGS().find((p) => p.id === value.packaging).title.toLowerCase()}` : format.title],
+        [t("Рівень"), LEVELS().find((l) => l.id === value.level).title],
     ];
 }
 
@@ -552,24 +576,24 @@ function renderSigning(host, client, visible, ready) {
             .then(() => fetch(host.dataset.fileUrl, { credentials: "same-origin" }))
             .then((response) => {
                 if (!response.ok) {
-                    throw new Error("Не вдалося завантажити файл документа.");
+                    throw new Error(t("Не вдалося завантажити файл документа."));
                 }
 
                 return response.arrayBuffer();
             })
             .then(async (buffer) => {
                 if (buffer.byteLength > MAX_DATA_BYTES) {
-                    throw new Error("Файл завеликий для підписання у браузері (понад 25 МБ).");
+                    throw new Error(t("Файл завеликий для підписання у браузері (понад 25 МБ)."));
                 }
 
                 const actual = await sha256(buffer);
                 if (actual !== (host.dataset.fileSha256 || "").toLowerCase()) {
-                    throw new Error("Контрольна сума файлу не збігається з зареєстрованою. Підписання заборонено.");
+                    throw new Error(t("Контрольна сума файлу не збігається з зареєстрованою. Підписання заборонено."));
                 }
 
                 files = [{ name: host.dataset.fileName, size: buffer.byteLength, buffer }];
                 integrityOk = true;
-                dataStatus.replaceChildren(alert("outline", "SHA-256 файлу збігається з зареєстрованим у системі.", "Цілісність підтверджено"));
+                dataStatus.replaceChildren(alert("outline", t("SHA-256 файлу збігається з зареєстрованим у системі."), t("Цілісність підтверджено")));
                 wizard.refresh();
             })
             .catch((error) => dataStatus.replaceChildren(alert("danger", error.message)));
@@ -577,8 +601,8 @@ function renderSigning(host, client, visible, ready) {
         const fileList = el("ul", { class: "sign-files" });
         dataBody.append(
             dropzone({
-                title: "Перетягніть файли або натисніть, щоб обрати",
-                hint: "До 25 МБ кожен. Для XAdES та ASiC-E можна обрати кілька файлів; для PAdES — PDF.",
+                title: t("Перетягніть файли або натисніть, щоб обрати"),
+                hint: t("До 25 МБ кожен. Для XAdES та ASiC-E можна обрати кілька файлів; для PAdES — PDF."),
                 multiple: true,
                 listed: true,
                 onFiles: (selected) => {
@@ -586,7 +610,7 @@ function renderSigning(host, client, visible, ready) {
                     files = selected.map((file) => ({ name: file.name, size: file.size, file }));
                     if (selected.some((f) => f.size > MAX_DATA_BYTES)) {
                         files = [];
-                        dataStatus.append(alert("danger", "Файли понад 25 МБ не підтримуються."));
+                        dataStatus.append(alert("danger", t("Файли понад 25 МБ не підтримуються.")));
                     }
 
                     fileList.replaceChildren(...files.map((f) => el(
@@ -615,26 +639,26 @@ function renderSigning(host, client, visible, ready) {
     const keyBody = el("div", { class: "ds-stack" }, summary, key.root, signStatus);
 
     const wizard = createWizard({
-        label: documentMode ? "Підписання документа" : "Підписання файлів",
+        label: documentMode ? t("Підписання документа") : t("Підписання файлів"),
         steps: [
             {
                 id: "data",
-                title: documentMode ? "Документ" : "Файли",
-                description: documentMode ? "Перевіряємо, що файл не змінювався після реєстрації." : "Файли не залишають ваш пристрій.",
+                title: documentMode ? t("Документ") : t("Файли"),
+                description: documentMode ? t("Перевіряємо, що файл не змінювався після реєстрації.") : t("Файли не залишають ваш пристрій."),
                 body: dataBody,
                 isComplete: () => integrityOk && files.length > 0,
             },
             {
                 id: "parameters",
-                title: "Параметри",
-                description: "Формат і рівень кваліфікованого електронного підпису.",
+                title: t("Параметри"),
+                description: t("Формат і рівень кваліфікованого електронного підпису."),
                 body: parameters.root,
                 onEnter: () => parameters.refresh(),
             },
             {
                 id: "key",
-                title: "Ключ і підпис",
-                description: "Ключ зчитується лише у вашому браузері; пароль не передається на сервер.",
+                title: t("Ключ і підпис"),
+                description: t("Ключ зчитується лише у вашому браузері; пароль не передається на сервер."),
                 body: keyBody,
                 isComplete: () => key.owner() !== null,
                 onEnter: () => {
@@ -642,7 +666,7 @@ function renderSigning(host, client, visible, ready) {
                     parameters.refresh();
                     signStatus.replaceChildren();
                     summary.replaceChildren(descriptionList([
-                        documentMode ? ["Документ", host.dataset.documentTitle || host.dataset.fileName] : ["Файли", files.map((f) => f.name).join(", ")],
+                        documentMode ? [t("Документ"), host.dataset.documentTitle || host.dataset.fileName] : [t("Файли"), files.map((f) => f.name).join(", ")],
                         ...describeParameters(parameters.value()),
                     ]));
                 },
@@ -653,7 +677,7 @@ function renderSigning(host, client, visible, ready) {
             },
         ],
         finish: {
-            text: "Підписати",
+            text: t("Підписати"),
             icon: "signature",
             run: () => sign(),
         },
@@ -669,7 +693,7 @@ function renderSigning(host, client, visible, ready) {
 
         // Re-check every precondition here instead of trusting the state of the buttons.
         if (!owner || files.length === 0 || !integrityOk) {
-            signStatus.append(alert("danger", "Не всі кроки завершено."));
+            signStatus.append(alert("danger", t("Не всі кроки завершено.")));
             return;
         }
 
@@ -689,16 +713,16 @@ function renderSigning(host, client, visible, ready) {
 
         await key.forget();
         if (documentMode) {
-            host.replaceChildren(successCard("Документ підписано", "Підпис збережено. Сторінка оновиться автоматично."));
+            host.replaceChildren(successCard(t("Документ підписано"), t("Підпис збережено. Сторінка оновиться автоматично.")));
             window.setTimeout(() => window.location.reload(), 1400);
             return;
         }
 
         host.replaceChildren(successCard(
-            "Файл підписано",
+            t("Файл підписано"),
             `${describeParameters({ format, packaging, level }).map(([, value]) => value).join(" · ")} · ${formatDate(signed.signedAt)}`,
             downloadLink(signed.signature, fileName),
-            button("Підписати інші файли", { variant: "ghost", icon: "refresh-cw", onclick: () => renderSigning(host, client, visible, ready) })));
+            button(t("Підписати інші файли"), { variant: "ghost", icon: "refresh-cw", onclick: () => renderSigning(host, client, visible, ready) })));
     }
 
     // Closing the signing dialog releases the key; the chosen data and parameters stay.
@@ -776,7 +800,7 @@ async function uploadSignature(host, owner, signed, meta) {
     });
 
     if (!response.ok) {
-        let message = "Не вдалося зберегти підпис.";
+        let message = t("Не вдалося зберегти підпис.");
         try {
             const problem = await response.json();
             message = problem.detail || problem.title || message;
@@ -798,7 +822,7 @@ function renderVerification(host, client, ready) {
     /** @type {File[]} */
     let files = [];
     const result = el("div", { class: "ds-stack", "aria-live": "polite" });
-    const verifyButton = button("Перевірити", { icon: "badge-check", block: true, disabled: true });
+    const verifyButton = button(t("Перевірити"), { icon: "badge-check", block: true, disabled: true });
 
     verifyButton.addEventListener("click", async () => {
         result.replaceChildren();
@@ -807,19 +831,19 @@ function renderVerification(host, client, ready) {
             await ready;
             const payload = await Promise.all(files.map(async (f) => ({ name: f.name, data: await f.arrayBuffer() })));
             const report = await client.verify(payload);
-            result.append(alert("inverse", `${report.format} · ${report.container} · підписів: ${report.signatures.length}`, "Підписи дійсні"));
+            result.append(alert("inverse", t("{0} · {1} · підписів: {2}", report.format, report.container, report.signatures.length), t("Підписи дійсні")));
             report.signatures.forEach((signature, index) => {
                 result.append(el(
                     "div",
                     { class: "sign-owner" },
                     el("strong", { text: `${index + 1}. ${signature.signer.fullName || signature.signer.commonName}` }),
                     descriptionList([
-                        ["Організація", signature.signer.organization],
-                        ["РНОКПП", signature.signer.drfo],
-                        ["ЄДРПОУ", signature.signer.edrpou],
-                        ["Надавач", signature.signer.issuer],
-                        ["Сертифікат №", signature.signer.serial],
-                        [signature.isTimeStamp ? "Позначка часу" : "Час підпису", formatDate(signature.time)],
+                        [t("Організація"), signature.signer.organization],
+                        [t("РНОКПП"), signature.signer.drfo],
+                        [t("ЄДРПОУ"), signature.signer.edrpou],
+                        [t("Надавач"), signature.signer.issuer],
+                        [t("Сертифікат №"), signature.signer.serial],
+                        [signature.isTimeStamp ? t("Позначка часу") : t("Час підпису"), formatDate(signature.time)],
                     ])));
             });
 
@@ -827,7 +851,7 @@ function renderVerification(host, client, ready) {
                 result.append(downloadLink(report.content.data, report.content.name));
             }
         } catch (error) {
-            result.append(alert("danger", error.message || String(error), "Перевірку не пройдено"));
+            result.append(alert("danger", error.message || String(error), t("Перевірку не пройдено")));
         } finally {
             verifyButton.removeAttribute("data-busy");
         }
@@ -835,8 +859,8 @@ function renderVerification(host, client, ready) {
 
     host.replaceChildren(
         dropzone({
-            title: "Перетягніть підписаний файл (і за потреби оригінал)",
-            hint: "*.p7s, *.pdf, *.xml, *.asics, *.asice. Для зовнішнього підпису додайте також підписаний файл.",
+            title: t("Перетягніть підписаний файл (і за потреби оригінал)"),
+            hint: t("*.p7s, *.pdf, *.xml, *.asics, *.asice. Для зовнішнього підпису додайте також підписаний файл."),
             multiple: true,
             onFiles: (selected) => {
                 files = selected;
@@ -867,7 +891,7 @@ export function mountSigningPanel(host) {
         observer.observe(host);
     });
     const ready = visible.then(() => client.init());
-    ready.catch((error) => host.prepend(alert("danger", error.message || "Не вдалося завантажити бібліотеку підпису.")));
+    ready.catch((error) => host.prepend(alert("danger", error.message || t("Не вдалося завантажити бібліотеку підпису."))));
 
     if (host.dataset.mode === "verify") {
         renderVerification(host, client, ready);

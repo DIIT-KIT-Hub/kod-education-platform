@@ -1,56 +1,57 @@
+using KOD.Domain.Localization;
 using Microsoft.AspNetCore.Identity;
 
 namespace KOD.Infrastructure.Identity;
 
 /// <summary>
-/// Ukrainian messages for ASP.NET Core Identity validation errors.
+/// Messages for ASP.NET Core Identity validation errors in the interface language (Ukrainian source texts translated by <see cref="Texts"/>).
 /// </summary>
 internal sealed class UkrainianIdentityErrorDescriber : IdentityErrorDescriber
 {
     /// <inheritdoc />
-    public override IdentityError DefaultError() => Describe(nameof(DefaultError), "Сталася невідома помилка.");
+    public override IdentityError DefaultError() => Describe(nameof(DefaultError), Texts.T("Сталася невідома помилка."));
 
     /// <inheritdoc />
-    public override IdentityError ConcurrencyFailure() => Describe(nameof(ConcurrencyFailure), "Дані змінено іншим користувачем, спробуйте ще раз.");
+    public override IdentityError ConcurrencyFailure() => Describe(nameof(ConcurrencyFailure), Texts.T("Дані змінено іншим користувачем, спробуйте ще раз."));
 
     /// <inheritdoc />
-    public override IdentityError PasswordMismatch() => Describe(nameof(PasswordMismatch), "Неправильний поточний пароль.");
+    public override IdentityError PasswordMismatch() => Describe(nameof(PasswordMismatch), Texts.T("Неправильний поточний пароль."));
 
     /// <inheritdoc />
-    public override IdentityError InvalidToken() => Describe(nameof(InvalidToken), "Недійсний або прострочений код.");
+    public override IdentityError InvalidToken() => Describe(nameof(InvalidToken), Texts.T("Недійсний або прострочений код."));
 
     /// <inheritdoc />
-    public override IdentityError InvalidEmail(string? email) => Describe(nameof(InvalidEmail), $"Адреса «{email}» некоректна.");
+    public override IdentityError InvalidEmail(string? email) => Describe(nameof(InvalidEmail), Texts.T("Адреса «{0}» некоректна.", email));
 
     /// <inheritdoc />
-    public override IdentityError InvalidUserName(string? userName) => Describe(nameof(InvalidUserName), $"Логін «{userName}» некоректний.");
+    public override IdentityError InvalidUserName(string? userName) => Describe(nameof(InvalidUserName), Texts.T("Логін «{0}» некоректний.", userName));
 
     /// <inheritdoc />
-    public override IdentityError DuplicateEmail(string email) => Describe(nameof(DuplicateEmail), $"Адреса «{email}» вже використовується.");
+    public override IdentityError DuplicateEmail(string email) => Describe(nameof(DuplicateEmail), Texts.T("Адреса «{0}» вже використовується.", email));
 
     /// <inheritdoc />
-    public override IdentityError DuplicateUserName(string userName) => Describe(nameof(DuplicateUserName), $"Логін «{userName}» вже використовується.");
+    public override IdentityError DuplicateUserName(string userName) => Describe(nameof(DuplicateUserName), Texts.T("Логін «{0}» вже використовується.", userName));
 
     /// <inheritdoc />
-    public override IdentityError PasswordTooShort(int length) => Describe(nameof(PasswordTooShort), $"Пароль має містити щонайменше {length} символів.");
+    public override IdentityError PasswordTooShort(int length) => Describe(nameof(PasswordTooShort), Texts.T("Пароль має містити щонайменше {0} символів.", length));
 
     /// <inheritdoc />
-    public override IdentityError PasswordRequiresUniqueChars(int uniqueChars) => Describe(nameof(PasswordRequiresUniqueChars), $"Пароль має містити щонайменше {uniqueChars} різних символів.");
+    public override IdentityError PasswordRequiresUniqueChars(int uniqueChars) => Describe(nameof(PasswordRequiresUniqueChars), Texts.T("Пароль має містити щонайменше {0} різних символів.", uniqueChars));
 
     /// <inheritdoc />
-    public override IdentityError PasswordRequiresNonAlphanumeric() => Describe(nameof(PasswordRequiresNonAlphanumeric), "Пароль має містити спеціальний символ.");
+    public override IdentityError PasswordRequiresNonAlphanumeric() => Describe(nameof(PasswordRequiresNonAlphanumeric), Texts.T("Пароль має містити спеціальний символ."));
 
     /// <inheritdoc />
-    public override IdentityError PasswordRequiresDigit() => Describe(nameof(PasswordRequiresDigit), "Пароль має містити цифру.");
+    public override IdentityError PasswordRequiresDigit() => Describe(nameof(PasswordRequiresDigit), Texts.T("Пароль має містити цифру."));
 
     /// <inheritdoc />
-    public override IdentityError PasswordRequiresLower() => Describe(nameof(PasswordRequiresLower), "Пароль має містити малу латинську літеру.");
+    public override IdentityError PasswordRequiresLower() => Describe(nameof(PasswordRequiresLower), Texts.T("Пароль має містити малу латинську літеру."));
 
     /// <inheritdoc />
-    public override IdentityError PasswordRequiresUpper() => Describe(nameof(PasswordRequiresUpper), "Пароль має містити велику латинську літеру.");
+    public override IdentityError PasswordRequiresUpper() => Describe(nameof(PasswordRequiresUpper), Texts.T("Пароль має містити велику латинську літеру."));
 
     /// <inheritdoc />
-    public override IdentityError RecoveryCodeRedemptionFailed() => Describe(nameof(RecoveryCodeRedemptionFailed), "Резервний код недійсний.");
+    public override IdentityError RecoveryCodeRedemptionFailed() => Describe(nameof(RecoveryCodeRedemptionFailed), Texts.T("Резервний код недійсний."));
 
     /// <summary>
     /// Creates an error.

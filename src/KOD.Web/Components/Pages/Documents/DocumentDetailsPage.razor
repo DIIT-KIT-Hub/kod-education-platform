@@ -3,62 +3,62 @@
 
 @if (Document is null)
 {
-    <PageHeader Title="Документ" Breadcrumbs="@([new("Документи", "/documents"), new("Документ")])" />
+    <PageHeader Title="@T("Документ")" Breadcrumbs="@([new(T("Документи"), "/documents"), new(T("Документ"))])" />
     <Card>
-        <EmptyState Icon="file-x" Title="Документ не знайдено" Text="@(ErrorMessage ?? "Документ не існує або у вас немає до нього доступу.")">
-            <Button Href="/documents" Icon="arrow-left">До реєстру</Button>
+        <EmptyState Icon="file-x" Title="@T("Документ не знайдено")" Text="@(ErrorMessage ?? T("Документ не існує або у вас немає до нього доступу."))">
+            <Button Href="/documents" Icon="arrow-left">@T("До реєстру")</Button>
         </EmptyState>
     </Card>
 }
 else
 {
-    <PageHeader Title="@Document.Title" Breadcrumbs="@([new("Документи", "/documents"), new($"№ {Document.RegistrationNumber}")])">
+    <PageHeader Title="@Document.Title" Breadcrumbs="@([new(T("Документи"), "/documents"), new(T("№ {0}", Document.RegistrationNumber))])">
         <ChildContent>
             <div class="ds-cluster">
                 <DocumentStatusBadge Status="Document.Status" />
                 <Badge>@Display.Text(Document.Kind)</Badge>
-                <Badge Tone="Tone.Dashed">№ @Document.RegistrationNumber</Badge>
+                <Badge Tone="Tone.Dashed">@T("№ {0}", Document.RegistrationNumber)</Badge>
             </div>
         </ChildContent>
         <Actions>
             @if (Document.Actions.CanSign)
             {
-                <button type="button" class="ds-btn" data-dialog-open="sign-dialog"><Icon Name="signature" /> <span>Підписати</span></button>
+                <button type="button" class="ds-btn" data-dialog-open="sign-dialog"><Icon Name="signature" /> <span>@T("Підписати")</span></button>
             }
             @if (Document.Actions.CanReject)
             {
-                <button type="button" class="ds-btn ds-btn--secondary" data-dialog-open="reject-dialog"><Icon Name="ban" /> <span>Відмовити</span></button>
+                <button type="button" class="ds-btn ds-btn--secondary" data-dialog-open="reject-dialog"><Icon Name="ban" /> <span>@T("Відмовити")</span></button>
             }
             @if (Document.Actions.CanEdit)
             {
-                <Button Href="@($"/documents/{Document.Id}/edit")" Variant="ButtonVariant.Secondary" Icon="pencil">Редагувати</Button>
+                <Button Href="@($"/documents/{Document.Id}/edit")" Variant="ButtonVariant.Secondary" Icon="pencil">@T("Редагувати")</Button>
             }
             @if (Document.Actions.CanSubmit)
             {
-                <form method="post" @formname="document-submit" @onsubmit="SubmitAsync" data-confirm="Надіслати документ на підписання?">
+                <form method="post" @formname="document-submit" @onsubmit="SubmitAsync" data-confirm="@T("Надіслати документ на підписання?")">
                     <AntiforgeryToken />
-                    <Button Type="submit" Icon="send">На підписання</Button>
+                    <Button Type="submit" Icon="send">@T("На підписання")</Button>
                 </form>
             }
             @if (Document.Actions.CanWithdraw)
             {
-                <form method="post" @formname="document-withdraw" @onsubmit="WithdrawAsync" data-confirm="Відкликати документ у чернетки?">
+                <form method="post" @formname="document-withdraw" @onsubmit="WithdrawAsync" data-confirm="@T("Відкликати документ у чернетки?")">
                     <AntiforgeryToken />
-                    <Button Type="submit" Variant="ButtonVariant.Secondary" Icon="undo-2">Відкликати</Button>
+                    <Button Type="submit" Variant="ButtonVariant.Secondary" Icon="undo-2">@T("Відкликати")</Button>
                 </form>
             }
             @if (Document.Actions.CanArchive)
             {
-                <form method="post" @formname="document-archive" @onsubmit="ArchiveAsync" data-confirm="Перемістити документ в архів?">
+                <form method="post" @formname="document-archive" @onsubmit="ArchiveAsync" data-confirm="@T("Перемістити документ в архів?")">
                     <AntiforgeryToken />
-                    <Button Type="submit" Variant="ButtonVariant.Secondary" Icon="archive">В архів</Button>
+                    <Button Type="submit" Variant="ButtonVariant.Secondary" Icon="archive">@T("В архів")</Button>
                 </form>
             }
             @if (Document.Actions.CanDelete)
             {
-                <form method="post" @formname="document-delete" @onsubmit="DeleteAsync" data-confirm="Видалити документ остаточно?">
+                <form method="post" @formname="document-delete" @onsubmit="DeleteAsync" data-confirm="@T("Видалити документ остаточно?")">
                     <AntiforgeryToken />
-                    <Button Type="submit" Variant="ButtonVariant.Ghost" Icon="trash-2" IconOnly aria-label="Видалити" title="Видалити" />
+                    <Button Type="submit" Variant="ButtonVariant.Ghost" Icon="trash-2" IconOnly aria-label="@T("Видалити")" title="@T("Видалити")" />
                 </form>
             }
         </Actions>
@@ -73,47 +73,47 @@ else
         <div class="ds-stack ds-stack--lg ds-stagger">
             @if (Document.Actions.CanSign)
             {
-                <Alert Tone="Tone.Inverse" Icon="signature" Title="Документ очікує вашого підпису">
-                    Перевірте файл і натисніть «Підписати». Ключ і пароль використовуються лише у вашому браузері.
+                <Alert Tone="Tone.Inverse" Icon="signature" Title="@T("Документ очікує вашого підпису")">
+                    @T("Перевірте файл і натисніть «Підписати». Ключ і пароль використовуються лише у вашому браузері.")
                 </Alert>
             }
 
             @if (Document.Status == DocumentStatus.Rejected && Document.Actions.CanEdit)
             {
-                <Alert Tone="Tone.Outline" Icon="ban" Title="Документ відхилено">
-                    Причину вказано в маршруті підписання. Натисніть «Редагувати», щоб виправити файл, реквізити чи маршрут, або «На підписання», щоб надіслати документ повторно без змін. Ті, хто вже підписав поточний файл, не підписуватимуть його знову.
+                <Alert Tone="Tone.Outline" Icon="ban" Title="@T("Документ відхилено")">
+                    @T("Причину вказано в маршруті підписання. Натисніть «Редагувати», щоб виправити файл, реквізити чи маршрут, або «На підписання», щоб надіслати документ повторно без змін. Ті, хто вже підписав поточний файл, не підписуватимуть його знову.")
                 </Alert>
             }
 
-            <Card Title="Файл документа">
+            <Card Title="@T("Файл документа")">
                 <div class="doc-file">
                     <span class="doc-file__icon"><Icon Name="file-text" /></span>
                     <div class="ds-stack ds-stack--sm" style="flex:1;min-width:0">
                         <span class="doc-file__name">@Document.File.FileName</span>
                         <span class="ds-text-sm ds-muted">@Display.FileSize(Document.File.Size) · @Document.File.ContentType</span>
                     </div>
-                    <Button Href="@($"/api/v1/documents/{Document.Id}/file")" Variant="ButtonVariant.Secondary" Size="ControlSize.Small" Icon="download" download>Завантажити</Button>
+                    <Button Href="@($"/api/v1/documents/{Document.Id}/file")" Variant="ButtonVariant.Secondary" Size="ControlSize.Small" Icon="download" download>@T("Завантажити")</Button>
                 </div>
                 <p class="ds-text-xs ds-muted">SHA-256: <span class="ds-mono">@Document.File.Sha256</span></p>
             </Card>
 
-            <Card Title="Відомості">
+            <Card Title="@T("Відомості")">
                 <dl class="ds-dl">
-                    <dt>Реєстраційний номер</dt>
+                    <dt>@T("Реєстраційний номер")</dt>
                     <dd>@Document.RegistrationNumber</dd>
-                    <dt>Вид</dt>
+                    <dt>@T("Вид")</dt>
                     <dd>@Display.Text(Document.Kind)</dd>
-                    <dt>Підрозділ</dt>
+                    <dt>@T("Підрозділ")</dt>
                     <dd><a class="ds-link" href="@($"/structure/{Document.Unit.Id}")">@Document.Unit.Name</a></dd>
-                    <dt>Автор</dt>
+                    <dt>@T("Автор")</dt>
                     <dd>@Document.Author.FullName</dd>
-                    <dt>Порядок підписання</dt>
+                    <dt>@T("Порядок підписання")</dt>
                     <dd>@Display.Text(Document.SigningMode)</dd>
-                    <dt>Створено</dt>
+                    <dt>@T("Створено")</dt>
                     <dd>@Display.DateTime(Document.CreatedAt)</dd>
-                    <dt>Надіслано на підпис</dt>
+                    <dt>@T("Надіслано на підпис")</dt>
                     <dd>@Display.DateTime(Document.SubmittedAt)</dd>
-                    <dt>Завершено</dt>
+                    <dt>@T("Завершено")</dt>
                     <dd>@Display.DateTime(Document.CompletedAt)</dd>
                 </dl>
                 @if (Document.Description is not null)
@@ -123,10 +123,10 @@ else
                 }
             </Card>
 
-            <Card Title="Підписи" Subtitle="Кваліфіковані електронні підписи, накладені на документ">
+            <Card Title="@T("Підписи")" Subtitle="@T("Кваліфіковані електронні підписи, накладені на документ")">
                 @if (Document.Signatures.Count == 0)
                 {
-                    <EmptyState Icon="signature" Title="Підписів ще немає" />
+                    <EmptyState Icon="signature" Title="@T("Підписів ще немає")" />
                 }
                 else
                 {
@@ -141,26 +141,33 @@ else
                                         @Display.Text(signature.Format)@(signature.Level is null ? null : $" {signature.Level}") · @Display.Text(signature.Packaging) · @Display.DateTime(signature.SignedAt)
                                     </span>
                                     <span class="ds-list__meta">
-                                        @signature.Certificate.IssuerName · сертифікат № <span class="ds-mono">@signature.Certificate.SerialNumber</span>
+                                        @signature.Certificate.IssuerName · @T("сертифікат №") <span class="ds-mono">@signature.Certificate.SerialNumber</span>
                                         @if (signature.Certificate.SubjectTaxId is not null)
                                         {
                                             <span> · @signature.Certificate.SubjectTaxId</span>
                                         }
                                     </span>
                                 </div>
-                                <Button Href="@($"/api/v1/documents/{Document.Id}/signatures/{signature.Id}/file")" Variant="ButtonVariant.Ghost" Size="ControlSize.Small" Icon="download" IconOnly aria-label="Завантажити підпис" title="@signature.FileName" download />
+                                <Button Href="@($"/api/v1/documents/{Document.Id}/signatures/{signature.Id}/file")" Variant="ButtonVariant.Ghost" Size="ControlSize.Small" Icon="download" IconOnly aria-label="@T("Завантажити підпис")" title="@signature.FileName" download />
                             </li>
                         }
                     </ul>
-                    <p class="ds-text-xs ds-muted">Перевірити будь-який підпис можна на сторінці <a class="ds-link" href="/signing/verify">«Перевірка підпису»</a>.</p>
+                    @if (Languages.Current == Languages.English)
+                    {
+                        <p class="ds-text-xs ds-muted">You can verify any signature on the <a class="ds-link" href="/signing/verify">Signature verification</a> page.</p>
+                    }
+                    else
+                    {
+                        <p class="ds-text-xs ds-muted">Перевірити будь-який підпис можна на сторінці <a class="ds-link" href="/signing/verify">«Перевірка підпису»</a>.</p>
+                    }
                 }
             </Card>
         </div>
 
-        <Card Title="Маршрут підписання" Subtitle="@Display.Text(Document.SigningMode)">
+        <Card Title="@T("Маршрут підписання")" Subtitle="@Display.Text(Document.SigningMode)">
             @if (Document.Signers.Count == 0)
             {
-                <EmptyState Icon="users" Title="Підписантів не додано" />
+                <EmptyState Icon="users" Title="@T("Підписантів не додано")" />
             }
             else
             {
@@ -185,7 +192,7 @@ else
 
     @if (Document.Actions.CanSign)
     {
-        <Dialog Id="sign-dialog" Title="Підписання документа" Description="@($"№ {Document.RegistrationNumber} · {Document.File.FileName}")" Wide>
+        <Dialog Id="sign-dialog" Title="@T("Підписання документа")" Description="@($"{T("№ {0}", Document.RegistrationNumber)} · {Document.File.FileName}")" Wide>
             <SigningHost Mode="document" DocumentId="Document.Id" DocumentTitle="@Document.Title" FileName="@Document.File.FileName"
                          FileSha256="@Document.File.Sha256" IsPdf="Document.File.IsPdf" />
         </Dialog>
@@ -193,16 +200,16 @@ else
 
     @if (Document.Actions.CanReject)
     {
-        <Dialog Id="reject-dialog" Title="Відмова в підписанні" Description="Автор побачить причину й зможе виправити документ.">
+        <Dialog Id="reject-dialog" Title="@T("Відмова в підписанні")" Description="@T("Автор побачить причину й зможе виправити документ.")">
             <EditForm Model="Reject" FormName="document-reject" OnValidSubmit="RejectAsync" class="ds-form" Enhance>
                 <DataAnnotationsValidator />
-                <Field Label="Причина" For="reject-reason" Required>
+                <Field Label="@T("Причина")" For="reject-reason" Required>
                     <InputTextArea id="reject-reason" @bind-Value="Reject.Reason" class="ds-textarea" maxlength="1000" />
-                    <ValidationMessage For="() => Reject.Reason" />
+                    <ValidationError For="() => Reject.Reason" />
                 </Field>
                 <div class="ds-dialog__actions">
-                    <button type="button" class="ds-btn ds-btn--secondary" data-dialog-close>Скасувати</button>
-                    <Button Type="submit" Variant="ButtonVariant.Danger" Icon="ban">Відмовити</Button>
+                    <button type="button" class="ds-btn ds-btn--secondary" data-dialog-close>@T("Скасувати")</button>
+                    <Button Type="submit" Variant="ButtonVariant.Danger" Icon="ban">@T("Відмовити")</Button>
                 </div>
             </EditForm>
         </Dialog>

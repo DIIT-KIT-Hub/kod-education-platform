@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using KOD.Domain.Access;
+using KOD.Domain.Localization;
 using KOD.Web.Security;
 
 namespace KOD.Web.Components.Layout;
@@ -15,18 +16,18 @@ namespace KOD.Web.Components.Layout;
 public sealed record NavigationItem(string Href, string Text, string Icon, IReadOnlyList<string> Permissions, bool ShowInTabBar)
 {
     /// <summary>
-    /// Gets all navigation entries in display order.
+    /// Gets all navigation entries in display order, labelled in the current UI language.
     /// </summary>
-    public static IReadOnlyList<NavigationItem> All { get; } =
+    public static IReadOnlyList<NavigationItem> All =>
     [
-        new("/", "Головна", "house", [], true),
-        new("/documents", "Документи", "file-text", [KOD.Domain.Access.Permissions.Documents.View], true),
-        new("/signing", "Підписання", "signature", [KOD.Domain.Access.Permissions.Signing.Use], true),
-        new("/news", "Новини", "newspaper", [KOD.Domain.Access.Permissions.News.View], true),
-        new("/structure", "Структура", "network", [KOD.Domain.Access.Permissions.Structure.View], false),
+        new("/", Texts.T("Головна"), "house", [], true),
+        new("/documents", Texts.T("Документи"), "file-text", [KOD.Domain.Access.Permissions.Documents.View], true),
+        new("/signing", Texts.T("Підписання"), "signature", [KOD.Domain.Access.Permissions.Signing.Use], true),
+        new("/news", Texts.T("Новини"), "newspaper", [KOD.Domain.Access.Permissions.News.View], true),
+        new("/structure", Texts.T("Структура"), "network", [KOD.Domain.Access.Permissions.Structure.View], false),
         new(
             "/admin",
-            "Адміністрування",
+            Texts.T("Адміністрування"),
             "shield",
             [
                 KOD.Domain.Access.Permissions.Users.View,
@@ -36,8 +37,8 @@ public sealed record NavigationItem(string Href, string Text, string Icon, IRead
                 KOD.Domain.Access.Permissions.Audit.View,
             ],
             false),
-        new("/profile", "Профіль", "user", [], true),
-        new("/help", "Довідка", "book-open", [], false),
+        new("/profile", Texts.T("Профіль"), "user", [], true),
+        new("/help", Texts.T("Довідка"), "book-open", [], false),
     ];
 
     /// <summary>

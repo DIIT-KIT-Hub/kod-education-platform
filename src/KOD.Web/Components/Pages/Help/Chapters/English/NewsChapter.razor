@@ -1,0 +1,59 @@
+<HelpChapterSection Id="news">
+    <HelpTopicSection Id="news-read">
+        <p>Open <span class="help-ui">News</span> in the menu.</p>
+        <ul>
+            <li>Category tabs: <span class="help-ui">All</span>, “News”, “Announcement”, “Event”, “Training and development”, “Projects and achievements”.</li>
+            <li>The <span class="help-ui">Search news</span> field searches titles and summaries.</li>
+            <li>Cards show the cover image, category, the <span class="help-ui">Pinned</span> badge, title, summary and date. Pinned posts always come first, then from newest to oldest.</li>
+            <li>There are 9 cards per page; the number can be changed (9, 18, 36, 72).</li>
+        </ul>
+        <p>Click a card to open the post: category, date, author, cover image, summary and full text. The <span class="help-ui">All news</span> button returns to the feed. The latest news is also shown on the home page.</p>
+        <p>If a post has been deleted or unpublished — “News post not found”.</p>
+    </HelpTopicSection>
+
+    <HelpTopicSection Id="news-list">
+        <p>In the news feed, click <span class="help-ui">Manage</span> (or <span class="help-ui">Administration</span> → <span class="help-ui">News</span>). Here you see the posts of the organizations whose news you manage (an administrator of all organizations sees all of them), including drafts — only editors can see them.</p>
+        <ul>
+            <li>Search — by title or summary.</li>
+            <li>Columns: <strong>Title</strong> (and category), <strong>Status</strong> (“Draft” / “Published”, “Pinned”), <strong>Published</strong>, <strong>Modified</strong>, <strong>Organization</strong> (“Entire cabinet” — for general news), <strong>Author</strong>, the <span class="help-ui">Edit</span> button.</li>
+            <li><span class="help-ui">New post</span> — create a news post.</li>
+        </ul>
+    </HelpTopicSection>
+
+    <HelpTopicSection Id="news-editor">
+        <ol class="help-steps">
+            <li>Click <span class="help-ui">New post</span> (in the feed or on the management page) or <span class="help-ui">Edit</span> next to an existing one.</li>
+            <li>Fill in the <span class="help-ui">Title</span> (up to 200 characters) and <span class="help-ui">Summary</span> (up to 500 characters, 1–2 sentences for the card).</li>
+            <li>Write the <span class="help-ui">Text (Markdown)</span> (up to 50,000 characters) — see “<a href="/help#news-formatting">Text formatting</a>”.</li>
+            <li>In the “Publication” card, choose the <span class="help-ui">Organization</span> the post belongs to: the communications specialists of that organization will be able to edit it. The <span class="help-ui">Entire cabinet (all organizations)</span> option is available only to an administrator of all organizations. Published news is read by employees of all organizations, and the post's card shows its organization.</li>
+            <li>Choose a <span class="help-ui">Category</span>. The <span class="help-ui">Published</span> checkbox makes the post visible to everyone (it is checked for a new post; uncheck it to save a draft). <span class="help-ui">Pin to top</span> — the post will always be first.</li>
+            <li>Optionally add a cover image: <span class="help-ui">Choose an image</span> — PNG, JPEG or WebP up to 5 MB, preferably with a 16:9 aspect ratio. To remove the current cover image, check <span class="help-ui">Remove cover image</span>.</li>
+            <li>Click <span class="help-ui">Save</span> — “Post saved”. For a published post, the <span class="help-ui">View</span> button opens it the way readers see it.</li>
+        </ol>
+        <ul>
+            <li>The post's address is generated from the title when it is created and never changes, so links to the post don't “break” after editing.</li>
+            <li>If you unpublish a post and publish it again, the original publication date is kept.</li>
+            <li><span class="help-ui">Delete</span> (for an existing post) — after the “Delete the post permanently?” confirmation, the post is deleted forever. To just hide a post, uncheck “Published”.</li>
+        </ul>
+        <p>Possible errors: “Enter a title.”, “Enter a summary.”, “Write the text of the post.”, “The image cannot be larger than 5 MB.”, “Only PNG, JPEG or WebP images are supported.”</p>
+    </HelpTopicSection>
+
+    <HelpTopicSection Id="news-formatting">
+        <p>The text of a post is written in <strong>Markdown</strong>. HTML is not supported for security reasons.</p>
+        <div class="help-table-wrap">
+            <table class="help-table">
+                <thead><tr><th>What you need</th><th>How to write it</th></tr></thead>
+                <tbody>
+                    <tr><td>Subheading</td><td><code class="ds-code">## Event schedule</code></td></tr>
+                    <tr><td>Bold / italic</td><td><code class="ds-code">**important**</code>, <code class="ds-code">*italic*</code></td></tr>
+                    <tr><td>Bulleted list</td><td>lines starting with <code class="ds-code">- </code></td></tr>
+                    <tr><td>Numbered list</td><td>lines <code class="ds-code">1. </code>, <code class="ds-code">2. </code>…</td></tr>
+                    <tr><td>Link</td><td><code class="ds-code">[text](https://example.com)</code> — http(s), mailto:, tel: and internal links are allowed</td></tr>
+                    <tr><td>Quote</td><td>a line starting with <code class="ds-code">&gt; </code></td></tr>
+                    <tr><td>Table</td><td><code class="ds-code">| Date | Event |</code>, then <code class="ds-code">|---|---|</code> and the rows</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <p>An empty line starts a new paragraph.</p>
+    </HelpTopicSection>
+</HelpChapterSection>

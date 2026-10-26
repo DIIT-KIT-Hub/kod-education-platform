@@ -9,11 +9,15 @@
  * Network traffic goes only to the same-origin relay (/api/v1/eusign/proxy) that forwards public protocol
  * messages (certificate status, time-stamp requests, certificate lookups) to qualified trust service providers.
  *
- * Protocol: page → { id, cmd, params }; worker → { id, result } or { id, error: { code, message } }.
+ * Protocol: page → { id, cmd, params }; worker → { id, result } or { id, error: { code, message, args? } }.
  * Commands: init, readKey, sign, verify, reset.
+ *
+ * Localization: the worker has no access to the page's translations, so its own messages stay Ukrainian (marked with the
+ * `t` function, with `{0}` placeholders filled from `error.args`) and are translated by eusign-client.js on the page.
+ * Library messages follow the `language` passed to "init".
  */
 
-/* global EUSignCP, EndUserReference, EU_UA_LANG, EU_SIGN_TYPE_PARAMETER, EU_SIGN_TYPE_CADES_BES, EU_SIGN_TYPE_CADES_T,
+/* global EUSignCP, EndUserReference, EU_UA_LANG, EU_EN_LANG, EU_SIGN_TYPE_PARAMETER, EU_SIGN_TYPE_CADES_BES, EU_SIGN_TYPE_CADES_T,
    EU_SIGN_TYPE_CADES_X_LONG, EU_SIGN_TYPE_CADES_X_LONG_TRUSTED, EU_XADES_TYPE_DETACHED, EU_XADES_TYPE_ENVELOPING,
    EU_XADES_SIGN_LEVEL_B_B, EU_XADES_SIGN_LEVEL_B_T, EU_XADES_SIGN_LEVEL_B_LT, EU_XADES_SIGN_LEVEL_B_LTA,
    EU_PADES_SIGN_LEVEL_B_B, EU_PADES_SIGN_LEVEL_B_T, EU_PADES_SIGN_LEVEL_B_LT, EU_PADES_SIGN_LEVEL_B_LTA,
@@ -28,6 +32,25 @@ self.EU_MAX_DATA_SIZE_MB = 25;
 
 /** The library is initialized explicitly after loading. */
 self.EU_MODULE_INITIALIZE_ON_LOAD = false;
+
+/**
+ * Marks a Ukrainian message for translation; the page translates it (eusign-client.js) when the error arrives.
+ * @param {string} text The Ukrainian text.
+ * @returns {string} The same text.
+ */
+const t = (text) => text;
+
+/**
+ * Creates an error whose message has `{0}`… placeholders, filled (after translation) on the page.
+ * @param {string} message The Ukrainian message.
+ * @param {...(string|number)} args The placeholder values.
+ * @returns {Error} The error.
+ */
+function formatError(message, ...args) {
+    const error = new Error(message);
+    error.args = args;
+    return error;
+}
 
 /** Error code of "end of enumeration". */
 const END_OF_ENUM = 0x0007;
@@ -82,24 +105,25 @@ function loadLibrary(scripts) {
 /**
  * Converts any thrown value into a plain, transferable error.
  * @param {any} error The error.
- * @returns {{code: number, message: string}} The normalized error.
+ * @returns {{code: number, message: string, args?: string[]}} The normalized error.
  */
 function normalizeError(error) {
     const code = error && typeof error.errorCode === "number" ? error.errorCode : -1;
     const known = {
-        0x0005: "Немає зв'язку з сервером надавача (ЦСК). Перевірте з'єднання та спробуйте ще раз.",
-        0x0018: "Неправильний пароль або пошкоджений файл ключа.",
-        0x0033: "Не вдалося знайти сертифікат ключа. Оберіть надавача вручну або додайте файли сертифікатів.",
-        0x0034: "Строк дії сертифіката ключа закінчився або ще не настав.",
-        0x0035: "Сертифікат ключа скасовано (у списку відкликаних).",
-        0x0041: "Не вдалося отримати позначку часу. Спробуйте рівень підпису B-B або повторіть пізніше.",
-        0x0051: "Не вдалося перевірити статус сертифіката (OCSP). Спробуйте пізніше.",
-        0x0053: "Сертифікат ключа визнано недійсним за відповіддю OCSP.",
+        0x0005: t("Немає зв'язку з сервером надавача (ЦСК). Перевірте з'єднання та спробуйте ще раз."),
+        0x0018: t("Неправильний пароль або пошкоджений файл ключа."),
+        0x0033: t("Не вдалося знайти сертифікат ключа. Оберіть надавача вручну або додайте файли сертифікатів."),
+        0x0034: t("Строк дії сертифіката ключа закінчився або ще не настав."),
+        0x0035: t("Сертифікат ключа скасовано (у списку відкликаних)."),
+        0x0041: t("Не вдалося отримати позначку часу. Спробуйте рівень підпису B-B або повторіть пізніше."),
+        0x0051: t("Не вдалося перевірити статус сертифіката (OCSP). Спробуйте пізніше."),
+        0x0053: t("Сертифікат ключа визнано недійсним за відповіддю OCSP."),
     };
     const message = known[code]
         || (error && (error.message || error.toString && error.toString()))
-        || "Невідома помилка бібліотеки підпису.";
-    return { code, message: String(message) };
+        || t("Невідома помилка бібліотеки підпису.");
+    const args = !known[code] && error && Array.isArray(error.args) ? error.args.map(String) : undefined;
+    return { code, message: String(message), args };
 }
 
 /**
@@ -111,7 +135,7 @@ function normalizeError(error) {
 async function fetchResource(url, kind) {
     const response = await fetch(url, { credentials: "same-origin" });
     if (!response.ok) {
-        throw new Error(`Не вдалося завантажити ${url} (${response.status}).`);
+        throw formatError(t("Не вдалося завантажити {0} ({1})."), url, response.status);
     }
 
     return kind === "json" ? response.json() : new Uint8Array(await response.arrayBuffer());
@@ -322,7 +346,8 @@ function describeSignature(signInfo) {
 const handlers = {
     /**
      * Loads and configures the library.
-     * @param {{scripts: string[], proxy: string, casUrl: string, certificatesUrl: string}} params The parameters.
+     * @param {{scripts: string[], proxy: string, casUrl: string, certificatesUrl: string, language?: string}} params The parameters
+     * (language: "uk" or "en", for the library's own error messages).
      * @returns {Promise<{providers: string[]}>} The provider names.
      */
     async init(params) {
@@ -333,7 +358,7 @@ const handlers = {
         await loadLibrary(params.scripts);
         euSign = EUSignCP();
         euSign.Initialize();
-        euSign.SetErrorMessageLanguage(EU_UA_LANG);
+        euSign.SetErrorMessageLanguage(params.language === "en" ? EU_EN_LANG : EU_UA_LANG);
 
         providers = await fetchResource(params.casUrl, "json");
         applyBaseSettings(params.proxy);
@@ -399,7 +424,7 @@ const handlers = {
      */
     sign(params) {
         if (!privateKey) {
-            throw new Error("Спочатку зчитайте ключ.");
+            throw new Error(t("Спочатку зчитайте ключ."));
         }
 
         const files = params.files.map((f) => ({ name: f.name, data: new Uint8Array(f.data) }));
@@ -434,7 +459,7 @@ const handlers = {
                 signature = euSign.CtxASiCSignData(privateKey, signAlgorithm, EU_ASIC_TYPE_E, EU_ASIC_SIGN_TYPE_XADES, xades, references(), false);
                 break;
             default:
-                throw new Error("Невідомий формат підпису.");
+                throw new Error(t("Невідомий формат підпису."));
         }
 
         return { signature, signedAt: new Date().toISOString() };
@@ -475,7 +500,7 @@ const handlers = {
         } else {
             const internal = euSign.IsDataInSignedDataAvailable(container.data);
             if (!internal && data.length === 0) {
-                throw new Error("Це зовнішній підпис: додайте також файл, який було підписано.");
+                throw new Error(t("Це зовнішній підпис: додайте також файл, який було підписано."));
             }
 
             const count = euSign.CtxGetSignsCount(verifyContext, container.data);
@@ -495,7 +520,7 @@ const handlers = {
         }
 
         if (signatures.length === 0) {
-            throw new Error("У файлі не знайдено підписів.");
+            throw new Error(t("У файлі не знайдено підписів."));
         }
 
         return { format, container: container.name, signatures, content };

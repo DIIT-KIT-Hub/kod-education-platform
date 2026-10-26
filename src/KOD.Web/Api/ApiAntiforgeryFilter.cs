@@ -1,3 +1,4 @@
+using KOD.Domain.Localization;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -29,7 +30,7 @@ internal sealed class ApiAntiforgeryFilter(IAntiforgery antiforgery) : IAsyncAut
             {
                 Status = StatusCodes.Status400BadRequest,
                 Title = "antiforgery",
-                Detail = "Сесію сторінки оновлено. Оновіть сторінку та повторіть дію.",
+                Detail = Texts.T("Сесію сторінки оновлено. Оновіть сторінку та повторіть дію."),
             })
             {
                 StatusCode = StatusCodes.Status400BadRequest,

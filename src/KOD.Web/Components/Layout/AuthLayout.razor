@@ -8,22 +8,32 @@
             <img class="auth-hero__photo" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEAAAAALAAAAAABAAEAAAIBAAA=" alt="" width="1200" height="1334" fetchpriority="high" decoding="async" />
         </picture>
         <div class="auth-hero__brand">
-            <span class="app-brand__mark">К</span>
-            <strong>КОД</strong>
+            <span class="app-brand__mark">@T("К")</span>
+            <strong>@T("КОД")</strong>
         </div>
         <div class="auth-hero__text">
-            <h2>Кабінет<br />організаційних документів</h2>
-            <p>Електронний документообіг для будь-якої організації: структура, маршрути погодження та кваліфікований електронний підпис.</p>
+            @if (Languages.Current == Languages.English)
+            {
+                <h2>Organizational<br />Documents Cabinet</h2>
+            }
+            else
+            {
+                <h2>Кабінет<br />організаційних документів</h2>
+            }
+            <p>@T("Електронний документообіг для будь-якої організації: структура, маршрути погодження та кваліфікований електронний підпис.")</p>
         </div>
     </section>
     <main class="auth-main">
         <div class="auth-card ds-animate-in">
             @Body
         </div>
-        <button type="button" class="ds-btn ds-btn--ghost ds-btn--sm auth-theme" data-theme-toggle>
-            <Icon Name="moon" Class="app-theme-dark" />
-            <Icon Name="sun" Class="app-theme-light" />
-            <span>Тема</span>
-        </button>
+        <div class="auth-tools">
+            <LanguageSwitch />
+            <button type="button" class="ds-btn ds-btn--ghost ds-btn--sm" data-theme-toggle>
+                <Icon Name="moon" Class="app-theme-dark" />
+                <Icon Name="sun" Class="app-theme-light" />
+                <span>@T("Тема")</span>
+            </button>
+        </div>
     </main>
 </div>

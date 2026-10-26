@@ -1,0 +1,35 @@
+<div class="ds-grid ds-grid-skeleton" role="status" aria-busy="true" aria-label="@T("Завантаження…")">
+    <table class="ds-table" aria-hidden="true">
+        <thead>
+            <tr>
+                @for (var column = 0; column < Columns; column++)
+                {
+                    <th><span class="ds-skeleton ds-skeleton--text" style="@($"width:{Width(column, 0, 3.5, 7)}rem")"></span></th>
+                }
+            </tr>
+        </thead>
+        <tbody class="ds-skeleton-group">
+            @for (var row = 0; row < Rows; row++)
+            {
+                <tr>
+                    @for (var column = 0; column < Columns; column++)
+                    {
+                        <td data-primary="@(column == 0 ? "true" : null)">
+                            <div class="ds-grid-skeleton__cell">
+                                @if (column == 0)
+                                {
+                                    <span class="ds-skeleton ds-skeleton--text" style="@($"width:{Width(column, row, 9, 16)}rem")"></span>
+                                    <span class="ds-skeleton ds-skeleton--text" style="@($"width:{Width(column + 1, row, 6, 10)}rem;height:0.625rem")"></span>
+                                }
+                                else
+                                {
+                                    <span class="ds-skeleton ds-skeleton--text" style="@($"width:{Width(column, row, 3, 8)}rem")"></span>
+                                }
+                            </div>
+                        </td>
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

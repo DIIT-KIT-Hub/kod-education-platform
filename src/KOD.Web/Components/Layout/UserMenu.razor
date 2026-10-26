@@ -5,17 +5,17 @@
                 <Avatar Name="@context.User.FullName" />
                 <span class="app-user__text">
                     <span class="ds-strong ds-truncate">@context.User.ShortName</span>
-                    <span class="ds-text-xs ds-muted">Мій профіль</span>
+                    <span class="ds-text-xs ds-muted">@T("Мій профіль")</span>
                 </span>
             </a>
             <div class="ds-row">
-                <button type="button" class="ds-btn ds-btn--ghost ds-btn--icon ds-btn--sm app-hide-compact" data-theme-toggle aria-label="Змінити тему">
+                <button type="button" class="ds-btn ds-btn--ghost ds-btn--icon ds-btn--sm app-hide-compact" data-theme-toggle aria-label="@T("Змінити тему")">
                     <Icon Name="moon" Class="app-theme-dark" />
                     <Icon Name="sun" Class="app-theme-light" />
                 </button>
-                <form method="post" action="/account/logout" data-confirm="Вийти з кабінету?">
+                <form method="post" action="/account/logout" data-confirm="@T("Вийти з кабінету?")">
                     <AntiforgeryToken />
-                    <button type="submit" class="ds-btn ds-btn--ghost ds-btn--icon ds-btn--sm" aria-label="Вийти" title="Вийти">
+                    <button type="submit" class="ds-btn ds-btn--ghost ds-btn--icon ds-btn--sm" aria-label="@T("Вийти")" title="@T("Вийти")">
                         <Icon Name="log-out" />
                     </button>
                 </form>

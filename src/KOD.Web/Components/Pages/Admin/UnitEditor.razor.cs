@@ -2,6 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using KOD.Application.Common.Models;
 using KOD.Application.Features.Organization;
 using KOD.Domain.Access;
+using KOD.Domain.Localization;
 using KOD.Web.Security;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
@@ -123,7 +124,7 @@ public partial class UnitEditor
             var unit = result.Value;
             WasTopLevel = unit.ParentId is null;
             ReadOnly = !unit.CanManage;
-            ErrorMessage = ReadOnly ? "Підрозділ належить організації, структурою якої ви не керуєте, тому його можна лише переглянути." : null;
+            ErrorMessage = ReadOnly ? Texts.T("Підрозділ належить організації, структурою якої ви не керуєте, тому його можна лише переглянути.") : null;
             Model = new UnitModel
             {
                 Code = unit.Code,
@@ -138,7 +139,7 @@ public partial class UnitEditor
         else if (Top && !CabinetWide)
         {
             ReadOnly = true;
-            ErrorMessage = "Організації верхнього рівня створює лише адміністратор усіх організацій. Ви можете додавати підрозділи й дочірні організації у своїх організаціях.";
+            ErrorMessage = Texts.T("Організації верхнього рівня створює лише адміністратор усіх організацій. Ви можете додавати підрозділи й дочірні організації у своїх організаціях.");
         }
         else
         {
@@ -172,7 +173,7 @@ public partial class UnitEditor
 
             if (ErrorMessage is null)
             {
-                Navigation.NavigateTo($"/admin/units?toast={Uri.EscapeDataString("Підрозділ збережено")}");
+                Navigation.NavigateTo($"/admin/units?toast={Uri.EscapeDataString(Texts.T("Підрозділ збережено"))}");
             }
         }
         finally

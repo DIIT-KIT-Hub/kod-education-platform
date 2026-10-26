@@ -4,6 +4,7 @@ using KOD.Application.Common.Models;
 using KOD.Application.Features.News;
 using KOD.Application.Features.Organization;
 using KOD.Domain.Access;
+using KOD.Domain.Localization;
 using KOD.Domain.News;
 using KOD.Web.Security;
 using Microsoft.AspNetCore.Components;
@@ -131,7 +132,7 @@ public partial class NewsEditor
     /// <param name="args">The file selection.</param>
     private void SelectCover(InputFileChangeEventArgs args)
     {
-        ErrorMessage = args.File.Size > FileRules.MaxImageSize ? "Зображення не може бути більшим за 5 МБ." : null;
+        ErrorMessage = args.File.Size > FileRules.MaxImageSize ? Texts.T("Зображення не може бути більшим за 5 МБ.") : null;
         CoverFile = ErrorMessage is null ? args.File : null;
     }
 
@@ -162,7 +163,7 @@ public partial class NewsEditor
 
             if (ErrorMessage is null)
             {
-                Navigation.NavigateTo($"/news/manage?toast={Uri.EscapeDataString("Публікацію збережено")}");
+                Navigation.NavigateTo($"/news/manage?toast={Uri.EscapeDataString(Texts.T("Публікацію збережено"))}");
             }
         }
         finally
@@ -177,7 +178,7 @@ public partial class NewsEditor
     /// <returns>A task that completes when deleted.</returns>
     private async Task DeleteAsync()
     {
-        if (Id is not { } id || !await JS.InvokeAsync<bool>("confirm", "Видалити публікацію остаточно?"))
+        if (Id is not { } id || !await JS.InvokeAsync<bool>("confirm", Texts.T("Видалити публікацію остаточно?")))
         {
             return;
         }
@@ -185,7 +186,7 @@ public partial class NewsEditor
         var result = await News.DeleteAsync(id, CancellationToken.None);
         if (result.IsSuccess)
         {
-            Navigation.NavigateTo($"/news/manage?toast={Uri.EscapeDataString("Публікацію видалено")}");
+            Navigation.NavigateTo($"/news/manage?toast={Uri.EscapeDataString(Texts.T("Публікацію видалено"))}");
             return;
         }
 

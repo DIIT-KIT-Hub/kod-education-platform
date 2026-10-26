@@ -1,5 +1,6 @@
 using KOD.Application.Common.Results;
 using KOD.Domain.Common;
+using KOD.Domain.Localization;
 using Microsoft.EntityFrameworkCore;
 
 namespace KOD.Application.Common.Errors;
@@ -29,7 +30,7 @@ public static class DomainErrors
         }
         catch (DbUpdateConcurrencyException)
         {
-            return Error.Conflict("Дані щойно змінив інший користувач. Оновіть сторінку та спробуйте ще раз.");
+            return Error.Conflict(Texts.T("Дані щойно змінив інший користувач. Оновіть сторінку та спробуйте ще раз."));
         }
     }
 
@@ -52,7 +53,7 @@ public static class DomainErrors
         }
         catch (DbUpdateConcurrencyException)
         {
-            return Error.Conflict("Дані щойно змінив інший користувач. Оновіть сторінку та спробуйте ще раз.");
+            return Error.Conflict(Texts.T("Дані щойно змінив інший користувач. Оновіть сторінку та спробуйте ще раз."));
         }
     }
 }

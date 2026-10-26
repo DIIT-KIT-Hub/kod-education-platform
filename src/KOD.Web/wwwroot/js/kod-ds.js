@@ -13,11 +13,29 @@
  *   data-sidebar-toggle     collapses / expands the desktop sidebar (<html data-sidebar>, remembered per browser)
  *   data-busy-on-submit     on a <form>: shows a spinner on the submit button while submitting
  *   .ds-dropzone            highlights while a file is dragged over and shows the chosen file names
+ *   .ds-btn                 the hover fill grows from the point where the pointer entered and shrinks towards where it left
  *
- * Public API: `window.kodDs.toast(message, tone)`.
+ * Public API: `window.kodDs.toast(message, tone)`, `window.kodDs.t(text, ...args)`.
  */
 (function () {
     "use strict";
+
+    /**
+     * Translates a Ukrainian interface text into the page language. The translations are loaded for non-Ukrainian pages
+     * by js/i18n/<language>*.js into `window.kodI18n` (keyed by the Ukrainian text, like the server-side catalog).
+     * `{0}`, `{1}`… placeholders are replaced by the arguments.
+     * @param {string} text The Ukrainian text.
+     * @param {...(string|number)} args The placeholder values.
+     * @returns {string} The translation, or the text itself.
+     */
+    function t(text) {
+        var catalog = /** @type {Record<string, string>|undefined} */ (window.kodI18n);
+        var result = (catalog && Object.prototype.hasOwnProperty.call(catalog, text) && catalog[text]) || text;
+        var args = Array.prototype.slice.call(arguments, 1);
+        return args.length === 0
+            ? result
+            : result.replace(/\{(\d+)\}/g, function (match, index) { return index < args.length ? String(args[index]) : match; });
+    }
 
     /**
      * Shows a short notification at the bottom of the screen.
@@ -79,11 +97,14 @@
         dialog.innerHTML =
             '<form method="dialog" class="ds-dialog__inner">' +
             '<h2 class="ds-card__title" data-confirm-text></h2>' +
-            '<p class="ds-muted">Цю дію може бути неможливо скасувати.</p>' +
+            '<p class="ds-muted"></p>' +
             '<div class="ds-dialog__actions">' +
-            '<button class="ds-btn ds-btn--secondary" value="cancel">Скасувати</button>' +
-            '<button class="ds-btn" value="confirm" autofocus>Підтвердити</button>' +
+            '<button class="ds-btn ds-btn--secondary" value="cancel"></button>' +
+            '<button class="ds-btn" value="confirm" autofocus></button>' +
             "</div></form>";
+        dialog.querySelector("p").textContent = t("Цю дію може бути неможливо скасувати.");
+        dialog.querySelector('[value="cancel"]').textContent = t("Скасувати");
+        dialog.querySelector('[value="confirm"]').textContent = t("Підтвердити");
         document.body.appendChild(dialog);
         return /** @type {HTMLDialogElement} */ (dialog);
     }
@@ -106,7 +127,7 @@
      */
     function syncSidebarToggles() {
         var collapsed = document.documentElement.getAttribute("data-sidebar") === "collapsed";
-        var label = collapsed ? "Розгорнути меню" : "Згорнути меню";
+        var label = collapsed ? t("Розгорнути меню") : t("Згорнути меню");
         document.querySelectorAll("[data-sidebar-toggle]").forEach(function (button) {
             button.setAttribute("aria-expanded", collapsed ? "false" : "true");
             button.setAttribute("aria-label", label);
@@ -190,8 +211,8 @@
         if (copy) {
             var text = copy.getAttribute("data-copy") || "";
             navigator.clipboard.writeText(text).then(
-                function () { toast("Скопійовано"); },
-                function () { toast("Не вдалося скопіювати", "danger"); });
+                function () { toast(t("Скопійовано")); },
+                function () { toast(t("Не вдалося скопіювати"), "danger"); });
             return;
         }
 
@@ -254,6 +275,27 @@
         }
     });
 
+    /**
+     * Moves the origin of a button's hover fill (--_x / --_y) to the pointer.
+     * @param {Event} event A pointerenter / pointerleave event.
+     */
+    function trackButtonPointer(event) {
+        var button = event.target;
+        if (!(button instanceof HTMLElement) || !button.classList.contains("ds-btn") || !(event instanceof PointerEvent)) {
+            return;
+        }
+
+        var rect = button.getBoundingClientRect();
+        if (rect.width > 0 && rect.height > 0) {
+            button.style.setProperty("--_x", ((event.clientX - rect.left) / rect.width * 100).toFixed(1) + "%");
+            button.style.setProperty("--_y", ((event.clientY - rect.top) / rect.height * 100).toFixed(1) + "%");
+        }
+    }
+
+    // pointerenter/leave do not bubble, but capturing listeners on the document still see them.
+    document.addEventListener("pointerenter", trackButtonPointer, true);
+    document.addEventListener("pointerleave", trackButtonPointer, true);
+
     ["dragenter", "dragover"].forEach(function (type) {
         document.addEventListener(type, function (event) {
             var zone = event.target instanceof Element ? event.target.closest(".ds-dropzone") : null;
@@ -309,5 +351,5 @@
 
     syncSidebarToggles();
 
-    window.kodDs = { toast: toast, openDialog: openDialog, setTheme: setTheme, restoreTheme: restoreTheme, setSidebar: setSidebar };
+    window.kodDs = { t: t, toast: toast, openDialog: openDialog, setTheme: setTheme, restoreTheme: restoreTheme, setSidebar: setSidebar };
 })();

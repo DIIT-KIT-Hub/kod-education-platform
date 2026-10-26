@@ -1,0 +1,78 @@
+<HelpChapterSection Id="intro">
+    <HelpTopicSection Id="intro-about">
+        <p><strong>KOD — the Organizational Documents Cabinet</strong> — is an electronic document management system for an organization of any kind: a company, a government agency, a school or university, a hospital, a non-profit. The structure (organizations, their units and the names of the levels) is set up by an administrator, so the cabinet speaks the language of your organization. In it, employees and external users:</p>
+        <ul>
+            <li>create documents (orders, instructions, memos, contracts, certificates, applications), build a signing route and send them for signing;</li>
+            <li>sign documents with a <strong>qualified electronic signature</strong> right in the browser — the key and its password never leave the device;</li>
+            <li>sign and verify any files;</li>
+            <li>read news and announcements;</li>
+            <li>browse the organizational structure: organizations, their departments, divisions, branches and employees;</li>
+            <li>manage their own profile, password, two-factor authentication and sessions.</li>
+        </ul>
+        <p>Administrators and responsible employees also manage users (including import and export), roles and permissions, organizations and their structure, unit types and news, and review the audit log.</p>
+        <p>The cabinet works in any modern browser (Chrome, Edge, Firefox, Safari) on a computer, tablet or phone. Nothing needs to be installed.</p>
+    </HelpTopicSection>
+
+    <HelpTopicSection Id="intro-interface">
+        <h4>Menu</h4>
+        <ul>
+            <li><strong>On a computer</strong> (screens from 1024 px) the menu is always visible on the left: <span class="help-ui">Home</span>, <span class="help-ui">Documents</span>, <span class="help-ui">Signing</span>, <span class="help-ui">News</span>, <span class="help-ui">Structure</span>, <span class="help-ui">Administration</span>, <span class="help-ui">Profile</span>, <span class="help-ui">Help</span>. At the bottom are your name (a link to your profile), the theme switch and the sign-out button. The round <Icon Name="chevron-left" /> button on the edge of the menu next to the logo collapses it to a narrow bar of icons (the item name appears on hover) and expands it again; your choice is remembered in the browser.</li>
+            <li><strong>On a phone</strong> there is a quick navigation bar at the bottom of the screen: <span class="help-ui">Home</span>, <span class="help-ui">Documents</span>, <span class="help-ui">Signing</span>, <span class="help-ui">News</span>, <span class="help-ui">Profile</span>. The other items are in the <Icon Name="menu" /> menu in the top-right corner.</li>
+            <li><strong>On a tablet</strong> the menu opens with the <Icon Name="menu" /> button in the top bar.</li>
+        </ul>
+        <p>The menu shows only the modules you have access to. If an item is missing, you don't have the corresponding permission (see “<a href="/help#intro-access">Roles and access</a>”).</p>
+        <h4>Theme</h4>
+        <p>The <Icon Name="moon" /> / <Icon Name="sun" /> button switches between the light and dark themes. Your choice is remembered in the browser. By default the theme follows your system settings.</p>
+        <h4>Notifications and confirmations</h4>
+        <ul>
+            <li>Results of actions (for example, “Password changed”) appear as short notifications at the bottom of the screen and disappear on their own.</li>
+            <li>Important actions (signing out, deleting, generating new recovery codes, etc.) require confirmation in a dialog with the <span class="help-ui">Confirm</span> and <span class="help-ui">Cancel</span> buttons.</li>
+            <li>Form errors are shown in red under the corresponding field.</li>
+        </ul>
+        <h4>Tables</h4>
+        <p>Lists (documents, news, users, the audit log) have search, filters, sorting by column headers and pagination with a choice of the number of rows per page (10, 20, 50 or 100; in the news feed — 9, 18, 36 or 72). Search runs with the <span class="help-ui">Search</span> button or Enter; drop-down filters apply as soon as you pick a value. On a phone, each table row becomes a separate card.</p>
+        <h4>Dates and times</h4>
+        <p>All dates are shown in Kyiv time, for example “25 Oct 2026, 14:05”. A dash “—” means there is no value.</p>
+        <h4>Interface language</h4>
+        <p>The cabinet is available in Ukrainian and English. Choose the language in <span class="help-ui">Profile</span> → <span class="help-ui">Interface language</span> (see “<a href="/help#profile-overview">My profile</a>”) or with the language button in the top-right corner of the sign-in page.</p>
+        <h4>This manual</h4>
+        <p>The table of contents on the left (on a phone — at the top, the <span class="help-ui">Contents</span> button) highlights the section you are reading. The search box at the top filters topics and highlights the words found. The <Icon Name="link" /> button next to a topic heading is a direct link you can share with a colleague. <span class="help-ui">Print / PDF</span> prints the manual or saves it as a PDF.</p>
+    </HelpTopicSection>
+
+    <HelpTopicSection Id="intro-access">
+        <p>What you can see and do in KOD is determined by <strong>permissions</strong>. Permissions are granted by a <strong>role</strong>, which an administrator assigns together with a position in a unit (for example, “Lead engineer” in the development department with the “Employee” role).</p>
+        <ul>
+            <li>A person can hold several positions in different units — the permissions of all their roles are then combined.</li>
+            <li>An administrator can also <strong>grant</strong> or <strong>deny</strong> a specific permission to a specific person.</li>
+            <li>Administrative permissions (users, structure, news) apply only within the organizations of the positions whose roles grant them (see “<a href="/help#admin-scope">Administration within organizations</a>”).</li>
+            <li>You can see your positions, roles and permissions in <span class="help-ui">Profile</span> (see “<a href="/help#profile-overview">My profile</a>”).</li>
+            <li>At the beginning of each section of this manual there is a badge: <Badge Tone="Tone.Inverse" Icon="circle-check">Available to you</Badge>, <Badge Tone="Tone.Dashed" Icon="users">For all users</Badge> or <Badge Tone="Tone.Outline" Icon="lock">Permission required</Badge> with the name of the required permission.</li>
+        </ul>
+        <p>The full list of roles and permissions is in the “<a href="/help#roles">Roles and permissions</a>” chapter. If you need access to a module, contact the head of your unit or the system administrator. Trying to open an unavailable page shows “Access restricted” — “You don't have access to this section”.</p>
+        <p>Changes to permissions take effect within a minute, without signing in again.</p>
+    </HelpTopicSection>
+
+    <HelpTopicSection Id="intro-glossary">
+        <div class="help-table-wrap">
+            <table class="help-table">
+                <thead><tr><th>Term</th><th>Meaning</th></tr></thead>
+                <tbody>
+                    <tr><td>QES</td><td>Qualified electronic signature — the equivalent of a handwritten signature with the same legal force.</td></tr>
+                    <tr><td>Private key</td><td>A file (for example, Key-6.dat) used to apply a QES. It is protected by your password, which only you know.</td></tr>
+                    <tr><td>QTSP / provider</td><td>Qualified trust service provider that issued your key and certificate (the State Tax Service, Diia, banks, etc.).</td></tr>
+                    <tr><td>Certificate</td><td>The public part of the key: who the owner is (full name, taxpayer number, organization), who issued it and until when it is valid.</td></tr>
+                    <tr><td>Signing route</td><td>The list of people who must sign a document and the order of signing.</td></tr>
+                    <tr><td>Registration number</td><td>A unique number the system assigns to a document.</td></tr>
+                    <tr><td>SHA-256</td><td>The “fingerprint” of a file. Any change to the file changes the fingerprint; before signing, the browser compares it with the registered one, so a modified document cannot be signed.</td></tr>
+                    <tr><td>2FA / authenticator</td><td>Two-factor authentication: in addition to the password, sign-in is confirmed with a one-time code from an app on your phone.</td></tr>
+                    <tr><td>Recovery codes</td><td>One-time codes for signing in without your phone.</td></tr>
+                    <tr><td>Session</td><td>A sign-in from a particular browser on a particular device.</td></tr>
+                    <tr><td>Role / permission</td><td>A permission is the right to perform a specific action; a role is a set of permissions assigned together with a position.</td></tr>
+                    <tr><td>Organization</td><td>A top-level (or nested) unit whose type is marked as an organization: a company, agency, institution, foundation. One cabinet can contain several.</td></tr>
+                    <tr><td>Unit / unit type</td><td>A part of an organization (department, division, sector, branch…). The type sets the level name and icon and is configured by an administrator.</td></tr>
+                    <tr><td>Audit log</td><td>A record of all important actions and security events: who did what and when.</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </HelpTopicSection>
+</HelpChapterSection>

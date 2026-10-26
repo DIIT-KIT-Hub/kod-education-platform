@@ -2,6 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 using KOD.Application.Abstractions;
 using KOD.Domain.Audit;
+using KOD.Domain.Localization;
 using KOD.Domain.Users;
 using KOD.Infrastructure.Identity;
 using KOD.Web.Identity;
@@ -169,7 +170,7 @@ public partial class SetupAuthenticator
 
         if (await UserManager.CheckPasswordAsync(PendingUser, Password.NewPassword))
         {
-            ErrorMessage = "Новий пароль має відрізнятися від тимчасового.";
+            ErrorMessage = Texts.T("Новий пароль має відрізнятися від тимчасового.");
             return;
         }
 
@@ -229,7 +230,7 @@ public partial class SetupAuthenticator
                 return;
             }
 
-            ErrorMessage = "Код неправильний. Перевірте час на телефоні та спробуйте наступний код.";
+            ErrorMessage = Texts.T("Код неправильний. Перевірте час на телефоні та спробуйте наступний код.");
             return;
         }
 

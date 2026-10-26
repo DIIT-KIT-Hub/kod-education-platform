@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using KOD.Application.Abstractions;
 using KOD.Domain.Audit;
+using KOD.Domain.Localization;
 using KOD.Domain.Users;
 using KOD.Web.Identity;
 using Microsoft.AspNetCore.Components;
@@ -121,7 +122,7 @@ public partial class LoginTwoFactor
         else
         {
             await Audit.WriteAsync(AuditActions.SignInFailed, PendingUser.Id, PendingUser.FullName, "Неправильний код автентифікатора", CancellationToken.None);
-            ErrorMessage = "Код неправильний або вже недійсний. Спробуйте наступний код.";
+            ErrorMessage = Texts.T("Код неправильний або вже недійсний. Спробуйте наступний код.");
         }
     }
 

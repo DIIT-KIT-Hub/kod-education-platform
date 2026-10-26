@@ -1,4 +1,5 @@
 using KOD.Application.Abstractions;
+using KOD.Domain.Localization;
 using Microsoft.AspNetCore.Components;
 
 namespace KOD.Web.Components.Pages.Help;
@@ -26,23 +27,32 @@ public partial class HelpAccess
     private bool IsAvailable => Permissions.Any(CurrentUser.Has);
 
     /// <summary>
-    /// Gets the Ukrainian names of the required permissions (the first two, then how many more).
+    /// Gets the names of the required permissions in the interface language (the first two, then how many more).
     /// </summary>
     private string RequiredText
     {
         get
         {
-            var names = Permissions.Select(static code => $"«{KOD.Domain.Access.Permissions.All.FirstOrDefault(p => p.Code == code)?.Title ?? code}»").ToList();
-            return names.Count <= 2
-                ? string.Join(" або ", names)
-                : $"{string.Join(", ", names.Take(2))} або один з інших ({names.Count - 2})";
+            var names = Permissions.Select(static code => Texts.T("«{0}»", TitleOf(code))).ToList();
+            return names.Count switch
+            {
+                1 => names[0],
+                2 => Texts.T("{0} або {1}", names[0], names[1]),
+                _ => Texts.T("{0}, {1} або один з інших ({2})", names[0], names[1], names.Count - 2),
+            };
         }
     }
 
     /// <summary>
     /// Gets the full list of the required permissions for the tooltip.
     /// </summary>
-    private string RequiredFullText => string.Join(
-        ", ",
-        Permissions.Select(static code => KOD.Domain.Access.Permissions.All.FirstOrDefault(p => p.Code == code)?.Title ?? code));
+    private string RequiredFullText => string.Join(", ", Permissions.Select(TitleOf));
+
+    /// <summary>
+    /// Gets the title of a permission in the interface language.
+    /// </summary>
+    /// <param name="code">The permission code.</param>
+    /// <returns>The title, or the code of an unknown permission.</returns>
+    private static string TitleOf(string code)
+        => KOD.Domain.Access.Permissions.All.FirstOrDefault(p => p.Code == code) is { } permission ? Texts.T(permission.Title) : code;
 }

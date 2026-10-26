@@ -16,9 +16,10 @@ public partial class AuditLog
     private string? Search { get; set; }
 
     /// <summary>
-    /// Gets or sets the action prefix filter.
+    /// Gets or sets the action prefix filter. The query field is "category": a form field named "action" would shadow
+    /// <c>form.action</c>, which enhanced form navigation reads as the target URL.
     /// </summary>
-    [SupplyParameterFromQuery]
+    [SupplyParameterFromQuery(Name = "category")]
     private string? Action { get; set; }
 
     /// <summary>

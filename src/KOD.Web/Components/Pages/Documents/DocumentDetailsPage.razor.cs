@@ -2,6 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using KOD.Application.Common.Results;
 using KOD.Application.Features.Documents;
 using KOD.Domain.Documents;
+using KOD.Domain.Localization;
 using KOD.Web.DesignSystem.Components;
 using Microsoft.AspNetCore.Components;
 
@@ -73,19 +74,19 @@ public partial class DocumentDetailsPage
     /// Sends the document for signing.
     /// </summary>
     /// <returns>A task that completes when the action is processed.</returns>
-    private async Task SubmitAsync() => Complete(await Documents.SubmitAsync(Id, CancellationToken.None), "Документ надіслано на підписання");
+    private async Task SubmitAsync() => Complete(await Documents.SubmitAsync(Id, CancellationToken.None), Texts.T("Документ надіслано на підписання"));
 
     /// <summary>
     /// Returns the document to drafts.
     /// </summary>
     /// <returns>A task that completes when the action is processed.</returns>
-    private async Task WithdrawAsync() => Complete(await Documents.WithdrawAsync(Id, CancellationToken.None), "Документ повернуто в чернетки");
+    private async Task WithdrawAsync() => Complete(await Documents.WithdrawAsync(Id, CancellationToken.None), Texts.T("Документ повернуто в чернетки"));
 
     /// <summary>
     /// Archives the document.
     /// </summary>
     /// <returns>A task that completes when the action is processed.</returns>
-    private async Task ArchiveAsync() => Complete(await Documents.ArchiveAsync(Id, CancellationToken.None), "Документ переміщено в архів");
+    private async Task ArchiveAsync() => Complete(await Documents.ArchiveAsync(Id, CancellationToken.None), Texts.T("Документ переміщено в архів"));
 
     /// <summary>
     /// Deletes the document.
@@ -96,7 +97,7 @@ public partial class DocumentDetailsPage
         var result = await Documents.DeleteAsync(Id, CancellationToken.None);
         if (result.IsSuccess)
         {
-            Navigation.NavigateTo("/documents?scope=Authored&toast=" + Uri.EscapeDataString("Документ видалено"));
+            Navigation.NavigateTo("/documents?scope=Authored&toast=" + Uri.EscapeDataString(Texts.T("Документ видалено")));
             return;
         }
 
@@ -107,7 +108,7 @@ public partial class DocumentDetailsPage
     /// Declines to sign the document.
     /// </summary>
     /// <returns>A task that completes when the action is processed.</returns>
-    private async Task RejectAsync() => Complete(await Documents.RejectAsync(Id, Reject.Reason, CancellationToken.None), "Відмову зафіксовано");
+    private async Task RejectAsync() => Complete(await Documents.RejectAsync(Id, Reject.Reason, CancellationToken.None), Texts.T("Відмову зафіксовано"));
 
     /// <summary>
     /// Redirects to the document with a toast on success or shows the error.

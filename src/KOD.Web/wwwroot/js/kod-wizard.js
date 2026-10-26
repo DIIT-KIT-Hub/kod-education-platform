@@ -8,7 +8,7 @@
  *  - step bodies are built once by the caller and only hidden, so entered values survive going back and forth;
  *  - while the wizard is busy (e.g. the finish action runs) navigation is locked, which also prevents double submits;
  *  - focus moves to the heading of the new step and a live region announces it (keyboard and screen reader users);
- *  - all text is set with textContent (no innerHTML).
+ *  - all text is set with textContent (no innerHTML); the wizard's own texts follow the page language (kodDs.t).
  *
  * Usage:
  *   const wizard = createWizard({
@@ -50,6 +50,14 @@
  */
 
 let sequence = 0;
+
+/**
+ * Translates a Ukrainian interface text into the page language (see kod-ds.js).
+ * @param {string} text The Ukrainian text.
+ * @param {...(string|number)} args The placeholder values.
+ * @returns {string} The text.
+ */
+const t = (text, ...args) => (window.kodDs ? window.kodDs.t(text, ...args) : text);
 
 /**
  * Creates an element.
@@ -168,8 +176,8 @@ export function createWizard(options) {
         return { panel, heading };
     });
 
-    const back = actionButton("ds-btn ds-btn--ghost", "Назад", "arrow-left");
-    const next = actionButton("ds-btn", "Далі", "arrow-right", true);
+    const back = actionButton("ds-btn ds-btn--ghost", t("Назад"), "arrow-left");
+    const next = actionButton("ds-btn", t("Далі"), "arrow-right", true);
     const finish = actionButton("ds-btn", options.finish.text, options.finish.icon);
     const footer = create("div", "ds-wizard__footer");
     footer.append(back, create("span", "ds-wizard__spacer"), next, finish);
@@ -215,7 +223,7 @@ export function createWizard(options) {
             }
         });
 
-        counter.textContent = `Крок ${current + 1} з ${steps.length} · ${steps[current].title}`;
+        counter.textContent = t("Крок {0} з {1} · {2}", current + 1, steps.length, steps[current].title);
 
         const last = current === steps.length - 1;
         back.hidden = current === 0;
@@ -250,7 +258,7 @@ export function createWizard(options) {
         panel.hidden = false;
         refresh();
         steps[current].onEnter?.(direction);
-        announcer.textContent = `Крок ${current + 1} з ${steps.length}: ${steps[current].title}`;
+        announcer.textContent = t("Крок {0} з {1}: {2}", current + 1, steps.length, steps[current].title);
         heading.focus({ preventScroll: true });
         root.scrollIntoView({ block: "nearest", behavior: "smooth" });
         return true;

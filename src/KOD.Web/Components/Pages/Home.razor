@@ -1,57 +1,52 @@
 @page "/"
 @attribute [StreamRendering]
 
-<PageTitle>Головна · КОД</PageTitle>
+<PageTitle>@T("Головна · КОД")</PageTitle>
 
 <div class="ds-stack ds-stack--xl">
     <section class="home-hero">
         <p class="ds-text-sm ds-strong">@Greeting</p>
         <h1>@FirstName</h1>
-        <p>Документи, які очікують на ваш підпис, новини організації та швидкий доступ до сервісів — в одному місці.</p>
+        <p>@T("Документи, які очікують на ваш підпис, новини організації та швидкий доступ до сервісів — в одному місці.")</p>
         <div class="ds-cluster">
             @if (User.HasPermission(Permissions.Documents.Create))
             {
-                <Button Href="/documents/new" Icon="file-plus">Новий документ</Button>
+                <Button Href="/documents/new" Icon="file-plus">@T("Новий документ")</Button>
             }
             @if (User.HasPermission(Permissions.Signing.Use))
             {
-                <Button Href="/signing" Variant="ButtonVariant.Secondary" Icon="signature">Підписати файл</Button>
+                <Button Href="/signing" Variant="ButtonVariant.Secondary" Icon="signature">@T("Підписати файл")</Button>
             }
         </div>
     </section>
 
     @if (Summary is null)
     {
-        <div class="ds-cols ds-cols--stats">
-            @for (var i = 0; i < 4; i++)
-            {
-                <div class="ds-skeleton" style="height:9rem;border-radius:1.5rem"></div>
-            }
-        </div>
+        <CardSkeleton Class="ds-cols ds-cols--stats" Count="4" Lines="1" Icon />
     }
     else
     {
         @if (User.HasPermission(Permissions.Documents.View))
         {
-            <section class="ds-cols ds-cols--stats ds-stagger" aria-label="Показники">
-                <StatCard Label="Очікують мого підпису" Value="@Summary.AwaitingMyDecision.ToString(Display.Culture)" Icon="signature" Href="/documents?scope=AwaitingMe" Inverse="Summary.AwaitingMyDecision > 0" />
-                <StatCard Label="Мої чернетки" Value="@Summary.MyDrafts.ToString(Display.Culture)" Icon="pencil" Href="/documents?scope=Authored&status=Draft" />
-                <StatCard Label="Мої на підписанні" Value="@Summary.MyInSigning.ToString(Display.Culture)" Icon="hourglass" Href="/documents?scope=Authored&status=InSigning" />
-                <StatCard Label="Підписано цього місяця" Value="@Summary.SignedThisMonth.ToString(Display.Culture)" Icon="badge-check" Href="/documents?scope=Authored&status=Signed" />
+            <section class="ds-cols ds-cols--stats ds-stagger" aria-label="@T("Показники")">
+                <StatCard Label="@T("Очікують мого підпису")" Value="@Summary.AwaitingMyDecision.ToString(Display.Culture)" Icon="signature" Href="/documents?scope=AwaitingMe" Inverse="Summary.AwaitingMyDecision > 0" />
+                <StatCard Label="@T("Мої чернетки")" Value="@Summary.MyDrafts.ToString(Display.Culture)" Icon="pencil" Href="/documents?scope=Authored&status=Draft" />
+                <StatCard Label="@T("Мої на підписанні")" Value="@Summary.MyInSigning.ToString(Display.Culture)" Icon="hourglass" Href="/documents?scope=Authored&status=InSigning" />
+                <StatCard Label="@T("Підписано цього місяця")" Value="@Summary.SignedThisMonth.ToString(Display.Culture)" Icon="badge-check" Href="/documents?scope=Authored&status=Signed" />
             </section>
         }
 
         <div class="ds-split ds-split--wide-aside">
             @if (User.HasPermission(Permissions.Documents.View))
             {
-                <Card Title="Очікують мого підпису" Subtitle="Документи, де зараз ваша черга">
+                <Card Title="@T("Очікують мого підпису")" Subtitle="@T("Документи, де зараз ваша черга")">
                     <HeaderActions>
-                        <Button Href="/documents?scope=AwaitingMe" Variant="ButtonVariant.Ghost" Size="ControlSize.Small" IconEnd="arrow-right">Усі</Button>
+                        <Button Href="/documents?scope=AwaitingMe" Variant="ButtonVariant.Ghost" Size="ControlSize.Small" IconEnd="arrow-right">@T("Усі")</Button>
                     </HeaderActions>
                     <ChildContent>
                         @if (Summary.Awaiting.Count == 0)
                         {
-                            <EmptyState Icon="circle-check" Title="Усе підписано" Text="Нових документів на підпис немає." />
+                            <EmptyState Icon="circle-check" Title="@T("Усе підписано")" Text="@T("Нових документів на підпис немає.")" />
                         }
                         else
                         {
@@ -63,7 +58,7 @@
                                             <span class="ds-stat__icon"><Icon Name="file-text" /></span>
                                             <span class="ds-list__body">
                                                 <span class="ds-list__title">@document.Title</span>
-                                                <span class="ds-list__meta">№ @document.RegistrationNumber · @Display.Text(document.Kind) · @document.AuthorName</span>
+                                                <span class="ds-list__meta">@T("№ {0}", document.RegistrationNumber) · @Display.Text(document.Kind) · @document.AuthorName</span>
                                             </span>
                                             <Icon Name="chevron-right" Class="ds-muted" />
                                         </a>
@@ -77,14 +72,14 @@
 
             @if (User.HasPermission(Permissions.News.View))
             {
-                <Card Title="Новини" Subtitle="Останні оголошення">
+                <Card Title="@T("Новини")" Subtitle="@T("Останні оголошення")">
                     <HeaderActions>
-                        <Button Href="/news" Variant="ButtonVariant.Ghost" Size="ControlSize.Small" IconEnd="arrow-right">Усі</Button>
+                        <Button Href="/news" Variant="ButtonVariant.Ghost" Size="ControlSize.Small" IconEnd="arrow-right">@T("Усі")</Button>
                     </HeaderActions>
                     <ChildContent>
                         @if (Summary.LatestNews.Count == 0)
                         {
-                            <EmptyState Icon="newspaper" Title="Новин поки немає" />
+                            <EmptyState Icon="newspaper" Title="@T("Новин поки немає")" />
                         }
                         else
                         {

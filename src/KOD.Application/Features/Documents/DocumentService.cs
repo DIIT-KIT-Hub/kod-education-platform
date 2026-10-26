@@ -5,9 +5,11 @@ using KOD.Application.Common.Files;
 using KOD.Application.Common.Models;
 using KOD.Application.Common.Paging;
 using KOD.Application.Common.Results;
+using KOD.Application.Common.Text;
 using KOD.Domain.Access;
 using KOD.Domain.Audit;
 using KOD.Domain.Documents;
+using KOD.Domain.Localization;
 using Microsoft.EntityFrameworkCore;
 
 namespace KOD.Application.Features.Documents;
@@ -124,7 +126,7 @@ internal sealed class DocumentService(
 
         if (!await IsVisibleAsync(id, cancellationToken))
         {
-            return Error.NotFound("Документ не знайдено.");
+            return Error.NotFound(Texts.T("Документ не знайдено."));
         }
 
         var document = await db.Documents
@@ -139,8 +141,8 @@ internal sealed class DocumentService(
         var positions = await db.StaffPositions
             .AsNoTracking()
             .Where(p => signerIds.Contains(p.UserId) && p.IsPrimary)
-            .Select(static p => new { p.UserId, Title = p.Title ?? p.Role!.Name, Unit = p.OrganizationUnit!.Name })
-            .ToDictionaryAsync(static p => p.UserId, static p => $"{p.Title}, {p.Unit}", cancellationToken);
+            .Select(static p => new { p.UserId, p.Title, Role = p.Role!.Name, Unit = p.OrganizationUnit!.Name })
+            .ToDictionaryAsync(static p => p.UserId, static p => StoredText.PositionInUnit(p.Title, p.Role, p.Unit)!, cancellationToken);
 
         var isAuthor = document.AuthorId == me;
         var canManage = currentUser.Has(Permissions.Documents.Manage);
@@ -197,25 +199,25 @@ internal sealed class DocumentService(
         var contentType = FileRules.ResolveDocumentType(command.File.FileName);
         if (contentType is null)
         {
-            return Error.Validation("Цей тип файлу не підтримується.");
+            return Error.Validation(Texts.T("Цей тип файлу не підтримується."));
         }
 
         if (command.File.Length > FileRules.MaxDocumentSize)
         {
-            return Error.Validation($"Розмір файлу не може перевищувати {FileRules.MaxDocumentSize / 1024 / 1024} МБ.");
+            return Error.Validation(Texts.T("Розмір файлу не може перевищувати {0} МБ.", FileRules.MaxDocumentSize / 1024 / 1024));
         }
 
         var allowedUnits = await GetAuthorUnitsAsync(cancellationToken);
         if (!allowedUnits.Any(u => u.Id == command.OrganizationUnitId))
         {
-            return Error.Validation("Оберіть підрозділ, до якого ви належите.");
+            return Error.Validation(Texts.T("Оберіть підрозділ, до якого ви належите."));
         }
 
         var signerIds = command.SignerIds.Distinct().ToList();
         var activeSigners = await db.Users.CountAsync(u => signerIds.Contains(u.Id) && u.IsActive, cancellationToken);
         if (activeSigners != signerIds.Count)
         {
-            return Error.Validation("Серед підписантів є неактивні або неіснуючі користувачі.");
+            return Error.Validation(Texts.T("Серед підписантів є неактивні або неіснуючі користувачі."));
         }
 
         var blob = await fileStorage.SaveAsync(command.File.Content, "documents", FileRules.MaxDocumentSize, cancellationToken);
@@ -266,17 +268,17 @@ internal sealed class DocumentService(
             .FirstOrDefaultAsync(d => d.Id == id, cancellationToken);
         if (document is null || !await IsVisibleAsync(id, cancellationToken))
         {
-            return Error.NotFound("Документ не знайдено.");
+            return Error.NotFound(Texts.T("Документ не знайдено."));
         }
 
         if (document.AuthorId != me || !currentUser.Has(Permissions.Documents.Create))
         {
-            return Error.Forbidden("Змінювати документ може лише його автор.");
+            return Error.Forbidden(Texts.T("Змінювати документ може лише його автор."));
         }
 
         if (!document.IsEditable)
         {
-            return Error.Conflict("Змінювати можна лише чернетку або відхилений документ.");
+            return Error.Conflict(Texts.T("Змінювати можна лише чернетку або відхилений документ."));
         }
 
         var signerIds = document.Signers.OrderBy(static s => s.Order).Select(static s => s.UserId).ToList();
@@ -287,7 +289,10 @@ internal sealed class DocumentService(
                 u.Id,
                 u.LastName + " " + u.FirstName + (u.MiddleName != null ? " " + u.MiddleName : string.Empty),
                 u.Email!,
-                u.Positions.Where(static p => p.IsPrimary).Select(static p => (p.Title ?? p.Role!.Name) + ", " + p.OrganizationUnit!.Name).FirstOrDefault()))
+                StoredText.PositionInUnit(
+                    u.Positions.Where(static p => p.IsPrimary).Select(static p => p.Title).FirstOrDefault(),
+                    u.Positions.Where(static p => p.IsPrimary).Select(static p => p.Role!.Name).FirstOrDefault(),
+                    u.Positions.Where(static p => p.IsPrimary).Select(static p => p.OrganizationUnit!.Name).FirstOrDefault())))
             .ToDictionaryAsync(static u => u.Id, cancellationToken);
         var unit = await db.OrganizationUnits
             .AsNoTracking()
@@ -329,12 +334,12 @@ internal sealed class DocumentService(
             .FirstOrDefaultAsync(d => d.Id == command.Id, cancellationToken);
         if (document is null || !await IsVisibleAsync(command.Id, cancellationToken))
         {
-            return Error.NotFound("Документ не знайдено.");
+            return Error.NotFound(Texts.T("Документ не знайдено."));
         }
 
         if (document.AuthorId != me)
         {
-            return Error.Forbidden("Змінювати документ може лише його автор.");
+            return Error.Forbidden(Texts.T("Змінювати документ може лише його автор."));
         }
 
         // The current unit stays allowed even if the author's positions changed since the document was created.
@@ -343,7 +348,7 @@ internal sealed class DocumentService(
             var allowedUnits = await GetAuthorUnitsAsync(cancellationToken);
             if (!allowedUnits.Any(u => u.Id == command.OrganizationUnitId))
             {
-                return Error.Validation("Оберіть підрозділ, до якого ви належите.");
+                return Error.Validation(Texts.T("Оберіть підрозділ, до якого ви належите."));
             }
         }
 
@@ -351,12 +356,12 @@ internal sealed class DocumentService(
         var activeSigners = await db.Users.CountAsync(u => signerIds.Contains(u.Id) && u.IsActive, cancellationToken);
         if (activeSigners != signerIds.Count)
         {
-            return Error.Validation("Серед підписантів є неактивні або неіснуючі користувачі.");
+            return Error.Validation(Texts.T("Серед підписантів є неактивні або неіснуючі користувачі."));
         }
 
         if (command.Submit && signerIds.Count == 0)
         {
-            return Error.Validation("Додайте щонайменше одного підписанта.");
+            return Error.Validation(Texts.T("Додайте щонайменше одного підписанта."));
         }
 
         StoredFile? newFile = null;
@@ -365,12 +370,12 @@ internal sealed class DocumentService(
             var contentType = FileRules.ResolveDocumentType(upload.FileName);
             if (contentType is null)
             {
-                return Error.Validation("Цей тип файлу не підтримується.");
+                return Error.Validation(Texts.T("Цей тип файлу не підтримується."));
             }
 
             if (upload.Length > FileRules.MaxDocumentSize)
             {
-                return Error.Validation($"Розмір файлу не може перевищувати {FileRules.MaxDocumentSize / 1024 / 1024} МБ.");
+                return Error.Validation(Texts.T("Розмір файлу не може перевищувати {0} МБ.", FileRules.MaxDocumentSize / 1024 / 1024));
             }
 
             var blob = await fileStorage.SaveAsync(upload.Content, "documents", FileRules.MaxDocumentSize, cancellationToken);
@@ -447,12 +452,12 @@ internal sealed class DocumentService(
 
         if (!currentUser.Has(Permissions.Documents.Sign))
         {
-            return Error.Forbidden("У вас немає права підписувати документи.");
+            return Error.Forbidden(Texts.T("У вас немає права підписувати документи."));
         }
 
         if (command.Signature.Length is <= 0 or > FileRules.MaxSignatureSize)
         {
-            return Error.Validation("Некоректний розмір файлу підпису.");
+            return Error.Validation(Texts.T("Некоректний розмір файлу підпису."));
         }
 
         var document = await db.Documents
@@ -461,7 +466,7 @@ internal sealed class DocumentService(
             .FirstOrDefaultAsync(d => d.Id == command.DocumentId, cancellationToken);
         if (document is null || !document.IsAwaitingSignatureFrom(me))
         {
-            return document is null ? Error.NotFound("Документ не знайдено.") : Error.Conflict("Документ зараз не очікує вашого підпису.");
+            return document is null ? Error.NotFound(Texts.T("Документ не знайдено.")) : Error.Conflict(Texts.T("Документ зараз не очікує вашого підпису."));
         }
 
         var now = timeProvider.GetUtcNow();
@@ -481,7 +486,7 @@ internal sealed class DocumentService(
 
             if (string.IsNullOrWhiteSpace(certificate.SubjectFullName) || string.IsNullOrWhiteSpace(certificate.SerialNumber))
             {
-                return Error.Validation("Не вдалося визначити сертифікат підписувача.");
+                return Error.Validation(Texts.T("Не вдалося визначити сертифікат підписувача."));
             }
 
             var signedAt = command.SignedAt is { } reported && reported <= now + AllowedClockSkew && reported >= (document.SubmittedAt ?? now) - AllowedClockSkew
@@ -528,7 +533,7 @@ internal sealed class DocumentService(
         var document = await db.Documents.Include(static d => d.Signers).FirstOrDefaultAsync(d => d.Id == id, cancellationToken);
         if (document is null)
         {
-            return Error.NotFound("Документ не знайдено.");
+            return Error.NotFound(Texts.T("Документ не знайдено."));
         }
 
         return await DomainErrors.GuardAsync(async () =>
@@ -551,7 +556,7 @@ internal sealed class DocumentService(
         var document = await db.Documents.FirstOrDefaultAsync(d => d.Id == id, cancellationToken);
         if (document is null || !await IsVisibleAsync(id, cancellationToken))
         {
-            return Error.NotFound("Документ не знайдено.");
+            return Error.NotFound(Texts.T("Документ не знайдено."));
         }
 
         if (document.AuthorId != me && !currentUser.Has(Permissions.Documents.Manage))
@@ -582,7 +587,7 @@ internal sealed class DocumentService(
             .FirstOrDefaultAsync(d => d.Id == id, cancellationToken);
         if (document is null || !await IsVisibleAsync(id, cancellationToken))
         {
-            return Error.NotFound("Документ не знайдено.");
+            return Error.NotFound(Texts.T("Документ не знайдено."));
         }
 
         if (document.AuthorId != me && !currentUser.Has(Permissions.Documents.Manage))
@@ -612,7 +617,7 @@ internal sealed class DocumentService(
     {
         if (!await IsVisibleAsync(id, cancellationToken))
         {
-            return Error.NotFound("Документ не знайдено.");
+            return Error.NotFound(Texts.T("Документ не знайдено."));
         }
 
         var file = await db.Documents.AsNoTracking().Where(d => d.Id == id).Select(static d => d.File).FirstAsync(cancellationToken);
@@ -625,7 +630,7 @@ internal sealed class DocumentService(
     {
         if (!await IsVisibleAsync(id, cancellationToken))
         {
-            return Error.NotFound("Документ не знайдено.");
+            return Error.NotFound(Texts.T("Документ не знайдено."));
         }
 
         var file = await db.DocumentSignatures
@@ -635,7 +640,7 @@ internal sealed class DocumentService(
             .FirstOrDefaultAsync(cancellationToken);
         if (file is null)
         {
-            return Error.NotFound("Підпис не знайдено.");
+            return Error.NotFound(Texts.T("Підпис не знайдено."));
         }
 
         var stream = await fileStorage.OpenReadAsync(file.StorageKey, cancellationToken);
@@ -695,7 +700,10 @@ internal sealed class DocumentService(
                 u.Id,
                 u.LastName + " " + u.FirstName + (u.MiddleName != null ? " " + u.MiddleName : string.Empty),
                 u.Email!,
-                u.Positions.Where(static p => p.IsPrimary).Select(static p => (p.Title ?? p.Role!.Name) + ", " + p.OrganizationUnit!.Name).FirstOrDefault()))
+                StoredText.PositionInUnit(
+                    u.Positions.Where(static p => p.IsPrimary).Select(static p => p.Title).FirstOrDefault(),
+                    u.Positions.Where(static p => p.IsPrimary).Select(static p => p.Role!.Name).FirstOrDefault(),
+                    u.Positions.Where(static p => p.IsPrimary).Select(static p => p.OrganizationUnit!.Name).FirstOrDefault())))
             .ToListAsync(cancellationToken);
     }
 
@@ -763,12 +771,12 @@ internal sealed class DocumentService(
             .FirstOrDefaultAsync(d => d.Id == id, cancellationToken);
         if (document is null)
         {
-            return Error.NotFound("Документ не знайдено.");
+            return Error.NotFound(Texts.T("Документ не знайдено."));
         }
 
         if (document.AuthorId != me)
         {
-            return Error.Forbidden("Цю дію може виконати лише автор документа.");
+            return Error.Forbidden(Texts.T("Цю дію може виконати лише автор документа."));
         }
 
         return await DomainErrors.GuardAsync(async () =>

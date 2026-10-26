@@ -1,11 +1,11 @@
 @page "/signing/verify"
 @attribute [RequirePermission(Permissions.Signing.Use)]
 
-<PageHeader Title="Перевірка підпису" Subtitle="Перевірте підписаний файл: хто підписав, ким виданий сертифікат, час підпису та цілісність даних." />
+<PageHeader Title="@T("Перевірка підпису")" Subtitle="@T("Перевірте підписаний файл: хто підписав, ким виданий сертифікат, час підпису та цілісність даних.")" />
 
-<Tabs Label="Інструменти підпису">
-    <TabLink Href="/signing" Icon="signature">Підписати</TabLink>
-    <TabLink Href="/signing/verify" Active Icon="badge-check">Перевірити</TabLink>
+<Tabs Label="@T("Інструменти підпису")">
+    <TabLink Href="/signing" Icon="signature">@T("Підписати")</TabLink>
+    <TabLink Href="/signing/verify" Active Icon="badge-check">@T("Перевірити")</TabLink>
 </Tabs>
 
 <div class="ds-split ds-split--wide-aside">

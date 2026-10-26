@@ -1,0 +1,10 @@
+@* The visible field has no name: the form submits the hidden ISO value, which js/kod-pickers.js keeps in sync. *@
+<div class="ds-datepicker @Class" data-ds-datepicker data-format="@Pattern">
+    <input type="hidden" name="@Name" value="@IsoOf(Value)" min="@IsoOf(Min)" max="@IsoOf(Max)" data-ds-date-value
+           data-autosubmit="@(AutoSubmit ? string.Empty : null)" @onchange="OnChangedAsync" />
+    <input type="text" id="@Id" class="ds-input ds-datepicker__input" value="@DisplayValue" placeholder="@(Placeholder ?? T("дд.мм.рррр"))"
+           inputmode="numeric" autocomplete="off" aria-label="@Label" aria-haspopup="dialog" aria-expanded="false" />
+    <button type="button" class="ds-datepicker__toggle" tabindex="-1" aria-label="@T("Відкрити календар")">
+        <Icon Name="calendar-days" />
+    </button>
+</div>

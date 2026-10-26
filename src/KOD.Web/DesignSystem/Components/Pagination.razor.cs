@@ -15,11 +15,6 @@ public partial class Pagination
     private static readonly int[] DefaultPageSizes = [10, 20, 50, 100];
 
     /// <summary>
-    /// Formatting culture of the counters.
-    /// </summary>
-    private static readonly CultureInfo Culture = CultureInfo.GetCultureInfo("uk-UA");
-
-    /// <summary>
     /// Gets or sets the 1-based page number.
     /// </summary>
     [Parameter]
@@ -42,6 +37,11 @@ public partial class Pagination
     /// </summary>
     [Parameter]
     public IReadOnlyList<int> PageSizes { get; set; } = DefaultPageSizes;
+
+    /// <summary>
+    /// Gets the formatting culture of the counters (the interface language).
+    /// </summary>
+    private static CultureInfo Culture => CultureInfo.CurrentCulture;
 
     /// <summary>
     /// Gets or sets the navigation manager.

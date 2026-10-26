@@ -8,6 +8,7 @@ using KOD.Application.Common.Results;
 using KOD.Application.Common.Text;
 using KOD.Domain.Access;
 using KOD.Domain.Audit;
+using KOD.Domain.Localization;
 using KOD.Domain.News;
 using Microsoft.EntityFrameworkCore;
 
@@ -102,7 +103,7 @@ internal sealed class NewsService(
         var article = await db.NewsArticles.AsNoTracking().Include(static a => a.Author).Include(static a => a.Organization).FirstOrDefaultAsync(a => a.Slug == slug, cancellationToken);
         var canManage = article is not null && CanManage(article, await ManageScopeAsync(cancellationToken));
         return article is null || (!article.IsPublished && !canManage)
-            ? Error.NotFound("Новину не знайдено.")
+            ? Error.NotFound(Texts.T("Новину не знайдено."))
             : ToDto(article, canManage);
     }
 
@@ -117,10 +118,10 @@ internal sealed class NewsService(
         var article = await db.NewsArticles.AsNoTracking().Include(static a => a.Author).Include(static a => a.Organization).FirstOrDefaultAsync(a => a.Id == id, cancellationToken);
         if (article is null)
         {
-            return Error.NotFound("Новину не знайдено.");
+            return Error.NotFound(Texts.T("Новину не знайдено."));
         }
 
-        return CanManage(article, await ManageScopeAsync(cancellationToken)) ? ToDto(article, canManage: true) : Error.Forbidden(OutsideScopeMessage);
+        return CanManage(article, await ManageScopeAsync(cancellationToken)) ? ToDto(article, canManage: true) : Error.Forbidden(Texts.T(OutsideScopeMessage));
     }
 
     /// <inheritdoc />
@@ -175,13 +176,13 @@ internal sealed class NewsService(
         var article = await db.NewsArticles.FirstOrDefaultAsync(a => a.Id == id, cancellationToken);
         if (article is null)
         {
-            return Error.NotFound("Новину не знайдено.");
+            return Error.NotFound(Texts.T("Новину не знайдено."));
         }
 
         var scope = await ManageScopeAsync(cancellationToken);
         if (!CanManage(article, scope))
         {
-            return Error.Forbidden(OutsideScopeMessage);
+            return Error.Forbidden(Texts.T(OutsideScopeMessage));
         }
 
         var organizationError = await ValidateOrganizationAsync(command.OrganizationId, scope, cancellationToken);
@@ -226,12 +227,12 @@ internal sealed class NewsService(
         var article = await db.NewsArticles.FirstOrDefaultAsync(a => a.Id == id, cancellationToken);
         if (article is null)
         {
-            return Error.NotFound("Новину не знайдено.");
+            return Error.NotFound(Texts.T("Новину не знайдено."));
         }
 
         if (!CanManage(article, await ManageScopeAsync(cancellationToken)))
         {
-            return Error.Forbidden(OutsideScopeMessage);
+            return Error.Forbidden(Texts.T(OutsideScopeMessage));
         }
 
         db.NewsArticles.Remove(article);
@@ -290,15 +291,15 @@ internal sealed class NewsService(
     {
         if (organizationId is not { } id)
         {
-            return scope.IsCabinetWide ? null : Error.Forbidden("Новини для всього кабінету публікує лише адміністратор усіх організацій. Оберіть свою організацію.");
+            return scope.IsCabinetWide ? null : Error.Forbidden(Texts.T("Новини для всього кабінету публікує лише адміністратор усіх організацій. Оберіть свою організацію."));
         }
 
         if (!await db.OrganizationUnits.AnyAsync(u => u.Id == id && u.Type!.IsOrganization, cancellationToken))
         {
-            return Error.Validation("Оберіть організацію новини.");
+            return Error.Validation(Texts.T("Оберіть організацію новини."));
         }
 
-        return scope.Contains(id) ? null : Error.Forbidden("Ви можете публікувати новини лише своїх організацій.");
+        return scope.Contains(id) ? null : Error.Forbidden(Texts.T("Ви можете публікувати новини лише своїх організацій."));
     }
 
     /// <summary>
@@ -315,13 +316,13 @@ internal sealed class NewsService(
         {
             if (image.Length > FileRules.MaxImageSize)
             {
-                return Error.Validation("Зображення не може бути більшим за 5 МБ.");
+                return Error.Validation(Texts.T("Зображення не може бути більшим за 5 МБ."));
             }
 
             var url = await assets.SaveImageAsync(image.Content, "news", cancellationToken);
             if (url is null)
             {
-                return Error.Validation("Підтримуються лише зображення PNG, JPEG або WebP.");
+                return Error.Validation(Texts.T("Підтримуються лише зображення PNG, JPEG або WebP."));
             }
 
             article.SetCover(url);

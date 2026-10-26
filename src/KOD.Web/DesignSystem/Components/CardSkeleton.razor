@@ -1,0 +1,22 @@
+<div class="@($"{Class} ds-skeleton-group")" role="status" aria-busy="true" aria-label="@T("Завантаження…")">
+    @for (var i = 0; i < Count; i++)
+    {
+        <div class="ds-card @(Media ? "ds-card--flush" : null)" aria-hidden="true">
+            @if (Media)
+            {
+                <span class="ds-skeleton" style="aspect-ratio:16/9;border-radius:0"></span>
+            }
+            <div class="ds-stack ds-stack--sm" style="@(Media ? "padding:1.25rem" : null)">
+                @if (Icon)
+                {
+                    <span class="ds-skeleton" style="width:2.75rem;height:2.75rem"></span>
+                }
+                <span class="ds-skeleton ds-skeleton--title" style="@($"width:{60 + (i * 17 % 35)}%")"></span>
+                @for (var line = 0; line < Lines; line++)
+                {
+                    <span class="ds-skeleton ds-skeleton--text" style="@($"width:{(line == Lines - 1 ? 45 + (i * 11 % 30) : 92)}%")"></span>
+                }
+            </div>
+        </div>
+    }
+</div>

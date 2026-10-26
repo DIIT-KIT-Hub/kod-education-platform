@@ -2,6 +2,7 @@ using KOD.Application.Common.Paging;
 using KOD.Application.Features.Documents;
 using KOD.Domain.Access;
 using KOD.Domain.Documents;
+using KOD.Domain.Localization;
 using KOD.Web.Components.Shared;
 using KOD.Web.Security;
 using Microsoft.AspNetCore.Components;
@@ -104,8 +105,8 @@ public partial class DocumentsIndex
     /// Gets the empty state text of the current scope.
     /// </summary>
     private string EmptyText => CurrentScope == DocumentScope.AwaitingMe && Search is null
-        ? "Документів, що очікують вашого підпису, немає."
-        : "Спробуйте змінити параметри пошуку або фільтри.";
+        ? Texts.T("Документів, що очікують вашого підпису, немає.")
+        : Texts.T("Спробуйте змінити параметри пошуку або фільтри.");
 
     /// <inheritdoc />
     protected override async Task OnParametersSetAsync()

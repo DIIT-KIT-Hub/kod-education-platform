@@ -1,4 +1,5 @@
 using KOD.Domain.Common;
+using KOD.Domain.Localization;
 
 namespace KOD.Domain.Documents;
 
@@ -24,8 +25,8 @@ public sealed record StoredFile
     {
         FileName = Guard.Text(Path.GetFileName(fileName), FileNameMaxLength, "Назва файлу");
         ContentType = Guard.Text(contentType, 128, "Тип файлу");
-        Size = size > 0 ? size : throw new DomainException("Файл порожній.");
-        Sha256 = sha256.Length == 64 ? sha256.ToLowerInvariant() : throw new DomainException("Некоректний хеш файлу.");
+        Size = size > 0 ? size : throw new DomainException(Texts.T("Файл порожній."));
+        Sha256 = sha256.Length == 64 ? sha256.ToLowerInvariant() : throw new DomainException(Texts.T("Некоректний хеш файлу."));
         StorageKey = Guard.Text(storageKey, 512, "Ключ сховища");
     }
 

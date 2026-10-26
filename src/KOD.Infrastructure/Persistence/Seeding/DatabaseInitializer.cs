@@ -203,8 +203,8 @@ public sealed partial class DatabaseInitializer(
         {
             if (!existing.TryGetValue(definition.Code, out var role))
             {
-                role = new Role(definition.Code, definition.Name, definition.Description, isSystem: true);
-                role.Update(definition.Name, definition.Description, definition.IsLeadership);
+                role = new Role(definition.Code, definition.SourceName, definition.SourceDescription, isSystem: true);
+                role.Update(definition.SourceName, definition.SourceDescription, definition.IsLeadership);
                 role.SetPermissions(definition.Permissions);
                 db.Roles.Add(role);
                 existing[definition.Code] = role;

@@ -3,14 +3,14 @@
 @attribute [RequirePermission(Permissions.Structure.Manage)]
 @rendermode InteractiveServer
 
-<PageHeader Title="@(Existing?.Name ?? "Новий тип підрозділу")"
-            Breadcrumbs="@([new("Адміністрування", "/admin"), new("Структура", "/admin/units"), new("Типи підрозділів", "/admin/unit-types"), new(Existing is null ? "Новий" : "Редагування")])">
+<PageHeader Title="@(Existing?.Name ?? T("Новий тип підрозділу"))"
+            Breadcrumbs="@([new(T("Адміністрування"), "/admin"), new(T("Структура"), "/admin/units"), new(T("Типи підрозділів"), "/admin/unit-types"), new(Existing is null ? T("Новий") : T("Редагування"))])">
     <ChildContent>
         @if (Existing is not null)
         {
             <div class="ds-cluster">
                 <Badge Tone="Tone.Dashed"><span class="ds-mono">@Existing.Code</span></Badge>
-                <Badge>Підрозділів: @Existing.UnitCount</Badge>
+                <Badge>@T("Підрозділів: {0}", Existing.UnitCount)</Badge>
             </div>
         }
     </ChildContent>
@@ -24,7 +24,7 @@
     }
     @if (!CabinetWide)
     {
-        <Alert Tone="Tone.Outline" Icon="info">Каталог типів спільний для всіх організацій кабінету, тому змінювати його може лише адміністратор усіх організацій.</Alert>
+        <Alert Tone="Tone.Outline" Icon="info">@T("Каталог типів спільний для всіх організацій кабінету, тому змінювати його може лише адміністратор усіх організацій.")</Alert>
     }
 
     <EditForm Model="Model" OnValidSubmit="SaveAsync" class="ds-split ds-split--wide-aside">
@@ -32,31 +32,31 @@
         <fieldset disabled="@(!CabinetWide)" class="ds-stack ds-stack--lg" style="border:0;padding:0;margin:0;min-width:0">
             <Card>
                 <div class="ds-form-grid">
-                    <Field Label="Назва" For="type-name" Required Hint="Як рівень називається у вашій організації: «Департамент», «Кафедра», «Відділення», «Цех»…">
+                    <Field Label="@T("Назва")" For="type-name" Required Hint="@T("Як рівень називається у вашій організації: «Департамент», «Кафедра», «Відділення», «Цех»…")">
                         <InputText id="type-name" @bind-Value="Model.Name" class="ds-input" maxlength="128" />
-                        <ValidationMessage For="() => Model.Name" />
+                        <ValidationError For="() => Model.Name" />
                     </Field>
-                    <Field Label="Код" For="type-code" Required Hint="Латиниця, цифри, «-», «_».">
+                    <Field Label="@T("Код")" For="type-code" Required Hint="@T("Латиниця, цифри, «-», «_».")">
                         <InputText id="type-code" @bind-Value="Model.Code" class="ds-input ds-mono" maxlength="32" placeholder="WORKSHOP" />
-                        <ValidationMessage For="() => Model.Code" />
+                        <ValidationError For="() => Model.Code" />
                     </Field>
-                    <Field Label="Опис" For="type-description" Class="ds-span-full">
+                    <Field Label="@T("Опис")" For="type-description" Class="ds-span-full">
                         <InputTextArea id="type-description" @bind-Value="Model.Description" class="ds-textarea" maxlength="512" rows="2" />
                     </Field>
-                    <Field Label="Порядок у списках" For="type-order">
+                    <Field Label="@T("Порядок у списках")" For="type-order">
                         <InputNumber id="type-order" @bind-Value="Model.SortOrder" class="ds-input" />
                     </Field>
                     <label class="ds-check ds-span-full">
                         <InputCheckbox @bind-Value="Model.IsOrganization" />
                         <span class="ds-check__text">
-                            <span>Це організація</span>
-                            <span class="ds-check__hint">Підрозділи цього типу можуть стояти на верхньому рівні структури й обмежують дозвіл «Документи організації». Підходить для компанії, установи, навчального чи медичного закладу, фонду, дочірнього підприємства.</span>
+                            <span>@T("Це організація")</span>
+                            <span class="ds-check__hint">@T("Підрозділи цього типу можуть стояти на верхньому рівні структури й обмежують дозвіл «Документи організації». Підходить для компанії, установи, навчального чи медичного закладу, фонду, дочірнього підприємства.")</span>
                         </span>
                     </label>
                 </div>
             </Card>
-            <Card Title="Іконка">
-                <div class="icon-picker" role="radiogroup" aria-label="Іконка">
+            <Card Title="@T("Іконка")">
+                <div class="icon-picker" role="radiogroup" aria-label="@T("Іконка")">
                     @foreach (var icon in Icons)
                     {
                         <label class="icon-picker__option" title="@icon">
@@ -71,17 +71,21 @@
         {
             <Card Variant="CardVariant.Muted">
                 <div class="ds-stack">
-                    <Button Type="submit" Block Icon="save" Disabled="Busy">Зберегти</Button>
+                    <Button Type="submit" Block Icon="save" Disabled="Busy">@T("Зберегти")</Button>
                     @if (Existing is not null)
                     {
-                        <Button Variant="ButtonVariant.Danger" Block Icon="trash-2" Disabled="@(Busy || Existing.UnitCount > 0)" OnClick="DeleteAsync">Видалити тип</Button>
+                        <Button Variant="ButtonVariant.Danger" Block Icon="trash-2" Disabled="@(Busy || Existing.UnitCount > 0)" OnClick="DeleteAsync">@T("Видалити тип")</Button>
                         @if (Existing.UnitCount > 0)
                         {
-                            <span class="ds-text-sm ds-muted">Тип можна видалити, коли жоден підрозділ його не має.</span>
+                            <span class="ds-text-sm ds-muted">@T("Тип можна видалити, коли жоден підрозділ його не має.")</span>
                         }
                     }
                 </div>
             </Card>
         }
     </EditForm>
+}
+else
+{
+    <FormSkeleton Cards="1" Fields="3" />
 }

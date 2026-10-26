@@ -1,7 +1,16 @@
 /**
  * Promise-based client for the EUSignCP Web Worker (eusign.worker.js).
  * One worker per page; it is created lazily and terminated by {@link EUSignClient#dispose}.
+ * The worker reports its own errors in Ukrainian; they are translated here into the page language.
  */
+
+/**
+ * Translates a Ukrainian interface text into the page language (see kod-ds.js).
+ * @param {string} text The Ukrainian text.
+ * @param {...(string|number)} args The placeholder values.
+ * @returns {string} The text.
+ */
+const t = (text, ...args) => (window.kodDs ? window.kodDs.t(text, ...args) : text);
 
 /**
  * @typedef {object} SigningConfig
@@ -55,13 +64,14 @@ export class EUSignClient {
             this.worker.onmessage = (event) => this.onMessage(event.data);
             this.worker.onerror = (event) => {
                 event.preventDefault();
-                this.failAll(new SigningError(-1, "Не вдалося завантажити бібліотеку підпису."));
+                this.failAll(new SigningError(-1, t("Не вдалося завантажити бібліотеку підпису.")));
             };
             this.ready = this.call("init", {
                 scripts: this.config.scripts,
                 proxy: this.config.proxy,
                 casUrl: this.config.casUrl,
                 certificatesUrl: this.config.certificatesUrl,
+                language: document.documentElement.lang === "en" ? "en" : "uk",
             });
             this.ready.catch(() => {
                 this.ready = null;
@@ -122,7 +132,7 @@ export class EUSignClient {
             this.worker = null;
         }
 
-        this.failAll(new SigningError(-1, "Скасовано."));
+        this.failAll(new SigningError(-1, t("Скасовано.")));
         this.ready = null;
     }
 
@@ -136,7 +146,7 @@ export class EUSignClient {
      */
     call(cmd, params, transfer) {
         if (!this.worker) {
-            return Promise.reject(new SigningError(-1, "Бібліотеку підпису не запущено."));
+            return Promise.reject(new SigningError(-1, t("Бібліотеку підпису не запущено.")));
         }
 
         const id = this.nextId++;
@@ -149,7 +159,7 @@ export class EUSignClient {
     /**
      * Handles a worker reply.
      * @private
-     * @param {{id: number, result?: any, error?: {code: number, message: string}}} message The reply.
+     * @param {{id: number, result?: any, error?: {code: number, message: string, args?: string[]}}} message The reply.
      */
     onMessage(message) {
         const pending = this.pending.get(message.id);
@@ -159,7 +169,7 @@ export class EUSignClient {
 
         this.pending.delete(message.id);
         if (message.error) {
-            pending.reject(new SigningError(message.error.code, message.error.message));
+            pending.reject(new SigningError(message.error.code, t(message.error.message, ...(message.error.args || []))));
         } else {
             pending.resolve(message.result);
         }

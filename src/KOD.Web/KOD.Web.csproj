@@ -28,6 +28,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- Translations are embedded resources (Directory.Build.props), not published content. -->
+    <Content Remove="Localization\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <InternalsVisibleTo Include="KOD.UnitTests" />
   </ItemGroup>
 

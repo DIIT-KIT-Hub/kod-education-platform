@@ -1,7 +1,9 @@
+using KOD.Domain.Localization;
+
 namespace KOD.Application.Common.Results;
 
 /// <summary>
-/// Describes why an operation failed. <see cref="Message"/> is user-facing (Ukrainian).
+/// Describes why an operation failed. <see cref="Message"/> is user-facing (in the interface language of the request).
 /// </summary>
 /// <param name="Code">A stable machine-readable code.</param>
 /// <param name="Message">The user-facing message.</param>
@@ -19,16 +21,16 @@ public sealed record Error(string Code, string Message, ErrorType Type)
     /// <summary>
     /// Creates a not-found error.
     /// </summary>
-    /// <param name="message">The user-facing message.</param>
+    /// <param name="message">The user-facing message (a generic one when omitted).</param>
     /// <returns>The error.</returns>
-    public static Error NotFound(string message = "Запис не знайдено.") => new("not_found", message, ErrorType.NotFound);
+    public static Error NotFound(string? message = null) => new("not_found", message ?? Texts.T("Запис не знайдено."), ErrorType.NotFound);
 
     /// <summary>
     /// Creates a forbidden error.
     /// </summary>
-    /// <param name="message">The user-facing message.</param>
+    /// <param name="message">The user-facing message (a generic one when omitted).</param>
     /// <returns>The error.</returns>
-    public static Error Forbidden(string message = "Недостатньо прав для виконання дії.") => new("forbidden", message, ErrorType.Forbidden);
+    public static Error Forbidden(string? message = null) => new("forbidden", message ?? Texts.T("Недостатньо прав для виконання дії."), ErrorType.Forbidden);
 
     /// <summary>
     /// Creates a conflict error.
@@ -41,5 +43,5 @@ public sealed record Error(string Code, string Message, ErrorType Type)
     /// Creates an unauthorized error.
     /// </summary>
     /// <returns>The error.</returns>
-    public static Error Unauthorized() => new("unauthorized", "Потрібна автентифікація.", ErrorType.Unauthorized);
+    public static Error Unauthorized() => new("unauthorized", Texts.T("Потрібна автентифікація."), ErrorType.Unauthorized);
 }

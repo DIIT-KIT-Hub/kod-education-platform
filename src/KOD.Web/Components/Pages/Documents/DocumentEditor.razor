@@ -5,20 +5,20 @@
 
 @if (IsEdit)
 {
-    <PageHeader Title="Редагування документа" Subtitle="Змініть файл, реквізити або маршрут і збережіть документ або надішліть його на підпис."
-                Breadcrumbs="@([new("Документи", "/documents"), new($"№ {Existing?.RegistrationNumber}", $"/documents/{Id}"), new("Редагування")])" />
+    <PageHeader Title="@T("Редагування документа")" Subtitle="@T("Змініть файл, реквізити або маршрут і збережіть документ або надішліть його на підпис.")"
+                Breadcrumbs="@([new(T("Документи"), "/documents"), new(T("№ {0}", Existing?.RegistrationNumber), $"/documents/{Id}"), new(T("Редагування"))])" />
 }
 else
 {
-    <PageHeader Title="Новий документ" Subtitle="Завантажте файл, вкажіть реквізити та сформуйте маршрут підписання."
-                Breadcrumbs="@([new("Документи", "/documents"), new("Новий документ")])" />
+    <PageHeader Title="@T("Новий документ")" Subtitle="@T("Завантажте файл, вкажіть реквізити та сформуйте маршрут підписання.")"
+                Breadcrumbs="@([new(T("Документи"), "/documents"), new(T("Новий документ"))])" />
 }
 
 @if (LoadError is not null)
 {
     <Card>
-        <EmptyState Icon="file-x" Title="Документ не можна змінити" Text="@LoadError">
-            <Button Href="@($"/documents/{Id}")" Variant="ButtonVariant.Secondary" Icon="arrow-left">До документа</Button>
+        <EmptyState Icon="file-x" Title="@T("Документ не можна змінити")" Text="@LoadError">
+            <Button Href="@($"/documents/{Id}")" Variant="ButtonVariant.Secondary" Icon="arrow-left">@T("До документа")</Button>
         </EmptyState>
     </Card>
 }
@@ -30,8 +30,8 @@ else if (!IsEdit || Existing is not null)
         <div class="ds-stack ds-stack--lg">
             @if (Existing?.Status == DocumentStatus.Rejected)
             {
-                <Alert Tone="Tone.Outline" Icon="info" Title="Документ відхилено">
-                    Виправте його та надішліть на підпис повторно. Підписи, накладені на поточний файл, збережуться — ці підписанти не підписуватимуть знову, якщо ви не заміните файл і не приберете їх із маршруту.
+                <Alert Tone="Tone.Outline" Icon="info" Title="@T("Документ відхилено")">
+                    @T("Виправте його та надішліть на підпис повторно. Підписи, накладені на поточний файл, збережуться — ці підписанти не підписуватимуть знову, якщо ви не заміните файл і не приберете їх із маршруту.")
                 </Alert>
             }
 
@@ -40,25 +40,25 @@ else if (!IsEdit || Existing is not null)
                 <Alert Tone="Tone.Danger">@ErrorMessage</Alert>
             }
 
-            <Card Title="Файл">
+            <Card Title="@T("Файл")">
                 @if (Existing is not null)
                 {
                     <div class="doc-file">
                         <span class="doc-file__icon"><Icon Name="file-text" /></span>
                         <span class="ds-stack ds-stack--sm">
                             <span class="doc-file__name">@(SelectedFile is null ? Existing.File.FileName : SelectedFile.Name)</span>
-                            <span class="ds-text-sm ds-muted">@(SelectedFile is null ? $"Поточний файл · {Display.FileSize(Existing.File.Size)}" : $"Новий файл · {Display.FileSize(SelectedFile.Size)}")</span>
+                            <span class="ds-text-sm ds-muted">@(SelectedFile is null ? T("Поточний файл · {0}", Display.FileSize(Existing.File.Size)) : T("Новий файл · {0}", Display.FileSize(SelectedFile.Size)))</span>
                         </span>
                     </div>
                 }
                 <label class="ds-dropzone">
                     <InputFile OnChange="SelectFile" accept="@FileRules.DocumentAccept" />
                     <span class="ds-empty__icon"><Icon Name="file-up" Size="IconSize.Large" /></span>
-                    <span class="ds-dropzone__title">@(IsEdit ? "Замінити файл" : SelectedFile?.Name ?? "Перетягніть файл або натисніть, щоб обрати")</span>
+                    <span class="ds-dropzone__title">@(IsEdit ? T("Замінити файл") : SelectedFile?.Name ?? T("Перетягніть файл або натисніть, щоб обрати"))</span>
                     <span class="ds-dropzone__hint">
                         @if (SelectedFile is null || IsEdit)
                         {
-                            <span>PDF, DOCX, XLSX, ODT та інші · до @(FileRules.MaxDocumentSize / 1024 / 1024) МБ. Для PAdES оберіть PDF.</span>
+                            <span>@T("PDF, DOCX, XLSX, ODT та інші · до {0} МБ. Для PAdES оберіть PDF.", FileRules.MaxDocumentSize / 1024 / 1024)</span>
                         }
                         else
                         {
@@ -68,21 +68,21 @@ else if (!IsEdit || Existing is not null)
                 </label>
                 @if (SignaturesToRemove > 0)
                 {
-                    <Alert Tone="Tone.Danger" Icon="triangle-alert" Title="Частину підписів буде анульовано">
+                    <Alert Tone="Tone.Danger" Icon="triangle-alert" Title="@T("Частину підписів буде анульовано")">
                         @(SelectedFile is not null
-                            ? $"Підписи накладено на попередній файл. Після збереження всі {SignaturesToRemove} підписи буде видалено, а підписанти підписуватимуть новий файл."
-                            : $"Підписи тих, кого ви прибрали з маршруту ({SignaturesToRemove}), буде видалено після збереження.")
+                            ? T("Підписи накладено на попередній файл. Після збереження всі {0} підписи буде видалено, а підписанти підписуватимуть новий файл.", SignaturesToRemove)
+                            : T("Підписи тих, кого ви прибрали з маршруту ({0}), буде видалено після збереження.", SignaturesToRemove))
                     </Alert>
                 }
             </Card>
 
-            <Card Title="Реквізити">
+            <Card Title="@T("Реквізити")">
                 <div class="ds-form-grid">
-                    <Field Label="Назва" For="doc-title" Required Class="ds-span-full">
-                        <InputText id="doc-title" @bind-Value="Model.Title" class="ds-input" maxlength="300" placeholder="Наприклад: Про затвердження графіка відпусток" />
-                        <ValidationMessage For="() => Model.Title" />
+                    <Field Label="@T("Назва")" For="doc-title" Required Class="ds-span-full">
+                        <InputText id="doc-title" @bind-Value="Model.Title" class="ds-input" maxlength="300" placeholder="@T("Наприклад: Про затвердження графіка відпусток")" />
+                        <ValidationError For="() => Model.Title" />
                     </Field>
-                    <Field Label="Вид документа" For="doc-kind" Required>
+                    <Field Label="@T("Вид документа")" For="doc-kind" Required>
                         <InputSelect id="doc-kind" @bind-Value="Model.Kind" class="ds-select">
                             @foreach (var kind in Enum.GetValues<DocumentKind>())
                             {
@@ -90,17 +90,17 @@ else if (!IsEdit || Existing is not null)
                             }
                         </InputSelect>
                     </Field>
-                    <Field Label="Підрозділ" For="doc-unit" Required>
+                    <Field Label="@T("Підрозділ")" For="doc-unit" Required>
                         <InputSelect id="doc-unit" @bind-Value="Model.UnitId" class="ds-select">
-                            <option value="">Оберіть підрозділ</option>
+                            <option value="">@T("Оберіть підрозділ")</option>
                             @foreach (var unit in Units)
                             {
                                 <option value="@unit.Id">@(new string(' ', unit.Depth * 3))@unit.Name</option>
                             }
                         </InputSelect>
-                        <ValidationMessage For="() => Model.UnitId" />
+                        <ValidationError For="() => Model.UnitId" />
                     </Field>
-                    <Field Label="Опис" For="doc-description" Class="ds-span-full" Hint="Короткий зміст або коментар для підписантів.">
+                    <Field Label="@T("Опис")" For="doc-description" Class="ds-span-full" Hint="@T("Короткий зміст або коментар для підписантів.")">
                         <InputTextArea id="doc-description" @bind-Value="Model.Description" class="ds-textarea" maxlength="4000" />
                     </Field>
                 </div>
@@ -108,25 +108,25 @@ else if (!IsEdit || Existing is not null)
         </div>
 
         <div class="ds-stack ds-stack--lg">
-            <Card Title="Маршрут підписання" Subtitle="Додайте підписантів у потрібному порядку.">
-                <div class="ds-segmented" role="radiogroup" aria-label="Порядок підписання">
+            <Card Title="@T("Маршрут підписання")" Subtitle="@T("Додайте підписантів у потрібному порядку.")">
+                <div class="ds-segmented" role="radiogroup" aria-label="@T("Порядок підписання")">
                     @foreach (var mode in Enum.GetValues<SigningMode>())
                     {
                         <label class="ds-segmented__option">
                             <input type="radio" name="signing-mode" checked="@(Model.Mode == mode)" @onchange="() => Model.Mode = mode" />
                             <span class="ds-segmented__label">
                                 @Display.Text(mode)
-                                <small>@(mode == SigningMode.Sequential ? "один за одним" : "у будь-якому порядку")</small>
+                                <small>@(mode == SigningMode.Sequential ? T("один за одним") : T("у будь-якому порядку"))</small>
                             </span>
                         </label>
                     }
                 </div>
 
                 <div class="ds-field">
-                    <label class="ds-label" for="signer-search">Знайти працівника</label>
+                    <label class="ds-label" for="signer-search">@T("Знайти працівника")</label>
                     <div class="ds-toolbar__search">
                         <Icon Name="search" />
-                        <input id="signer-search" class="ds-input" placeholder="Прізвище, ім'я або e-mail" autocomplete="off"
+                        <input id="signer-search" class="ds-input" placeholder="@T("Прізвище, ім'я або e-mail")" autocomplete="off"
                                value="@SearchTerm" @oninput="SearchAsync" />
                     </div>
                     @if (Suggestions.Count > 0)
@@ -147,7 +147,7 @@ else if (!IsEdit || Existing is not null)
 
                 @if (Signers.Count == 0)
                 {
-                    <EmptyState Icon="users" Title="Підписантів ще немає" Text="Документ без підписантів можна зберегти лише як чернетку." />
+                    <EmptyState Icon="users" Title="@T("Підписантів ще немає")" Text="@T("Документ без підписантів можна зберегти лише як чернетку.")" />
                 }
                 else
                 {
@@ -164,12 +164,12 @@ else if (!IsEdit || Existing is not null)
                                     <span class="ds-list__meta">@(signer.Position ?? signer.Email)</span>
                                     @if (kept.Contains(signer.Id))
                                     {
-                                        <Badge Tone="Tone.Inverse" Icon="badge-check">Підпис збережеться</Badge>
+                                        <Badge Tone="Tone.Inverse" Icon="badge-check">@T("Підпис збережеться")</Badge>
                                     }
                                 </span>
-                                <button type="button" class="ds-btn ds-btn--ghost ds-btn--icon ds-btn--sm" disabled="@(index == 0)" @onclick="() => Move(index, -1)" aria-label="Вище"><Icon Name="chevron-up" /></button>
-                                <button type="button" class="ds-btn ds-btn--ghost ds-btn--icon ds-btn--sm" disabled="@(index == Signers.Count - 1)" @onclick="() => Move(index, 1)" aria-label="Нижче"><Icon Name="chevron-down" /></button>
-                                <button type="button" class="ds-btn ds-btn--ghost ds-btn--icon ds-btn--sm" @onclick="() => Signers.RemoveAt(index)" aria-label="Прибрати"><Icon Name="x" /></button>
+                                <button type="button" class="ds-btn ds-btn--ghost ds-btn--icon ds-btn--sm" disabled="@(index == 0)" @onclick="() => Move(index, -1)" aria-label="@T("Вище")"><Icon Name="chevron-up" /></button>
+                                <button type="button" class="ds-btn ds-btn--ghost ds-btn--icon ds-btn--sm" disabled="@(index == Signers.Count - 1)" @onclick="() => Move(index, 1)" aria-label="@T("Нижче")"><Icon Name="chevron-down" /></button>
+                                <button type="button" class="ds-btn ds-btn--ghost ds-btn--icon ds-btn--sm" @onclick="() => Signers.RemoveAt(index)" aria-label="@T("Прибрати")"><Icon Name="x" /></button>
                             </li>
                         }
                     </ol>
@@ -178,11 +178,11 @@ else if (!IsEdit || Existing is not null)
 
             <Card Variant="CardVariant.Muted">
                 <div class="ds-stack">
-                    <Button Type="submit" Block Icon="send" Disabled="@(Busy || Signers.Count == 0)" OnClick="() => Model.Submit = true">@(IsEdit ? "Зберегти й надіслати на підпис" : "Створити й надіслати на підпис")</Button>
-                    <Button Type="submit" Variant="ButtonVariant.Secondary" Block Icon="save" Disabled="Busy" OnClick="() => Model.Submit = false">@(IsEdit ? "Зберегти зміни" : "Зберегти чернетку")</Button>
+                    <Button Type="submit" Block Icon="send" Disabled="@(Busy || Signers.Count == 0)" OnClick="() => Model.Submit = true">@(IsEdit ? T("Зберегти й надіслати на підпис") : T("Створити й надіслати на підпис"))</Button>
+                    <Button Type="submit" Variant="ButtonVariant.Secondary" Block Icon="save" Disabled="Busy" OnClick="() => Model.Submit = false">@(IsEdit ? T("Зберегти зміни") : T("Зберегти чернетку"))</Button>
                     @if (IsEdit)
                     {
-                        <Button Href="@($"/documents/{Id}")" Variant="ButtonVariant.Ghost" Block Icon="arrow-left">Скасувати</Button>
+                        <Button Href="@($"/documents/{Id}")" Variant="ButtonVariant.Ghost" Block Icon="arrow-left">@T("Скасувати")</Button>
                     }
                     @if (Busy)
                     {
@@ -192,4 +192,8 @@ else if (!IsEdit || Existing is not null)
             </Card>
         </div>
     </EditForm>
+}
+else
+{
+    <FormSkeleton Cards="2" Fields="4" />
 }

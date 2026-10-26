@@ -811,6 +811,11 @@ namespace KOD.Infrastructure.Persistence.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("is_active");
 
+                    b.Property<string>("Language")
+                        .HasMaxLength(8)
+                        .HasColumnType("character varying(8)")
+                        .HasColumnName("language");
+
                     b.Property<string>("LastName")
                         .IsRequired()
                         .HasMaxLength(64)

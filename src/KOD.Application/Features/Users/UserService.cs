@@ -6,9 +6,11 @@ using KOD.Application.Common.Files;
 using KOD.Application.Common.Models;
 using KOD.Application.Common.Paging;
 using KOD.Application.Common.Results;
+using KOD.Application.Common.Text;
 using KOD.Domain.Access;
 using KOD.Domain.Audit;
 using KOD.Domain.Common;
+using KOD.Domain.Localization;
 using KOD.Domain.Users;
 using Microsoft.EntityFrameworkCore;
 
@@ -83,8 +85,10 @@ internal sealed class UserService(
                 u.Id,
                 u.LastName + " " + u.FirstName + (u.MiddleName != null ? " " + u.MiddleName : string.Empty),
                 u.Email!,
-                u.Positions.Where(p => all || units.Contains(p.OrganizationUnitId)).OrderByDescending(static p => p.IsPrimary).Select(static p => p.Title ?? p.Role!.Name).FirstOrDefault(),
-                u.Positions.Where(p => all || units.Contains(p.OrganizationUnitId)).OrderByDescending(static p => p.IsPrimary).Select(static p => p.OrganizationUnit!.Name).FirstOrDefault(),
+                StoredText.PositionTitle(
+                    u.Positions.Where(p => all || units.Contains(p.OrganizationUnitId)).OrderByDescending(static p => p.IsPrimary).ThenBy(static p => p.Id).Select(static p => p.Title).FirstOrDefault(),
+                    u.Positions.Where(p => all || units.Contains(p.OrganizationUnitId)).OrderByDescending(static p => p.IsPrimary).ThenBy(static p => p.Id).Select(static p => p.Role!.Name).FirstOrDefault()),
+                u.Positions.Where(p => all || units.Contains(p.OrganizationUnitId)).OrderByDescending(static p => p.IsPrimary).ThenBy(static p => p.Id).Select(static p => p.OrganizationUnit!.Name).FirstOrDefault(),
                 u.IsActive,
                 u.TwoFactorEnabled,
                 u.LockoutEnd != null && u.LockoutEnd > now,
@@ -109,7 +113,7 @@ internal sealed class UserService(
         var scope = await accessScope.GetAdministrationScopeAsync(Permissions.Users.View, cancellationToken);
         if (user is null || !scope.Overlaps(user.Positions.Select(static p => p.OrganizationUnitId)))
         {
-            return Error.NotFound("Користувача не знайдено.");
+            return Error.NotFound(Texts.T("Користувача не знайдено."));
         }
 
         var now = timeProvider.GetUtcNow();
@@ -146,7 +150,7 @@ internal sealed class UserService(
                         p.OrganizationUnit!.Name,
                         new UnitRef(organization, hierarchy.Names.GetValueOrDefault(organization, string.Empty)),
                         p.RoleId,
-                        p.Role!.Name,
+                        StoredText.Display(p.Role!.Name),
                         p.Title,
                         p.IsPrimary,
                         manageScope.Contains(p.OrganizationUnitId));
@@ -172,24 +176,24 @@ internal sealed class UserService(
         var email = NormalizeEmail(command.Email);
         if (email is null)
         {
-            return Error.Validation("Вкажіть коректну адресу електронної пошти.");
+            return Error.Validation(Texts.T("Вкажіть коректну адресу електронної пошти."));
         }
 
         var normalizedEmail = email.ToUpperInvariant();
         if (await db.Users.AnyAsync(u => u.NormalizedEmail == normalizedEmail, cancellationToken))
         {
-            return Error.Conflict("Користувач із такою електронною поштою вже існує.");
+            return Error.Conflict(Texts.T("Користувач із такою електронною поштою вже існує."));
         }
 
         var scope = await accessScope.GetAdministrationScopeAsync(Permissions.Users.Manage, cancellationToken);
         if (command.Positions.Any(p => !scope.Contains(p.UnitId)))
         {
-            return Error.Forbidden(OutsideScopeMessage);
+            return Error.Forbidden(Texts.T(OutsideScopeMessage));
         }
 
         if (!scope.IsCabinetWide && command.Positions.Count == 0)
         {
-            return Error.Validation(NoPositionsMessage);
+            return Error.Validation(Texts.T(NoPositionsMessage));
         }
 
         var positionError = await ValidatePositionsAsync(command.Positions, cancellationToken);
@@ -239,13 +243,13 @@ internal sealed class UserService(
         var email = NormalizeEmail(command.Email);
         if (email is null)
         {
-            return Error.Validation("Вкажіть коректну адресу електронної пошти.");
+            return Error.Validation(Texts.T("Вкажіть коректну адресу електронної пошти."));
         }
 
         var normalizedEmail = email.ToUpperInvariant();
         if (await db.Users.AnyAsync(u => u.NormalizedEmail == normalizedEmail && u.Id != id, cancellationToken))
         {
-            return Error.Conflict("Користувач із такою електронною поштою вже існує.");
+            return Error.Conflict(Texts.T("Користувач із такою електронною поштою вже існує."));
         }
 
         // Positions outside the managed organizations stay as they are; the command may only repeat them.
@@ -253,19 +257,19 @@ internal sealed class UserService(
         var foreign = entity.Positions.Where(p => !scope.Contains(p.OrganizationUnitId)).ToList();
         if (command.Positions.Any(p => !scope.Contains(p.UnitId) && !foreign.Exists(f => f.OrganizationUnitId == p.UnitId && f.RoleId == p.RoleId)))
         {
-            return Error.Forbidden(OutsideScopeMessage);
+            return Error.Forbidden(Texts.T(OutsideScopeMessage));
         }
 
         var managed = command.Positions.Where(p => scope.Contains(p.UnitId)).ToList();
         if (!scope.IsCabinetWide && foreign.Count + managed.Count == 0)
         {
-            return Error.Validation(NoPositionsMessage);
+            return Error.Validation(Texts.T(NoPositionsMessage));
         }
 
         var wholeAccount = foreign.Count == 0;
         if (!wholeAccount && !IsAccountUnchanged(entity, email, command))
         {
-            return Error.Forbidden(SharedAccountMessage);
+            return Error.Forbidden(Texts.T(SharedAccountMessage));
         }
 
         var positionError = await ValidatePositionsAsync(managed, cancellationToken);
@@ -309,7 +313,7 @@ internal sealed class UserService(
 
         if (id == currentUser.Id && !isActive)
         {
-            return Error.Validation("Ви не можете заблокувати власний обліковий запис.");
+            return Error.Validation(Texts.T("Ви не можете заблокувати власний обліковий запис."));
         }
 
         var scope = await accessScope.GetAdministrationScopeAsync(Permissions.Users.Manage, cancellationToken);
@@ -414,13 +418,13 @@ internal sealed class UserService(
 
         if (file.Length > FileRules.MaxImportSize)
         {
-            return Error.Validation("Файл імпорту не може бути більшим за 5 МБ.");
+            return Error.Validation(Texts.T("Файл імпорту не може бути більшим за 5 МБ."));
         }
 
         var format = DetectFormat(file.FileName);
         if (format is null)
         {
-            return Error.Validation("Підтримуються файли .xlsx та .csv.");
+            return Error.Validation(Texts.T("Підтримуються файли .xlsx та .csv."));
         }
 
         IReadOnlyList<UserSheetRow> rows;
@@ -435,7 +439,7 @@ internal sealed class UserService(
 
         if (rows.Count == 0)
         {
-            return Error.Validation("Файл не містить жодного рядка з даними.");
+            return Error.Validation(Texts.T("Файл не містить жодного рядка з даними."));
         }
 
         var scope = await accessScope.GetAdministrationScopeAsync(Permissions.Users.Import, cancellationToken);
@@ -450,13 +454,13 @@ internal sealed class UserService(
             var email = NormalizeEmail(first.Email);
             if (email is null)
             {
-                errors.Add(new ImportRowError(first.RowNumber, first.Email, "Некоректна електронна пошта."));
+                errors.Add(new ImportRowError(first.RowNumber, first.Email, Texts.T("Некоректна електронна пошта.")));
                 continue;
             }
 
             if (string.IsNullOrWhiteSpace(first.LastName) || string.IsNullOrWhiteSpace(first.FirstName))
             {
-                errors.Add(new ImportRowError(first.RowNumber, email, "Прізвище та ім'я є обов'язковими."));
+                errors.Add(new ImportRowError(first.RowNumber, email, Texts.T("Прізвище та ім'я є обов'язковими.")));
                 continue;
             }
 
@@ -466,25 +470,25 @@ internal sealed class UserService(
             {
                 if (!units.TryGetValue(row.UnitCode?.Trim() ?? string.Empty, out var unitId))
                 {
-                    errors.Add(new ImportRowError(row.RowNumber, email, $"Підрозділ із кодом «{row.UnitCode}» не знайдено."));
+                    errors.Add(new ImportRowError(row.RowNumber, email, Texts.T("Підрозділ із кодом «{0}» не знайдено.", row.UnitCode)));
                     continue;
                 }
 
                 if (!scope.Contains(unitId))
                 {
-                    errors.Add(new ImportRowError(row.RowNumber, email, $"Підрозділ «{row.UnitCode}» належить організації, якою ви не керуєте: імпорт призначає посади лише у ваших організаціях."));
+                    errors.Add(new ImportRowError(row.RowNumber, email, Texts.T("Підрозділ «{0}» належить організації, якою ви не керуєте: імпорт призначає посади лише у ваших організаціях.", row.UnitCode)));
                     continue;
                 }
 
                 if (!roles.TryGetValue(row.RoleCode?.Trim() ?? string.Empty, out var role))
                 {
-                    errors.Add(new ImportRowError(row.RowNumber, email, $"Роль із кодом «{row.RoleCode}» не знайдено."));
+                    errors.Add(new ImportRowError(row.RowNumber, email, Texts.T("Роль із кодом «{0}» не знайдено.", row.RoleCode)));
                     continue;
                 }
 
                 if (!CanAssign(role))
                 {
-                    errors.Add(new ImportRowError(row.RowNumber, email, $"Ви не можете призначати роль «{role.Name}»."));
+                    errors.Add(new ImportRowError(row.RowNumber, email, Texts.T("Ви не можете призначати роль «{0}».", Texts.T(role.Name))));
                     continue;
                 }
 
@@ -507,7 +511,7 @@ internal sealed class UserService(
             {
                 if (!scope.IsCabinetWide && !plan.HasPositionRows)
                 {
-                    errors.Add(new ImportRowError(plan.Row, plan.Email, "Вкажіть код підрозділу й код ролі: обліковий запис без посад бачить лише адміністратор усіх організацій."));
+                    errors.Add(new ImportRowError(plan.Row, plan.Email, Texts.T("Вкажіть код підрозділу й код ролі: обліковий запис без посад бачить лише адміністратор усіх організацій.")));
                 }
 
                 continue;
@@ -516,7 +520,7 @@ internal sealed class UserService(
             // Import replaces the personal data and positions, so it may change only accounts that belong entirely to the importer's organizations.
             if (!scope.Covers([.. user.Positions.Select(static p => p.OrganizationUnitId)]))
             {
-                errors.Add(new ImportRowError(plan.Row, plan.Email, "Обліковий запис із цією поштою вже існує й має посади в організаціях, якими ви не керуєте, тому імпорт не може його змінювати."));
+                errors.Add(new ImportRowError(plan.Row, plan.Email, Texts.T("Обліковий запис із цією поштою вже існує й має посади в організаціях, якими ви не керуєте, тому імпорт не може його змінювати.")));
                 continue;
             }
 
@@ -524,7 +528,7 @@ internal sealed class UserService(
             {
                 if (!plan.IsActive)
                 {
-                    errors.Add(new ImportRowError(plan.Row, plan.Email, "Ви не можете заблокувати власний обліковий запис."));
+                    errors.Add(new ImportRowError(plan.Row, plan.Email, Texts.T("Ви не можете заблокувати власний обліковий запис.")));
                 }
 
                 continue;
@@ -534,7 +538,7 @@ internal sealed class UserService(
             var target = await permissions.GetEffectivePermissionsAsync(user.Id, cancellationToken);
             if (target.Any(p => !currentUser.Has(p)))
             {
-                errors.Add(new ImportRowError(plan.Row, plan.Email, "Цей обліковий запис має більше прав, ніж ви, тому імпорт не може його змінювати."));
+                errors.Add(new ImportRowError(plan.Row, plan.Email, Texts.T("Цей обліковий запис має більше прав, ніж ви, тому імпорт не може його змінювати.")));
             }
         }
 
@@ -811,19 +815,19 @@ internal sealed class UserService(
 
         if (await db.OrganizationUnits.CountAsync(u => unitIds.Contains(u.Id), cancellationToken) != unitIds.Count)
         {
-            return Error.Validation("Обраний підрозділ не знайдено.");
+            return Error.Validation(Texts.T("Обраний підрозділ не знайдено."));
         }
 
         var roles = await db.Roles.AsNoTracking().Include(static r => r.Permissions).Where(r => roleIds.Contains(r.Id)).ToListAsync(cancellationToken);
         if (roles.Count != roleIds.Count)
         {
-            return Error.Validation("Обрану роль не знайдено.");
+            return Error.Validation(Texts.T("Обрану роль не знайдено."));
         }
 
         var forbidden = roles.Find(r => !CanAssign(r));
         return forbidden is null
             ? null
-            : Error.Forbidden($"Ви не можете призначати роль «{forbidden.Name}», оскільки вона надає більше прав, ніж маєте ви.");
+            : Error.Forbidden(Texts.T("Ви не можете призначати роль «{0}», оскільки вона надає більше прав, ніж маєте ви.", Texts.T(forbidden.Name)));
     }
 
     /// <summary>
@@ -874,12 +878,12 @@ internal sealed class UserService(
         var units = user?.Positions.Select(static p => p.OrganizationUnitId).ToList() ?? [];
         if (user is null || !scope.Overlaps(units))
         {
-            return Error.NotFound("Користувача не знайдено.");
+            return Error.NotFound(Texts.T("Користувача не знайдено."));
         }
 
         if (requireWholeAccount && !scope.Covers(units))
         {
-            return Error.Forbidden(SharedAccountMessage);
+            return Error.Forbidden(Texts.T(SharedAccountMessage));
         }
 
         if (id != currentUser.Id)
@@ -887,7 +891,7 @@ internal sealed class UserService(
             var target = await permissions.GetEffectivePermissionsAsync(id, cancellationToken);
             if (target.Any(p => !currentUser.Has(p)))
             {
-                return Error.Forbidden("Цей обліковий запис має більше прав, ніж ви, тому ви не можете ним керувати.");
+                return Error.Forbidden(Texts.T("Цей обліковий запис має більше прав, ніж ви, тому ви не можете ним керувати."));
             }
         }
 

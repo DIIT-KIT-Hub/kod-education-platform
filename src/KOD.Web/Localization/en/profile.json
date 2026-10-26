@@ -1,0 +1,23 @@
+{
+  "Мій профіль": "My profile",
+  "Особисті дані, посади та доступні можливості.": "Personal data, positions and available features.",
+  "2FA увімкнено": "2FA enabled",
+  "Останній вхід: {0}": "Last sign-in: {0}",
+  "Посади": "Positions",
+  "Посади не призначено": "No positions assigned",
+  "Зверніться до відділу кадрів.": "Contact the HR department.",
+  "роль «{0}»": "role “{0}”",
+  "Основна": "Primary",
+  "Доступні модулі": "Available modules",
+  "Усі мої дозволи ({0})": "All my permissions ({0})",
+  "Контакти": "Contacts",
+  "Телефон збережено.": "Phone number saved.",
+  "Електронна пошта": "Email",
+  "Телефон": "Phone",
+  "Зберегти": "Save",
+  "ПІБ та посади змінює відділ кадрів.": "Your name and positions are managed by the HR department.",
+  "Мова інтерфейсу": "Interface language",
+  "Застосувати": "Apply",
+  "Мова зберігається у профілі й застосовується на всіх ваших пристроях.": "The language is saved in your profile and applies on all your devices.",
+  "Некоректний номер телефону.": "Invalid phone number."
+}

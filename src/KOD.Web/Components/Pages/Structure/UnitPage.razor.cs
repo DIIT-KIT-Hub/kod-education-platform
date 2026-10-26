@@ -1,6 +1,7 @@
 using KOD.Application.Common.Paging;
 using KOD.Application.Features.Organization;
 using KOD.Domain.Access;
+using KOD.Domain.Localization;
 using KOD.Web.DesignSystem.Components;
 using KOD.Web.Security;
 using Microsoft.AspNetCore.Components;
@@ -69,7 +70,7 @@ public partial class UnitPage
     /// </summary>
     private IReadOnlyList<BreadcrumbItem> Breadcrumbs =>
     [
-        new("Структура", "/structure"),
+        new(Texts.T("Структура"), "/structure"),
         .. (Unit?.Path ?? []).Select(p => new BreadcrumbItem(p.Name, p.Id == Id ? null : $"/structure/{p.Id}")),
     ];
 

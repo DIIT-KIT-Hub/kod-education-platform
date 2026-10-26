@@ -3,14 +3,14 @@
 @attribute [RequirePermission(Permissions.Roles.Manage)]
 @rendermode InteractiveServer
 
-<PageHeader Title="@(Existing?.Name ?? "Нова роль")" Subtitle="@(Existing?.IsAdministrator == true ? "Системний адміністратор завжди має всі дозволи." : "Позначте дозволи, які надає роль.")"
-            Breadcrumbs="@([new("Адміністрування", "/admin"), new("Ролі", "/admin/roles"), new(Existing is null ? "Нова" : "Налаштування")])">
+<PageHeader Title="@(Existing?.Name ?? T("Нова роль"))" Subtitle="@(Existing?.IsAdministrator == true ? T("Системний адміністратор завжди має всі дозволи.") : T("Позначте дозволи, які надає роль."))"
+            Breadcrumbs="@([new(T("Адміністрування"), "/admin"), new(T("Ролі"), "/admin/roles"), new(Existing is null ? T("Нова") : T("Налаштування"))])">
     <ChildContent>
         @if (Existing is not null)
         {
             <div class="ds-cluster">
                 <Badge Tone="Tone.Dashed"><span class="ds-mono">@Existing.Code</span></Badge>
-                <Badge>Користувачів: @Existing.UserCount</Badge>
+                <Badge>@T("Користувачів: {0}", Existing.UserCount)</Badge>
             </div>
         }
     </ChildContent>
@@ -25,7 +25,7 @@
 
     <EditForm Model="Model" OnValidSubmit="SaveAsync" class="ds-split ds-split--wide-aside">
         <DataAnnotationsValidator />
-        <Card Title="Дозволи">
+        <Card Title="@T("Дозволи")">
             <div class="perm-matrix">
                 @foreach (var group in Permissions.All.GroupBy(static p => p.Module))
                 {
@@ -50,37 +50,41 @@
         </Card>
 
         <div class="ds-stack ds-stack--lg">
-            <Card Title="Роль">
+            <Card Title="@T("Роль")">
                 <div class="ds-form">
                     @if (Existing is null)
                     {
-                        <Field Label="Код" For="role-code" Required Hint="Латиниця, цифри, «-». Використовується в імпорті.">
+                        <Field Label="@T("Код")" For="role-code" Required Hint="@T("Латиниця, цифри, «-». Використовується в імпорті.")">
                             <InputText id="role-code" @bind-Value="Model.Code" class="ds-input ds-mono" maxlength="64" placeholder="project-manager" />
-                            <ValidationMessage For="() => Model.Code" />
+                            <ValidationError For="() => Model.Code" />
                         </Field>
                     }
-                    <Field Label="Назва" For="role-name" Required>
+                    <Field Label="@T("Назва")" For="role-name" Required>
                         <InputText id="role-name" @bind-Value="Model.Name" class="ds-input" maxlength="128" />
-                        <ValidationMessage For="() => Model.Name" />
+                        <ValidationError For="() => Model.Name" />
                     </Field>
-                    <Field Label="Опис" For="role-description">
+                    <Field Label="@T("Опис")" For="role-description">
                         <InputTextArea id="role-description" @bind-Value="Model.Description" class="ds-textarea" maxlength="512" rows="3" />
                     </Field>
                     <label class="ds-check">
                         <InputCheckbox @bind-Value="Model.IsLeadership" />
-                        <span class="ds-check__text"><span>Керівна посада</span><span class="ds-check__hint">Працівників із цією роллю показано першими у складі підрозділу з позначкою «Керівник».</span></span>
+                        <span class="ds-check__text"><span>@T("Керівна посада")</span><span class="ds-check__hint">@T("Працівників із цією роллю показано першими у складі підрозділу з позначкою «Керівник».")</span></span>
                     </label>
                 </div>
             </Card>
             <Card Variant="CardVariant.Muted">
                 <div class="ds-stack">
-                    <Button Type="submit" Block Icon="save" Disabled="Busy">Зберегти</Button>
+                    <Button Type="submit" Block Icon="save" Disabled="Busy">@T("Зберегти")</Button>
                     @if (Existing is { IsSystem: false })
                     {
-                        <Button Variant="ButtonVariant.Danger" Block Icon="trash-2" Disabled="@(Busy || Existing.UserCount > 0)" OnClick="DeleteAsync">Видалити роль</Button>
+                        <Button Variant="ButtonVariant.Danger" Block Icon="trash-2" Disabled="@(Busy || Existing.UserCount > 0)" OnClick="DeleteAsync">@T("Видалити роль")</Button>
                     }
                 </div>
             </Card>
         </div>
     </EditForm>
+}
+else
+{
+    <FormSkeleton Cards="1" Fields="3" />
 }

@@ -1,12 +1,12 @@
-<nav class="ds-pagination" aria-label="Сторінки">
+<nav class="ds-pagination" aria-label="@T("Сторінки")">
     <span class="ds-pagination__summary">
-        @FirstItem–@LastItem з @TotalCount.ToString("N0", Culture)
+        @T("{0}–{1} з {2}", FirstItem, LastItem, TotalCount.ToString("N0", Culture))
     </span>
 
     @if (TotalPages > 1)
     {
         <div class="ds-pagination__pages">
-            <a class="ds-pagination__page" href="@PageHref(Page - 1)" aria-disabled="@(Page <= 1 ? "true" : null)" aria-label="Попередня сторінка">
+            <a class="ds-pagination__page" href="@PageHref(Page - 1)" aria-disabled="@(Page <= 1 ? "true" : null)" aria-label="@T("Попередня сторінка")">
                 <Icon Name="chevron-left" />
             </a>
             @foreach (var item in Window)
@@ -23,7 +23,7 @@
                        data-far="@(Math.Abs(item.Value - Page) > 1 && item.Value != 1 && item.Value != TotalPages ? "true" : null)">@item.Value</a>
                 }
             }
-            <a class="ds-pagination__page" href="@PageHref(Page + 1)" aria-disabled="@(Page >= TotalPages ? "true" : null)" aria-label="Наступна сторінка">
+            <a class="ds-pagination__page" href="@PageHref(Page + 1)" aria-disabled="@(Page >= TotalPages ? "true" : null)" aria-label="@T("Наступна сторінка")">
                 <Icon Name="chevron-right" />
             </a>
         </div>
@@ -34,7 +34,7 @@
         {
             <input type="hidden" name="@key" value="@value" />
         }
-        <label for="@SizeId" class="ds-muted">На сторінці</label>
+        <label for="@SizeId" class="ds-muted">@T("На сторінці")</label>
         <select id="@SizeId" name="pageSize" class="ds-select ds-select--sm" data-autosubmit>
             @foreach (var size in PageSizes)
             {

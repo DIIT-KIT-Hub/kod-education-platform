@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using KOD.Application.Features.Organization;
 using KOD.Domain.Access;
+using KOD.Domain.Localization;
 using KOD.Domain.Organization;
 using KOD.Web.Security;
 using Microsoft.AspNetCore.Components;
@@ -131,7 +132,7 @@ public partial class UnitTypeEditor
 
             if (ErrorMessage is null)
             {
-                Navigation.NavigateTo($"/admin/unit-types?toast={Uri.EscapeDataString("Тип підрозділу збережено")}");
+                Navigation.NavigateTo($"/admin/unit-types?toast={Uri.EscapeDataString(Texts.T("Тип підрозділу збережено"))}");
             }
         }
         finally
@@ -146,7 +147,7 @@ public partial class UnitTypeEditor
     /// <returns>A task that completes when deleted.</returns>
     private async Task DeleteAsync()
     {
-        if (Id is not { } id || !await JS.InvokeAsync<bool>("confirm", "Видалити тип підрозділу?"))
+        if (Id is not { } id || !await JS.InvokeAsync<bool>("confirm", Texts.T("Видалити тип підрозділу?")))
         {
             return;
         }
@@ -154,7 +155,7 @@ public partial class UnitTypeEditor
         var result = await UnitTypes.DeleteAsync(id, CancellationToken.None);
         if (result.IsSuccess)
         {
-            Navigation.NavigateTo($"/admin/unit-types?toast={Uri.EscapeDataString("Тип підрозділу видалено")}");
+            Navigation.NavigateTo($"/admin/unit-types?toast={Uri.EscapeDataString(Texts.T("Тип підрозділу видалено"))}");
             return;
         }
 

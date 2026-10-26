@@ -1,4 +1,5 @@
 using KOD.Domain.Common;
+using KOD.Domain.Localization;
 
 namespace KOD.Domain.Access;
 
@@ -116,7 +117,7 @@ public sealed class Role : AuditableEntity
         var unknown = requested.FirstOrDefault(static p => !KOD.Domain.Access.Permissions.Codes.Contains(p));
         if (unknown is not null)
         {
-            throw new DomainException($"Невідомий дозвіл «{unknown}».");
+            throw new DomainException(Texts.T("Невідомий дозвіл «{0}».", unknown));
         }
 
         _permissions.RemoveAll(p => !requested.Contains(p.Permission));

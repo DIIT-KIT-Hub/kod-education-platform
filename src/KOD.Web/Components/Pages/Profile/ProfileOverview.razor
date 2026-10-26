@@ -1,6 +1,6 @@
 @page "/profile"
 
-<PageHeader Title="Мій профіль" Subtitle="Особисті дані, посади та доступні можливості." />
+<PageHeader Title="@T("Мій профіль")" Subtitle="@T("Особисті дані, посади та доступні можливості.")" />
 <ProfileTabs Current="overview" />
 
 @if (Profile is not null)
@@ -16,18 +16,18 @@
                         <div class="ds-cluster">
                             @if (Profile.TwoFactorEnabled)
                             {
-                                <Badge Tone="Tone.Inverse" Icon="shield-check">2FA увімкнено</Badge>
+                                <Badge Tone="Tone.Inverse" Icon="shield-check">@T("2FA увімкнено")</Badge>
                             }
-                            <Badge Tone="Tone.Dashed">Останній вхід: @Display.DateTime(Profile.LastSignInAt)</Badge>
+                            <Badge Tone="Tone.Dashed">@T("Останній вхід: {0}", Display.DateTime(Profile.LastSignInAt))</Badge>
                         </div>
                     </div>
                 </div>
             </Card>
 
-            <Card Title="Посади">
+            <Card Title="@T("Посади")">
                 @if (Profile.Positions.Count == 0)
                 {
-                    <EmptyState Icon="briefcase" Title="Посади не призначено" Text="Зверніться до відділу кадрів." />
+                    <EmptyState Icon="briefcase" Title="@T("Посади не призначено")" Text="@T("Зверніться до відділу кадрів.")" />
                 }
                 else
                 {
@@ -39,11 +39,11 @@
                                     <span class="ds-stat__icon"><Icon Name="briefcase" /></span>
                                     <span class="ds-list__body">
                                         <span class="ds-list__title">@position.DisplayTitle</span>
-                                        <span class="ds-list__meta">@position.UnitName · роль «@position.RoleName»</span>
+                                        <span class="ds-list__meta">@position.UnitName · @T("роль «{0}»", position.RoleName)</span>
                                     </span>
                                     @if (position.IsPrimary)
                                     {
-                                        <Badge Tone="Tone.Outline">Основна</Badge>
+                                        <Badge Tone="Tone.Outline">@T("Основна")</Badge>
                                     }
                                 </a>
                             </li>
@@ -52,7 +52,7 @@
                 }
             </Card>
 
-            <Card Title="Доступні модулі">
+            <Card Title="@T("Доступні модулі")">
                 <div class="ds-cols">
                     @foreach (var module in Profile.Modules)
                     {
@@ -63,7 +63,7 @@
                     }
                 </div>
                 <details>
-                    <summary class="ds-link ds-text-sm">Усі мої дозволи (@Profile.Permissions.Count)</summary>
+                    <summary class="ds-link ds-text-sm">@T("Усі мої дозволи ({0})", Profile.Permissions.Count)</summary>
                     <ul class="ds-list">
                         @foreach (var permission in Profile.Permissions)
                         {
@@ -80,27 +80,51 @@
             </Card>
         </div>
 
-        <Card Title="Контакти">
-            @if (Saved)
-            {
-                <Alert Tone="Tone.Inverse">Телефон збережено.</Alert>
-            }
-            @if (ErrorMessage is not null)
-            {
-                <Alert Tone="Tone.Danger">@ErrorMessage</Alert>
-            }
-            <EditForm Model="Contact" FormName="profile-contact" OnValidSubmit="SaveAsync" class="ds-form" Enhance>
-                <DataAnnotationsValidator />
-                <Field Label="Електронна пошта">
-                    <input class="ds-input" value="@Profile.Email" disabled />
-                </Field>
-                <Field Label="Телефон" For="profile-phone">
-                    <InputText id="profile-phone" @bind-Value="Contact.PhoneNumber" class="ds-input" placeholder="+380…" autocomplete="tel" />
-                    <ValidationMessage For="() => Contact.PhoneNumber" />
-                </Field>
-                <Button Type="submit" Variant="ButtonVariant.Secondary" Icon="save">Зберегти</Button>
-            </EditForm>
-            <p class="ds-text-sm ds-muted">ПІБ та посади змінює відділ кадрів.</p>
-        </Card>
+        <div class="ds-stack ds-stack--lg">
+            <Card Title="@T("Контакти")">
+                @if (Saved)
+                {
+                    <Alert Tone="Tone.Inverse">@T("Телефон збережено.")</Alert>
+                }
+                @if (ErrorMessage is not null)
+                {
+                    <Alert Tone="Tone.Danger">@ErrorMessage</Alert>
+                }
+                <EditForm Model="Contact" FormName="profile-contact" OnValidSubmit="SaveAsync" class="ds-form" Enhance>
+                    <DataAnnotationsValidator />
+                    <Field Label="@T("Електронна пошта")">
+                        <input class="ds-input" value="@Profile.Email" disabled />
+                    </Field>
+                    <Field Label="@T("Телефон")" For="profile-phone">
+                        <InputText id="profile-phone" @bind-Value="Contact.PhoneNumber" class="ds-input" placeholder="+380…" autocomplete="tel" />
+                        <ValidationError For="() => Contact.PhoneNumber" />
+                    </Field>
+                    <Button Type="submit" Variant="ButtonVariant.Secondary" Icon="save">@T("Зберегти")</Button>
+                </EditForm>
+                <p class="ds-text-sm ds-muted">@T("ПІБ та посади змінює відділ кадрів.")</p>
+            </Card>
+
+            @* A plain (not enhanced) form: the new language needs a full page load. *@
+            <Card Title="@T("Мова інтерфейсу")">
+                <form method="post" action="/account/language" class="ds-form">
+                    <AntiforgeryToken />
+                    <input type="hidden" name="returnUrl" value="/profile" />
+                    <div class="ds-segmented" role="radiogroup" aria-label="@T("Мова інтерфейсу")">
+                        @foreach (var language in Languages.All)
+                        {
+                            <label class="ds-segmented__option">
+                                <input type="radio" name="language" value="@language" checked="@(language == Languages.Current)" />
+                                <span class="ds-segmented__label" lang="@language">
+                                    @Languages.NativeName(language)
+                                    <small>@language.ToUpperInvariant()</small>
+                                </span>
+                            </label>
+                        }
+                    </div>
+                    <Button Type="submit" Variant="ButtonVariant.Secondary" Icon="languages">@T("Застосувати")</Button>
+                </form>
+                <p class="ds-text-sm ds-muted">@T("Мова зберігається у профілі й застосовується на всіх ваших пристроях.")</p>
+            </Card>
+        </div>
     </div>
 }

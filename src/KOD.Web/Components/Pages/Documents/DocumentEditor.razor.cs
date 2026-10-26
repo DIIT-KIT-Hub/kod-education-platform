@@ -3,6 +3,7 @@ using KOD.Application.Common.Files;
 using KOD.Application.Common.Models;
 using KOD.Application.Features.Documents;
 using KOD.Domain.Documents;
+using KOD.Domain.Localization;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 
@@ -154,12 +155,12 @@ public sealed partial class DocumentEditor : IDisposable
         var file = args.File;
         if (FileRules.ResolveDocumentType(file.Name) is null)
         {
-            ErrorMessage = "Цей тип файлу не підтримується.";
+            ErrorMessage = Texts.T("Цей тип файлу не підтримується.");
             SelectedFile = null;
         }
         else if (file.Size > FileRules.MaxDocumentSize)
         {
-            ErrorMessage = $"Розмір файлу не може перевищувати {FileRules.MaxDocumentSize / 1024 / 1024} МБ.";
+            ErrorMessage = Texts.T("Розмір файлу не може перевищувати {0} МБ.", FileRules.MaxDocumentSize / 1024 / 1024);
             SelectedFile = null;
         }
         else
@@ -239,7 +240,7 @@ public sealed partial class DocumentEditor : IDisposable
     {
         if (!IsEdit && SelectedFile is null)
         {
-            ErrorMessage = "Оберіть файл документа.";
+            ErrorMessage = Texts.T("Оберіть файл документа.");
             return;
         }
 
@@ -281,16 +282,16 @@ public sealed partial class DocumentEditor : IDisposable
 
             var message = (IsEdit, submit) switch
             {
-                (true, true) => "Зміни збережено, документ надіслано на підписання",
-                (true, false) => "Зміни збережено",
-                (false, true) => "Документ створено й надіслано на підпис",
-                _ => "Чернетку збережено",
+                (true, true) => Texts.T("Зміни збережено, документ надіслано на підписання"),
+                (true, false) => Texts.T("Зміни збережено"),
+                (false, true) => Texts.T("Документ створено й надіслано на підпис"),
+                _ => Texts.T("Чернетку збережено"),
             };
             Navigation.NavigateTo($"/documents/{documentId}?toast={Uri.EscapeDataString(message)}");
         }
         catch (IOException)
         {
-            ErrorMessage = "Не вдалося прочитати файл. Спробуйте ще раз.";
+            ErrorMessage = Texts.T("Не вдалося прочитати файл. Спробуйте ще раз.");
         }
         finally
         {

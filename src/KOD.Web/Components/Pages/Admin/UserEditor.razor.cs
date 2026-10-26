@@ -5,6 +5,7 @@ using KOD.Application.Features.Organization;
 using KOD.Application.Features.Roles;
 using KOD.Application.Features.Users;
 using KOD.Domain.Access;
+using KOD.Domain.Localization;
 using KOD.Web.Security;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
@@ -247,7 +248,7 @@ public partial class UserEditor
     {
         if (Model.Positions.Exists(static p => p.UnitId == Guid.Empty || p.RoleId == Guid.Empty))
         {
-            ErrorMessage = "Для кожної посади оберіть підрозділ і роль.";
+            ErrorMessage = Texts.T("Для кожної посади оберіть підрозділ і роль.");
             return;
         }
 
@@ -271,7 +272,7 @@ public partial class UserEditor
                     await LoadAsync();
                 }
 
-                return (result, "Зміни збережено.");
+                return (result, Texts.T("Зміни збережено."));
             }
 
             var created = await Users.CreateAsync(command, CancellationToken.None);
@@ -284,7 +285,7 @@ public partial class UserEditor
             Id = created.Value.UserId;
             Navigation.NavigateTo($"/admin/users/{created.Value.UserId}", replace: true);
             await LoadAsync();
-            return (Result.Success(), "Обліковий запис створено.");
+            return (Result.Success(), Texts.T("Обліковий запис створено."));
         });
     }
 
@@ -294,13 +295,13 @@ public partial class UserEditor
     /// <returns>A task that completes when done.</returns>
     private async Task ToggleActiveAsync()
     {
-        if (Details is null || !await ConfirmAsync(Details.IsActive ? "Заблокувати обліковий запис? Усі сесії буде завершено." : "Розблокувати обліковий запис?"))
+        if (Details is null || !await ConfirmAsync(Details.IsActive ? Texts.T("Заблокувати обліковий запис? Усі сесії буде завершено.") : Texts.T("Розблокувати обліковий запис?")))
         {
             return;
         }
 
         var activate = !Details.IsActive;
-        await RunAsync(async () => (await Users.SetActiveAsync(Details.Id, activate, CancellationToken.None), activate ? "Обліковий запис розблоковано." : "Обліковий запис заблоковано."));
+        await RunAsync(async () => (await Users.SetActiveAsync(Details.Id, activate, CancellationToken.None), activate ? Texts.T("Обліковий запис розблоковано.") : Texts.T("Обліковий запис заблоковано.")));
         await LoadAsync();
     }
 
@@ -310,7 +311,7 @@ public partial class UserEditor
     /// <returns>A task that completes when done.</returns>
     private async Task ResetPasswordAsync()
     {
-        if (Details is null || !await ConfirmAsync("Видати новий тимчасовий пароль? Поточний пароль перестане діяти, а сесії буде завершено."))
+        if (Details is null || !await ConfirmAsync(Texts.T("Видати новий тимчасовий пароль? Поточний пароль перестане діяти, а сесії буде завершено.")))
         {
             return;
         }
@@ -319,7 +320,7 @@ public partial class UserEditor
         {
             var result = await Users.ResetPasswordAsync(Details.Id, CancellationToken.None);
             Credentials = result.IsSuccess ? result.Value : null;
-            return (result.IsSuccess ? Result.Success() : Result.Failure(result.Error), "Тимчасовий пароль видано.");
+            return (result.IsSuccess ? Result.Success() : Result.Failure(result.Error), Texts.T("Тимчасовий пароль видано."));
         });
         await LoadAsync();
     }
@@ -330,12 +331,12 @@ public partial class UserEditor
     /// <returns>A task that completes when done.</returns>
     private async Task ResetAuthenticatorAsync()
     {
-        if (Details is null || !await ConfirmAsync("Скинути автентифікатор? Під час наступного входу користувач прив'яже новий."))
+        if (Details is null || !await ConfirmAsync(Texts.T("Скинути автентифікатор? Під час наступного входу користувач прив'яже новий.")))
         {
             return;
         }
 
-        await RunAsync(async () => (await Users.ResetAuthenticatorAsync(Details.Id, CancellationToken.None), "Автентифікатор скинуто."));
+        await RunAsync(async () => (await Users.ResetAuthenticatorAsync(Details.Id, CancellationToken.None), Texts.T("Автентифікатор скинуто.")));
         await LoadAsync();
     }
 
@@ -345,12 +346,12 @@ public partial class UserEditor
     /// <returns>A task that completes when done.</returns>
     private async Task RevokeSessionsAsync()
     {
-        if (Details is null || !await ConfirmAsync("Завершити всі сесії користувача?"))
+        if (Details is null || !await ConfirmAsync(Texts.T("Завершити всі сесії користувача?")))
         {
             return;
         }
 
-        await RunAsync(async () => (await Users.RevokeSessionsAsync(Details.Id, CancellationToken.None), "Сесії завершено."));
+        await RunAsync(async () => (await Users.RevokeSessionsAsync(Details.Id, CancellationToken.None), Texts.T("Сесії завершено.")));
         await LoadAsync();
     }
 

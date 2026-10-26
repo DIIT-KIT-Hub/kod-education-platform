@@ -6,6 +6,14 @@
  *  - prints the manual.
  */
 
+/**
+ * Translates an interface text into the page language (see kodDs.t in kod-ds.js).
+ * @param {string} text The Ukrainian text.
+ * @param {...(string|number)} args The placeholder values.
+ * @returns {string} The translation.
+ */
+const t = (text, ...args) => (window.kodDs ? window.kodDs.t(text, ...args) : text);
+
 /** Name of the CSS highlight registered for search matches (see ::highlight(help-match) in app.css). */
 const HIGHLIGHT = "help-match";
 
@@ -15,7 +23,7 @@ const HIGHLIGHT = "help-match";
  * @returns {string} The normalized text.
  */
 function normalize(text) {
-    return text.toLocaleLowerCase("uk-UA").replace(/[’ʼ`]/g, "'");
+    return text.toLocaleLowerCase(document.documentElement.lang || "uk").replace(/[’ʼ`]/g, "'");
 }
 
 /** Distance from the top of the viewport at which a topic counts as "being read". */
@@ -131,8 +139,8 @@ function wireSearch(root) {
         status.textContent = query.length < 2
             ? ""
             : matched.size === 0
-                ? "Нічого не знайдено. Спробуйте інше слово."
-                : `Знайдено тем: ${matched.size}`;
+                ? t("Нічого не знайдено. Спробуйте інше слово.")
+                : t("Знайдено тем: {0}", matched.size);
 
         highlights?.delete(HIGHLIGHT);
         if (highlights && query.length >= 2 && matched.size > 0) {

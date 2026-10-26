@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Security.Cryptography;
 using System.Text;
+using KOD.Domain.Localization;
 using KOD.Domain.Users;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
@@ -58,7 +59,7 @@ internal sealed partial class PwnedPasswordValidator(
                     return IdentityResult.Failed(new IdentityError
                     {
                         Code = "PasswordBreached",
-                        Description = "Цей пароль трапляється у відомих витоках даних. Оберіть інший.",
+                        Description = Texts.T("Цей пароль трапляється у відомих витоках даних. Оберіть інший."),
                     });
                 }
             }

@@ -6,6 +6,7 @@
  *  - Mounts the signing UI on pages that contain [data-signing].
  *  - Mounts the user manual behaviors on the page that contains [data-help].
  *  - Shows menu item tooltips while the desktop sidebar is collapsed to an icon rail.
+ *  - Shows a progress bar and dims the page while the next page loads (links and form submissions).
  */
 
 /**
@@ -121,6 +122,61 @@ function wireRailTooltips() {
 }
 
 /**
+ * Shows a thin progress bar at the top and dims the current page while the next one loads, so a slow response never
+ * looks like a dead click. Starts after a short delay (fast pages show nothing) and stops when the new page arrives:
+ * enhanced navigation re-syncs the <html> attributes with the server markup, and `enhancedload` / `pageshow` follow.
+ */
+function wireNavigationProgress() {
+    const root = document.documentElement;
+    let timer = 0;
+    let safety = 0;
+
+    const stop = () => {
+        window.clearTimeout(timer);
+        window.clearTimeout(safety);
+        root.removeAttribute("data-navigating");
+    };
+
+    const start = () => {
+        if (!document.querySelector(".app-progress")) {
+            const bar = document.createElement("div");
+            bar.className = "app-progress";
+            bar.setAttribute("aria-hidden", "true");
+            document.body.append(bar);
+        }
+
+        window.clearTimeout(timer);
+        timer = window.setTimeout(() => root.setAttribute("data-navigating", ""), 120);
+        window.clearTimeout(safety);
+        safety = window.setTimeout(stop, 15_000);
+    };
+
+    document.addEventListener("click", (event) => {
+        const link = event.target instanceof Element ? event.target.closest("a[href]") : null;
+        if (!link || event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey
+            || link.target || link.hasAttribute("download")) {
+            return;
+        }
+
+        const url = new URL(link.href, window.location.href);
+        const samePage = url.pathname === window.location.pathname && url.search === window.location.search;
+        if (url.origin === window.location.origin && !samePage && !url.pathname.startsWith("/api/")) {
+            start();
+        }
+    });
+
+    document.addEventListener("submit", (event) => {
+        const form = event.target;
+        if (form instanceof HTMLFormElement && !event.defaultPrevented && form.method !== "dialog") {
+            start();
+        }
+    });
+
+    window.addEventListener("pageshow", stop);
+    window.Blazor?.addEventListener("enhancedload", stop);
+}
+
+/**
  * Runs after the initial load and after every enhanced navigation.
  */
 function onPageReady() {
@@ -154,6 +210,7 @@ window.kodDownloadStream = async (fileName, contentType, streamReference) => {
 };
 
 wireRailTooltips();
+wireNavigationProgress();
 onPageReady();
 
 if (window.Blazor) {

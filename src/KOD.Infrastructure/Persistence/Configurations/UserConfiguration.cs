@@ -20,6 +20,7 @@ internal sealed class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(static u => u.FirstName).HasMaxLength(User.NamePartMaxLength).HasColumnType("citext");
         builder.Property(static u => u.MiddleName).HasMaxLength(User.NamePartMaxLength).HasColumnType("citext");
         builder.Property(static u => u.PhoneNumber).HasMaxLength(32);
+        builder.Property(static u => u.Language).HasMaxLength(8);
 
         builder.Ignore(static u => u.FullName);
         builder.Ignore(static u => u.ShortName);

@@ -1,3 +1,5 @@
+using KOD.Domain.Localization;
+
 namespace KOD.Web.Security;
 
 /// <summary>
@@ -39,7 +41,7 @@ internal sealed class PasswordChangeEnforcementMiddleware(RequestDelegate next)
         if (context.Request.Path.StartsWithSegments("/api", StringComparison.OrdinalIgnoreCase))
         {
             context.Response.StatusCode = StatusCodes.Status403Forbidden;
-            return context.Response.WriteAsJsonAsync(new { title = "Потрібно змінити тимчасовий пароль." });
+            return context.Response.WriteAsJsonAsync(new { title = Texts.T("Потрібно змінити тимчасовий пароль.") });
         }
 
         var returnUrl = context.Request.Path + context.Request.QueryString;

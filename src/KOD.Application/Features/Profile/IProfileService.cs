@@ -23,6 +23,14 @@ public interface IProfileService
     Task<Result> UpdatePhoneAsync(string? phoneNumber, CancellationToken cancellationToken);
 
     /// <summary>
+    /// Saves the interface language of the current user.
+    /// </summary>
+    /// <param name="language">A supported language code (<see cref="KOD.Domain.Localization.Languages"/>).</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The result.</returns>
+    Task<Result> SetLanguageAsync(string language, CancellationToken cancellationToken);
+
+    /// <summary>
     /// Changes the password and clears the "must change password" flag.
     /// </summary>
     /// <param name="currentPassword">The current password.</param>

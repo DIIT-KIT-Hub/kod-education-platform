@@ -1,4 +1,5 @@
 using KOD.Domain.Common;
+using KOD.Domain.Localization;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 
@@ -25,8 +26,8 @@ internal sealed partial class ApiExceptionHandler(IProblemDetailsService problem
         var (status, detail) = exception switch
         {
             DomainException domain => (StatusCodes.Status400BadRequest, domain.Message),
-            BadHttpRequestException bad => (bad.StatusCode, "Некоректний запит."),
-            _ => (StatusCodes.Status500InternalServerError, "Сталася внутрішня помилка. Спробуйте пізніше."),
+            BadHttpRequestException bad => (bad.StatusCode, Texts.T("Некоректний запит.")),
+            _ => (StatusCodes.Status500InternalServerError, Texts.T("Сталася внутрішня помилка. Спробуйте пізніше.")),
         };
 
         if (status >= StatusCodes.Status500InternalServerError)

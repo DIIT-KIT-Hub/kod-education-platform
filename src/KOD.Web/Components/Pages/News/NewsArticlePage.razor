@@ -3,23 +3,23 @@
 
 @if (Article is null)
 {
-    <PageHeader Title="Новину не знайдено" Breadcrumbs="@([new("Новини", "/news"), new("Новина")])" />
+    <PageHeader Title="@T("Новину не знайдено")" Breadcrumbs="@([new(T("Новини"), "/news"), new(T("Новина"))])" />
     <Card>
-        <EmptyState Icon="newspaper" Title="Новину не знайдено" Text="Можливо, її було видалено або знято з публікації.">
-            <Button Href="/news" Icon="arrow-left">До новин</Button>
+        <EmptyState Icon="newspaper" Title="@T("Новину не знайдено")" Text="@T("Можливо, її було видалено або знято з публікації.")">
+            <Button Href="/news" Icon="arrow-left">@T("До новин")</Button>
         </EmptyState>
     </Card>
 }
 else
 {
     <article class="article">
-        <PageHeader Title="@Article.Title" Breadcrumbs="@([new("Новини", "/news"), new(Display.Text(Article.Category), $"/news?category={Article.Category}")])">
+        <PageHeader Title="@Article.Title" Breadcrumbs="@([new(T("Новини"), "/news"), new(Display.Text(Article.Category), $"/news?category={Article.Category}")])">
             <ChildContent>
                 <div class="ds-cluster ds-muted ds-text-sm">
                     <Badge>@Display.Text(Article.Category)</Badge>
                     @if (Article.PublishedAt is null)
                     {
-                        <Badge Tone="Tone.Dashed">Чернетка</Badge>
+                        <Badge Tone="Tone.Dashed">@T("Чернетка")</Badge>
                     }
                     <span>@Display.Date(Article.PublishedAt ?? Article.UpdatedAt)</span>
                     <span>·</span>
@@ -34,7 +34,7 @@ else
             <Actions>
                 @if (CanManage)
                 {
-                    <Button Href="@($"/news/manage/{Article.Id}")" Variant="ButtonVariant.Secondary" Icon="pencil">Редагувати</Button>
+                    <Button Href="@($"/news/manage/{Article.Id}")" Variant="ButtonVariant.Secondary" Icon="pencil">@T("Редагувати")</Button>
                 }
             </Actions>
         </PageHeader>
@@ -45,6 +45,6 @@ else
         <p class="article__lead">@Article.Summary</p>
         <div class="prose ds-animate-in">@((MarkupString)Article.BodyHtml)</div>
         <hr />
-        <Button Href="/news" Variant="ButtonVariant.Ghost" Icon="arrow-left">Усі новини</Button>
+        <Button Href="/news" Variant="ButtonVariant.Ghost" Icon="arrow-left">@T("Усі новини")</Button>
     </article>
 }

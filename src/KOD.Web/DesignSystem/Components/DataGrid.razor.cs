@@ -1,3 +1,4 @@
+using KOD.Domain.Localization;
 using Microsoft.AspNetCore.Components;
 
 namespace KOD.Web.DesignSystem.Components;
@@ -85,13 +86,13 @@ public partial class DataGrid<TItem>
     /// Gets or sets the empty state title.
     /// </summary>
     [Parameter]
-    public string EmptyTitle { get; set; } = "Нічого не знайдено";
+    public string EmptyTitle { get; set; } = Texts.T("Нічого не знайдено");
 
     /// <summary>
     /// Gets or sets the empty state text.
     /// </summary>
     [Parameter]
-    public string? EmptyText { get; set; } = "Спробуйте змінити параметри пошуку або фільтри.";
+    public string? EmptyText { get; set; } = Texts.T("Спробуйте змінити параметри пошуку або фільтри.");
 
     /// <summary>
     /// Gets or sets custom empty state content.

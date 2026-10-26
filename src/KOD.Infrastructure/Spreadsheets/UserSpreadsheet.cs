@@ -5,6 +5,7 @@ using ClosedXML.Excel;
 using CsvHelper;
 using CsvHelper.Configuration;
 using KOD.Application.Features.Users;
+using KOD.Domain.Localization;
 
 namespace KOD.Infrastructure.Spreadsheets;
 
@@ -72,7 +73,7 @@ internal sealed class UserSpreadsheet : IUserSpreadsheet
             rows.Add(new UserSheetRow(i + 1, Cell(0) ?? string.Empty, Cell(1) ?? string.Empty, Cell(2) ?? string.Empty, Cell(3), Cell(4), Cell(5), Cell(6), Cell(7), Cell(8)));
             if (rows.Count > MaxRows)
             {
-                throw new InvalidDataException($"Файл містить більше {MaxRows} рядків.");
+                throw new InvalidDataException(Texts.T("Файл містить більше {0} рядків.", MaxRows));
             }
         }
 
@@ -115,7 +116,7 @@ internal sealed class UserSpreadsheet : IUserSpreadsheet
         var missing = required.Where((_, column) => !map.ContainsKey(column)).ToList();
         return missing.Count == 0
             ? map
-            : throw new InvalidDataException($"У файлі відсутні обов'язкові стовпці: {string.Join(", ", missing)}.");
+            : throw new InvalidDataException(Texts.T("У файлі відсутні обов'язкові стовпці: {0}.", string.Join(", ", missing)));
     }
 
     /// <summary>
@@ -140,7 +141,7 @@ internal sealed class UserSpreadsheet : IUserSpreadsheet
         }
         catch (Exception exception) when (exception is not InvalidDataException)
         {
-            throw new InvalidDataException("Не вдалося прочитати файл XLSX. Переконайтеся, що це коректна книга Excel.", exception);
+            throw new InvalidDataException(Texts.T("Не вдалося прочитати файл XLSX. Переконайтеся, що це коректна книга Excel."), exception);
         }
     }
 
@@ -167,7 +168,7 @@ internal sealed class UserSpreadsheet : IUserSpreadsheet
             rows.Add([.. csv.Parser.Record ?? []]);
             if (rows.Count > MaxRows + 1)
             {
-                throw new InvalidDataException($"Файл містить більше {MaxRows} рядків.");
+                throw new InvalidDataException(Texts.T("Файл містить більше {0} рядків.", MaxRows));
             }
         }
 

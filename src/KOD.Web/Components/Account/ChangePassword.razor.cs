@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using KOD.Application.Features.Profile;
+using KOD.Domain.Localization;
 using KOD.Domain.Users;
 using KOD.Web.Identity;
 using KOD.Web.Security;
@@ -88,7 +89,7 @@ public partial class ChangePassword
         }
 
         var target = IdentityRedirectManager.SafeLocal(ReturnUrl);
-        Redirect.RedirectTo(target, new() { ["toast"] = "Пароль змінено" });
+        Redirect.RedirectTo(target, new() { ["toast"] = Texts.T("Пароль змінено") });
     }
 
     /// <summary>

@@ -1,12 +1,12 @@
 @page "/account/login"
 @attribute [AllowAnonymous]
 
-<PageTitle>Вхід · КОД</PageTitle>
+<PageTitle>@T("Вхід · КОД")</PageTitle>
 
-<div class="auth-mobile-brand"><span class="app-brand__mark">К</span> КОД</div>
+<div class="auth-mobile-brand"><span class="app-brand__mark">@T("К")</span> @T("КОД")</div>
 <header class="auth-card__header">
-    <h1>Вхід до кабінету</h1>
-    <p>Увійдіть за обліковим записом, виданим адміністратором вашої організації.</p>
+    <h1>@T("Вхід до кабінету")</h1>
+    <p>@T("Увійдіть за обліковим записом, виданим адміністратором вашої організації.")</p>
 </header>
 
 @if (ErrorMessage is not null)
@@ -16,24 +16,24 @@
 
 <EditForm Model="Input" method="post" OnValidSubmit="SignInAsync" FormName="login" class="ds-form" Enhance data-busy-on-submit>
     <DataAnnotationsValidator />
-    <Field Label="Електронна пошта" For="login-email">
+    <Field Label="@T("Електронна пошта")" For="login-email">
         <InputText id="login-email" @bind-Value="Input.Email" class="ds-input" autocomplete="username" inputmode="email" placeholder="name@company.ua" autofocus />
-        <ValidationMessage For="() => Input.Email" />
+        <ValidationError For="() => Input.Email" />
     </Field>
-    <Field Label="Пароль" For="login-password">
+    <Field Label="@T("Пароль")" For="login-password">
         <InputText id="login-password" type="password" @bind-Value="Input.Password" class="ds-input" autocomplete="current-password" />
-        <ValidationMessage For="() => Input.Password" />
+        <ValidationError For="() => Input.Password" />
     </Field>
     <label class="ds-check">
         <InputCheckbox @bind-Value="Input.RememberMe" />
         <span class="ds-check__text">
-            <span>Запам'ятати мене на цьому пристрої</span>
-            <span class="ds-check__hint">Не використовуйте на спільних комп'ютерах.</span>
+            <span>@T("Запам'ятати мене на цьому пристрої")</span>
+            <span class="ds-check__hint">@T("Не використовуйте на спільних комп'ютерах.")</span>
         </span>
     </label>
-    <Button Type="submit" Size="ControlSize.Large" Block IconEnd="arrow-right">Продовжити</Button>
+    <Button Type="submit" Size="ControlSize.Large" Block IconEnd="arrow-right">@T("Продовжити")</Button>
 </EditForm>
 
 <p class="ds-text-sm ds-muted">
-    Якщо ви не маєте облікового запису або забули пароль — зверніться до відділу кадрів чи системного адміністратора.
+    @T("Якщо ви не маєте облікового запису або забули пароль — зверніться до відділу кадрів чи системного адміністратора.")
 </p>

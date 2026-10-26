@@ -1,6 +1,11 @@
+using System.Globalization;
 using KOD.Application;
+using KOD.Domain.Localization;
 using KOD.Infrastructure;
 using KOD.Web.Hosting;
+
+// Ukrainian outside of requests too (background services, startup), whatever the server OS language is.
+CultureInfo.DefaultThreadCurrentCulture = CultureInfo.DefaultThreadCurrentUICulture = CultureInfo.GetCultureInfo(Languages.CultureOf(Languages.Ukrainian));
 
 var builder = WebApplication.CreateBuilder(args);
 
