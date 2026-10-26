@@ -9,6 +9,7 @@ public sealed class DocumentTests
     private static readonly Guid Author = Guid.CreateVersion7();
     private static readonly Guid First = Guid.CreateVersion7();
     private static readonly Guid Second = Guid.CreateVersion7();
+    private static readonly Guid Third = Guid.CreateVersion7();
 
     [Fact]
     public void Sequential_route_only_allows_the_current_signer()
@@ -162,7 +163,7 @@ public sealed class DocumentTests
         document.Submit(Now);
 
         var error = Assert.Throws<DomainException>(() => document.AddSignature(
-            First, SignatureFormat.PAdES, SignaturePackaging.Enveloped, "B-LT", KeyMediaType.File, SignatureFile(), Certificate(), Now, Now));
+            First, SignatureFormat.PAdES, SignaturePackaging.Enveloped, "B-LT", KeyMediaType.File, SignatureFile(), Certificate(), Now, Now, null));
         Assert.Contains("PDF", error.Message, StringComparison.Ordinal);
     }
 
@@ -185,6 +186,85 @@ public sealed class DocumentTests
         Assert.Throws<DomainException>(document.Withdraw);
     }
 
+    [Fact]
+    public void Cumulative_signature_is_added_to_the_newest_version()
+    {
+        var document = CreateDocument(SigningMode.Parallel);
+        document.Submit(Now);
+        var first = Sign(document, First);
+
+        // A signature made on the original instead of the signed version would drop the first signature.
+        Assert.Throws<DomainException>(() => document.AddSignature(
+            Second, SignatureFormat.CAdES, SignaturePackaging.Detached, "B-LT", KeyMediaType.File, SignatureFile(), Certificate(), Now, Now.AddMinutes(1), null));
+
+        var second = Sign(document, Second);
+        Assert.Equal(first.Id, second.BaseSignatureId);
+        Assert.Same(second, document.LatestSignature);
+        Assert.Equal(DocumentStatus.Signed, document.Status);
+    }
+
+    [Fact]
+    public void Later_signers_keep_the_format_of_the_first_signature()
+    {
+        var document = CreateDocument(SigningMode.Parallel);
+        document.Submit(Now);
+        Sign(document, First);
+
+        Assert.Throws<DomainException>(() => Sign(document, Second, SignatureFormat.XAdES));
+    }
+
+    [Fact]
+    public void Independent_xades_signatures_have_no_base()
+    {
+        var document = CreateDocument(SigningMode.Parallel);
+        document.Submit(Now);
+
+        Sign(document, First, SignatureFormat.XAdES);
+        var second = Sign(document, Second, SignatureFormat.XAdES);
+
+        Assert.Null(second.BaseSignatureId);
+    }
+
+    [Fact]
+    public void Signing_turn_keeps_parallel_signers_in_order()
+    {
+        var document = CreateDocument(SigningMode.Parallel);
+        document.Submit(Now);
+
+        var expiresAt = document.BeginSigning(First, Now);
+        Assert.Equal(Now + SignatureChain.TurnDuration, expiresAt);
+        Assert.True(document.IsSigningTurnHeldByOther(Second, Now));
+        Assert.Throws<DomainException>(() => document.BeginSigning(Second, Now));
+        Assert.Throws<DomainException>(() => Sign(document, Second));
+
+        // Signing ends the turn; an abandoned turn simply expires.
+        Sign(document, First);
+        Assert.False(document.IsSigningTurnHeldByOther(Second, Now));
+        document.BeginSigning(Second, Now);
+
+        var other = CreateDocument(SigningMode.Parallel);
+        other.Submit(Now);
+        other.BeginSigning(First, Now);
+        Assert.False(other.IsSigningTurnHeldByOther(Second, expiresAt.AddSeconds(1)));
+    }
+
+    [Fact]
+    public void Removing_a_signer_restarts_a_cumulative_chain()
+    {
+        var document = new Document("2026/000001", "Про затвердження графіка", null, DocumentKind.Order, Author, Guid.CreateVersion7(), SigningMode.Parallel, DocumentFile());
+        document.SetRoute([First, Second, Third], SigningMode.Parallel);
+        document.Submit(Now);
+        Sign(document, First);
+        Sign(document, Second);
+        document.Reject(Third, "Потрібні правки", Now);
+
+        // The first signature lives inside the second signer's file too, so removing the second signer drops both.
+        var removed = document.SetRoute([First, Third], SigningMode.Parallel);
+
+        Assert.Equal(2, removed.Count);
+        Assert.Empty(document.Signatures);
+    }
+
     private static Document CreateDocument(SigningMode mode)
     {
         var document = new Document("2026/000001", "Про затвердження графіка", null, DocumentKind.Order, Author, Guid.CreateVersion7(), mode, DocumentFile());
@@ -192,8 +272,8 @@ public sealed class DocumentTests
         return document;
     }
 
-    private static void Sign(Document document, Guid signer)
-        => document.AddSignature(signer, SignatureFormat.CAdES, SignaturePackaging.Detached, "B-LT", KeyMediaType.File, SignatureFile(), Certificate(), Now, Now);
+    private static DocumentSignature Sign(Document document, Guid signer, SignatureFormat format = SignatureFormat.CAdES)
+        => document.AddSignature(signer, format, SignaturePackaging.Detached, "B-LT", KeyMediaType.File, SignatureFile(), Certificate(), Now, Now.AddSeconds(document.Signatures.Count), SignatureChain.IsCumulative(format) ? document.LatestSignature?.Id : null);
 
     private static StoredFile DocumentFile() => new("order.docx", "application/vnd.openxmlformats-officedocument.wordprocessingml.document", 1024, new string('a', 64), "documents/2026/10/" + new string('0', 32));
 

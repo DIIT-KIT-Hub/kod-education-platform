@@ -46,6 +46,11 @@ internal sealed class DocumentService(
     private const int MaxSaveAttempts = 3;
 
     /// <summary>
+    /// The error code of "another signer holds the signing turn" (the browser waits and asks again).
+    /// </summary>
+    private const string SigningTurnErrorCode = "signing_turn";
+
+    /// <summary>
     /// Allowed clock skew between the signer's browser and the server.
     /// </summary>
     private static readonly TimeSpan AllowedClockSkew = TimeSpan.FromMinutes(10);
@@ -185,7 +190,8 @@ internal sealed class DocumentService(
                 .OrderBy(static s => s.SignedAt)
                 .Select(s => new DocumentSignatureItem(s.Id, s.UserId, s.User!.FullName, s.Format, s.Packaging, s.Level, s.KeyMedia, s.Certificate, s.SignedAt, SignedFileName.For(document.File.FileName, s.Format), s.File.Size))
                 .ToList(),
-            actions);
+            actions,
+            document.FirstSignature is { } first && SignatureChain.IsCumulative(first.Format) ? document.LatestSignature?.Id : null);
     }
 
     /// <inheritdoc />
@@ -479,15 +485,38 @@ internal sealed class DocumentService(
         var certificate = command.ReportedCertificate;
         Stream content = command.Signature.Content;
         MemoryStream? buffer = null;
+        var appended = command.BaseSignatureId is not null && SignatureChain.IsCumulative(command.Format);
         try
         {
-            if (command.Format == SignatureFormat.CAdES && command.Signature.Length <= InspectableSignatureSize)
+            if (appended || (command.Format == SignatureFormat.CAdES && command.Signature.Length <= InspectableSignatureSize))
             {
                 buffer = new MemoryStream((int)command.Signature.Length);
                 await command.Signature.Content.CopyToAsync(buffer, cancellationToken);
-                certificate = signatureInspector.TryReadSigner(buffer.GetBuffer().AsMemory(0, (int)buffer.Length), command.Format) ?? certificate;
                 buffer.Position = 0;
                 content = buffer;
+            }
+
+            if (appended)
+            {
+                // The new file must be the previous version plus exactly one signature (the chain rules themselves are
+                // enforced by Document.AddSignature, again after any reload).
+                var previous = document.Signatures.FirstOrDefault(s => s.Id == command.BaseSignatureId);
+                if (previous is null)
+                {
+                    return Error.Conflict(Texts.T("Поки ви підписували, документ підписав інший підписант. Підпишіть останню версію ще раз."));
+                }
+
+                var check = await CheckAppendedAsync(previous, buffer!.GetBuffer().AsMemory(0, (int)buffer.Length), command.Format, cancellationToken);
+                if (!check.IsSuccess)
+                {
+                    return check.Error;
+                }
+
+                certificate = check.Value ?? certificate;
+            }
+            else if (buffer is not null)
+            {
+                certificate = signatureInspector.TryReadSigner(buffer.GetBuffer().AsMemory(0, (int)buffer.Length), command.Format) ?? certificate;
             }
 
             if (string.IsNullOrWhiteSpace(certificate.SubjectFullName) || string.IsNullOrWhiteSpace(certificate.SerialNumber))
@@ -509,16 +538,16 @@ internal sealed class DocumentService(
                     try
                     {
                         var file = new StoredFile(SignedFileName.For(document.File.FileName, command.Format), contentType, blob.Size, blob.Sha256, blob.StorageKey);
-                        var signature = document.AddSignature(me, command.Format, command.Packaging, command.Level, command.KeyMedia, file, certificate, signedAt, now);
+                        var signature = document.AddSignature(me, command.Format, command.Packaging, command.Level, command.KeyMedia, file, certificate, signedAt, now, command.BaseSignatureId);
                         audit.Add(AuditActions.DocumentSigned, nameof(Document), document.Id.ToString(), $"{document.RegistrationNumber}: {command.Format}, {certificate.IssuerName}, № {certificate.SerialNumber}");
                         await db.SaveChangesAsync(cancellationToken);
                         return signature.Id;
                     }
                     catch (DbUpdateConcurrencyException) when (attempt < MaxSaveAttempts)
                     {
-                        // Another signer of a parallel route (or the author) saved the document first. Every signature
-                        // covers the same document file, so this one is still valid: reload the route and attach it
-                        // again. If the document no longer waits for this user, AddSignature reports why.
+                        // Another signer of a parallel route (or the author) saved the document first. An independent
+                        // (XAdES) signature is still valid and is attached again; a cumulative one was made on a version
+                        // that is no longer the newest, and AddSignature asks to sign the newest one instead.
                         db.DiscardChanges();
                         document = await db.Documents
                             .Include(static d => d.Signers)
@@ -546,6 +575,89 @@ internal sealed class DocumentService(
                 await buffer.DisposeAsync();
             }
         }
+    }
+
+    /// <inheritdoc />
+    public async Task<Result<SigningSession>> BeginSigningAsync(Guid id, CancellationToken cancellationToken)
+    {
+        if (currentUser.Id is not { } me)
+        {
+            return Error.Unauthorized();
+        }
+
+        if (!currentUser.Has(Permissions.Documents.Sign))
+        {
+            return Error.Forbidden(Texts.T("У вас немає права підписувати документи."));
+        }
+
+        for (var attempt = 1; ; attempt++)
+        {
+            var document = await db.Documents
+                .Include(static d => d.Signers)
+                .Include(static d => d.Signatures)
+                .FirstOrDefaultAsync(d => d.Id == id, cancellationToken);
+            if (document is null)
+            {
+                return Error.NotFound(Texts.T("Документ не знайдено."));
+            }
+
+            if (!document.IsAwaitingSignatureFrom(me))
+            {
+                return Error.Conflict(Texts.T("Документ зараз не очікує вашого підпису."));
+            }
+
+            var now = timeProvider.GetUtcNow();
+            if (document.IsSigningTurnHeldByOther(me, now))
+            {
+                var holder = await db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == document.SigningTurnUserId, cancellationToken);
+                return new Error(
+                    SigningTurnErrorCode,
+                    Texts.T("Документ зараз підписує {0}. Додати свій підпис можна буде, щойно він завершить.", holder?.FullName ?? Texts.T("інший підписант")),
+                    ErrorType.Conflict);
+            }
+
+            try
+            {
+                var expiresAt = document.BeginSigning(me, now);
+                await db.SaveChangesAsync(cancellationToken);
+
+                var first = document.FirstSignature;
+                var latest = first is not null && SignatureChain.IsCumulative(first.Format) ? document.LatestSignature : null;
+                return new SigningSession(latest?.Id, latest?.File.Sha256, first?.Format, first?.Packaging, latest is null ? 0 : document.Signatures.Count, expiresAt);
+            }
+            catch (DbUpdateConcurrencyException) when (attempt < MaxSaveAttempts)
+            {
+                // Someone signed or took the turn at the same moment: look again.
+                db.DiscardChanges();
+            }
+        }
+    }
+
+    /// <inheritdoc />
+    public async Task<Result> EndSigningAsync(Guid id, CancellationToken cancellationToken)
+    {
+        if (currentUser.Id is not { } me)
+        {
+            return Error.Unauthorized();
+        }
+
+        var document = await db.Documents.FirstOrDefaultAsync(d => d.Id == id, cancellationToken);
+        if (document is null || document.SigningTurnUserId != me)
+        {
+            return Result.Success();
+        }
+
+        document.EndSigning(me);
+        try
+        {
+            await db.SaveChangesAsync(cancellationToken);
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            // The turn ends on its own when it expires; nothing else depends on giving it up early.
+        }
+
+        return Result.Success();
     }
 
     /// <inheritdoc />
@@ -748,6 +860,48 @@ internal sealed class DocumentService(
         SignatureFormat.AsicE => "application/vnd.etsi.asic-e+zip",
         _ => "application/pkcs7-signature",
     };
+
+    /// <summary>
+    /// Checks that a cumulative signature file is the previous version with exactly one more signature, and finds the
+    /// new signer's certificate in a CAdES container (the earlier signers are already there).
+    /// </summary>
+    /// <param name="previous">The signature the new one was added to.</param>
+    /// <param name="signed">The new signature file.</param>
+    /// <param name="format">The signature format.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The new signer's certificate when it could be read, or a validation error.</returns>
+    private async Task<Result<SignerCertificate?>> CheckAppendedAsync(DocumentSignature previous, ReadOnlyMemory<byte> signed, SignatureFormat format, CancellationToken cancellationToken)
+    {
+        await using var stream = await fileStorage.OpenReadAsync(previous.File.StorageKey, cancellationToken);
+        using var copy = new MemoryStream();
+        await stream.CopyToAsync(copy, cancellationToken);
+        var before = copy.GetBuffer().AsMemory(0, (int)copy.Length);
+
+        var invalid = Error.Validation(Texts.T("Файл підпису не містить попередніх підписів документа. Підпишіть останню версію ще раз."));
+        var expected = signatureInspector.TryCountSignatures(before, format);
+        var actual = signatureInspector.TryCountSignatures(signed, format);
+        if (expected is { } count && actual is { } total && total != count + 1)
+        {
+            return invalid;
+        }
+
+        // A PDF signature is an incremental update: the earlier signed PDF stays byte for byte at the start.
+        if (format == SignatureFormat.PAdES && !signed.Span.StartsWith(before.Span))
+        {
+            return invalid;
+        }
+
+        if (format != SignatureFormat.CAdES)
+        {
+            return Result<SignerCertificate?>.Success(null);
+        }
+
+        var earlier = signatureInspector.TryReadSigners(before, format) ?? [];
+        var added = (signatureInspector.TryReadSigners(signed, format) ?? [])
+            .Where(s => !earlier.Any(e => e.SerialNumber == s.SerialNumber && e.IssuerName == s.IssuerName))
+            .ToList();
+        return Result<SignerCertificate?>.Success(added.Count == 1 ? added[0] : null);
+    }
 
     /// <summary>
     /// Checks whether the current user can see the document.

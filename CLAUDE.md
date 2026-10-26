@@ -106,11 +106,20 @@ Dependencies point inward: Web → Infrastructure → Application → Domain. Ce
   (`wwwroot/js/signing/eusign.worker.js`, IIT EUSignCP-JS). The server receives the finished signature + certificate data,
   public OCSP/TSP/CMP messages through `/api/v1/eusign/proxy` (host allowlist; only hosts are logged), and for the file
   signing tool only file names and parameters (`POST /api/v1/signing/journal` → audit `signing.files-signed`).
-- Before signing a document the browser checks the file's SHA-256 against the registered one. Every signer signs the same
-  registered original (sequential routes only order the signers); a PAdES signature is a separate signed PDF per signer.
-- Parallel signing is safe under concurrency: `Document` has an `xmin` concurrency token, `AddSignature` touches the root,
-  and `DocumentService.AddSignatureAsync` reloads and re-attaches the same signature on `DbUpdateConcurrencyException`
-  (up to 3 attempts).
+- Before signing a document the browser checks the file's SHA-256 against the registered one.
+- **Signature chain** (`SignatureChain`, `Document.AddSignature`): the first signature fixes format + packaging; in the
+  cumulative formats (CAdES, PAdES, ASiC) every next signature is added to the newest signed version
+  (`BaseSignatureId` must equal `LatestSignature`), so the newest signature file holds the document with all signatures
+  ("Document with all signatures" on the card). XAdES has no append in the IIT library: independent signatures, base null.
+  The worker appends with `CtxAppendSign` / `CtxPDFSignData` on the signed PDF / `CtxASiCAppendSign` after checking the
+  previous version (signature count, same document). The server accepts only "previous version + exactly one signature"
+  (`ISignatureInspector.TryCountSignatures`, PDF byte prefix) and takes the new CMS signer's certificate. Removing a signer
+  from the route drops the whole cumulative chain.
+- **Signing turn** (`Document.BeginSigning`, `SignatureChain.TurnDuration` = 10 min): the browser takes it when the signing
+  window opens (`POST /api/v1/documents/{id}/signing-session`, 409 code `signing_turn` while someone else holds it — the
+  window polls every 5 s), renews it right before signing, and gives it up on close (`DELETE`). `Document` also has an
+  `xmin` concurrency token; `AddSignatureAsync` reloads on `DbUpdateConcurrencyException`, and a stale base is rejected
+  ("sign the latest version again").
 - 2FA is mandatory; TOTP codes are single-use; secrets are encrypted with Data Protection; sessions are server-side
   (`DatabaseTicketStore`) with idle + absolute lifetime; permissions are re-read every minute (security stamp validator,
   claims factory). Changing the sign-in cookie: `SignInManager.RefreshSignInAsync(user)` (used by password and language changes).
@@ -154,6 +163,8 @@ Use `[LoggerMessage]` partial methods for new log statements.
 - Help page performance: topics use `content-visibility: auto`; `help.js` renders them once to remember real heights so
   anchors land exactly. Keep that when changing the manual's layout.
 - PAdES has no signing-time attribute; verification shows the signature time-stamp, else the PDF `/M` time.
+- Cumulative signing could only be checked structurally here: producing real signatures needs a qualified key, so test
+  append flows with the user (CAdES detached/enveloped, PAdES, ASiC-S/E, sequential and parallel routes).
   A PDF without `/ByteRange` has no signatures (the library would report "damaged data").
 - The audit log category filter uses the query parameter `category`, not `action`.
 

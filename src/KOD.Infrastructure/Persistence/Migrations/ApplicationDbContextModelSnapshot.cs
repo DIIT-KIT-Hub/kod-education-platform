@@ -218,6 +218,14 @@ namespace KOD.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(32)")
                         .HasColumnName("signing_mode");
 
+                    b.Property<DateTimeOffset?>("SigningTurnExpiresAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("signing_turn_expires_at");
+
+                    b.Property<Guid?>("SigningTurnUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("signing_turn_user_id");
+
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasMaxLength(32)
@@ -302,6 +310,10 @@ namespace KOD.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid")
                         .HasColumnName("id");
+
+                    b.Property<Guid?>("BaseSignatureId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("base_signature_id");
 
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone")

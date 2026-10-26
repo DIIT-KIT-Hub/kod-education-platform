@@ -22,6 +22,8 @@ internal sealed class DocumentConfiguration :
 
         // PostgreSQL "xmin" system column as the optimistic concurrency token.
         builder.Property<uint>("Version").IsRowVersion();
+        builder.Ignore(static d => d.FirstSignature);
+        builder.Ignore(static d => d.LatestSignature);
 
         ConfigureFile(builder.ComplexProperty(static d => d.File));
 

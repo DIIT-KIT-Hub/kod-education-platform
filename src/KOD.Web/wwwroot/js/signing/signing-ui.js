@@ -234,6 +234,14 @@ function dropzone(options) {
 }
 
 /**
+ * Reads the antiforgery token for REST calls.
+ * @returns {string} The token.
+ */
+function csrfToken() {
+    return document.querySelector('meta[name="csrf-token"]')?.getAttribute("content") || "";
+}
+
+/**
  * Reports a file signing to the audit log (names and parameters only). A failure never affects the signature the user
  * already has, so it is not shown.
  * @param {any} owner The key owner.
@@ -241,7 +249,7 @@ function dropzone(options) {
  * @param {{format: string, level: string}} meta The signature parameters.
  */
 function recordFilesSigned(owner, fileNames, meta) {
-    const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute("content") || "";
+    const token = csrfToken();
     fetch("/api/v1/signing/journal", {
         method: "POST",
         credentials: "same-origin",
@@ -525,7 +533,8 @@ function ownerCard(owner, onForget) {
 
 /**
  * Builds the signature parameters (format, packaging, level).
- * @param {{pdfOnly: () => boolean, multiple: () => boolean}} context The data context.
+ * @param {{pdfOnly: () => boolean, multiple: () => boolean, fixed?: () => ({format: string, packaging: string}|null)}} context The data context
+ * (fixed: the format and packaging chosen by the first signer of the document).
  * @returns {{root: HTMLElement, refresh: () => void, value: () => {format: string, packaging: string, level: string}}} The control.
  */
 function parametersBlock(context) {
@@ -540,11 +549,17 @@ function parametersBlock(context) {
     });
 
     const render = () => {
+        const fixed = context.fixed ? context.fixed() : null;
+        if (fixed) {
+            format = fixed.format;
+            packaging = fixed.packaging;
+        }
+
         const available = FORMATS().map((f) => ({
             id: f.id,
             title: f.title,
             hint: f.hint,
-            disabled: (f.pdf && !context.pdfOnly()) || (!f.multiple && context.multiple()),
+            disabled: fixed ? f.id !== fixed.format : (f.pdf && !context.pdfOnly()) || (!f.multiple && context.multiple()),
         }));
         if (available.find((f) => f.id === format)?.disabled) {
             format = available.find((f) => !f.disabled)?.id || "CAdES";
@@ -558,10 +573,11 @@ function parametersBlock(context) {
                 render();
             })),
             meta.packaging
-                ? field(t("Тип підпису"), segmented("sign-packaging", PACKAGINGS(), packaging, (value) => {
+                ? field(t("Тип підпису"), segmented("sign-packaging", PACKAGINGS().map((o) => ({ ...o, disabled: fixed ? o.id !== fixed.packaging : false })), packaging, (value) => {
                     packaging = value;
                 }))
                 : null,
+            fixed ? el("p", { class: "ds-hint", text: t("Формат і тип підпису визначив перший підписант: ваш підпис буде додано до того самого файлу.") }) : null,
             field(t("Рівень підпису"), levelSelect, t("B-LT містить усе для перевірки через роки (рекомендовано).")),
         ].filter(Boolean));
     };
@@ -609,7 +625,8 @@ function renderSigning(host, client, visible, ready) {
             el("div", { class: "doc-file" }, el("span", { class: "doc-file__icon" }, icon("file-text")), el("span", { class: "doc-file__name", text: host.dataset.fileName })),
             dataStatus);
 
-        // The file is downloaded only when the signing panel is actually opened.
+        // The file is downloaded only when the signing panel is actually opened; the signing session (the turn to sign
+        // and the version to add the signature to) is taken every time the window opens.
         visible
             .then(() => fetch(host.dataset.fileUrl, { credentials: "same-origin" }))
             .then((response) => {
@@ -630,9 +647,7 @@ function renderSigning(host, client, visible, ready) {
                 }
 
                 files = [{ name: host.dataset.fileName, size: buffer.byteLength, buffer }];
-                integrityOk = true;
-                dataStatus.replaceChildren(alert("outline", t("SHA-256 файлу збігається з зареєстрованим у системі."), t("Цілісність підтверджено")));
-                wizard.refresh();
+                await prepareSession();
             })
             .catch((error) => dataStatus.replaceChildren(alert("danger", error.message)));
     } else {
@@ -668,7 +683,89 @@ function renderSigning(host, client, visible, ready) {
     const parameters = parametersBlock({
         pdfOnly: () => files.length > 0 && files.every((f) => /\.pdf$/i.test(f.name)),
         multiple: () => files.length > 1,
+        fixed: () => (documentMode && session && session.format ? { format: session.format, packaging: session.packaging } : null),
     });
+
+    /** @type {{baseSignatureId: string|null, baseSha256: string|null, format: string|null, packaging: string|null, signatureCount: number}|null} */
+    let session = null;
+    /** @type {ArrayBuffer|null} The newest signed version the signature is added to (cumulative formats). */
+    let previous = null;
+    let attempt = 0;
+
+    /**
+     * Takes the turn to sign and loads the version to add the signature to. While another signer of a parallel route
+     * holds the turn, waits and asks again every few seconds (only while the signing window is open).
+     * @returns {Promise<void>} Resolves when the document is ready to be signed.
+     */
+    async function prepareSession() {
+        const current = ++attempt;
+        integrityOk = false;
+        wizard.refresh();
+        for (;;) {
+            const response = await fetch(host.dataset.sessionUrl, { method: "POST", credentials: "same-origin", headers: { "X-CSRF-TOKEN": csrfToken() } });
+            if (current !== attempt) {
+                return;
+            }
+
+            if (response.ok) {
+                session = await response.json();
+                break;
+            }
+
+            const problem = await response.json().catch(() => ({}));
+            if (response.status === 409 && problem.code === "signing_turn") {
+                dataStatus.replaceChildren(
+                    alert("outline", problem.detail || "", t("Зачекайте своєї черги")),
+                    el("div", { class: "ds-progress ds-progress--indeterminate" }, el("div", { class: "ds-progress__bar" })));
+                await new Promise((resolve) => window.setTimeout(resolve, 5000));
+                if (current !== attempt || (dialog && !dialog.open)) {
+                    return;
+                }
+
+                continue;
+            }
+
+            throw new Error(problem.detail || t("Не вдалося розпочати підписання."));
+        }
+
+        previous = null;
+        if (session.baseSignatureId) {
+            const response = await fetch(`${host.dataset.uploadUrl}/${session.baseSignatureId}/file`, { credentials: "same-origin" });
+            if (!response.ok) {
+                throw new Error(t("Не вдалося завантажити останню підписану версію документа."));
+            }
+
+            const buffer = await response.arrayBuffer();
+            if ((await sha256(buffer)) !== (session.baseSha256 || "").toLowerCase()) {
+                throw new Error(t("Контрольна сума останньої підписаної версії не збігається з зареєстрованою. Підписання заборонено."));
+            }
+
+            previous = buffer;
+        }
+
+        integrityOk = true;
+        dataStatus.replaceChildren(...[
+            alert("outline", t("SHA-256 файлу збігається з зареєстрованим у системі."), t("Цілісність підтверджено")),
+            session.baseSignatureId
+                ? alert("outline", t("Документ уже має підписів: {0}. Ваш підпис буде додано до того самого файлу, тож у ньому будуть усі підписи.", session.signatureCount), t("Підпис додається до попередніх"))
+                : null,
+        ].filter(Boolean));
+        parameters.refresh();
+        wizard.refresh();
+    }
+
+    /**
+     * Gives up the turn to sign (the window was closed without signing).
+     */
+    function endSession() {
+        attempt++;
+        if (session) {
+            session = null;
+            fetch(host.dataset.sessionUrl, { method: "DELETE", credentials: "same-origin", keepalive: true, headers: { "X-CSRF-TOKEN": csrfToken() } }).catch(() => { });
+        }
+    }
+
+    const dialog = host.closest("dialog");
 
     // Step 3: the summary, the key and the signature.
     const summary = el("div", { class: "sign-summary" });
@@ -740,9 +837,26 @@ function renderSigning(host, client, visible, ready) {
         let signed;
         try {
             const payload = await Promise.all(files.map(async (f) => ({ name: f.name, data: f.buffer ? f.buffer.slice(0) : await f.file.arrayBuffer() })));
-            signed = await client.sign(format, packaging, level, payload);
+            let base = null;
             if (documentMode) {
-                await uploadSignature(host, owner, signed, { format, packaging, level, fileName });
+                // Renew the turn and make sure nobody added a signature since the window opened.
+                const response = await fetch(host.dataset.sessionUrl, { method: "POST", credentials: "same-origin", headers: { "X-CSRF-TOKEN": csrfToken() } });
+                const fresh = await response.json().catch(() => ({}));
+                if (!response.ok) {
+                    throw new Error(fresh.detail || t("Не вдалося розпочати підписання."));
+                }
+
+                if (fresh.baseSignatureId !== (session && session.baseSignatureId)) {
+                    await prepareSession();
+                    throw new Error(t("Поки ви підписували, документ підписав інший підписант. Завантажено останню версію — натисніть «Підписати» ще раз."));
+                }
+
+                base = previous && format !== "XAdES" ? { data: previous.slice(0), signatures: session.signatureCount } : null;
+            }
+
+            signed = await client.sign(format, packaging, level, payload, base);
+            if (documentMode) {
+                await uploadSignature(host, owner, signed, { format, packaging, level, fileName, baseSignatureId: base ? session.baseSignatureId : null });
             }
         } catch (error) {
             signStatus.append(alert("danger", error.message || String(error)));
@@ -756,6 +870,7 @@ function renderSigning(host, client, visible, ready) {
 
         await key.forget();
         if (documentMode) {
+            session = null;
             host.replaceChildren(successCard(t("Документ підписано"), t("Підпис збережено. Сторінка оновиться автоматично.")));
             window.setTimeout(() => window.location.reload(), 1400);
             return;
@@ -768,14 +883,26 @@ function renderSigning(host, client, visible, ready) {
             button(t("Підписати інші файли"), { variant: "ghost", icon: "refresh-cw", onclick: () => renderSigning(host, client, visible, ready) })));
     }
 
-    // Closing the signing dialog releases the key; the chosen data and parameters stay.
-    const dialog = host.closest("dialog");
+    // Closing the signing dialog releases the key and the turn to sign; the chosen data and parameters stay, and the
+    // turn is taken again (with the then newest version) when the dialog opens again.
     if (dialog) {
         dialog.addEventListener("close", () => {
             if (!wizard.busy()) {
                 key.forget();
+                if (documentMode) {
+                    endSession();
+                }
             }
         });
+
+        if (documentMode) {
+            new MutationObserver(() => {
+                if (dialog.open && files.length > 0 && !session) {
+                    prepareSession().catch((error) => dataStatus.replaceChildren(alert("danger", error.message)));
+                }
+            }).observe(dialog, { attributes: true, attributeFilter: ["open"] });
+            window.addEventListener("pagehide", endSession);
+        }
     }
 
     host.replaceChildren(wizard.root);
@@ -803,7 +930,8 @@ function successCard(title, text, ...actions) {
  * @param {HTMLElement} host The host element.
  * @param {any} owner The key owner.
  * @param {{signature: Uint8Array, signedAt: string}} signed The signature.
- * @param {{format: string, packaging: string, level: string, fileName: string}} meta The signature metadata.
+ * @param {{format: string, packaging: string, level: string, fileName: string, baseSignatureId?: string|null}} meta The signature metadata
+ * (baseSignatureId: the signed version the signature was added to).
  * @returns {Promise<void>} Resolves when stored.
  */
 async function uploadSignature(host, owner, signed, meta) {
@@ -833,8 +961,11 @@ async function uploadSignature(host, owner, signed, meta) {
     }
 
     form.append("Signature", new Blob([signed.signature], { type: "application/octet-stream" }), meta.fileName);
+    if (meta.baseSignatureId) {
+        form.append("BaseSignatureId", meta.baseSignatureId);
+    }
 
-    const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute("content") || "";
+    const token = csrfToken();
     const response = await fetch(host.dataset.uploadUrl, {
         method: "POST",
         body: form,

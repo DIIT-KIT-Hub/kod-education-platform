@@ -95,7 +95,18 @@ else
                     <Button Href="@($"/api/v1/documents/{Document.Id}/file")" Variant="ButtonVariant.Secondary" Size="ControlSize.Small" Icon="download" download>@T("Завантажити")</Button>
                 </div>
                 <p class="ds-text-xs ds-muted">SHA-256: <span class="ds-mono">@Document.File.Sha256</span></p>
-                @if (Document.Signatures.Count > 0)
+                @if (Document.CombinedSignatureId is { } combined)
+                {
+                    <div class="doc-file doc-file--signed">
+                        <span class="doc-file__icon"><Icon Name="badge-check" /></span>
+                        <div class="ds-stack ds-stack--sm" style="flex:1;min-width:0">
+                            <span class="doc-file__name">@T("Документ з усіма підписами")</span>
+                            <span class="ds-text-sm ds-muted">@T("Один файл, що містить документ і всі накладені підписи.")</span>
+                        </div>
+                        <Button Href="@($"/api/v1/documents/{Document.Id}/signatures/{combined}/file")" Size="ControlSize.Small" Icon="download" download>@T("Завантажити")</Button>
+                    </div>
+                }
+                else if (Document.Signatures.Count > 0)
                 {
                     <p class="ds-text-sm ds-muted">@T("Це оригінал без підписів. Підписані файли завантажуйте в розділі «Підписи».")</p>
                 }
@@ -153,7 +164,7 @@ else
                                     </span>
                                 </div>
                                 <Button Href="@($"/api/v1/documents/{Document.Id}/signatures/{signature.Id}/file")" Variant="ButtonVariant.Secondary" Size="ControlSize.Small" Icon="download" title="@signature.FileName" download>
-                                    @(signature.Format == SignatureFormat.PAdES ? T("Підписаний PDF") : T("Файл підпису"))
+                                    @(Document.CombinedSignatureId is not null ? T("Версія після цього підпису") : signature.Format == SignatureFormat.PAdES ? T("Підписаний PDF") : T("Файл підпису"))
                                 </Button>
                             </li>
                         }

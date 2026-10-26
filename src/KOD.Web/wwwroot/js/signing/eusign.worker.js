@@ -390,6 +390,41 @@ function describeSignature(signInfo, claimedTime) {
     };
 }
 
+/**
+ * Checks the signed version a new signature is about to be added to: it must hold exactly the signatures the server
+ * knows about and contain this very document (a signed PDF starts with it, an enveloped CAdES container carries it).
+ * @param {string} format The signature format.
+ * @param {Uint8Array} previous The signed version.
+ * @param {Uint8Array} data The document file.
+ * @param {number} expected The number of signatures it must hold.
+ */
+function checkPrevious(format, previous, data, expected) {
+    let count;
+    if (format === "PAdES") {
+        count = euSign.PDFGetSignsCount(previous);
+    } else if (format === "CAdES") {
+        count = euSign.CtxGetSignsCount(verifyContext, previous);
+    } else {
+        count = euSign.ASiCGetSignsCount(previous);
+    }
+
+    if (count !== expected) {
+        throw new Error(t("Остання підписана версія документа не збігається з даними системи. Оновіть сторінку й спробуйте ще раз."));
+    }
+
+    let sameDocument = true;
+    if (format === "PAdES") {
+        sameDocument = previous.length >= data.length && previous.subarray(0, data.length).every((b, i) => b === data[i]);
+    } else if (format === "CAdES" && euSign.IsDataInSignedDataAvailable(previous)) {
+        const inner = euSign.GetDataFromSignedData(previous);
+        sameDocument = inner.length === data.length && inner.every((b, i) => b === data[i]);
+    }
+
+    if (!sameDocument) {
+        throw new Error(t("Остання підписана версія містить інший документ. Підписання зупинено."));
+    }
+}
+
 /** Command handlers. */
 const handlers = {
     /**
@@ -477,6 +512,13 @@ const handlers = {
 
         const files = params.files.map((f) => ({ name: f.name, data: new Uint8Array(f.data) }));
         const references = () => files.map((f) => new EndUserReference(f.name, f.data));
+
+        // A document already signed in a cumulative format: the new signature is added to the newest signed version,
+        // so one file ends up holding every signature. XAdES has no append operation and stays independent.
+        const previous = params.previous && params.format !== "XAdES" ? new Uint8Array(params.previous.data) : null;
+        if (previous) {
+            checkPrevious(params.format, previous, files[0].data, params.previous.signatures);
+        }
         const detached = params.packaging === "Detached";
         const cades = {
             "B-B": EU_SIGN_TYPE_CADES_BES,
@@ -491,20 +533,27 @@ const handlers = {
         switch (params.format) {
             case "CAdES":
                 euSign.SetRuntimeParameter(EU_SIGN_TYPE_PARAMETER, cades);
-                signature = euSign.CtxSignData(privateKey, signAlgorithm, files[0].data, detached, true, false);
+                signature = previous
+                    ? euSign.CtxAppendSign(privateKey, signAlgorithm, detached ? files[0].data : null, previous, true, false)
+                    : euSign.CtxSignData(privateKey, signAlgorithm, files[0].data, detached, true, false);
                 break;
             case "XAdES":
                 signature = euSign.CtxXAdESSignData(privateKey, signAlgorithm, detached ? EU_XADES_TYPE_DETACHED : EU_XADES_TYPE_ENVELOPING, xades, references(), false);
                 break;
             case "PAdES":
-                signature = euSign.CtxPDFSignData(privateKey, signAlgorithm, files[0].data, pades, false);
+                // Signing the signed PDF adds an incremental signature; the earlier ones stay intact.
+                signature = euSign.CtxPDFSignData(privateKey, signAlgorithm, previous || files[0].data, pades, false);
                 break;
             case "AsicS":
                 euSign.SetRuntimeParameter(EU_SIGN_TYPE_PARAMETER, cades);
-                signature = euSign.CtxASiCSignData(privateKey, signAlgorithm, EU_ASIC_TYPE_S, EU_ASIC_SIGN_TYPE_CADES, cades, references().slice(0, 1), false);
+                signature = previous
+                    ? euSign.CtxASiCAppendSign(privateKey, signAlgorithm, cades, null, previous, false)
+                    : euSign.CtxASiCSignData(privateKey, signAlgorithm, EU_ASIC_TYPE_S, EU_ASIC_SIGN_TYPE_CADES, cades, references().slice(0, 1), false);
                 break;
             case "AsicE":
-                signature = euSign.CtxASiCSignData(privateKey, signAlgorithm, EU_ASIC_TYPE_E, EU_ASIC_SIGN_TYPE_XADES, xades, references(), false);
+                signature = previous
+                    ? euSign.CtxASiCAppendSign(privateKey, signAlgorithm, xades, null, previous, false)
+                    : euSign.CtxASiCSignData(privateKey, signAlgorithm, EU_ASIC_TYPE_E, EU_ASIC_SIGN_TYPE_XADES, xades, references(), false);
                 break;
             default:
                 throw new Error(t("Невідомий формат підпису."));

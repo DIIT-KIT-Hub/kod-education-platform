@@ -153,6 +153,27 @@ public sealed class Document : AuditableEntity
     public IReadOnlyCollection<DocumentSignature> Signatures => _signatures;
 
     /// <summary>
+    /// Gets the signer who holds the turn to add the next signature (see <see cref="BeginSigning"/>), if any.
+    /// </summary>
+    public Guid? SigningTurnUserId { get; private set; }
+
+    /// <summary>
+    /// Gets the moment the current signing turn ends.
+    /// </summary>
+    public DateTimeOffset? SigningTurnExpiresAt { get; private set; }
+
+    /// <summary>
+    /// Gets the first signature: its format and packaging bind every later signer.
+    /// </summary>
+    public DocumentSignature? FirstSignature => _signatures.OrderBy(static s => s.CreatedAt).ThenBy(static s => s.Id).FirstOrDefault();
+
+    /// <summary>
+    /// Gets the newest signature. In a cumulative format (<see cref="SignatureChain"/>) its file holds every signature of
+    /// the document, and the next signer adds theirs to it.
+    /// </summary>
+    public DocumentSignature? LatestSignature => _signatures.OrderBy(static s => s.CreatedAt).ThenBy(static s => s.Id).LastOrDefault();
+
+    /// <summary>
     /// Gets a value indicating whether the author may change the document: a draft, or a rejected document that is being
     /// corrected before it is sent again.
     /// </summary>
@@ -219,6 +240,13 @@ public sealed class Document : AuditableEntity
         }
 
         var removed = _signatures.Where(s => !distinct.Contains(s.UserId)).ToList();
+
+        // In a cumulative format every later signature file contains the removed signature, so the whole chain goes.
+        if (removed.Count > 0 && FirstSignature is { } first && SignatureChain.IsCumulative(first.Format))
+        {
+            removed = [.. _signatures];
+        }
+
         _signatures.RemoveAll(removed.Contains);
         return removed;
     }
@@ -303,6 +331,53 @@ public sealed class Document : AuditableEntity
     }
 
     /// <summary>
+    /// Determines whether another signer holds the signing turn right now.
+    /// </summary>
+    /// <param name="userId">The user who wants to sign.</param>
+    /// <param name="moment">The current moment.</param>
+    /// <returns><see langword="true"/> when someone else is signing.</returns>
+    public bool IsSigningTurnHeldByOther(Guid userId, DateTimeOffset moment)
+        => SigningTurnUserId is { } holder && holder != userId && SigningTurnExpiresAt > moment;
+
+    /// <summary>
+    /// Takes (or renews) the turn to add the next signature. Signatures are added one after another, each to the file the
+    /// previous signer produced; in a parallel route the turn keeps two signers from building on the same version.
+    /// </summary>
+    /// <param name="userId">The signer.</param>
+    /// <param name="moment">The current moment.</param>
+    /// <returns>The moment the turn ends.</returns>
+    public DateTimeOffset BeginSigning(Guid userId, DateTimeOffset moment)
+    {
+        if (!IsAwaitingSignatureFrom(userId))
+        {
+            throw new DomainException(Texts.T("Документ зараз не очікує вашого підпису."));
+        }
+
+        if (IsSigningTurnHeldByOther(userId, moment))
+        {
+            throw new DomainException(Texts.T("Зараз документ підписує інший підписант. Зачекайте, поки він завершить."));
+        }
+
+        SigningTurnUserId = userId;
+        SigningTurnExpiresAt = moment + SignatureChain.TurnDuration;
+        UpdatedAt = moment;
+        return SigningTurnExpiresAt.Value;
+    }
+
+    /// <summary>
+    /// Gives up the signing turn (the signer closed the signing window).
+    /// </summary>
+    /// <param name="userId">The signer.</param>
+    public void EndSigning(Guid userId)
+    {
+        if (SigningTurnUserId == userId)
+        {
+            SigningTurnUserId = null;
+            SigningTurnExpiresAt = null;
+        }
+    }
+
+    /// <summary>
     /// Attaches a signature created by the current signer and advances the route.
     /// </summary>
     /// <param name="userId">The signer's user identifier.</param>
@@ -314,6 +389,8 @@ public sealed class Document : AuditableEntity
     /// <param name="certificate">The signer's certificate data.</param>
     /// <param name="signedAt">The signing time.</param>
     /// <param name="moment">The current moment.</param>
+    /// <param name="baseSignatureId">The signature whose file the new one was added to: the newest signature in a
+    /// cumulative format, <see langword="null"/> for the first signature and for XAdES.</param>
     /// <returns>The created signature.</returns>
     public DocumentSignature AddSignature(
         Guid userId,
@@ -324,7 +401,8 @@ public sealed class Document : AuditableEntity
         StoredFile file,
         SignerCertificate certificate,
         DateTimeOffset signedAt,
-        DateTimeOffset moment)
+        DateTimeOffset moment,
+        Guid? baseSignatureId)
     {
         ArgumentNullException.ThrowIfNull(file);
         ArgumentNullException.ThrowIfNull(certificate);
@@ -339,8 +417,26 @@ public sealed class Document : AuditableEntity
             throw new DomainException(Texts.T("Формат PAdES доступний лише для PDF-документів."));
         }
 
-        var signature = new DocumentSignature(Id, userId, format, packaging, level, keyMedia, file, certificate, signedAt, moment);
+        if (IsSigningTurnHeldByOther(userId, moment))
+        {
+            throw new DomainException(Texts.T("Зараз документ підписує інший підписант. Зачекайте, поки він завершить."));
+        }
+
+        if (FirstSignature is { } first && (first.Format != format || first.Packaging != packaging))
+        {
+            throw new DomainException(Texts.T("Підпишіть документ у тому ж форматі й типі підпису, що й перший підписант."));
+        }
+
+        // Each signer adds a signature to the newest version; a signature made on an older one would drop a signature.
+        var expectedBase = SignatureChain.IsCumulative(format) ? LatestSignature?.Id : null;
+        if (baseSignatureId != expectedBase)
+        {
+            throw new DomainException(Texts.T("Поки ви підписували, документ підписав інший підписант. Підпишіть останню версію ще раз."));
+        }
+
+        var signature = new DocumentSignature(Id, userId, format, packaging, level, keyMedia, file, certificate, signedAt, moment, baseSignatureId);
         _signatures.Add(signature);
+        EndSigning(userId);
 
         // Touching the root makes concurrent signers collide on the optimistic concurrency token.
         UpdatedAt = moment;

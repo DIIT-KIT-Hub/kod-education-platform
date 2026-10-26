@@ -82,4 +82,9 @@ public sealed class SignatureUploadForm
     /// </summary>
     [Required]
     public IFormFile? Signature { get; set; }
+
+    /// <summary>
+    /// Gets or sets the signature whose file the new one was added to (from the signing session).
+    /// </summary>
+    public Guid? BaseSignatureId { get; set; }
 }

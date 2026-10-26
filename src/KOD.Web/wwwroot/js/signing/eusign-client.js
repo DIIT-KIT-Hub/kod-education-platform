@@ -100,10 +100,12 @@ export class EUSignClient {
      * @param {"Detached"|"Enveloped"} packaging The packaging.
      * @param {"B-B"|"B-T"|"B-LT"|"B-LTA"} level The level.
      * @param {{name: string, data: ArrayBuffer}[]} files The files.
+     * @param {{data: ArrayBuffer, signatures: number}|null} [previous] The signed version to add the signature to (a
+     * document already signed in a cumulative format) and the number of signatures it must hold.
      * @returns {Promise<{signature: Uint8Array, signedAt: string}>} The signature.
      */
-    sign(format, packaging, level, files) {
-        return this.call("sign", { format, packaging, level, files });
+    sign(format, packaging, level, files, previous = null) {
+        return this.call("sign", { format, packaging, level, files, previous });
     }
 
     /**

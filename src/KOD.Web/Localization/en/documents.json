@@ -141,5 +141,8 @@
   "Підписані мною": "Signed by me",
   "Це оригінал без підписів. Підписані файли завантажуйте в розділі «Підписи».": "This is the original without signatures. Download the signed files in the “Signatures” section.",
   "Підписаний PDF": "Signed PDF",
-  "Файл підпису": "Signature file"
+  "Файл підпису": "Signature file",
+  "Документ з усіма підписами": "Document with all signatures",
+  "Один файл, що містить документ і всі накладені підписи.": "One file that holds the document and every signature applied to it.",
+  "Версія після цього підпису": "Version after this signature"
 }

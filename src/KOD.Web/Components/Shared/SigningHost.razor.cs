@@ -70,4 +70,9 @@ public partial class SigningHost
     /// Gets the URL the signature is uploaded to.
     /// </summary>
     private string? UploadUrl => DocumentId is { } id ? $"/api/v1/documents/{id}/signatures" : null;
+
+    /// <summary>
+    /// Gets the URL of the signing session (the turn to sign and the version to add the signature to).
+    /// </summary>
+    private string? SessionUrl => DocumentId is { } id ? $"/api/v1/documents/{id}/signing-session" : null;
 }

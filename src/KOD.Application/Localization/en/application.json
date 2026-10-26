@@ -87,5 +87,8 @@
   "Робоча або проєктна група.": "A working or project group.",
   "Філія / представництво": "Branch / representative office",
   "Відокремлений підрозділ організації в іншому місці.": "A separate unit of the organization in another location.",
-  "Некоректний перелік підписаних файлів.": "Invalid list of signed files."
+  "Некоректний перелік підписаних файлів.": "Invalid list of signed files.",
+  "Документ зараз підписує {0}. Додати свій підпис можна буде, щойно він завершить.": "{0} is signing the document right now. You can add your signature as soon as they finish.",
+  "інший підписант": "another signer",
+  "Файл підпису не містить попередніх підписів документа. Підпишіть останню версію ще раз.": "The signature file does not contain the document's previous signatures. Sign the latest version again."
 }

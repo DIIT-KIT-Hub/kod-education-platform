@@ -19,7 +19,6 @@
   "Ім'я": "First name",
   "По батькові": "Middle name",
   "Телефон": "Phone",
-
   "Невідомий дозвіл «{0}».": "Unknown permission “{0}”.",
   "Маршрут не може містити більше {0} підписантів.": "A signing route cannot have more than {0} signers.",
   "Надіслати на підпис можна лише чернетку або відхилений документ.": "Only a draft or a rejected document can be sent for signing.",
@@ -38,7 +37,6 @@
   "Невідома іконка «{0}».": "Unknown icon “{0}”.",
   "Основною може бути лише одна посада.": "Only one position can be primary.",
   "Дозвіл не може бути одночасно наданий і заборонений.": "A permission cannot be both granted and denied.",
-
   "Мої документи": "My documents",
   "Перегляд документів, автором або підписантом яких є користувач.": "View documents the user authored or is a signer of.",
   "Документи підрозділу": "Unit documents",
@@ -79,7 +77,6 @@
   "Дозволи керування користувачами, структурою та новинами діють в усіх організаціях кабінету, а не лише в організаціях власних посад; створення організацій верхнього рівня та керування каталогом типів підрозділів.": "The user, structure and news management permissions apply in every organization of the cabinet, not only in the organizations of the user's own positions; create top-level organizations and manage the unit type catalog.",
   "Журнал аудиту": "Audit log",
   "Перегляд журналу дій користувачів і подій безпеки.": "View the log of user actions and security events.",
-
   "Системний адміністратор": "System administrator",
   "Повний доступ до всіх модулів і налаштувань системи.": "Full access to all modules and system settings.",
   "Керівник організації": "Head of organization",
@@ -99,5 +96,8 @@
   "Працівник": "Employee",
   "Працівник без особливих повноважень.": "Employee without special powers.",
   "Зовнішній користувач": "External user",
-  "Особа поза штатом (контрагент, клієнт, слухач, здобувач освіти): власні документи та новини, без доступу до структури.": "A person outside the staff (contractor, client, trainee, student): own documents and news, no access to the structure."
+  "Особа поза штатом (контрагент, клієнт, слухач, здобувач освіти): власні документи та новини, без доступу до структури.": "A person outside the staff (contractor, client, trainee, student): own documents and news, no access to the structure.",
+  "Зараз документ підписує інший підписант. Зачекайте, поки він завершить.": "Another signer is signing the document right now. Wait until they finish.",
+  "Підпишіть документ у тому ж форматі й типі підпису, що й перший підписант.": "Sign the document in the same signature format and type as the first signer.",
+  "Поки ви підписували, документ підписав інший підписант. Підпишіть останню версію ще раз.": "Another signer signed the document while you were signing. Sign the latest version again."
 }

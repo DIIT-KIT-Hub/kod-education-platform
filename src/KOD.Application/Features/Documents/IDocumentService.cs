@@ -76,6 +76,23 @@ public interface IDocumentService
     Task<Result<Guid>> AddSignatureAsync(AddSignatureCommand command, CancellationToken cancellationToken);
 
     /// <summary>
+    /// Takes (or renews) the current user's turn to add the next signature and tells which version to add it to.
+    /// While one signer holds the turn, the others of a parallel route wait.
+    /// </summary>
+    /// <param name="id">The document identifier.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The signing session, or a conflict naming the signer who holds the turn.</returns>
+    Task<Result<SigningSession>> BeginSigningAsync(Guid id, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Gives up the current user's signing turn.
+    /// </summary>
+    /// <param name="id">The document identifier.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The result.</returns>
+    Task<Result> EndSigningAsync(Guid id, CancellationToken cancellationToken);
+
+    /// <summary>
     /// Declines to sign a document.
     /// </summary>
     /// <param name="id">The document identifier.</param>

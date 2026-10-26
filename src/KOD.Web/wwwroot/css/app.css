@@ -606,6 +606,9 @@ html[data-navigating] .app-page { filter: opacity(0.55); transition: filter var(
     min-width: 0;
 }
 
+/* The signed file that holds every signature: outlined, so it reads as the main download once the document is signed. */
+.doc-file--signed { background: var(--ds-color-surface); border: 1.5px solid var(--ds-color-text); }
+
 .doc-file__icon {
     display: grid;
     place-items: center;

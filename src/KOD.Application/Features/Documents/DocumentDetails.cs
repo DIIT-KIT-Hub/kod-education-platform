@@ -22,6 +22,8 @@ namespace KOD.Application.Features.Documents;
 /// <param name="Signers">The signing route.</param>
 /// <param name="Signatures">The collected signatures.</param>
 /// <param name="Actions">The actions available to the current user.</param>
+/// <param name="CombinedSignatureId">The signature whose file holds the document with every signature (the newest one of a
+/// cumulative format), or <see langword="null"/>.</param>
 public sealed record DocumentDetails(
     Guid Id,
     string RegistrationNumber,
@@ -38,4 +40,5 @@ public sealed record DocumentDetails(
     DateTimeOffset? CompletedAt,
     IReadOnlyList<DocumentSignerItem> Signers,
     IReadOnlyList<DocumentSignatureItem> Signatures,
-    DocumentActions Actions);
+    DocumentActions Actions,
+    Guid? CombinedSignatureId);

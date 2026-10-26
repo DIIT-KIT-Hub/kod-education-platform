@@ -153,6 +153,29 @@ public sealed class DocumentsController(IDocumentService documents) : ApiControl
     }
 
     /// <summary>
+    /// Takes the turn to sign the document and returns the version to add the signature to (409 while another signer
+    /// holds the turn).
+    /// </summary>
+    /// <param name="id">The document identifier.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The signing session.</returns>
+    [HttpPost("{id:guid}/signing-session")]
+    [RequirePermission(Permissions.Documents.Sign)]
+    public async Task<ActionResult<SigningSession>> BeginSigning(Guid id, CancellationToken cancellationToken)
+        => FromResult(await documents.BeginSigningAsync(id, cancellationToken));
+
+    /// <summary>
+    /// Gives up the turn to sign the document (the signing window was closed).
+    /// </summary>
+    /// <param name="id">The document identifier.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>204 on success.</returns>
+    [HttpDelete("{id:guid}/signing-session")]
+    [RequirePermission(Permissions.Documents.Sign)]
+    public async Task<ActionResult> EndSigning(Guid id, CancellationToken cancellationToken)
+        => FromResult(await documents.EndSigningAsync(id, cancellationToken));
+
+    /// <summary>
     /// Attaches a qualified electronic signature created in the signer's browser.
     /// </summary>
     /// <param name="id">The document identifier.</param>
@@ -178,7 +201,8 @@ public sealed class DocumentsController(IDocumentService documents) : ApiControl
                 form.KeyMedia,
                 form.SignedAt,
                 new SignerCertificate(form.SubjectFullName, form.SubjectOrganization, form.SubjectTaxId, form.IssuerName, form.SerialNumber, form.ValidFrom, form.ValidTo),
-                new FileUpload(content, form.Signature.FileName, form.Signature.ContentType, form.Signature.Length)),
+                new FileUpload(content, form.Signature.FileName, form.Signature.ContentType, form.Signature.Length),
+                form.BaseSignatureId),
             cancellationToken);
 
         return result.IsSuccess

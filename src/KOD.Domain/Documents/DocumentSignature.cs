@@ -22,6 +22,7 @@ public sealed class DocumentSignature : Entity
     /// <param name="certificate">The signer's certificate data.</param>
     /// <param name="signedAt">The signing time (from the time-stamp when available).</param>
     /// <param name="createdAt">The moment the signature was received.</param>
+    /// <param name="baseSignatureId">The signature whose file this one was added to (cumulative formats).</param>
     internal DocumentSignature(
         Guid documentId,
         Guid userId,
@@ -32,7 +33,8 @@ public sealed class DocumentSignature : Entity
         StoredFile file,
         SignerCertificate certificate,
         DateTimeOffset signedAt,
-        DateTimeOffset createdAt)
+        DateTimeOffset createdAt,
+        Guid? baseSignatureId)
     {
         DocumentId = documentId;
         UserId = userId;
@@ -44,6 +46,7 @@ public sealed class DocumentSignature : Entity
         Certificate = certificate;
         SignedAt = signedAt;
         CreatedAt = createdAt;
+        BaseSignatureId = baseSignatureId;
     }
 
     /// <summary>
@@ -54,6 +57,12 @@ public sealed class DocumentSignature : Entity
         File = null!;
         Certificate = null!;
     }
+
+    /// <summary>
+    /// Gets the signature whose file this one was added to, or <see langword="null"/> for the first signature and for
+    /// independent (XAdES) signatures. The file of a cumulative signature holds this signature and all earlier ones.
+    /// </summary>
+    public Guid? BaseSignatureId { get; private set; }
 
     /// <summary>
     /// Gets the document identifier.

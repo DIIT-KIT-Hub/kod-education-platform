@@ -14,6 +14,7 @@ namespace KOD.Application.Features.Documents;
 /// <param name="SignedAt">The signing time reported by the library.</param>
 /// <param name="ReportedCertificate">The certificate data reported by the library (used when the server cannot parse the container).</param>
 /// <param name="Signature">The signature file.</param>
+/// <param name="BaseSignatureId">The signature whose file the new one was added to (see <see cref="SigningSession"/>).</param>
 public sealed record AddSignatureCommand(
     Guid DocumentId,
     SignatureFormat Format,
@@ -22,4 +23,5 @@ public sealed record AddSignatureCommand(
     KeyMediaType KeyMedia,
     DateTimeOffset? SignedAt,
     SignerCertificate ReportedCertificate,
-    FileUpload Signature);
+    FileUpload Signature,
+    Guid? BaseSignatureId);
