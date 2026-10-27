@@ -42,7 +42,7 @@ public sealed class NewsDiscussionTests : IDisposable
         var root = (await author.CommentAsync(article.Id, null, "Перший", CancellationToken.None)).Ok();
         var reply = (await other.CommentAsync(article.Id, root, "Відповідь", CancellationToken.None)).Ok();
         (await author.CommentAsync(article.Id, reply, "Відповідь на відповідь", CancellationToken.None)).Ok();
-        Assert.True((await author.DeleteCommentAsync(root, CancellationToken.None)).IsSuccess);
+        Assert.True((await author.DeleteCommentAsync(article.Id, root, CancellationToken.None)).IsSuccess);
 
         var discussion = (await other.GetAsync(article.Id, 20, CancellationToken.None)).Ok();
         var thread = Assert.Single(discussion.Comments);
@@ -59,9 +59,13 @@ public sealed class NewsDiscussionTests : IDisposable
         var article = _world.News("Новина", _world.A);
         var comment = (await _world.As(_world.EmployeeB).Discussion.CommentAsync(article.Id, null, "Текст", CancellationToken.None)).Ok();
 
-        Assert.Equal(ErrorType.Forbidden, (await _world.As(_world.EmployeeA).Discussion.EditCommentAsync(comment, "Чуже", CancellationToken.None)).Failure());
-        Assert.Equal(ErrorType.Forbidden, (await _world.As(_world.EmployeeA).Discussion.DeleteCommentAsync(comment, CancellationToken.None)).Failure());
-        Assert.True((await _world.As(_world.StewardA).Discussion.DeleteCommentAsync(comment, CancellationToken.None)).IsSuccess);
+        Assert.Equal(ErrorType.Forbidden, (await _world.As(_world.EmployeeA).Discussion.EditCommentAsync(article.Id, comment, "Чуже", CancellationToken.None)).Failure());
+        Assert.Equal(ErrorType.Forbidden, (await _world.As(_world.EmployeeA).Discussion.DeleteCommentAsync(article.Id, comment, CancellationToken.None)).Failure());
+
+        // The comment is addressed through its own article only.
+        var otherArticle = _world.News("Інша новина", _world.A);
+        Assert.Equal(ErrorType.NotFound, (await _world.As(_world.StewardA).Discussion.DeleteCommentAsync(otherArticle.Id, comment, CancellationToken.None)).Failure());
+        Assert.True((await _world.As(_world.StewardA).Discussion.DeleteCommentAsync(article.Id, comment, CancellationToken.None)).IsSuccess);
     }
 
     [Fact]

@@ -191,9 +191,9 @@ internal sealed class NewsDiscussionService(
     }
 
     /// <inheritdoc />
-    public async Task<Result> EditCommentAsync(Guid commentId, string body, CancellationToken cancellationToken)
+    public async Task<Result> EditCommentAsync(Guid articleId, Guid commentId, string body, CancellationToken cancellationToken)
     {
-        var comment = await db.NewsComments.FirstOrDefaultAsync(c => c.Id == commentId, cancellationToken);
+        var comment = await db.NewsComments.FirstOrDefaultAsync(c => c.Id == commentId && c.ArticleId == articleId, cancellationToken);
         if (comment is null || comment.IsDeleted || await AccessAsync(comment.ArticleId, cancellationToken) is null)
         {
             return Error.NotFound(Texts.T("Коментар не знайдено."));
@@ -214,9 +214,9 @@ internal sealed class NewsDiscussionService(
     }
 
     /// <inheritdoc />
-    public async Task<Result> DeleteCommentAsync(Guid commentId, CancellationToken cancellationToken)
+    public async Task<Result> DeleteCommentAsync(Guid articleId, Guid commentId, CancellationToken cancellationToken)
     {
-        var comment = await db.NewsComments.FirstOrDefaultAsync(c => c.Id == commentId, cancellationToken);
+        var comment = await db.NewsComments.FirstOrDefaultAsync(c => c.Id == commentId && c.ArticleId == articleId, cancellationToken);
         var access = comment is null || comment.IsDeleted ? null : await AccessAsync(comment.ArticleId, cancellationToken);
         if (comment is null || access is null)
         {

@@ -47,17 +47,19 @@ public interface INewsDiscussionService
     /// <summary>
     /// Replaces the text of the current user's comment.
     /// </summary>
+    /// <param name="articleId">The article the comment belongs to.</param>
     /// <param name="commentId">The comment.</param>
     /// <param name="body">The new text.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The result.</returns>
-    Task<Result> EditCommentAsync(Guid commentId, string body, CancellationToken cancellationToken);
+    Task<Result> EditCommentAsync(Guid articleId, Guid commentId, string body, CancellationToken cancellationToken);
 
     /// <summary>
     /// Deletes a comment of the current user or, for a moderator, anyone's comment.
     /// </summary>
+    /// <param name="articleId">The article the comment belongs to.</param>
     /// <param name="commentId">The comment.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The result.</returns>
-    Task<Result> DeleteCommentAsync(Guid commentId, CancellationToken cancellationToken);
+    Task<Result> DeleteCommentAsync(Guid articleId, Guid commentId, CancellationToken cancellationToken);
 }

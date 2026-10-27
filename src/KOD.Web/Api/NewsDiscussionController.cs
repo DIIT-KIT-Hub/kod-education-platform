@@ -78,7 +78,7 @@ public sealed class NewsDiscussionController(INewsDiscussionService discussion) 
     public async Task<ActionResult> Edit(Guid articleId, Guid commentId, CommentRequest request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        return FromResult(await discussion.EditCommentAsync(commentId, request.Body, cancellationToken));
+        return FromResult(await discussion.EditCommentAsync(articleId, commentId, request.Body, cancellationToken));
     }
 
     /// <summary>
@@ -90,5 +90,5 @@ public sealed class NewsDiscussionController(INewsDiscussionService discussion) 
     /// <returns>204 on success.</returns>
     [HttpDelete("comments/{commentId:guid}")]
     public async Task<ActionResult> Delete(Guid articleId, Guid commentId, CancellationToken cancellationToken)
-        => FromResult(await discussion.DeleteCommentAsync(commentId, cancellationToken));
+        => FromResult(await discussion.DeleteCommentAsync(articleId, commentId, cancellationToken));
 }

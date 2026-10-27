@@ -246,7 +246,7 @@ public sealed partial class NewsDiscussionPanel : IDisposable
     {
         await RunAsync(async () =>
         {
-            var result = await Service.EditCommentAsync(commentId, EditText, CancellationToken.None);
+            var result = await Service.EditCommentAsync(ArticleId, commentId, EditText, CancellationToken.None);
             if (!result.IsSuccess)
             {
                 return result.Error.Message;
@@ -271,7 +271,7 @@ public sealed partial class NewsDiscussionPanel : IDisposable
 
         await RunAsync(async () =>
         {
-            var result = await Service.DeleteCommentAsync(commentId, CancellationToken.None);
+            var result = await Service.DeleteCommentAsync(ArticleId, commentId, CancellationToken.None);
             return result.IsSuccess ? null : result.Error.Message;
         });
     }
