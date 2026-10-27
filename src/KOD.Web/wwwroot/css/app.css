@@ -401,22 +401,26 @@ html[data-navigating] .app-page { filter: opacity(0.55); transition: filter var(
 
 .auth-hero { display: none; }
 
+/* The language and theme switches are the first row, so a tall card (the authenticator setup) never slides under them. */
 .auth-main {
-    position: relative;
     display: grid;
+    grid-template-rows: auto 1fr;
     place-items: center;
-    padding: var(--ds-space-8) var(--ds-gutter);
+    gap: var(--ds-space-4);
+    padding: var(--ds-space-4) var(--ds-gutter) var(--ds-space-8);
 }
 
 .auth-card {
+    grid-row: 2;
     width: min(100%, 28rem);
     display: grid;
     gap: var(--ds-space-6);
 }
 
 .auth-card__header { display: grid; gap: var(--ds-space-2); }
+.auth-card__header > .ds-badge { justify-self: start; }
 .auth-card__header p { color: var(--ds-color-text-muted); }
-.auth-tools { position: absolute; top: var(--ds-space-4); right: var(--ds-gutter); display: flex; gap: var(--ds-space-1); align-items: center; }
+.auth-tools { grid-row: 1; justify-self: end; align-self: start; display: flex; gap: var(--ds-space-1); align-items: center; }
 .auth-mobile-brand { display: flex; align-items: center; gap: var(--ds-space-3); font-weight: 800; letter-spacing: 0.04em; }
 
 @media (min-width: 1024px) {
