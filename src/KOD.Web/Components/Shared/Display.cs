@@ -188,10 +188,14 @@ public static class Display
     public static string Text(ReactionKind kind) => kind switch
     {
         ReactionKind.Like => Texts.T("Подобається"),
+        ReactionKind.Dislike => Texts.T("Не подобається"),
         ReactionKind.Love => Texts.T("Любов"),
+        ReactionKind.Clap => Texts.T("Оплески"),
         ReactionKind.Celebrate => Texts.T("Вітаю"),
         ReactionKind.Laugh => Texts.T("Смішно"),
         ReactionKind.Wow => Texts.T("Вражає"),
+        ReactionKind.Thinking => Texts.T("Сумнівно"),
+        ReactionKind.Angry => Texts.T("Обурює"),
         _ => Texts.T("Сумно"),
     };
 
@@ -203,10 +207,14 @@ public static class Display
     public static string Emoji(ReactionKind kind) => kind switch
     {
         ReactionKind.Like => "👍",
+        ReactionKind.Dislike => "👎",
         ReactionKind.Love => "❤️",
+        ReactionKind.Clap => "👏",
         ReactionKind.Celebrate => "🎉",
         ReactionKind.Laugh => "😄",
         ReactionKind.Wow => "😮",
+        ReactionKind.Thinking => "🤔",
+        ReactionKind.Angry => "😡",
         _ => "😢",
     };
 

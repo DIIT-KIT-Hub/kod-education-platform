@@ -808,7 +808,8 @@ html[data-navigating] .app-page { filter: opacity(0.55); transition: filter var(
     bottom: calc(100% + 0.4rem);
     left: 0;
     z-index: 5;
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(10, auto);
     gap: 2px;
     padding: 0.3rem;
     border: 1px solid var(--ds-color-border);
@@ -823,10 +824,12 @@ html[data-navigating] .app-page { filter: opacity(0.55); transition: filter var(
     place-items: center;
     width: 2.4rem;
     height: 2.4rem;
+    padding: 0; /* The browser's button padding leaves less room than an emoji takes, pushing it off centre. */
     border: 0;
     border-radius: 50%;
     background: transparent;
     font-size: 1.35rem;
+    line-height: 1;
     cursor: pointer;
     transition: transform var(--ds-duration-fast) var(--ds-ease-out), background var(--ds-duration-fast);
 }
@@ -867,6 +870,7 @@ html[data-navigating] .app-page { filter: opacity(0.55); transition: filter var(
 
 @media (max-width: 640px) {
     .comments--replies { padding-left: var(--ds-space-5); }
+    .reactions__menu { grid-template-columns: repeat(5, auto); border-radius: var(--ds-radius-lg); }
 }
 
 /* Profile photo ---------------------------------------------------------------- */
