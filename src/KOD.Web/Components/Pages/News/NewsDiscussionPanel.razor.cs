@@ -1,6 +1,7 @@
 using KOD.Application.Features.News.Discussion;
 using KOD.Domain.Localization;
 using KOD.Domain.News;
+using KOD.Web.DesignSystem;
 using KOD.Web.Security;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
@@ -13,8 +14,17 @@ namespace KOD.Web.Components.Pages.News;
 /// prerendering is persisted, so the circuit shows it at once; changes by other readers arrive through
 /// <see cref="INewsDiscussionEvents"/> and refresh the panel.
 /// </summary>
+/// <remarks>
+/// The database context belongs to the circuit, and a change notification (also of this panel's own change) arrives
+/// while an action may still be running, so every service call goes through <see cref="_gate"/>.
+/// </remarks>
 public sealed partial class NewsDiscussionPanel : IDisposable
 {
+    /// <summary>
+    /// Lets one service call at a time use the circuit's database context.
+    /// </summary>
+    private readonly SemaphoreSlim _gate = new(1, 1);
+
     /// <summary>
     /// The subscription to changes of the article.
     /// </summary>
@@ -119,7 +129,11 @@ public sealed partial class NewsDiscussionPanel : IDisposable
     private DateTimeOffset Now => Clock.GetUtcNow();
 
     /// <inheritdoc />
-    public void Dispose() => _subscription?.Dispose();
+    public void Dispose()
+    {
+        _subscription?.Dispose();
+        _gate.Dispose();
+    }
 
     /// <inheritdoc />
     protected override async Task OnInitializedAsync()
@@ -137,7 +151,7 @@ public sealed partial class NewsDiscussionPanel : IDisposable
         {
             _subscription = Events.Subscribe(ArticleId, () => InvokeAsync(async () =>
             {
-                await ReloadAsync();
+                await ExclusiveAsync(ReloadAsync);
                 StateHasChanged();
             }));
         }
@@ -164,9 +178,12 @@ public sealed partial class NewsDiscussionPanel : IDisposable
     /// <returns>A task that completes when saved.</returns>
     private async Task ReactAsync(Guid? commentId, ReactionKind kind)
     {
-        var result = await Service.ReactAsync(ArticleId, commentId, kind, CancellationToken.None);
-        ErrorMessage = result.IsSuccess ? null : result.Error.Message;
-        await ReloadAsync();
+        await ExclusiveAsync(async () =>
+        {
+            var result = await Service.ReactAsync(ArticleId, commentId, kind, CancellationToken.None);
+            ErrorMessage = result.IsSuccess ? null : result.Error.Message;
+            await ReloadAsync();
+        });
     }
 
     /// <summary>
@@ -247,7 +264,7 @@ public sealed partial class NewsDiscussionPanel : IDisposable
     /// <returns>A task that completes when deleted.</returns>
     private async Task DeleteAsync(Guid commentId)
     {
-        if (!await JS.InvokeAsync<bool>("confirm", Texts.T("Видалити коментар?")))
+        if (!await JS.ConfirmAsync(Texts.T("Видалити коментар?")))
         {
             return;
         }
@@ -279,12 +296,33 @@ public sealed partial class NewsDiscussionPanel : IDisposable
         Busy = true;
         try
         {
-            ErrorMessage = await action();
-            await ReloadAsync();
+            await ExclusiveAsync(async () =>
+            {
+                ErrorMessage = await action();
+                await ReloadAsync();
+            });
         }
         finally
         {
             Busy = false;
+        }
+    }
+
+    /// <summary>
+    /// Runs database work after the work started before it has finished.
+    /// </summary>
+    /// <param name="work">The work.</param>
+    /// <returns>A task that completes when done.</returns>
+    private async Task ExclusiveAsync(Func<Task> work)
+    {
+        await _gate.WaitAsync();
+        try
+        {
+            await work();
+        }
+        finally
+        {
+            _gate.Release();
         }
     }
 }

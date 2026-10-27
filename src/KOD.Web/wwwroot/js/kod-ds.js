@@ -19,7 +19,8 @@
  *   .ds-btn and other        the hover fill grows from the point where the pointer entered and shrinks towards where it left
  *   button-like controls     (segmented options, pagination, calendar and picker buttons, chips)
  *
- * Public API: `window.kodDs.toast(message, tone)`, `window.kodDs.t(text, ...args)`.
+ * Public API: `window.kodDs.toast(message, tone)`, `window.kodDs.confirm(message)` (a promise of the answer),
+ * `window.kodDs.t(text, ...args)`.
  */
 (function () {
     "use strict";
@@ -111,6 +112,29 @@
         dialog.querySelector('[value="confirm"]').textContent = t("Підтвердити");
         document.body.appendChild(dialog);
         return /** @type {HTMLDialogElement} */ (dialog);
+    }
+
+    /**
+     * Asks the user to confirm an action in the shared confirmation dialog.
+     * @param {string} message The question.
+     * @returns {Promise<boolean>} Whether the user confirmed; false when another confirmation is already open.
+     */
+    function confirm(message) {
+        var dialog = confirmDialog();
+        if (dialog.open) {
+            return Promise.resolve(false);
+        }
+
+        dialog.querySelector("[data-confirm-text]").textContent = message;
+        // Escape and a backdrop click close the dialog without a value: the answer of the previous question must not stay.
+        dialog.returnValue = "";
+        return new Promise(function (resolve) {
+            dialog.addEventListener("close", function onClose() {
+                dialog.removeEventListener("close", onClose);
+                resolve(dialog.returnValue === "confirm");
+            });
+            dialog.showModal();
+        });
     }
 
     /**
@@ -332,17 +356,13 @@
             event.preventDefault();
             event.stopImmediatePropagation();
             var submitter = /** @type {SubmitEvent} */ (event).submitter;
-            var dialog = confirmDialog();
-            dialog.querySelector("[data-confirm-text]").textContent = message;
-            dialog.addEventListener("close", function onClose() {
-                dialog.removeEventListener("close", onClose);
-                if (dialog.returnValue === "confirm") {
+            confirm(message).then(function (confirmed) {
+                if (confirmed) {
                     form.setAttribute("data-confirmed", "true");
                     form.requestSubmit(submitter instanceof HTMLElement ? submitter : undefined);
                     form.removeAttribute("data-confirmed");
                 }
             });
-            dialog.showModal();
             return;
         }
 
@@ -501,5 +521,5 @@
 
     syncSidebarToggles();
 
-    window.kodDs = { t: t, toast: toast, togglePassword: togglePassword, openDialog: openDialog, setTheme: setTheme, restoreTheme: restoreTheme, setSidebar: setSidebar };
+    window.kodDs = { t: t, toast: toast, confirm: confirm, togglePassword: togglePassword, openDialog: openDialog, setTheme: setTheme, restoreTheme: restoreTheme, setSidebar: setSidebar };
 })();

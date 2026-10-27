@@ -3,6 +3,7 @@ using KOD.Application.Features.Organization;
 using KOD.Domain.Access;
 using KOD.Domain.Localization;
 using KOD.Domain.Organization;
+using KOD.Web.DesignSystem;
 using KOD.Web.Security;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
@@ -153,7 +154,7 @@ public partial class UnitTypeEditor
     /// <returns>A task that completes when deleted.</returns>
     private async Task DeleteAsync()
     {
-        if (Id is not { } id || !await JS.InvokeAsync<bool>("confirm", Texts.T("Видалити тип підрозділу?")))
+        if (Id is not { } id || !await JS.ConfirmAsync(Texts.T("Видалити тип підрозділу?")))
         {
             return;
         }

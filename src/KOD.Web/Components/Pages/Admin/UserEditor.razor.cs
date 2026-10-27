@@ -6,6 +6,7 @@ using KOD.Application.Features.Roles;
 using KOD.Application.Features.Users;
 using KOD.Domain.Access;
 using KOD.Domain.Localization;
+using KOD.Web.DesignSystem;
 using KOD.Web.Security;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
@@ -326,7 +327,7 @@ public partial class UserEditor
     /// <returns>A task that completes when done.</returns>
     private async Task ToggleActiveAsync()
     {
-        if (Details is null || !await ConfirmAsync(Details.IsActive ? Texts.T("Заблокувати обліковий запис? Усі сесії буде завершено.") : Texts.T("Розблокувати обліковий запис?")))
+        if (Details is null || !await JS.ConfirmAsync(Details.IsActive ? Texts.T("Заблокувати обліковий запис? Усі сесії буде завершено.") : Texts.T("Розблокувати обліковий запис?")))
         {
             return;
         }
@@ -342,7 +343,7 @@ public partial class UserEditor
     /// <returns>A task that completes when done.</returns>
     private async Task ResetPasswordAsync()
     {
-        if (Details is null || !await ConfirmAsync(Texts.T("Видати новий тимчасовий пароль? Поточний пароль перестане діяти, а сесії буде завершено.")))
+        if (Details is null || !await JS.ConfirmAsync(Texts.T("Видати новий тимчасовий пароль? Поточний пароль перестане діяти, а сесії буде завершено.")))
         {
             return;
         }
@@ -362,7 +363,7 @@ public partial class UserEditor
     /// <returns>A task that completes when done.</returns>
     private async Task ResetAuthenticatorAsync()
     {
-        if (Details is null || !await ConfirmAsync(Texts.T("Скинути автентифікатор? Під час наступного входу користувач прив'яже новий.")))
+        if (Details is null || !await JS.ConfirmAsync(Texts.T("Скинути автентифікатор? Під час наступного входу користувач прив'яже новий.")))
         {
             return;
         }
@@ -377,7 +378,7 @@ public partial class UserEditor
     /// <returns>A task that completes when done.</returns>
     private async Task RevokeSessionsAsync()
     {
-        if (Details is null || !await ConfirmAsync(Texts.T("Завершити всі сесії користувача?")))
+        if (Details is null || !await JS.ConfirmAsync(Texts.T("Завершити всі сесії користувача?")))
         {
             return;
         }
@@ -385,13 +386,6 @@ public partial class UserEditor
         await RunAsync(async () => (await Users.RevokeSessionsAsync(Details.Id, CancellationToken.None), Texts.T("Сесії завершено.")));
         await LoadAsync();
     }
-
-    /// <summary>
-    /// Asks the user to confirm an action.
-    /// </summary>
-    /// <param name="message">The question.</param>
-    /// <returns><see langword="true"/> when confirmed.</returns>
-    private ValueTask<bool> ConfirmAsync(string message) => JS.InvokeAsync<bool>("confirm", message);
 
     /// <summary>
     /// Runs an operation with the busy indicator and shows its outcome.

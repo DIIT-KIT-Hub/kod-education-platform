@@ -6,6 +6,7 @@ using KOD.Application.Features.Organization;
 using KOD.Domain.Access;
 using KOD.Domain.Localization;
 using KOD.Domain.News;
+using KOD.Web.DesignSystem;
 using KOD.Web.DesignSystem.Components;
 using KOD.Web.Security;
 using Microsoft.AspNetCore.Components;
@@ -228,7 +229,7 @@ public partial class NewsEditor
     /// <returns>A task that completes when deleted.</returns>
     private async Task DeleteAsync()
     {
-        if (Id is not { } id || !await JS.InvokeAsync<bool>("confirm", Texts.T("Видалити публікацію остаточно?")))
+        if (Id is not { } id || !await JS.ConfirmAsync(Texts.T("Видалити публікацію остаточно?")))
         {
             return;
         }

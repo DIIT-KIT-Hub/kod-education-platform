@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using KOD.Application.Features.Roles;
 using KOD.Domain.Localization;
+using KOD.Web.DesignSystem;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 
@@ -152,7 +153,7 @@ public partial class RoleEditor
     /// <returns>A task that completes when deleted.</returns>
     private async Task DeleteAsync()
     {
-        if (Id is not { } id || !await JS.InvokeAsync<bool>("confirm", Texts.T("Видалити роль?")))
+        if (Id is not { } id || !await JS.ConfirmAsync(Texts.T("Видалити роль?")))
         {
             return;
         }
