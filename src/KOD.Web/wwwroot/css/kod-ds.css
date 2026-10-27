@@ -338,7 +338,6 @@ hr {
 }
 
 .ds-animate-in { animation: ds-fade-up var(--ds-duration-slow) var(--ds-ease-out) both; }
-.ds-animate-fade { animation: ds-fade-in var(--ds-duration-slow) var(--ds-ease-out) both; }
 .ds-animate-scale { animation: ds-scale-in var(--ds-duration-base) var(--ds-ease-out) both; }
 .ds-animate-pop { animation: ds-pop var(--ds-duration-slow) var(--ds-ease-spring) both; }
 
@@ -735,31 +734,14 @@ hr {
 .ds-input--sm,
 .ds-select--sm { min-height: var(--ds-control-height-sm); border-radius: var(--ds-radius-sm); font-size: var(--ds-fs-sm); }
 
-.ds-input--code {
-    font-family: var(--ds-font-mono);
-    font-size: var(--ds-fs-xl);
-    letter-spacing: 0.4em;
-    text-align: center;
-}
-
 .invalid,
 .ds-input[aria-invalid="true"] { border-color: var(--ds-color-danger) !important; }
 
-.validation-message,
-.ds-error {
+.validation-message {
     color: var(--ds-color-danger);
     font-size: var(--ds-fs-sm);
     font-weight: 600;
     animation: ds-fade-in var(--ds-duration-base) both;
-}
-
-.validation-errors {
-    margin: 0;
-    padding: var(--ds-space-4) var(--ds-space-5) var(--ds-space-4) var(--ds-space-8);
-    border-radius: var(--ds-radius-md);
-    background: var(--ds-color-danger-surface);
-    color: var(--ds-color-danger);
-    font-weight: 600;
 }
 
 .ds-check {
@@ -1153,7 +1135,7 @@ hr {
 /* Scrollbars of scrolling panels: dialogs, drop-down lists, the manual's contents, long grids.
  * A thin rounded thumb on a transparent track, kept away from rounded corners; darker on hover.
  * Chromium and Safari style ::-webkit-scrollbar; Firefox (no such selector) gets the standard properties. */
-:is(.ds-dialog, .ds-listbox, .ds-scroll, .help-toc) {
+:is(.ds-dialog, .ds-listbox, .help-toc) {
     --_scroll-thumb: color-mix(in srgb, var(--ds-color-text) 22%, transparent);
     --_scroll-thumb-hover: color-mix(in srgb, var(--ds-color-text) 42%, transparent);
     --_scroll-inset: 0.75rem;
@@ -1161,23 +1143,23 @@ hr {
 
 .ds-dialog { --_scroll-inset: 1.75rem; }
 
-:is(.ds-dialog, .ds-listbox, .ds-scroll, .help-toc)::-webkit-scrollbar { width: 0.875rem; height: 0.875rem; }
-:is(.ds-dialog, .ds-listbox, .ds-scroll, .help-toc)::-webkit-scrollbar-track { background: transparent; margin-block: var(--_scroll-inset); }
-:is(.ds-dialog, .ds-listbox, .ds-scroll, .help-toc)::-webkit-scrollbar-button { display: none; width: 0; height: 0; }
-:is(.ds-dialog, .ds-listbox, .ds-scroll, .help-toc)::-webkit-scrollbar-corner { background: transparent; }
+:is(.ds-dialog, .ds-listbox, .help-toc)::-webkit-scrollbar { width: 0.875rem; height: 0.875rem; }
+:is(.ds-dialog, .ds-listbox, .help-toc)::-webkit-scrollbar-track { background: transparent; margin-block: var(--_scroll-inset); }
+:is(.ds-dialog, .ds-listbox, .help-toc)::-webkit-scrollbar-button { display: none; width: 0; height: 0; }
+:is(.ds-dialog, .ds-listbox, .help-toc)::-webkit-scrollbar-corner { background: transparent; }
 
-:is(.ds-dialog, .ds-listbox, .ds-scroll, .help-toc)::-webkit-scrollbar-thumb {
+:is(.ds-dialog, .ds-listbox, .help-toc)::-webkit-scrollbar-thumb {
     min-height: 2.5rem;
     border: 4px solid transparent;
     border-radius: var(--ds-radius-pill);
     background: var(--_scroll-thumb) padding-box;
 }
 
-:is(.ds-dialog, .ds-listbox, .ds-scroll, .help-toc)::-webkit-scrollbar-thumb:hover,
-:is(.ds-dialog, .ds-listbox, .ds-scroll, .help-toc)::-webkit-scrollbar-thumb:active { background-color: var(--_scroll-thumb-hover); border-width: 3px; }
+:is(.ds-dialog, .ds-listbox, .help-toc)::-webkit-scrollbar-thumb:hover,
+:is(.ds-dialog, .ds-listbox, .help-toc)::-webkit-scrollbar-thumb:active { background-color: var(--_scroll-thumb-hover); border-width: 3px; }
 
 @supports not selector(::-webkit-scrollbar) {
-    :is(.ds-dialog, .ds-listbox, .ds-scroll, .help-toc) { scrollbar-width: thin; scrollbar-color: var(--_scroll-thumb) transparent; }
+    :is(.ds-dialog, .ds-listbox, .help-toc) { scrollbar-width: thin; scrollbar-color: var(--_scroll-thumb) transparent; }
 }
 
 /* Tabs */
@@ -1213,8 +1195,7 @@ hr {
 
 .ds-tab:hover { color: var(--ds-color-text); }
 
-.ds-tab[aria-current="page"],
-.ds-tab--active {
+.ds-tab[aria-current="page"] {
     background: var(--ds-color-surface);
     color: var(--ds-color-text);
     box-shadow: var(--ds-shadow-sm);
@@ -1658,7 +1639,7 @@ img.ds-avatar {
 
 /* Skeleton & spinner
  * Placeholders shaped like the content that is loading (grids, cards, forms). A soft highlight sweeps across them; the
- * real content then fades in (.ds-reveal and the grid/card entrance animations), so nothing jumps into place. */
+ * real content then fades in (the grid/card entrance animations), so nothing jumps into place. */
 .ds-skeleton {
     position: relative;
     display: block;
@@ -1692,13 +1673,10 @@ img.ds-avatar {
 
 .ds-skeleton--text { height: 0.875rem; min-height: 0; border-radius: var(--ds-radius-pill); }
 .ds-skeleton--title { height: 1.25rem; min-height: 0; border-radius: var(--ds-radius-pill); }
-.ds-skeleton--circle { border-radius: 50%; flex: none; }
 .ds-skeleton--pill { border-radius: var(--ds-radius-pill); }
 .ds-skeleton--control { height: var(--ds-control-height); border-radius: var(--ds-radius-md); }
-.ds-skeleton--card { border-radius: var(--ds-radius-lg); }
 
 [aria-busy="true"] { cursor: progress; }
-.ds-reveal { animation: ds-fade-in var(--ds-duration-slow) var(--ds-ease-out) both; }
 
 /* Grid placeholder: the table look on tablets and desktops, cards below. */
 /* Fixed layout and capped bars: the placeholder never scrolls sideways, whatever the real columns need. */
@@ -1939,7 +1917,6 @@ a.ds-list__item:hover { background: var(--ds-color-surface-2); padding-inline: v
 .ds-stack--xl { gap: var(--ds-space-8); }
 .ds-row { display: flex; gap: var(--ds-space-3); align-items: center; min-width: 0; }
 .ds-row--between { justify-content: space-between; }
-.ds-row--end { justify-content: flex-end; }
 .ds-row--wrap { flex-wrap: wrap; }
 .ds-cluster { display: flex; flex-wrap: wrap; gap: var(--ds-space-2); align-items: center; }
 
@@ -1955,18 +1932,12 @@ a.ds-list__item:hover { background: var(--ds-color-surface-2); padding-inline: v
 }
 
 .ds-muted { color: var(--ds-color-text-muted); }
-.ds-subtle { color: var(--ds-color-text-subtle); }
-.ds-danger { color: var(--ds-color-danger); }
 .ds-mono { font-family: var(--ds-font-mono); }
 .ds-nowrap { white-space: nowrap; }
 .ds-truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .ds-text-sm { font-size: var(--ds-fs-sm); }
 .ds-text-xs { font-size: var(--ds-fs-xs); }
-.ds-text-lg { font-size: var(--ds-fs-lg); }
 .ds-strong { font-weight: 750; }
-.ds-center { text-align: center; }
-.ds-mt-0 { margin-top: 0; }
-.ds-hidden { display: none !important; }
 
 .ds-visually-hidden {
     position: absolute !important;
@@ -1982,8 +1953,4 @@ a.ds-list__item:hover { background: var(--ds-color-surface-2); padding-inline: v
 
 @media (max-width: 767.98px) {
     .ds-hide-mobile { display: none !important; }
-}
-
-@media (min-width: 768px) {
-    .ds-show-mobile { display: none !important; }
 }

@@ -24,12 +24,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- Runtime uploads are served by UseStaticFiles, not compiled into the static assets manifest. -->
-    <Content Remove="wwwroot\uploads\**" />
-    <None Remove="wwwroot\uploads\**" />
-  </ItemGroup>
-
-  <ItemGroup>
     <!-- Translations are embedded resources (Directory.Build.props), not published content. -->
     <Content Remove="Localization\**" />
   </ItemGroup>

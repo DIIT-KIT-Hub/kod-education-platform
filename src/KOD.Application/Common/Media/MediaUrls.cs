@@ -24,13 +24,6 @@ public static partial class MediaUrls
     public static string ThumbnailOf(Guid id) => string.Create(CultureInfo.InvariantCulture, $"/media/{id:N}/thumb");
 
     /// <summary>
-    /// Returns the thumbnail URL of an optional image (an avatar).
-    /// </summary>
-    /// <param name="id">The image identifier.</param>
-    /// <returns>The URL or <see langword="null"/>.</returns>
-    public static string? ThumbnailOf(Guid? id) => id is { } value ? ThumbnailOf(value) : null;
-
-    /// <summary>
     /// Determines whether a URL points to an uploaded image and returns its identifier.
     /// </summary>
     /// <param name="url">The URL.</param>

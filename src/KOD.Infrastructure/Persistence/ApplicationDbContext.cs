@@ -44,7 +44,10 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
     /// <inheritdoc />
     public DbSet<Document> Documents => Set<Document>();
 
-    /// <inheritdoc />
+    /// <summary>
+    /// Gets the signing route steps. Not used by the application (they are loaded through documents), but the set keeps
+    /// the entity's discovery order, and with it the generated constraint names, stable.
+    /// </summary>
     public DbSet<DocumentSigner> DocumentSigners => Set<DocumentSigner>();
 
     /// <inheritdoc />

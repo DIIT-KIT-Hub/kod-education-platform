@@ -40,7 +40,7 @@ public sealed record NewsListItem(
     int ViewCount)
 {
     /// <summary>
-    /// Gets the URL of a small cover for cards: the thumbnail of an uploaded cover, otherwise the cover itself.
+    /// Gets the URL of a small cover for cards (the thumbnail of the cover image).
     /// </summary>
-    public string? CoverThumbnailUrl => MediaUrls.TryParse(CoverImageUrl, out var id) ? MediaUrls.ThumbnailOf(id) : CoverImageUrl;
+    public string? CoverThumbnailUrl => MediaUrls.TryParse(CoverImageUrl, out var id) ? MediaUrls.ThumbnailOf(id) : null;
 }

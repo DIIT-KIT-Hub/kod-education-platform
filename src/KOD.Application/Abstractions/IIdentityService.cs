@@ -79,13 +79,6 @@ public interface IIdentityService
     Task<int> CountRecoveryCodesAsync(User user);
 
     /// <summary>
-    /// Determines whether the account is currently locked out.
-    /// </summary>
-    /// <param name="user">The user.</param>
-    /// <returns><see langword="true"/> when locked out.</returns>
-    Task<bool> IsLockedOutAsync(User user);
-
-    /// <summary>
     /// Removes a lockout.
     /// </summary>
     /// <param name="user">The user.</param>

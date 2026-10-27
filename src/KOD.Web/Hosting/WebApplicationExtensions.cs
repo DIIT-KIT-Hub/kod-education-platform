@@ -1,5 +1,4 @@
 using KOD.Domain.Localization;
-using KOD.Infrastructure.Files;
 using KOD.Infrastructure.Persistence.Seeding;
 using KOD.Web.Components;
 using KOD.Web.Identity;
@@ -7,8 +6,6 @@ using KOD.Web.Localization;
 using KOD.Web.Media;
 using KOD.Web.Security;
 using KOD.Web.Signing;
-using Microsoft.Extensions.FileProviders;
-using Microsoft.Extensions.Options;
 using Scalar.AspNetCore;
 
 namespace KOD.Web.Hosting;
@@ -59,7 +56,6 @@ internal static class WebApplicationExtensions
                 static context => !context.Request.Path.StartsWithSegments("/api", StringComparison.OrdinalIgnoreCase),
                 static branch => branch.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true));
             app.UseHttpsRedirection();
-            app.UsePublicUploads();
 
             app.UseRouting();
             app.UseAuthentication();
@@ -88,23 +84,6 @@ internal static class WebApplicationExtensions
             }
 
             return app;
-        }
-
-        /// <summary>
-        /// Serves runtime uploads (news covers) from <c>wwwroot/uploads</c>; build-time assets are served by <c>MapStaticAssets</c>.
-        /// </summary>
-        private void UsePublicUploads()
-        {
-            var storage = app.Services.GetRequiredService<IOptions<StorageOptions>>().Value;
-            var folder = storage.PublicUploadsFolder.Trim('/');
-            var root = Path.Combine(app.Environment.WebRootPath, folder);
-            Directory.CreateDirectory(root);
-            app.UseStaticFiles(new StaticFileOptions
-            {
-                FileProvider = new PhysicalFileProvider(root),
-                RequestPath = $"/{folder}",
-                ServeUnknownFileTypes = false,
-            });
         }
     }
 }

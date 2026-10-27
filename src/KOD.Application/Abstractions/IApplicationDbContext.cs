@@ -51,11 +51,6 @@ public interface IApplicationDbContext
     DbSet<Document> Documents { get; }
 
     /// <summary>
-    /// Gets the signing route steps.
-    /// </summary>
-    DbSet<DocumentSigner> DocumentSigners { get; }
-
-    /// <summary>
     /// Gets the document signatures.
     /// </summary>
     DbSet<DocumentSignature> DocumentSignatures { get; }

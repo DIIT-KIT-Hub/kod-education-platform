@@ -15,9 +15,4 @@ public sealed class StorageOptions
     /// It must not be inside <c>wwwroot</c>.
     /// </summary>
     public string PrivateRoot { get; set; } = "App_Data/storage";
-
-    /// <summary>
-    /// Gets or sets the folder inside <c>wwwroot</c> for public uploads (news covers).
-    /// </summary>
-    public string PublicUploadsFolder { get; set; } = "uploads";
 }

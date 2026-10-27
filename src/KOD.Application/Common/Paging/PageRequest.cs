@@ -16,11 +16,6 @@ public record PageRequest
     public const int MaxPageSize = 100;
 
     /// <summary>
-    /// Gets the page sizes offered in the UI.
-    /// </summary>
-    public static IReadOnlyList<int> PageSizes { get; } = [10, 20, 50, 100];
-
-    /// <summary>
     /// Gets the 1-based page number.
     /// </summary>
     public int Page { get; init => field = Math.Max(1, value); } = 1;
@@ -44,9 +39,4 @@ public record PageRequest
     /// Gets a value indicating whether sorting is descending.
     /// </summary>
     public bool Descending { get; init; }
-
-    /// <summary>
-    /// Gets the number of items to skip.
-    /// </summary>
-    public int Skip => (Page - 1) * PageSize;
 }

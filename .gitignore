@@ -17,7 +17,6 @@ TestResults/
 
 # Runtime data (uploaded documents, logs, data protection keys)
 App_Data/
-src/KOD.Web/wwwroot/uploads/
 *.log
 
 # Local secrets

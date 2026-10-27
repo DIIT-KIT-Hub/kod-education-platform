@@ -155,18 +155,6 @@ public static class Display
     public static string Text(SignaturePackaging packaging) => packaging == SignaturePackaging.Enveloped ? Texts.T("з даними (внутрішній)") : Texts.T("окремо від даних (зовнішній)");
 
     /// <summary>
-    /// Returns the name of a key storage type.
-    /// </summary>
-    /// <param name="media">The key storage type.</param>
-    /// <returns>The text.</returns>
-    public static string Text(KeyMediaType media) => media switch
-    {
-        KeyMediaType.Hardware => Texts.T("Апаратний носій"),
-        KeyMediaType.Cloud => Texts.T("Хмарний ключ"),
-        _ => Texts.T("Файловий ключ"),
-    };
-
-    /// <summary>
     /// Returns the name of a news category.
     /// </summary>
     /// <param name="category">The category.</param>

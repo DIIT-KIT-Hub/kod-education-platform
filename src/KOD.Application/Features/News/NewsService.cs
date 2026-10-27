@@ -25,7 +25,6 @@ namespace KOD.Application.Features.News;
 /// <param name="markdown">The Markdown renderer (articles written before the rich text editor).</param>
 /// <param name="sanitizer">The rich text sanitizer.</param>
 /// <param name="media">The image library.</param>
-/// <param name="assets">The public assets of earlier versions (old covers).</param>
 /// <param name="audit">The audit logger.</param>
 /// <param name="timeProvider">The clock.</param>
 internal sealed class NewsService(
@@ -35,7 +34,6 @@ internal sealed class NewsService(
     IMarkdownRenderer markdown,
     IRichTextSanitizer sanitizer,
     MediaLibrary media,
-    IPublicAssetStorage assets,
     IAuditLogger audit,
     TimeProvider timeProvider) : INewsService
 {
@@ -272,11 +270,6 @@ internal sealed class NewsService(
         db.NewsArticles.Remove(article);
         audit.Add(AuditActions.NewsDeleted, nameof(NewsArticle), article.Id.ToString(), $"Видалено «{article.Title}»");
         await media.SaveChangesAsync(cancellationToken);
-        if (article.CoverImageUrl is { } cover)
-        {
-            assets.Delete(cover);
-        }
-
         return Result.Success();
     }
 
@@ -367,7 +360,6 @@ internal sealed class NewsService(
     /// <returns>An error when the image is invalid; otherwise <see langword="null"/>.</returns>
     private async Task<Error?> ApplyCoverAsync(NewsArticle article, SaveNewsCommand command, Guid me, CancellationToken cancellationToken)
     {
-        var previous = article.CoverImageUrl;
         if (command.CoverImage is { } image)
         {
             var added = await media.AddAsync(image, MediaPurpose.News, me, crop: null, cancellationToken);
@@ -382,11 +374,6 @@ internal sealed class NewsService(
         else if (command.RemoveCover)
         {
             article.SetCover(null);
-        }
-
-        if (previous is not null && previous != article.CoverImageUrl)
-        {
-            assets.Delete(previous);
         }
 
         return null;

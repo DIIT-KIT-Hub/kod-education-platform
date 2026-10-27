@@ -71,7 +71,6 @@ public static class DependencyInjection
             services.AddScoped<IAuditLogger, AuditLogger>();
             services.AddScoped<DatabaseInitializer>();
             services.AddSingleton<IFileStorage, LocalFileStorage>();
-            services.AddSingleton<IPublicAssetStorage, PublicAssetStorage>();
             services.AddSingleton<IUserSpreadsheet, UserSpreadsheet>();
             services.AddSingleton<IMarkdownRenderer, MarkdigRenderer>();
             services.AddSingleton<IRichTextSanitizer, RichTextSanitizer>();

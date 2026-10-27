@@ -45,12 +45,4 @@ public sealed record PagedResult<T>(IReadOnlyList<T> Items, int Page, int PageSi
         ArgumentNullException.ThrowIfNull(request);
         return new([], 1, request.PageSize, 0);
     }
-
-    /// <summary>
-    /// Projects the items to another type keeping the paging information.
-    /// </summary>
-    /// <typeparam name="TResult">The target item type.</typeparam>
-    /// <param name="selector">The projection.</param>
-    /// <returns>The projected page.</returns>
-    public PagedResult<TResult> Map<TResult>(Func<T, TResult> selector) => new([.. Items.Select(selector)], Page, PageSize, TotalCount);
 }

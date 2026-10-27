@@ -42,12 +42,4 @@ public sealed class Result
     /// <param name="error">The error.</param>
     /// <returns>The result.</returns>
     public static Result Failure(Error error) => new(error ?? throw new ArgumentNullException(nameof(error)));
-
-    /// <summary>
-    /// Creates a successful result with a value.
-    /// </summary>
-    /// <typeparam name="T">The value type.</typeparam>
-    /// <param name="value">The value.</param>
-    /// <returns>The result.</returns>
-    public static Result<T> Success<T>(T value) => Result<T>.Success(value);
 }

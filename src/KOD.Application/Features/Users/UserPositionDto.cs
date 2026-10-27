@@ -21,10 +21,4 @@ public sealed record UserPositionDto(
     string RoleName,
     string? Title,
     bool IsPrimary,
-    bool IsManaged)
-{
-    /// <summary>
-    /// Gets the position title, falling back to the role name.
-    /// </summary>
-    public string DisplayTitle => Title ?? RoleName;
-}
+    bool IsManaged);

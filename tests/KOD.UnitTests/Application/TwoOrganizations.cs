@@ -145,7 +145,7 @@ internal sealed class TwoOrganizations : IDisposable
             scope,
             new UserService(Db, currentUser, new FakeIdentity(Db), new PermissionResolver(Db), scope, new FakeSpreadsheet(this), audit, TimeProvider.System),
             new OrganizationService(Db, currentUser, scope, audit),
-            new NewsService(Db, currentUser, scope, new FakeMarkdown(), new RichTextSanitizer(), media, new FakeAssets(), audit, TimeProvider.System),
+            new NewsService(Db, currentUser, scope, new FakeMarkdown(), new RichTextSanitizer(), media, audit, TimeProvider.System),
             new NewsDiscussionService(Db, currentUser, scope, new NewsDiscussionEvents(), audit, TimeProvider.System),
             new MediaService(currentUser, media));
     }
@@ -319,9 +319,6 @@ internal sealed class TwoOrganizations : IDisposable
         public Task<int> CountRecoveryCodesAsync(User user) => Task.FromResult(0);
 
         /// <inheritdoc />
-        public Task<bool> IsLockedOutAsync(User user) => Task.FromResult(false);
-
-        /// <inheritdoc />
         public Task UnlockAsync(User user) => Task.CompletedTask;
 
         /// <inheritdoc />
@@ -365,17 +362,6 @@ internal sealed class TwoOrganizations : IDisposable
     {
         /// <inheritdoc />
         public string ToHtml(string markdown) => markdown;
-    }
-
-    /// <summary>
-    /// A public asset storage that stores nothing.
-    /// </summary>
-    private sealed class FakeAssets : IPublicAssetStorage
-    {
-        /// <inheritdoc />
-        public void Delete(string url)
-        {
-        }
     }
 
     /// <summary>

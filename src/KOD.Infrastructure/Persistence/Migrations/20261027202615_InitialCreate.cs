@@ -107,39 +107,6 @@ namespace KOD.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "users",
-                columns: table => new
-                {
-                    id = table.Column<Guid>(type: "uuid", nullable: false),
-                    last_name = table.Column<string>(type: "citext", maxLength: 64, nullable: false),
-                    first_name = table.Column<string>(type: "citext", maxLength: 64, nullable: false),
-                    middle_name = table.Column<string>(type: "citext", maxLength: 64, nullable: true),
-                    is_active = table.Column<bool>(type: "boolean", nullable: false),
-                    must_change_password = table.Column<bool>(type: "boolean", nullable: false),
-                    last_sign_in_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
-                    created_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    updated_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
-                    user_name = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
-                    normalized_user_name = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
-                    email = table.Column<string>(type: "citext", maxLength: 256, nullable: true),
-                    normalized_email = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
-                    email_confirmed = table.Column<bool>(type: "boolean", nullable: false),
-                    password_hash = table.Column<string>(type: "text", nullable: true),
-                    security_stamp = table.Column<string>(type: "text", nullable: true),
-                    concurrency_stamp = table.Column<string>(type: "text", nullable: true),
-                    phone_number = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: true),
-                    phone_number_confirmed = table.Column<bool>(type: "boolean", nullable: false),
-                    two_factor_enabled = table.Column<bool>(type: "boolean", nullable: false),
-                    lockout_end = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
-                    lockout_enabled = table.Column<bool>(type: "boolean", nullable: false),
-                    access_failed_count = table.Column<int>(type: "integer", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("pk_users", x => x.id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "role_permissions",
                 columns: table => new
                 {
@@ -187,6 +154,223 @@ namespace KOD.Infrastructure.Persistence.Migrations
                         principalTable: "unit_types",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "document_signatures",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    base_signature_id = table.Column<Guid>(type: "uuid", nullable: true),
+                    document_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    user_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    format = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: false),
+                    packaging = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: false),
+                    level = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: true),
+                    key_media = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: false),
+                    signed_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    created_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    cert_issuer = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: false),
+                    cert_serial = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
+                    cert_subject = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: false),
+                    cert_organization = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    cert_tax_id = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: true),
+                    cert_valid_from = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    cert_valid_to = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    file_content_type = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
+                    file_name = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
+                    file_sha256 = table.Column<string>(type: "character(64)", fixedLength: true, maxLength: 64, nullable: false),
+                    file_size = table.Column<long>(type: "bigint", nullable: false),
+                    file_storage_key = table.Column<string>(type: "character varying(512)", maxLength: 512, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_document_signatures", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "document_signers",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    document_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    user_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    order = table.Column<int>(type: "integer", nullable: false),
+                    status = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: false),
+                    decided_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    comment = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_document_signers", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "documents",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    registration_number = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: false),
+                    title = table.Column<string>(type: "citext", maxLength: 300, nullable: false),
+                    description = table.Column<string>(type: "character varying(4000)", maxLength: 4000, nullable: true),
+                    kind = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: false),
+                    status = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: false),
+                    signing_mode = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: false),
+                    author_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    organization_unit_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    submitted_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    completed_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    signing_turn_user_id = table.Column<Guid>(type: "uuid", nullable: true),
+                    signing_turn_expires_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    xmin = table.Column<uint>(type: "xid", rowVersion: true, nullable: false),
+                    file_content_type = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
+                    file_name = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
+                    file_sha256 = table.Column<string>(type: "character(64)", fixedLength: true, maxLength: 64, nullable: false),
+                    file_size = table.Column<long>(type: "bigint", nullable: false),
+                    file_storage_key = table.Column<string>(type: "character varying(512)", maxLength: 512, nullable: false),
+                    created_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    updated_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_documents", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_documents_organization_units_organization_unit_id",
+                        column: x => x.organization_unit_id,
+                        principalTable: "organization_units",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "media_files",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    purpose = table.Column<string>(type: "character varying(16)", maxLength: 16, nullable: false),
+                    owner_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    size = table.Column<long>(type: "bigint", nullable: false),
+                    width = table.Column<int>(type: "integer", nullable: false),
+                    height = table.Column<int>(type: "integer", nullable: false),
+                    news_article_id = table.Column<Guid>(type: "uuid", nullable: true),
+                    created_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    updated_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_media_files", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "users",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    last_name = table.Column<string>(type: "citext", maxLength: 64, nullable: false),
+                    first_name = table.Column<string>(type: "citext", maxLength: 64, nullable: false),
+                    middle_name = table.Column<string>(type: "citext", maxLength: 64, nullable: true),
+                    is_active = table.Column<bool>(type: "boolean", nullable: false),
+                    must_change_password = table.Column<bool>(type: "boolean", nullable: false),
+                    last_sign_in_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    language = table.Column<string>(type: "character varying(8)", maxLength: 8, nullable: true),
+                    photo_id = table.Column<Guid>(type: "uuid", nullable: true),
+                    created_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    updated_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    user_name = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    normalized_user_name = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    email = table.Column<string>(type: "citext", maxLength: 256, nullable: true),
+                    normalized_email = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    email_confirmed = table.Column<bool>(type: "boolean", nullable: false),
+                    password_hash = table.Column<string>(type: "text", nullable: true),
+                    security_stamp = table.Column<string>(type: "text", nullable: true),
+                    concurrency_stamp = table.Column<string>(type: "text", nullable: true),
+                    phone_number = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: true),
+                    phone_number_confirmed = table.Column<bool>(type: "boolean", nullable: false),
+                    two_factor_enabled = table.Column<bool>(type: "boolean", nullable: false),
+                    lockout_end = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    lockout_enabled = table.Column<bool>(type: "boolean", nullable: false),
+                    access_failed_count = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_users", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_users_media_files_photo_id",
+                        column: x => x.photo_id,
+                        principalTable: "media_files",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.SetNull);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "news_articles",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    slug = table.Column<string>(type: "character varying(160)", maxLength: 160, nullable: false),
+                    title = table.Column<string>(type: "citext", maxLength: 200, nullable: false),
+                    summary = table.Column<string>(type: "citext", maxLength: 500, nullable: false),
+                    body = table.Column<string>(type: "character varying(200000)", maxLength: 200000, nullable: false),
+                    body_format = table.Column<string>(type: "character varying(16)", maxLength: 16, nullable: false),
+                    allow_comments = table.Column<bool>(type: "boolean", nullable: false),
+                    category = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: false),
+                    cover_image_url = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    is_pinned = table.Column<bool>(type: "boolean", nullable: false),
+                    published_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    author_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    organization_id = table.Column<Guid>(type: "uuid", nullable: true),
+                    created_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    updated_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_news_articles", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_news_articles_organization_units_organization_id",
+                        column: x => x.organization_id,
+                        principalTable: "organization_units",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "fk_news_articles_users_author_id",
+                        column: x => x.author_id,
+                        principalTable: "users",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "staff_positions",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    user_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    organization_unit_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    role_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    title = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: true),
+                    is_primary = table.Column<bool>(type: "boolean", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_staff_positions", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_staff_positions_organization_units_organization_unit_id",
+                        column: x => x.organization_unit_id,
+                        principalTable: "organization_units",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "fk_staff_positions_roles_role_id",
+                        column: x => x.role_id,
+                        principalTable: "roles",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "fk_staff_positions_users_user_id",
+                        column: x => x.user_id,
+                        principalTable: "users",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -270,40 +454,36 @@ namespace KOD.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "documents",
+                name: "news_comments",
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
-                    registration_number = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: false),
-                    title = table.Column<string>(type: "citext", maxLength: 300, nullable: false),
-                    description = table.Column<string>(type: "character varying(4000)", maxLength: 4000, nullable: true),
-                    kind = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: false),
-                    status = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: false),
-                    signing_mode = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: false),
+                    article_id = table.Column<Guid>(type: "uuid", nullable: false),
                     author_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    organization_unit_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    submitted_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
-                    completed_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
-                    xmin = table.Column<uint>(type: "xid", rowVersion: true, nullable: false),
-                    file_content_type = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
-                    file_name = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
-                    file_sha256 = table.Column<string>(type: "character(64)", fixedLength: true, maxLength: 64, nullable: false),
-                    file_size = table.Column<long>(type: "bigint", nullable: false),
-                    file_storage_key = table.Column<string>(type: "character varying(512)", maxLength: 512, nullable: false),
+                    parent_id = table.Column<Guid>(type: "uuid", nullable: true),
+                    body = table.Column<string>(type: "character varying(2000)", maxLength: 2000, nullable: false),
+                    edited_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
                     created_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     updated_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("pk_documents", x => x.id);
+                    table.PrimaryKey("pk_news_comments", x => x.id);
                     table.ForeignKey(
-                        name: "fk_documents_organization_units_organization_unit_id",
-                        column: x => x.organization_unit_id,
-                        principalTable: "organization_units",
+                        name: "fk_news_comments_news_articles_article_id",
+                        column: x => x.article_id,
+                        principalTable: "news_articles",
                         principalColumn: "id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "fk_documents_users_author_id",
+                        name: "fk_news_comments_news_comments_parent_id",
+                        column: x => x.parent_id,
+                        principalTable: "news_comments",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "fk_news_comments_users_author_id",
                         column: x => x.author_id,
                         principalTable: "users",
                         principalColumn: "id",
@@ -311,144 +491,62 @@ namespace KOD.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "news_articles",
+                name: "news_views",
                 columns: table => new
                 {
-                    id = table.Column<Guid>(type: "uuid", nullable: false),
-                    slug = table.Column<string>(type: "character varying(160)", maxLength: 160, nullable: false),
-                    title = table.Column<string>(type: "citext", maxLength: 200, nullable: false),
-                    summary = table.Column<string>(type: "citext", maxLength: 500, nullable: false),
-                    body = table.Column<string>(type: "character varying(50000)", maxLength: 50000, nullable: false),
-                    category = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: false),
-                    cover_image_url = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
-                    is_pinned = table.Column<bool>(type: "boolean", nullable: false),
-                    published_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
-                    author_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    organization_id = table.Column<Guid>(type: "uuid", nullable: true),
-                    created_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    updated_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("pk_news_articles", x => x.id);
-                    table.ForeignKey(
-                        name: "fk_news_articles_organization_units_organization_id",
-                        column: x => x.organization_id,
-                        principalTable: "organization_units",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "fk_news_articles_users_author_id",
-                        column: x => x.author_id,
-                        principalTable: "users",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "staff_positions",
-                columns: table => new
-                {
-                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    article_id = table.Column<Guid>(type: "uuid", nullable: false),
                     user_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    organization_unit_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    role_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    title = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: true),
-                    is_primary = table.Column<bool>(type: "boolean", nullable: false)
+                    viewed_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("pk_staff_positions", x => x.id);
+                    table.PrimaryKey("pk_news_views", x => new { x.article_id, x.user_id });
                     table.ForeignKey(
-                        name: "fk_staff_positions_organization_units_organization_unit_id",
-                        column: x => x.organization_unit_id,
-                        principalTable: "organization_units",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "fk_staff_positions_roles_role_id",
-                        column: x => x.role_id,
-                        principalTable: "roles",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "fk_staff_positions_users_user_id",
+                        name: "fk_news_views_asp_net_users_user_id",
                         column: x => x.user_id,
                         principalTable: "users",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "fk_news_views_news_articles_article_id",
+                        column: x => x.article_id,
+                        principalTable: "news_articles",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "document_signatures",
+                name: "news_reactions",
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
-                    document_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    article_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    comment_id = table.Column<Guid>(type: "uuid", nullable: true),
                     user_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    format = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: false),
-                    packaging = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: false),
-                    level = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: true),
-                    key_media = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: false),
-                    signed_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    created_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    cert_issuer = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: false),
-                    cert_serial = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
-                    cert_subject = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: false),
-                    cert_organization = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
-                    cert_tax_id = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: true),
-                    cert_valid_from = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
-                    cert_valid_to = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
-                    file_content_type = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
-                    file_name = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
-                    file_sha256 = table.Column<string>(type: "character(64)", fixedLength: true, maxLength: 64, nullable: false),
-                    file_size = table.Column<long>(type: "bigint", nullable: false),
-                    file_storage_key = table.Column<string>(type: "character varying(512)", maxLength: 512, nullable: false)
+                    kind = table.Column<string>(type: "character varying(16)", maxLength: 16, nullable: false),
+                    reacted_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("pk_document_signatures", x => x.id);
+                    table.PrimaryKey("pk_news_reactions", x => x.id);
                     table.ForeignKey(
-                        name: "fk_document_signatures_documents_document_id",
-                        column: x => x.document_id,
-                        principalTable: "documents",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "fk_document_signatures_users_user_id",
+                        name: "fk_news_reactions_asp_net_users_user_id",
                         column: x => x.user_id,
                         principalTable: "users",
                         principalColumn: "id",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "document_signers",
-                columns: table => new
-                {
-                    id = table.Column<Guid>(type: "uuid", nullable: false),
-                    document_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    user_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    order = table.Column<int>(type: "integer", nullable: false),
-                    status = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: false),
-                    decided_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
-                    comment = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("pk_document_signers", x => x.id);
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "fk_document_signers_documents_document_id",
-                        column: x => x.document_id,
-                        principalTable: "documents",
+                        name: "fk_news_reactions_news_articles_article_id",
+                        column: x => x.article_id,
+                        principalTable: "news_articles",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "fk_document_signers_users_user_id",
-                        column: x => x.user_id,
-                        principalTable: "users",
+                        name: "fk_news_reactions_news_comments_comment_id",
+                        column: x => x.comment_id,
+                        principalTable: "news_comments",
                         principalColumn: "id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
@@ -509,6 +607,16 @@ namespace KOD.Infrastructure.Persistence.Migrations
                 columns: new[] { "status", "created_at" });
 
             migrationBuilder.CreateIndex(
+                name: "ix_media_files_news_article_id",
+                table: "media_files",
+                column: "news_article_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_media_files_purpose_created_at",
+                table: "media_files",
+                columns: new[] { "purpose", "created_at" });
+
+            migrationBuilder.CreateIndex(
                 name: "ix_news_articles_author_id",
                 table: "news_articles",
                 column: "author_id");
@@ -528,6 +636,50 @@ namespace KOD.Infrastructure.Persistence.Migrations
                 table: "news_articles",
                 column: "slug",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "ix_news_comments_article_id_parent_id_created_at",
+                table: "news_comments",
+                columns: new[] { "article_id", "parent_id", "created_at" });
+
+            migrationBuilder.CreateIndex(
+                name: "ix_news_comments_author_id",
+                table: "news_comments",
+                column: "author_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_news_comments_parent_id",
+                table: "news_comments",
+                column: "parent_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_news_reactions_article_id",
+                table: "news_reactions",
+                column: "article_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_news_reactions_article_reader",
+                table: "news_reactions",
+                columns: new[] { "article_id", "user_id" },
+                unique: true,
+                filter: "comment_id IS NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_news_reactions_comment_reader",
+                table: "news_reactions",
+                columns: new[] { "comment_id", "user_id" },
+                unique: true,
+                filter: "comment_id IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_news_reactions_user_id",
+                table: "news_reactions",
+                column: "user_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_news_views_user_id",
+                table: "news_views",
+                column: "user_id");
 
             migrationBuilder.CreateIndex(
                 name: "ix_organization_units_code",
@@ -610,15 +762,72 @@ namespace KOD.Infrastructure.Persistence.Migrations
                 columns: new[] { "last_name", "first_name" });
 
             migrationBuilder.CreateIndex(
+                name: "ix_users_photo_id",
+                table: "users",
+                column: "photo_id");
+
+            migrationBuilder.CreateIndex(
                 name: "UserNameIndex",
                 table: "users",
                 column: "normalized_user_name",
                 unique: true);
+
+            migrationBuilder.AddForeignKey(
+                name: "fk_document_signatures_documents_document_id",
+                table: "document_signatures",
+                column: "document_id",
+                principalTable: "documents",
+                principalColumn: "id",
+                onDelete: ReferentialAction.Cascade);
+
+            migrationBuilder.AddForeignKey(
+                name: "fk_document_signatures_users_user_id",
+                table: "document_signatures",
+                column: "user_id",
+                principalTable: "users",
+                principalColumn: "id",
+                onDelete: ReferentialAction.Restrict);
+
+            migrationBuilder.AddForeignKey(
+                name: "fk_document_signers_documents_document_id",
+                table: "document_signers",
+                column: "document_id",
+                principalTable: "documents",
+                principalColumn: "id",
+                onDelete: ReferentialAction.Cascade);
+
+            migrationBuilder.AddForeignKey(
+                name: "fk_document_signers_users_user_id",
+                table: "document_signers",
+                column: "user_id",
+                principalTable: "users",
+                principalColumn: "id",
+                onDelete: ReferentialAction.Restrict);
+
+            migrationBuilder.AddForeignKey(
+                name: "fk_documents_users_author_id",
+                table: "documents",
+                column: "author_id",
+                principalTable: "users",
+                principalColumn: "id",
+                onDelete: ReferentialAction.Restrict);
+
+            migrationBuilder.AddForeignKey(
+                name: "fk_media_files_news_articles_news_article_id",
+                table: "media_files",
+                column: "news_article_id",
+                principalTable: "news_articles",
+                principalColumn: "id",
+                onDelete: ReferentialAction.SetNull);
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropForeignKey(
+                name: "fk_news_articles_users_author_id",
+                table: "news_articles");
+
             migrationBuilder.DropTable(
                 name: "audit_entries");
 
@@ -632,7 +841,10 @@ namespace KOD.Infrastructure.Persistence.Migrations
                 name: "document_signers");
 
             migrationBuilder.DropTable(
-                name: "news_articles");
+                name: "news_reactions");
+
+            migrationBuilder.DropTable(
+                name: "news_views");
 
             migrationBuilder.DropTable(
                 name: "role_permissions");
@@ -659,13 +871,22 @@ namespace KOD.Infrastructure.Persistence.Migrations
                 name: "documents");
 
             migrationBuilder.DropTable(
+                name: "news_comments");
+
+            migrationBuilder.DropTable(
                 name: "roles");
 
             migrationBuilder.DropTable(
-                name: "organization_units");
+                name: "users");
 
             migrationBuilder.DropTable(
-                name: "users");
+                name: "media_files");
+
+            migrationBuilder.DropTable(
+                name: "news_articles");
+
+            migrationBuilder.DropTable(
+                name: "organization_units");
 
             migrationBuilder.DropTable(
                 name: "unit_types");

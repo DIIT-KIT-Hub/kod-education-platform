@@ -40,12 +40,6 @@ public static class Permissions
     public static FrozenSet<string> Codes { get; } = All.Select(static p => p.Code).ToFrozenSet(StringComparer.Ordinal);
 
     /// <summary>
-    /// Gets the lookup of definitions by code.
-    /// </summary>
-    public static FrozenDictionary<string, PermissionDefinition> ByCode { get; } =
-        All.ToFrozenDictionary(static p => p.Code, StringComparer.Ordinal);
-
-    /// <summary>
     /// Document management permissions.
     /// </summary>
     public static class Documents

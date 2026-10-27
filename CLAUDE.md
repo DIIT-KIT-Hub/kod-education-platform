@@ -168,7 +168,7 @@ Use `[LoggerMessage]` partial methods for new log statements.
   `data-enhance`), `DatePicker` (hidden ISO input + text field), custom `select.ds-select` (no markup change needed),
   `OtpInput`, `PasswordReveal`, `ValidationError`, `GridSkeleton` / `CardSkeleton` / `FormSkeleton`, `Dialog`, `Tabs`,
   `PageHeader` (renders `<PageTitle>`).
-- Scrollbars of dialogs, listboxes, `.help-toc` and `.ds-scroll` are styled; in Chromium do not set `scrollbar-width`
+- Scrollbars of dialogs, listboxes and `.help-toc` are styled; in Chromium do not set `scrollbar-width`
   on them (it disables the `::-webkit-scrollbar` styles).
 
 ## Gotchas learned the hard way

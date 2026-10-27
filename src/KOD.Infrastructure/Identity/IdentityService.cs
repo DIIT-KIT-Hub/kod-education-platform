@@ -117,9 +117,6 @@ internal sealed class IdentityService(UserManager<User> userManager) : IIdentity
     public Task<int> CountRecoveryCodesAsync(User user) => userManager.CountRecoveryCodesAsync(user);
 
     /// <inheritdoc />
-    public Task<bool> IsLockedOutAsync(User user) => userManager.IsLockedOutAsync(user);
-
-    /// <inheritdoc />
     public async Task UnlockAsync(User user)
     {
         await userManager.SetLockoutEndDateAsync(user, null);
