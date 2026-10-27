@@ -43,7 +43,7 @@ public sealed record UserDetails(
     IReadOnlyList<UserPositionDto> Positions,
     IReadOnlyList<string> GrantedPermissions,
     IReadOnlyList<string> DeniedPermissions,
-    IReadOnlySet<string> EffectivePermissions,
+    IReadOnlyList<string> EffectivePermissions,
     bool CanEditAccount,
     bool CanEditPositions,
     bool CanManageSecurity,

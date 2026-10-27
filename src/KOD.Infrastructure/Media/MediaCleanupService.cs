@@ -48,6 +48,7 @@ internal sealed partial class MediaCleanupService(
                     .Where(m => m.Purpose == MediaPurpose.News
                         ? m.NewsArticleId == null
                         : !db.Users.Any(u => u.PhotoId == m.Id))
+                    .OrderBy(static m => m.CreatedAt)
                     .Select(static m => m.Id)
                     .Take(500)
                     .ToListAsync(stoppingToken);

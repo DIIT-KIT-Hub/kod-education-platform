@@ -205,7 +205,7 @@ public partial class UserEditor
     private void Show(UserDetails details)
     {
         Details = details;
-        Effective = Details.EffectivePermissions;
+        Effective = Details.EffectivePermissions.ToHashSet(StringComparer.Ordinal);
         Model = new UserModel
         {
             Email = Details.Email,

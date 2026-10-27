@@ -325,7 +325,7 @@ internal sealed class DocumentService(
             document.SigningMode,
             [.. signerIds.Where(people.ContainsKey).Select(signerId => people[signerId])],
             new DocumentFileInfo(document.File.FileName, document.File.ContentType, document.File.Size, document.File.Sha256, document.File.IsPdf),
-            document.Signatures.Select(static s => s.UserId).ToHashSet());
+            [.. document.Signatures.Select(static s => s.UserId).Distinct()]);
     }
 
     /// <inheritdoc />

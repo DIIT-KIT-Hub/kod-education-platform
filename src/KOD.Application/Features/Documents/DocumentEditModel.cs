@@ -28,4 +28,4 @@ public sealed record DocumentEditModel(
     SigningMode SigningMode,
     IReadOnlyList<UserLookupItem> Signers,
     DocumentFileInfo File,
-    IReadOnlySet<Guid> SignedBy);
+    IReadOnlyList<Guid> SignedBy);

@@ -159,7 +159,7 @@ internal sealed class UserService(
                 .ToList(),
             [.. user.PermissionOverrides.Where(static o => o.IsGranted).Select(static o => o.Permission)],
             [.. user.PermissionOverrides.Where(static o => !o.IsGranted).Select(static o => o.Permission)],
-            effective,
+            [.. effective],
             CanEditAccount: withinHierarchy && manageScope.Covers(units),
             CanEditPositions: withinHierarchy && manageScope.Overlaps(units),
             CanManageSecurity: withinHierarchy && securityScope.Covers(units),
