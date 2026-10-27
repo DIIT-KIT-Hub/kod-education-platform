@@ -679,18 +679,19 @@ function renderSigning(host, client, visible, ready) {
             dataStatus);
     }
 
+    // The signing session is declared before the parameters: their first render already asks for the fixed format.
+    /** @type {{baseSignatureId: string|null, baseSha256: string|null, format: string|null, packaging: string|null, signatureCount: number}|null} */
+    let session = null;
+    /** @type {ArrayBuffer|null} The newest signed version the signature is added to (cumulative formats). */
+    let previous = null;
+    let attempt = 0;
+
     // Step 2: the parameters.
     const parameters = parametersBlock({
         pdfOnly: () => files.length > 0 && files.every((f) => /\.pdf$/i.test(f.name)),
         multiple: () => files.length > 1,
         fixed: () => (documentMode && session && session.format ? { format: session.format, packaging: session.packaging } : null),
     });
-
-    /** @type {{baseSignatureId: string|null, baseSha256: string|null, format: string|null, packaging: string|null, signatureCount: number}|null} */
-    let session = null;
-    /** @type {ArrayBuffer|null} The newest signed version the signature is added to (cumulative formats). */
-    let previous = null;
-    let attempt = 0;
 
     /**
      * Takes the turn to sign and loads the version to add the signature to. While another signer of a parallel route
