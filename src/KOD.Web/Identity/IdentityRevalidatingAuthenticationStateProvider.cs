@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using KOD.Domain.Users;
 using KOD.Infrastructure.Identity;
+using KOD.Infrastructure.Identity.Tokens;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Server;
 using Microsoft.AspNetCore.Identity;
@@ -9,18 +10,20 @@ using Microsoft.Extensions.Options;
 namespace KOD.Web.Identity;
 
 /// <summary>
-/// Re-validates the user of an interactive circuit every minute. The circuit loses its authentication when the account
-/// no longer exists, is blocked, has a new security stamp, or when its server-side session was revoked or expired.
-/// When the user's permissions or profile claims changed, the circuit gets a fresh principal without a reconnect.
+/// Re-validates the user of an interactive circuit every minute: a circuit outlives the access token it started with, so
+/// it repeats the checks of a token refresh. The circuit loses its authentication when the account no longer exists or is
+/// blocked, or when its sign-in ended: signed out, revoked after a refresh token reuse, expired, or bound to an old
+/// security stamp (password change, "sign out everywhere"). Changed permissions or profile claims reach the circuit
+/// without a reconnect.
 /// </summary>
 /// <param name="loggerFactory">The logger factory.</param>
 /// <param name="scopeFactory">Creates scopes to read fresh user data.</param>
-/// <param name="sessions">Checks the server-side session.</param>
-/// <param name="options">The Identity options.</param>
+/// <param name="refreshTokens">Knows whether a sign-in is alive.</param>
+/// <param name="options">The Identity options (claim types).</param>
 internal sealed class IdentityRevalidatingAuthenticationStateProvider(
     ILoggerFactory loggerFactory,
     IServiceScopeFactory scopeFactory,
-    IUserSessionValidator sessions,
+    RefreshTokenStore refreshTokens,
     IOptions<IdentityOptions> options) : RevalidatingServerAuthenticationStateProvider(loggerFactory)
 {
     /// <summary>
@@ -32,7 +35,8 @@ internal sealed class IdentityRevalidatingAuthenticationStateProvider(
     /// <summary>
     /// Claims that describe the sign-in rather than the user; they are carried over to a refreshed principal.
     /// </summary>
-    private static readonly string[] SignInClaimTypes = [AppClaimTypes.SessionId, AppClaimTypes.AuthenticationMethod];
+    private static readonly string[] SignInClaimTypes =
+        [AppClaimTypes.SessionId, AppClaimTypes.AuthenticationMethod, AppClaimTypes.AuthenticationTime, AppClaimTypes.Persistent];
 
     /// <inheritdoc />
     protected override TimeSpan RevalidationInterval => TimeSpan.FromMinutes(1);
@@ -42,23 +46,15 @@ internal sealed class IdentityRevalidatingAuthenticationStateProvider(
     {
         ArgumentNullException.ThrowIfNull(authenticationState);
         var principal = authenticationState.User;
+        if (JwtTokenService.ReadSignIn(principal.Identity as ClaimsIdentity) is not { } signIn)
+        {
+            return false;
+        }
 
         await using var scope = scopeFactory.CreateAsyncScope();
         var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
         var user = await userManager.GetUserAsync(principal);
-        if (user is null || !user.IsActive)
-        {
-            return false;
-        }
-
-        var principalStamp = principal.FindFirstValue(options.Value.ClaimsIdentity.SecurityStampClaimType);
-        if (principalStamp != await userManager.GetSecurityStampAsync(user))
-        {
-            return false;
-        }
-
-        if (!Guid.TryParse(principal.FindFirstValue(AppClaimTypes.SessionId), out var sessionId)
-            || !await sessions.IsAliveAsync(sessionId, user.Id, cancellationToken))
+        if (user is null || !user.IsActive || !await refreshTokens.IsAliveAsync(signIn.Id, user.Id, user.SecurityStamp, cancellationToken))
         {
             return false;
         }
@@ -67,8 +63,17 @@ internal sealed class IdentityRevalidatingAuthenticationStateProvider(
         var fresh = await factory.CreateAsync(user);
         if (!SameUserClaims(principal, fresh))
         {
-            CarryOverSignInClaims(principal, fresh);
-            SetAuthenticationState(Task.FromResult(new AuthenticationState(fresh)));
+            // The same claims an access token carries, under the same authentication type, without the security stamp.
+            // The claim issuer stays the token's: antiforgery binds its tokens to (sub, issuer).
+            var stampType = options.Value.ClaimsIdentity.SecurityStampClaimType;
+            var issuer = principal.FindFirst(AppClaimTypes.Subject)?.Issuer ?? ClaimsIdentity.DefaultIssuer;
+            var identity = new ClaimsIdentity(
+                fresh.Claims.Where(c => c.Type != stampType).Select(c => new Claim(c.Type, c.Value, c.ValueType, issuer, issuer)),
+                principal.Identity?.AuthenticationType,
+                AppClaimTypes.Name,
+                AppClaimTypes.Role);
+            identity.AddClaims(SignInClaimTypes.SelectMany(principal.FindAll).Select(c => new Claim(c.Type, c.Value, c.ValueType, issuer, issuer)));
+            SetAuthenticationState(Task.FromResult(new AuthenticationState(new ClaimsPrincipal(identity))));
         }
 
         return true;
@@ -93,23 +98,5 @@ internal sealed class IdentityRevalidatingAuthenticationStateProvider(
         }
 
         return true;
-    }
-
-    /// <summary>
-    /// Copies the session and authentication method claims to the refreshed principal.
-    /// </summary>
-    /// <param name="current">The circuit principal.</param>
-    /// <param name="fresh">The refreshed principal.</param>
-    private static void CarryOverSignInClaims(ClaimsPrincipal current, ClaimsPrincipal fresh)
-    {
-        if (fresh.Identity is not ClaimsIdentity identity)
-        {
-            return;
-        }
-
-        foreach (var type in SignInClaimTypes)
-        {
-            identity.AddClaims(current.FindAll(type).Select(static c => new Claim(c.Type, c.Value)));
-        }
     }
 }

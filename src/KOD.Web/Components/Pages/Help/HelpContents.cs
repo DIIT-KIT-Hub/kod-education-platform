@@ -30,7 +30,7 @@ public static class HelpContents
             "account",
             "Вхід і безпека облікового запису",
             "shield-check",
-            "Перший вхід, двофакторна автентифікація, резервні коди, паролі та сесії.",
+            "Перший вхід, двофакторна автентифікація, резервні коди, паролі та вихід із системи.",
             [],
             [
                 new("account-first-login", "Перший вхід у систему"),
@@ -39,7 +39,7 @@ public static class HelpContents
                 new("account-lockout", "Невдалі спроби та блокування"),
                 new("account-forgot", "Забули пароль або змінили телефон"),
                 new("account-change-password", "Зміна пароля"),
-                new("account-sessions", "Сесії та вихід із системи"),
+                new("account-sessions", "Тривалість входу та вихід із системи"),
                 new("account-security-tips", "Поради з безпеки"),
             ]),
         new(
@@ -116,13 +116,13 @@ public static class HelpContents
             "profile",
             "Профіль",
             "user",
-            "Особисті дані, фото, посади, дозволи, безпека облікового запису та сесії.",
+            "Особисті дані, фото, посади, дозволи, безпека облікового запису та входи на інших пристроях.",
             [],
             [
                 new("profile-overview", "Мій профіль"),
                 new("profile-photo", "Фото профілю"),
                 new("profile-security", "Безпека: пароль, 2FA, резервні коди"),
-                new("profile-sessions", "Активні сесії"),
+                new("profile-sessions", "Вихід на інших пристроях"),
             ]),
         new(
             "admin",

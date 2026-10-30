@@ -14,7 +14,7 @@ public static class ClaimsPrincipalExtensions
         /// <summary>
         /// Gets the user identifier, or <see langword="null"/> for anonymous users.
         /// </summary>
-        public Guid? UserId => Guid.TryParse(principal.FindFirstValue(ClaimTypes.NameIdentifier), out var id) ? id : null;
+        public Guid? UserId => Guid.TryParse(principal.FindFirstValue(AppClaimTypes.Subject), out var id) ? id : null;
 
         /// <summary>
         /// Gets the full name of the user.
@@ -25,11 +25,6 @@ public static class ClaimsPrincipalExtensions
         /// Gets the short name (with initials) of the user.
         /// </summary>
         public string ShortName => principal.FindFirstValue(AppClaimTypes.ShortName) ?? principal.FullName;
-
-        /// <summary>
-        /// Gets the server-side session identifier.
-        /// </summary>
-        public Guid? SessionId => Guid.TryParse(principal.FindFirstValue(AppClaimTypes.SessionId), out var id) ? id : null;
 
         /// <summary>
         /// Gets the profile photo, or <see langword="null"/> until the user uploads one.

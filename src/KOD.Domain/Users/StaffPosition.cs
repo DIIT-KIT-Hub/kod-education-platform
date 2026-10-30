@@ -1,19 +1,35 @@
 using KOD.Domain.Access;
 using KOD.Domain.Common;
 using KOD.Domain.Organization;
+using Microsoft.AspNetCore.Identity;
 
 namespace KOD.Domain.Users;
 
 /// <summary>
-/// A position held by a user in an organization unit (e.g. «начальник відділу продажу»).
+/// A position held by a user in an organization unit (e.g. «начальник відділу продажу»): the Identity user role
+/// (table <c>user_roles</c>) extended with the unit, the official title and the primary flag. A user may hold the same
+/// role in several units, so a position is identified by its own <see cref="Id"/>.
 /// The position's role defines the permissions; the unit defines the scope of unit-level permissions.
 /// </summary>
-public sealed class StaffPosition : Entity
+/// <remarks>
+/// Positions are changed only through <see cref="User.SetPositions"/>: <see cref="UserManager{TUser}.AddToRoleAsync"/>
+/// cannot choose a unit. The read operations of the user manager (<c>GetRolesAsync</c>, <c>IsInRoleAsync</c>,
+/// <c>GetUsersInRoleAsync</c>) work as usual.
+/// </remarks>
+public sealed class StaffPosition : IdentityUserRole<Guid>
 {
     /// <summary>
     /// Maximum length of <see cref="Title"/>.
     /// </summary>
     public const int TitleMaxLength = 128;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="StaffPosition"/> class for EF Core and the generic constraint of the
+    /// Identity user store.
+    /// </summary>
+    public StaffPosition()
+    {
+    }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="StaffPosition"/> class.
@@ -33,9 +49,9 @@ public sealed class StaffPosition : Entity
     }
 
     /// <summary>
-    /// Gets the user identifier.
+    /// Gets the identifier of the position (UUID v7, index friendly; also orders positions by creation).
     /// </summary>
-    public Guid UserId { get; private set; }
+    public Guid Id { get; private init; } = Guid.CreateVersion7();
 
     /// <summary>
     /// Gets the user.
@@ -51,11 +67,6 @@ public sealed class StaffPosition : Entity
     /// Gets the unit.
     /// </summary>
     public OrganizationUnit? OrganizationUnit { get; private set; }
-
-    /// <summary>
-    /// Gets the role identifier.
-    /// </summary>
-    public Guid RoleId { get; private set; }
 
     /// <summary>
     /// Gets the role.

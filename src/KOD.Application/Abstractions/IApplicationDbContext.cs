@@ -4,7 +4,6 @@ using KOD.Domain.Documents;
 using KOD.Domain.Media;
 using KOD.Domain.News;
 using KOD.Domain.Organization;
-using KOD.Domain.Sessions;
 using KOD.Domain.Users;
 using Microsoft.EntityFrameworkCore;
 
@@ -84,11 +83,6 @@ public interface IApplicationDbContext
     /// Gets the audit trail.
     /// </summary>
     DbSet<AuditEntry> AuditEntries { get; }
-
-    /// <summary>
-    /// Gets the server-side authentication sessions.
-    /// </summary>
-    DbSet<UserSession> UserSessions { get; }
 
     /// <summary>
     /// Saves all pending changes.

@@ -36,22 +36,53 @@ Write tool and run them with `node`. `/tmp` in Git Bash is not visible to Window
 
 ```
 src/KOD.Domain          Entities + invariants (User, Role, StaffPosition, OrganizationUnit, UnitType, Document with
-                        signers and signatures, NewsArticle with NewsComment/NewsReaction/NewsView, MediaFile, AuditEntry,
-                        UserSession), permission catalog, system roles, Guard, DomainException, localization catalog
+                        signers and signatures, NewsArticle with NewsComment/NewsReaction/NewsView, MediaFile, AuditEntry),
+                        permission catalog, system roles, Guard, DomainException, localization catalog
                         (Localization/Texts.cs, Languages.cs).
 src/KOD.Application     Use-case services (DocumentService, UserService, OrganizationService, UnitTypeService, RoleService,
                         NewsService, NewsDiscussionService, MediaService + MediaLibrary, ProfileService, DashboardService,
                         AuditService, SigningJournal), DTOs, Result<T>/Error, paging, access rules (IPermissionResolver,
                         IAccessScope, AdministrationScope), abstractions.
 src/KOD.Infrastructure  EF Core + PostgreSQL (snake_case, citext, xmin concurrency), migrations, seeding, Identity
-                        (SignInManager with mandatory 2FA, claims factory, server-side session store), file storage,
+                        (full Identity schema, SignInManager with mandatory 2FA, claims factory, ES256 key + JWT service
+                        in Identity/Tokens), file storage,
                         images (libvips/NetVips → AVIF, media storage, cleanup job), HTML sanitizer, XLSX/CSV, Markdig,
                         CMS signature inspector, audit logger.
-src/KOD.Web             Host: Blazor Web App pages (Components/), REST API (Api/, /api/v1), security middleware,
-                        signing proxy and trust list (Signing/), localization provider (Localization/), logging (Hosting/).
+src/KOD.Web             Host: Blazor Web App pages (Components/), REST API (Api/, /api/v1), JWT authentication handlers
+                        (Identity/), security middleware, signing proxy and trust list (Signing/), localization provider
+                        (Localization/), logging (Hosting/).
   DesignSystem/         Razor components (Components/) + DesignTokens; CSS/JS/icons/fonts live in wwwroot.
-tests/KOD.UnitTests     Domain rules, access, scoped administration (EF InMemory), localization coverage, trust list.
+tests/KOD.UnitTests     Domain rules, access, scoped administration (EF InMemory), JWT tokens, localization coverage,
+                        trust list.
 ```
+
+### Identity tables and authentication
+
+- `ApplicationDbContext` is a full `IdentityDbContext<User, Role, Guid, UserPermissionOverride, StaffPosition,
+  IdentityUserLogin<Guid>, RolePermission, IdentityUserToken<Guid>>`; tables `users`, `roles`, `user_roles`, `role_claims`,
+  `user_claims`, `user_logins`, `user_tokens` (snake_case names of the AspNet* tables). Domain types are the Identity types:
+  `Role : IdentityRole` (`Name` = unique display name, `NormalizedName` via `Role.NormalizeName`; `Code` stays the stable
+  key), `RolePermission : IdentityRoleClaim` and `UserPermissionOverride : IdentityUserClaim` (claim types in
+  `PermissionClaimTypes`: `kod:permission` granted, `kod:permission.denied`), `StaffPosition : IdentityUserRole` with its
+  own `Id` key and the unit (a user may hold one role in several units). Query permissions through `ClaimType`/`ClaimValue`
+  in LINQ. Positions change only through `User.SetPositions` (`UserManager.AddToRoleAsync` cannot choose a unit).
+- **Stateless JWT access tokens + rotating refresh tokens (RFC 9700 §4.14.2).** `JwtTokenService` issues ES256 JWTs (key:
+  `JwtSigningKey`, PEM from `Authentication:Jwt:SigningKeyPath` or generated into `App_Data/keys` encrypted with Data
+  Protection): access `at+jwt` (5 min; `sub`, `sid`, `auth_time`, `amr`, all user claims incl. permissions) and `2fa+jwt`
+  (between password and code). Refresh tokens are opaque (`RefreshToken`: family id ‖ generation ‖ HMAC with the family
+  key) and live in `refresh_token_families` (`RefreshTokenStore`, the only server-side auth state): every use rotates to
+  the next generation, any older authentic generation revokes the family (except the previous one within
+  `RefreshTokenReuseInterval` = 30 s, for parallel requests: it gets the current token, no rotation). Families end on
+  sign-out, idle 1 h / absolute 12 h (NIST SP 800-63B-4 AAL2), or a security stamp mismatch.
+  `JwtAuthenticationHandler` (scheme `Jwt`, `AppSignInManager.AuthenticationScheme`) reads `__Host-kod.at`, falls back to
+  `__Host-kod.rt` (rotates, re-reads the user: active + stamp, rebuilds claims) only when the response can still set
+  cookies, and challenges with a redirect (pages) or 401 (`/api`). `TwoFactorJwtHandler` is registered under
+  `IdentityConstants.TwoFactorUserIdScheme`. Claim types are JWT names (`AppClaimTypes`); the security stamp never goes
+  into a token.
+- Revocation: sign-out deletes the family; a new security stamp (`IIdentityService.InvalidateSessionsAsync`: password
+  change/reset, block, 2FA reset, "end all sessions", profile "sign out on other devices") stops every family bound to the
+  old stamp, while `RefreshSignInAsync` rebinds the current browser's family. Issued access tokens live until expiry
+  (≤ 5 min); circuits re-check the family every minute (`IdentityRevalidatingAuthenticationStateProvider`).
 
 Dependencies point inward: Web → Infrastructure → Application → Domain. Central Package Management
 (`Directory.Packages.props`); check new package versions on NuGet and prefer ones published more than two weeks ago.
@@ -77,7 +108,7 @@ Dependencies point inward: Web → Infrastructure → Application → Domain. Ce
   files of removed images only after the database save. `MediaCleanupService` removes unattached images after a day.
 - **Profile photo is mandatory**: claim `kod:photo` (claims factory) → `AccountSetupMiddleware` (temporary password
   first, then `/account/photo`; API gets 403). The photo form posts to `POST /account/photo` (plain multipart form,
-  crop fractions from `js/photo-cropper.js`) and refreshes the sign-in cookie. New user DTOs carry `PhotoId`.
+  crop fractions from `js/photo-cropper.js`) and re-issues the JWT cookies (`RefreshSignInAsync`). New user DTOs carry `PhotoId`.
 - **News body** is HTML from the Tiptap editor (`RichTextEditor` component + `js/rich-text.js`; the Tiptap bundle is
   `wwwroot/lib/tiptap/tiptap.js`, rebuilt from `tools/rich-text` with `npm ci && npm run build`). The server sanitizes it
   (`IRichTextSanitizer`, allow-list; images must be `/media/…`). Older articles keep `NewsBodyFormat.Markdown` until edited.
@@ -143,9 +174,13 @@ Dependencies point inward: Web → Infrastructure → Application → Domain. Ce
   window polls every 5 s), renews it right before signing, and gives it up on close (`DELETE`). `Document` also has an
   `xmin` concurrency token; `AddSignatureAsync` reloads on `DbUpdateConcurrencyException`, and a stale base is rejected
   ("sign the latest version again").
-- 2FA is mandatory; TOTP codes are single-use; secrets are encrypted with Data Protection; sessions are server-side
-  (`DatabaseTicketStore`) with idle + absolute lifetime; permissions are re-read every minute (security stamp validator,
-  claims factory). Changing the sign-in cookie: `SignInManager.RefreshSignInAsync(user)` (used by password and language changes).
+- 2FA is mandatory; TOTP codes are single-use; secrets are encrypted with Data Protection. Authentication is JWT access
+  tokens + rotating refresh tokens (see "Identity tables and authentication"): only ES256 with server-fixed
+  `typ`/`iss`/`aud`/`kid`/lifetime is accepted, tokens live in `__Host-` `HttpOnly` `Secure` `SameSite` cookies (never
+  readable by scripts), refresh token reuse revokes the family, the security stamp stays on the server. Do not weaken
+  rotation (RFC 9700 §2.2.2 MUST for browser-held refresh tokens). Re-issuing the tokens of the current browser:
+  `SignInManager.RefreshSignInAsync(user)` (password, language, photo, sign-out elsewhere) — it keeps `auth_time`, so it
+  never extends the absolute lifetime.
 - Private files (documents, signatures) live outside `wwwroot` (`App_Data/storage`) and are served only through the API
   after an access check.
 - Administration is scoped to the organizations of the administrator's positions (`AdministrationScope`); `roles.manage`
@@ -197,11 +232,15 @@ Use `[LoggerMessage]` partial methods for new log statements.
   append flows with the user (CAdES detached/enveloped, PAdES, ASiC-S/E, sequential and parallel routes).
   A PDF without `/ByteRange` has no signatures (the library would report "damaged data").
 - The audit log category filter uses the query parameter `category`, not `action`.
+- **Antiforgery tokens are bound to the `sub` claim and its `Issuer`.** Every identity of a signed-in user (validated
+  JWT, the one issued during a refresh, a circuit's refreshed principal) must carry the token issuer (`urn:kod`), or a
+  form rendered in one request fails with 400 in the next. Testing token refresh: run the app with
+  `--Authentication:Jwt:AccessTokenLifetime=00:00:10 --Authentication:Jwt:ClockSkew=00:00:01` after `--`.
 
 ## Verifying changes
 
 1. Build + tests with your configuration.
-2. For UI changes start `kod-web-verify` (7181) via the preview tools; the browser session cookie is shared with 7180.
+2. For UI changes start `kod-web-verify` (7181) via the preview tools; the JWT cookies are shared with 7180 (same host, same signing key in `App_Data/keys`).
    If the pane is signed out, ask the user to sign in in the Browser pane (2FA) — do not use their credentials.
 3. Check console/server errors (`preview_logs`), use `javascript_tool` for computed state and `find`/refs for clicks.
 4. Report what was and was not verified; restore emulated viewports; stop your verification server.

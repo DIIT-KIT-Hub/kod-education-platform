@@ -1,18 +1,16 @@
 using KOD.Domain.Audit;
 using KOD.Domain.News;
-using KOD.Domain.Sessions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace KOD.Infrastructure.Persistence.Configurations;
 
 /// <summary>
-/// Maps news, audit entries and sessions.
+/// Maps news and audit entries.
 /// </summary>
 internal sealed class MiscConfiguration :
     IEntityTypeConfiguration<NewsArticle>,
-    IEntityTypeConfiguration<AuditEntry>,
-    IEntityTypeConfiguration<UserSession>
+    IEntityTypeConfiguration<AuditEntry>
 {
     /// <inheritdoc />
     public void Configure(EntityTypeBuilder<NewsArticle> builder)
@@ -51,16 +49,5 @@ internal sealed class MiscConfiguration :
         builder.HasIndex(static e => e.OccurredAt);
         builder.HasIndex(static e => e.Action);
         builder.HasIndex(static e => e.UserId);
-    }
-
-    /// <inheritdoc />
-    public void Configure(EntityTypeBuilder<UserSession> builder)
-    {
-        builder.ToTable("user_sessions");
-        builder.Property(static s => s.Id).ValueGeneratedNever();
-        builder.Property(static s => s.IpAddress).HasMaxLength(64);
-        builder.Property(static s => s.UserAgent).HasMaxLength(512);
-        builder.HasIndex(static s => s.UserId);
-        builder.HasIndex(static s => s.ExpiresAt);
     }
 }

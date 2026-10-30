@@ -1,6 +1,6 @@
 @page "/profile/security"
 
-<PageHeader Title="@T("Безпека")" Subtitle="@T("Пароль, двофакторна автентифікація та резервні коди.")" />
+<PageHeader Title="@T("Безпека")" Subtitle="@T("Пароль, двофакторна автентифікація, резервні коди та входи на інших пристроях.")" />
 <ProfileTabs Current="security" />
 
 @if (Profile is not null)
@@ -56,6 +56,18 @@
                                aria-label="@T("Код із застосунку-автентифікатора")" />
                     </OtpInput>
                     <Button Type="submit" Variant="ButtonVariant.Secondary" Icon="refresh-cw">@T("Нові коди")</Button>
+                </form>
+            </Footer>
+        </Card>
+
+        <Card Title="@T("Інші пристрої")" Subtitle="@T("Залишили вхід на чужому комп'ютері або загубили телефон? Завершіть усі входи, крім цього браузера.")">
+            <ChildContent>
+                <p class="ds-text-sm ds-muted">@T("Інші пристрої втратять доступ протягом кількох хвилин — щойно закінчиться строк їхнього токена доступу.")</p>
+            </ChildContent>
+            <Footer>
+                <form method="post" @formname="sign-out-everywhere" @onsubmit="SignOutEverywhereAsync" data-confirm="@T("Вийти на всіх інших пристроях?")">
+                    <AntiforgeryToken />
+                    <Button Type="submit" Variant="ButtonVariant.Secondary" Icon="log-out">@T("Вийти на інших пристроях")</Button>
                 </form>
             </Footer>
         </Card>

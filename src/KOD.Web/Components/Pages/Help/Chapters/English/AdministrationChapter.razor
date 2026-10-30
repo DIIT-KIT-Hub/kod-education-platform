@@ -67,7 +67,7 @@
     </HelpTopicSection>
 
     <HelpTopicSection Id="admin-users-edit">
-        <p>Open the user (<span class="help-ui">Open</span> in the list). At the top are the full name, email and badges: “Active” / “Blocked”, “2FA enabled” / “2FA not set up”, “Temporary password”, “Sessions: N”.</p>
+        <p>Open the user (<span class="help-ui">Open</span> in the list). At the top are the full name, email and badges: “Active” / “Blocked”, “2FA enabled” / “2FA not set up”, “Temporary password”.</p>
         <h4>Positions</h4>
         <p>The role of a position defines permissions; the unit defines the scope of access to documents.</p>
         <ol class="help-steps">
@@ -75,7 +75,7 @@
             <li>Select a <span class="help-ui">Unit</span> and a <span class="help-ui">Role</span>, and enter the <span class="help-ui">Position title</span> (for example, “Chief accountant”; up to 128 characters). The unit list contains only units of organizations you manage; positions in other organizations are assigned by their administrators (see “<a href="/help#admin-scope">Administration within organizations</a>”).</li>
             <li>Check <span class="help-ui">Primary</span> for the main position (only one; if none is selected, the first one becomes primary). The primary position is shown in lists and signing routes; the others count as secondary positions.</li>
             <li>Remove an unneeded position with <span class="help-ui">Remove position</span>. The same “unit + role” pair cannot appear twice.</li>
-            <li>Click <span class="help-ui">Save changes</span> — “Changes saved.” The new permissions take effect for the user within a minute.</li>
+            <li>Click <span class="help-ui">Save changes</span> — “Changes saved.” The new permissions take effect for the user within 5 minutes at most, without signing in again (on open editing pages — in about a minute).</li>
         </ol>
         <p>Without the “Manage roles” permission you can assign only roles whose permissions you all have yourself; the system administrator role is unavailable. Error: “You can't assign the role “X” because it grants more permissions than you have.”</p>
         <p>An account cannot be deleted — only blocked. This preserves the history of documents and signatures.</p>
@@ -97,14 +97,15 @@
             <table class="help-table">
                 <thead><tr><th>Button</th><th>Required permission</th><th>What happens</th><th>When to use</th></tr></thead>
                 <tbody>
-                    <tr><td>Block</td><td>Manage users</td><td>Sign-in becomes impossible, all sessions end immediately. “Account blocked.”</td><td>Dismissal, long absence, suspected compromise.</td></tr>
+                    <tr><td>Block</td><td>Manage users</td><td>A new sign-in becomes impossible, the sign-ins on all devices end within a few minutes. “Account blocked.”</td><td>Dismissal, long absence, suspected compromise.</td></tr>
                     <tr><td>Unblock</td><td>Manage users</td><td>Sign-in is allowed again. “Account unblocked.”</td><td>The employee returns.</td></tr>
-                    <tr><td>Issue a temporary password</td><td>Account security</td><td>The current password stops working, sessions end, a new temporary password is shown (once). “Temporary password issued.”</td><td>The user forgot their password.</td></tr>
-                    <tr><td>Reset authenticator</td><td>Account security</td><td>2FA is turned off, recovery codes are revoked, sessions end. On next sign-in the user sets up a new phone. “Authenticator reset.”</td><td>The user changed or lost their phone.</td></tr>
-                    <tr><td>End all sessions</td><td>Account security</td><td>All of the user's sessions end; the temporary lockout after failed sign-in attempts is also lifted. “Sessions ended.”</td><td>The user forgot to sign out on someone else's device; the account needs unlocking after failed sign-ins.</td></tr>
+                    <tr><td>Issue a temporary password</td><td>Account security</td><td>The current password stops working, the sign-ins on all devices end within a few minutes, a new temporary password is shown (once). “Temporary password issued.”</td><td>The user forgot their password.</td></tr>
+                    <tr><td>Reset authenticator</td><td>Account security</td><td>2FA is turned off, recovery codes are revoked, the sign-ins on all devices end within a few minutes. On next sign-in the user sets up a new phone. “Authenticator reset.”</td><td>The user changed or lost their phone.</td></tr>
+                    <tr><td>Sign out all sessions</td><td>Account security</td><td>All of the user's sign-ins on all devices end within a few minutes; the temporary lockout after failed sign-in attempts is also lifted. “Sessions signed out.”</td><td>The user forgot to sign out on someone else's device; the account needs unlocking after failed sign-ins.</td></tr>
                 </tbody>
             </table>
         </div>
+        <p>“Within a few minutes” means at most 5 minutes, when the access token on the user's device is renewed; open editing pages lose access in about a minute.</p>
         <p>Before resetting a password or an authenticator, make sure the request really comes from the account owner (in person or via a known phone number). Below the card are the “Created” and “Last sign-in” dates. You cannot block your own account.</p>
     </HelpTopicSection>
 
@@ -155,7 +156,7 @@
             <li>“This account has more permissions than you, so the import can't change it.”</li>
             <li>“You can't block your own account.”</li>
         </ul>
-        <p>Blocking through import immediately ends the sessions of the blocked users.</p>
+        <p>Blocking through import ends the sign-ins of the blocked users within a few minutes.</p>
     </HelpTopicSection>
 
     <HelpTopicSection Id="admin-export">
@@ -177,7 +178,7 @@
         <ol class="help-steps">
             <li>In the “Role” card, enter the <span class="help-ui">Code</span> (only when creating: lowercase Latin letters, digits and “-”, up to 64 characters, for example <code class="ds-code">project-manager</code> — used in import), the <span class="help-ui">Name</span> (required) and the <span class="help-ui">Description</span>. The <span class="help-ui">Managerial position</span> checkbox lists holders of the role first among the unit's staff, with the “Head” badge.</li>
             <li>In the “Permissions” card, check the permissions you need — they are grouped by module, each with a description.</li>
-            <li>Click <span class="help-ui">Save</span> — “Role saved”. The changes take effect for all holders of the role within a minute.</li>
+            <li>Click <span class="help-ui">Save</span> — “Role saved”. The changes take effect for all holders of the role within 5 minutes at most, without signing in again.</li>
         </ol>
         <ul>
             <li>The names, descriptions and permissions of system roles can be changed (for example, rename “Head of organization” to “Rector” or “CEO”), but the system roles themselves can't be deleted. The “System administrator” role always has all permissions.</li>

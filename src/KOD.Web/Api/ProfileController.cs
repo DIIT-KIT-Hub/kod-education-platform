@@ -63,33 +63,19 @@ public sealed class ProfileController(IProfileService profile, UserManager<User>
     }
 
     /// <summary>
-    /// Lists active sessions.
-    /// </summary>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>The sessions.</returns>
-    [HttpGet("sessions")]
-    public async Task<ActionResult<IReadOnlyList<SessionDto>>> Sessions(CancellationToken cancellationToken)
-        => FromResult(await profile.GetSessionsAsync(cancellationToken));
-
-    /// <summary>
-    /// Ends a session.
-    /// </summary>
-    /// <param name="id">The session identifier.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>204 on success.</returns>
-    [HttpDelete("sessions/{id:guid}")]
-    public async Task<ActionResult> RevokeSession(Guid id, CancellationToken cancellationToken)
-        => FromResult(await profile.RevokeSessionAsync(id, cancellationToken));
-
-    /// <summary>
-    /// Ends all sessions except the current one.
+    /// Signs out on every other device: tokens issued before are no longer renewed, this browser gets new ones.
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>204 on success.</returns>
-    [HttpDelete("sessions")]
-    public async Task<ActionResult> RevokeOtherSessions(CancellationToken cancellationToken)
+    [HttpPost("sign-out-everywhere")]
+    public async Task<ActionResult> SignOutEverywhere(CancellationToken cancellationToken)
     {
-        var result = await profile.RevokeOtherSessionsAsync(cancellationToken);
+        var result = await profile.SignOutEverywhereAsync(cancellationToken);
+        if (result.IsSuccess && await userManager.GetUserAsync(User) is { } user)
+        {
+            await signInManager.RefreshSignInAsync(user);
+        }
+
         return result.IsSuccess ? NoContent() : ProblemFor(result.Error);
     }
 }

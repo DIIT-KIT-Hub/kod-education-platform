@@ -28,6 +28,10 @@ internal sealed class UserConfiguration : IEntityTypeConfiguration<User>
 
         builder.HasIndex(static u => new { u.LastName, u.FirstName });
 
+        // The Identity indexes (EmailIndex, UserNameIndex) in the snake_case style of the database.
+        builder.HasIndex(static u => u.NormalizedEmail).HasDatabaseName("ix_users_normalized_email");
+        builder.HasIndex(static u => u.NormalizedUserName).HasDatabaseName("ix_users_normalized_user_name");
+
         builder.HasMany(static u => u.Positions)
             .WithOne(static p => p.User)
             .HasForeignKey(static p => p.UserId)

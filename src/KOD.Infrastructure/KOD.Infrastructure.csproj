@@ -23,6 +23,8 @@
     <PackageReference Include="NetVips.Native" />
     <PackageReference Include="Microsoft.AspNetCore.DataProtection.EntityFrameworkCore" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" />
+    <!-- JWT access tokens (ES256): the token handler used by ASP.NET Core JwtBearer. -->
+    <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
     <PackageReference Include="System.Security.Cryptography.Pkcs" />
   </ItemGroup>

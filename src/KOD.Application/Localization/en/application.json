@@ -44,6 +44,7 @@
   "Роль не знайдено.": "The role was not found.",
   "Код ролі може містити лише малі латинські літери, цифри та «-».": "The role code may contain only lowercase Latin letters, digits and “-”.",
   "Роль із кодом «{0}» вже існує.": "A role with the code “{0}” already exists.",
+  "Роль із назвою «{0}» вже існує.": "A role named “{0}” already exists.",
   "Системну роль не можна видалити.": "A system role cannot be deleted.",
   "Роль призначена користувачам — спочатку змініть їхні посади.": "The role is assigned to users — change their positions first.",
   "Користувача не знайдено.": "The user was not found.",

@@ -18,6 +18,33 @@ public sealed class AccessTests
     }
 
     [Fact]
+    public void Role_permissions_are_identity_role_claims_and_the_name_is_normalized()
+    {
+        var role = new Role("custom", "  Власна роль ", null, isSystem: false);
+
+        role.SetPermissions([Permissions.News.View, Permissions.Documents.View]);
+        role.SetPermissions([Permissions.News.View]);
+
+        var claim = Assert.Single(role.Permissions);
+        Assert.Equal(PermissionClaimTypes.Permission, claim.ClaimType);
+        Assert.Equal(Permissions.News.View, claim.ClaimValue);
+        Assert.Equal("Власна роль", role.Name);
+        Assert.Equal("ВЛАСНА РОЛЬ", role.NormalizedName);
+    }
+
+    [Fact]
+    public void Permission_overrides_are_identity_user_claims()
+    {
+        var user = new User("hr@example.com", "Поліщук", "Оксана", null);
+
+        user.SetPermissionOverrides([Permissions.Users.View], [Permissions.News.Manage]);
+
+        Assert.Contains(user.PermissionOverrides, static o => o.ClaimType == PermissionClaimTypes.Permission && o.ClaimValue == Permissions.Users.View);
+        Assert.Contains(user.PermissionOverrides, static o => o.ClaimType == PermissionClaimTypes.DeniedPermission && o.ClaimValue == Permissions.News.Manage);
+        Assert.All(user.PermissionOverrides, o => Assert.Equal(user.Id, o.UserId));
+    }
+
+    [Fact]
     public void Unknown_permissions_are_rejected()
     {
         var role = new Role("custom", "Власна роль", null, isSystem: false);

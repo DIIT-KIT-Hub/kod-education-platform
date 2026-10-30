@@ -178,14 +178,14 @@ internal sealed class AccessScope(IApplicationDbContext db, ICurrentUser current
             {
                 p.OrganizationUnitId,
                 p.Role!.Code,
-                Permissions = p.Role.Permissions.Select(static rp => rp.Permission).ToList(),
+                Permissions = p.Role.Permissions.Where(static rp => rp.ClaimType == PermissionClaimTypes.Permission).Select(static rp => rp.ClaimValue!).ToList(),
             })
             .ToListAsync(cancellationToken);
 
         var granted = await db.UserPermissionOverrides
             .AsNoTracking()
-            .Where(o => o.UserId == userId && o.IsGranted)
-            .Select(static o => o.Permission)
+            .Where(o => o.UserId == userId && o.ClaimType == PermissionClaimTypes.Permission)
+            .Select(static o => o.ClaimValue!)
             .ToListAsync(cancellationToken);
 
         return _positions =

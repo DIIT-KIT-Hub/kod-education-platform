@@ -16,14 +16,13 @@ namespace KOD.Application.Features.Users;
 /// <param name="IsLockedOut">Whether the account is temporarily locked out.</param>
 /// <param name="CreatedAt">The creation moment.</param>
 /// <param name="LastSignInAt">The last sign-in moment.</param>
-/// <param name="ActiveSessions">The number of active sessions.</param>
 /// <param name="Positions">The positions.</param>
 /// <param name="GrantedPermissions">Individually granted permissions.</param>
 /// <param name="DeniedPermissions">Individually denied permissions.</param>
 /// <param name="EffectivePermissions">The resulting permissions.</param>
 /// <param name="CanEditAccount">Whether the current user may change the account as a whole: personal data, e-mail, status and individual permissions.</param>
 /// <param name="CanEditPositions">Whether the current user may change the positions in the organizations they manage.</param>
-/// <param name="CanManageSecurity">Whether the current user may reset the password and authenticator and end the sessions.</param>
+/// <param name="CanManageSecurity">Whether the current user may reset the password and authenticator and end the sign-ins.</param>
 /// <param name="PhotoId">The profile photo, if uploaded.</param>
 public sealed record UserDetails(
     Guid Id,
@@ -39,7 +38,6 @@ public sealed record UserDetails(
     bool IsLockedOut,
     DateTimeOffset CreatedAt,
     DateTimeOffset? LastSignInAt,
-    int ActiveSessions,
     IReadOnlyList<UserPositionDto> Positions,
     IReadOnlyList<string> GrantedPermissions,
     IReadOnlyList<string> DeniedPermissions,

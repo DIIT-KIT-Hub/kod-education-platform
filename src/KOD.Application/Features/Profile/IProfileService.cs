@@ -59,24 +59,10 @@ public interface IProfileService
     Task<Result<IReadOnlyList<string>>> RegenerateRecoveryCodesAsync(string authenticatorCode, CancellationToken cancellationToken);
 
     /// <summary>
-    /// Lists the current user's active sessions.
+    /// Ends every sign-in of the current user: the security stamp changes, so tokens issued before stop being renewed
+    /// (at most one access token lifetime later). The caller re-issues the tokens of the current browser to keep it signed in.
     /// </summary>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>The sessions.</returns>
-    Task<Result<IReadOnlyList<SessionDto>>> GetSessionsAsync(CancellationToken cancellationToken);
-
-    /// <summary>
-    /// Ends one of the current user's sessions.
-    /// </summary>
-    /// <param name="sessionId">The session identifier.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The result.</returns>
-    Task<Result> RevokeSessionAsync(Guid sessionId, CancellationToken cancellationToken);
-
-    /// <summary>
-    /// Ends all sessions except the current one.
-    /// </summary>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>The number of ended sessions.</returns>
-    Task<Result<int>> RevokeOtherSessionsAsync(CancellationToken cancellationToken);
+    Task<Result> SignOutEverywhereAsync(CancellationToken cancellationToken);
 }

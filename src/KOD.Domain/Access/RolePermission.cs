@@ -1,9 +1,12 @@
+using Microsoft.AspNetCore.Identity;
+
 namespace KOD.Domain.Access;
 
 /// <summary>
-/// A permission granted by a <see cref="Role"/>.
+/// A permission granted by a <see cref="Role"/>: an Identity role claim of type <see cref="PermissionClaimTypes.Permission"/>
+/// whose value is the permission code (table <c>role_claims</c>).
 /// </summary>
-public sealed class RolePermission
+public sealed class RolePermission : IdentityRoleClaim<Guid>
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="RolePermission"/> class.
@@ -13,16 +16,15 @@ public sealed class RolePermission
     public RolePermission(Guid roleId, string permission)
     {
         RoleId = roleId;
-        Permission = permission;
+        ClaimType = PermissionClaimTypes.Permission;
+        ClaimValue = permission;
     }
 
     /// <summary>
-    /// Gets the role identifier.
+    /// Initializes a new instance of the <see cref="RolePermission"/> class for EF Core and the Identity role store
+    /// (<see cref="RoleManager{TRole}.AddClaimAsync"/>), which fill the properties afterwards.
     /// </summary>
-    public Guid RoleId { get; private set; }
-
-    /// <summary>
-    /// Gets the permission code.
-    /// </summary>
-    public string Permission { get; private set; }
+    public RolePermission()
+    {
+    }
 }

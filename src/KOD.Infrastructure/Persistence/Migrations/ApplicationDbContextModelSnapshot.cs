@@ -38,6 +38,11 @@ namespace KOD.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(64)")
                         .HasColumnName("code");
 
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasColumnType("text")
+                        .HasColumnName("concurrency_stamp");
+
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
@@ -61,6 +66,12 @@ namespace KOD.Infrastructure.Persistence.Migrations
                         .HasColumnType("citext")
                         .HasColumnName("name");
 
+                    b.Property<string>("NormalizedName")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)")
+                        .HasColumnName("normalized_name");
+
                     b.Property<DateTimeOffset?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
@@ -72,45 +83,81 @@ namespace KOD.Infrastructure.Persistence.Migrations
                         .IsUnique()
                         .HasDatabaseName("ix_roles_code");
 
+                    b.HasIndex("NormalizedName")
+                        .IsUnique()
+                        .HasDatabaseName("ix_roles_normalized_name");
+
                     b.ToTable("roles", (string)null);
                 });
 
             modelBuilder.Entity("KOD.Domain.Access.RolePermission", b =>
                 {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ClaimType")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("claim_type");
+
+                    b.Property<string>("ClaimValue")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("claim_value");
+
                     b.Property<Guid>("RoleId")
                         .HasColumnType("uuid")
                         .HasColumnName("role_id");
 
-                    b.Property<string>("Permission")
-                        .HasMaxLength(64)
-                        .HasColumnType("character varying(64)")
-                        .HasColumnName("permission");
+                    b.HasKey("Id")
+                        .HasName("pk_role_claims");
 
-                    b.HasKey("RoleId", "Permission")
-                        .HasName("pk_role_permissions");
+                    b.HasIndex("RoleId", "ClaimType", "ClaimValue")
+                        .IsUnique()
+                        .HasDatabaseName("ix_role_claims_role_id_claim_type_claim_value");
 
-                    b.ToTable("role_permissions", (string)null);
+                    b.ToTable("role_claims", (string)null);
                 });
 
             modelBuilder.Entity("KOD.Domain.Access.UserPermissionOverride", b =>
                 {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ClaimType")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("claim_type");
+
+                    b.Property<string>("ClaimValue")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("claim_value");
+
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid")
                         .HasColumnName("user_id");
 
-                    b.Property<string>("Permission")
-                        .HasMaxLength(64)
-                        .HasColumnType("character varying(64)")
-                        .HasColumnName("permission");
+                    b.HasKey("Id")
+                        .HasName("pk_user_claims");
 
-                    b.Property<bool>("IsGranted")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_granted");
+                    b.HasIndex("UserId", "ClaimType", "ClaimValue")
+                        .IsUnique()
+                        .HasDatabaseName("ix_user_claims_user_id_claim_type_claim_value");
 
-                    b.HasKey("UserId", "Permission")
-                        .HasName("pk_user_permission_overrides");
-
-                    b.ToTable("user_permission_overrides", (string)null);
+                    b.ToTable("user_claims", (string)null);
                 });
 
             modelBuilder.Entity("KOD.Domain.Audit.AuditEntry", b =>
@@ -883,55 +930,6 @@ namespace KOD.Infrastructure.Persistence.Migrations
                     b.ToTable("unit_types", (string)null);
                 });
 
-            modelBuilder.Entity("KOD.Domain.Sessions.UserSession", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at");
-
-                    b.Property<DateTimeOffset?>("ExpiresAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("expires_at");
-
-                    b.Property<string>("IpAddress")
-                        .HasMaxLength(64)
-                        .HasColumnType("character varying(64)")
-                        .HasColumnName("ip_address");
-
-                    b.Property<DateTimeOffset>("LastSeenAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("last_seen_at");
-
-                    b.Property<byte[]>("Ticket")
-                        .IsRequired()
-                        .HasColumnType("bytea")
-                        .HasColumnName("ticket");
-
-                    b.Property<string>("UserAgent")
-                        .HasMaxLength(512)
-                        .HasColumnType("character varying(512)")
-                        .HasColumnName("user_agent");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("user_id");
-
-                    b.HasKey("Id")
-                        .HasName("pk_user_sessions");
-
-                    b.HasIndex("ExpiresAt")
-                        .HasDatabaseName("ix_user_sessions_expires_at");
-
-                    b.HasIndex("UserId")
-                        .HasDatabaseName("ix_user_sessions_user_id");
-
-                    b.ToTable("user_sessions", (string)null);
-                });
-
             modelBuilder.Entity("KOD.Domain.Users.StaffPosition", b =>
                 {
                     b.Property<Guid>("Id")
@@ -960,19 +958,19 @@ namespace KOD.Infrastructure.Persistence.Migrations
                         .HasColumnName("user_id");
 
                     b.HasKey("Id")
-                        .HasName("pk_staff_positions");
+                        .HasName("pk_user_roles");
 
                     b.HasIndex("OrganizationUnitId")
-                        .HasDatabaseName("ix_staff_positions_organization_unit_id");
+                        .HasDatabaseName("ix_user_roles_organization_unit_id");
 
                     b.HasIndex("RoleId")
-                        .HasDatabaseName("ix_staff_positions_role_id");
+                        .HasDatabaseName("ix_user_roles_role_id");
 
                     b.HasIndex("UserId", "OrganizationUnitId", "RoleId")
                         .IsUnique()
-                        .HasDatabaseName("ix_staff_positions_user_id_organization_unit_id_role_id");
+                        .HasDatabaseName("ix_user_roles_user_id_organization_unit_id_role_id");
 
-                    b.ToTable("staff_positions", (string)null);
+                    b.ToTable("user_roles", (string)null);
                 });
 
             modelBuilder.Entity("KOD.Domain.Users.User", b =>
@@ -1093,11 +1091,11 @@ namespace KOD.Infrastructure.Persistence.Migrations
                         .HasName("pk_users");
 
                     b.HasIndex("NormalizedEmail")
-                        .HasDatabaseName("EmailIndex");
+                        .HasDatabaseName("ix_users_normalized_email");
 
                     b.HasIndex("NormalizedUserName")
                         .IsUnique()
-                        .HasDatabaseName("UserNameIndex");
+                        .HasDatabaseName("ix_users_normalized_user_name");
 
                     b.HasIndex("PhotoId")
                         .HasDatabaseName("ix_users_photo_id");
@@ -1106,6 +1104,80 @@ namespace KOD.Infrastructure.Persistence.Migrations
                         .HasDatabaseName("ix_users_last_name_first_name");
 
                     b.ToTable("users", (string)null);
+                });
+
+            modelBuilder.Entity("KOD.Infrastructure.Identity.Tokens.RefreshTokenFamily", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("AuthenticationMethod")
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasColumnName("authentication_method");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateTimeOffset>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("expires_at");
+
+                    b.Property<int>("Generation")
+                        .IsConcurrencyToken()
+                        .HasColumnType("integer")
+                        .HasColumnName("generation");
+
+                    b.Property<string>("IpAddress")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("ip_address");
+
+                    b.Property<bool>("IsPersistent")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_persistent");
+
+                    b.Property<DateTimeOffset>("LastUsedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_used_at");
+
+                    b.Property<byte[]>("ProtectedKey")
+                        .IsRequired()
+                        .HasMaxLength(512)
+                        .HasColumnType("bytea")
+                        .HasColumnName("protected_key");
+
+                    b.Property<DateTimeOffset?>("RotatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("rotated_at");
+
+                    b.Property<string>("SecurityStamp")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)")
+                        .HasColumnName("security_stamp");
+
+                    b.Property<string>("UserAgent")
+                        .HasMaxLength(512)
+                        .HasColumnType("character varying(512)")
+                        .HasColumnName("user_agent");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_refresh_token_families");
+
+                    b.HasIndex("ExpiresAt")
+                        .HasDatabaseName("ix_refresh_token_families_expires_at");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("ix_refresh_token_families_user_id");
+
+                    b.ToTable("refresh_token_families", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.DataProtection.EntityFrameworkCore.DataProtectionKey", b =>
@@ -1129,36 +1201,6 @@ namespace KOD.Infrastructure.Persistence.Migrations
                         .HasName("pk_data_protection_keys");
 
                     b.ToTable("data_protection_keys", (string)null);
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<System.Guid>", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("ClaimType")
-                        .HasColumnType("text")
-                        .HasColumnName("claim_type");
-
-                    b.Property<string>("ClaimValue")
-                        .HasColumnType("text")
-                        .HasColumnName("claim_value");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("user_id");
-
-                    b.HasKey("Id")
-                        .HasName("pk_user_claims");
-
-                    b.HasIndex("UserId")
-                        .HasDatabaseName("ix_user_claims_user_id");
-
-                    b.ToTable("user_claims", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<System.Guid>", b =>
@@ -1219,7 +1261,7 @@ namespace KOD.Infrastructure.Persistence.Migrations
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_role_permissions_roles_role_id");
+                        .HasConstraintName("fk_role_claims_roles_role_id");
                 });
 
             modelBuilder.Entity("KOD.Domain.Access.UserPermissionOverride", b =>
@@ -1229,7 +1271,7 @@ namespace KOD.Infrastructure.Persistence.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_user_permission_overrides_users_user_id");
+                        .HasConstraintName("fk_user_claims_users_user_id");
                 });
 
             modelBuilder.Entity("KOD.Domain.Documents.Document", b =>
@@ -1365,7 +1407,7 @@ namespace KOD.Infrastructure.Persistence.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_news_reactions_asp_net_users_user_id");
+                        .HasConstraintName("fk_news_reactions_users_user_id");
                 });
 
             modelBuilder.Entity("KOD.Domain.News.NewsView", b =>
@@ -1382,7 +1424,7 @@ namespace KOD.Infrastructure.Persistence.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_news_views_asp_net_users_user_id");
+                        .HasConstraintName("fk_news_views_users_user_id");
                 });
 
             modelBuilder.Entity("KOD.Domain.Organization.OrganizationUnit", b =>
@@ -1412,21 +1454,21 @@ namespace KOD.Infrastructure.Persistence.Migrations
                         .HasForeignKey("OrganizationUnitId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
-                        .HasConstraintName("fk_staff_positions_organization_units_organization_unit_id");
+                        .HasConstraintName("fk_user_roles_organization_units_organization_unit_id");
 
                     b.HasOne("KOD.Domain.Access.Role", "Role")
                         .WithMany()
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
-                        .HasConstraintName("fk_staff_positions_roles_role_id");
+                        .HasConstraintName("fk_user_roles_roles_role_id");
 
                     b.HasOne("KOD.Domain.Users.User", "User")
                         .WithMany("Positions")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_staff_positions_users_user_id");
+                        .HasConstraintName("fk_user_roles_users_user_id");
 
                     b.Navigation("OrganizationUnit");
 
@@ -1444,14 +1486,14 @@ namespace KOD.Infrastructure.Persistence.Migrations
                         .HasConstraintName("fk_users_media_files_photo_id");
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<System.Guid>", b =>
+            modelBuilder.Entity("KOD.Infrastructure.Identity.Tokens.RefreshTokenFamily", b =>
                 {
                     b.HasOne("KOD.Domain.Users.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_user_claims_asp_net_users_user_id");
+                        .HasConstraintName("fk_refresh_token_families_users_user_id");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<System.Guid>", b =>
@@ -1461,7 +1503,7 @@ namespace KOD.Infrastructure.Persistence.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_user_logins_asp_net_users_user_id");
+                        .HasConstraintName("fk_user_logins_users_user_id");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<System.Guid>", b =>
@@ -1471,7 +1513,7 @@ namespace KOD.Infrastructure.Persistence.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_user_tokens_asp_net_users_user_id");
+                        .HasConstraintName("fk_user_tokens_users_user_id");
                 });
 
             modelBuilder.Entity("KOD.Domain.Access.Role", b =>

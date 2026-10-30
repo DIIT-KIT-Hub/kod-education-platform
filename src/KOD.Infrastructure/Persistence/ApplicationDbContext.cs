@@ -6,20 +6,25 @@ using KOD.Domain.Documents;
 using KOD.Domain.Media;
 using KOD.Domain.News;
 using KOD.Domain.Organization;
-using KOD.Domain.Sessions;
 using KOD.Domain.Users;
+using KOD.Infrastructure.Identity.Tokens;
 using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace KOD.Infrastructure.Persistence;
 
 /// <summary>
-/// The EF Core database context (PostgreSQL). Identity provides only the user store; roles and permissions are domain entities.
+/// The EF Core database context (PostgreSQL) with the complete ASP.NET Core Identity schema: <c>users</c>, <c>roles</c>,
+/// <c>user_roles</c> (positions: a role in an organization unit), <c>role_claims</c> (role permissions), <c>user_claims</c>
+/// (individual permission adjustments), <c>user_logins</c> and <c>user_tokens</c> (authenticator key, recovery codes).
 /// </summary>
 /// <param name="options">The context options.</param>
 public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
-    : IdentityUserContext<User, Guid>(options), IApplicationDbContext, IDataProtectionKeyContext
+    : IdentityDbContext<User, Role, Guid, UserPermissionOverride, StaffPosition, IdentityUserLogin<Guid>, RolePermission, IdentityUserToken<Guid>>(options),
+        IApplicationDbContext,
+        IDataProtectionKeyContext
 {
     /// <summary>
     /// The name of the sequence that issues document registration numbers.
@@ -27,13 +32,10 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
     public const string DocumentNumberSequence = "document_number_seq";
 
     /// <inheritdoc />
-    public DbSet<StaffPosition> StaffPositions => Set<StaffPosition>();
+    public DbSet<StaffPosition> StaffPositions => UserRoles;
 
     /// <inheritdoc />
-    public DbSet<UserPermissionOverride> UserPermissionOverrides => Set<UserPermissionOverride>();
-
-    /// <inheritdoc />
-    public DbSet<Role> Roles => Set<Role>();
+    public DbSet<UserPermissionOverride> UserPermissionOverrides => UserClaims;
 
     /// <inheritdoc />
     public DbSet<OrganizationUnit> OrganizationUnits => Set<OrganizationUnit>();
@@ -72,10 +74,12 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
     public DbSet<AuditEntry> AuditEntries => Set<AuditEntry>();
 
     /// <inheritdoc />
-    public DbSet<UserSession> UserSessions => Set<UserSession>();
-
-    /// <inheritdoc />
     public DbSet<DataProtectionKey> DataProtectionKeys => Set<DataProtectionKey>();
+
+    /// <summary>
+    /// Gets the refresh token families: one per sign-in, the only server-side state of the JWT authentication.
+    /// </summary>
+    public DbSet<RefreshTokenFamily> RefreshTokenFamilies => Set<RefreshTokenFamily>();
 
     /// <inheritdoc />
     public void DiscardChanges() => ChangeTracker.Clear();
@@ -108,8 +112,18 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
         builder.HasSequence<long>(DocumentNumberSequence);
         builder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
 
+        // Constraint names were derived from the default Identity table name (AspNetUsers) before it was renamed.
+        foreach (var foreignKey in builder.Model.GetEntityTypes().SelectMany(static t => t.GetForeignKeys()))
+        {
+            if (foreignKey.GetConstraintName() is { } name && name.Contains("_asp_net_users_", StringComparison.Ordinal))
+            {
+                foreignKey.SetConstraintName(name.Replace("_asp_net_users_", "_users_", StringComparison.Ordinal));
+            }
+        }
+
         // Keys are UUID v7 assigned by the domain; new entities reachable through navigations must be inserted, not updated.
-        foreach (var entityType in builder.Model.GetEntityTypes().Where(static t => typeof(Entity).IsAssignableFrom(t.ClrType) || t.ClrType == typeof(User)))
+        Type[] identityEntities = [typeof(User), typeof(Role), typeof(StaffPosition)];
+        foreach (var entityType in builder.Model.GetEntityTypes().Where(t => typeof(Entity).IsAssignableFrom(t.ClrType) || identityEntities.Contains(t.ClrType)))
         {
             builder.Entity(entityType.ClrType).Property(nameof(Entity.Id)).ValueGeneratedNever();
         }

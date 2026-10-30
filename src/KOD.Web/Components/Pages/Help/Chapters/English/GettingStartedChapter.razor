@@ -7,7 +7,7 @@
             <li>sign and verify any files;</li>
             <li>read news and announcements;</li>
             <li>browse the organizational structure: organizations, their departments, divisions, branches and employees;</li>
-            <li>manage their own profile, password, two-factor authentication and sessions.</li>
+            <li>manage their own profile, password, two-factor authentication and sign-ins on other devices.</li>
         </ul>
         <p>Administrators and responsible employees also manage users (including import and export), roles and permissions, organizations and their structure, unit types and news, and review the audit log.</p>
         <p>The cabinet works in any modern browser (Chrome, Edge, Firefox, Safari) on a computer, tablet or phone. Nothing needs to be installed.</p>
@@ -49,7 +49,7 @@
             <li>At the beginning of each section of this manual there is a badge: <Badge Tone="Tone.Inverse" Icon="circle-check">Available to you</Badge>, <Badge Tone="Tone.Dashed" Icon="users">For all users</Badge> or <Badge Tone="Tone.Outline" Icon="lock">Permission required</Badge> with the name of the required permission.</li>
         </ul>
         <p>The full list of roles and permissions is in the “<a href="/help#roles">Roles and permissions</a>” chapter. If you need access to a module, contact the head of your unit or the system administrator. Trying to open an unavailable page shows “Access restricted” — “You don't have access to this section”.</p>
-        <p>Changes to permissions take effect within a minute, without signing in again.</p>
+        <p>Changes to permissions take effect within 5 minutes at most, without signing in again (on open editing pages — in about a minute).</p>
     </HelpTopicSection>
 
     <HelpTopicSection Id="intro-glossary">
@@ -66,7 +66,7 @@
                     <tr><td>SHA-256</td><td>The “fingerprint” of a file. Any change to the file changes the fingerprint; before signing, the browser compares it with the registered one, so a modified document cannot be signed.</td></tr>
                     <tr><td>2FA / authenticator</td><td>Two-factor authentication: in addition to the password, sign-in is confirmed with a one-time code from an app on your phone.</td></tr>
                     <tr><td>Recovery codes</td><td>One-time codes for signing in without your phone.</td></tr>
-                    <tr><td>Session</td><td>A sign-in from a particular browser on a particular device.</td></tr>
+                    <tr><td>Session (sign-in)</td><td>A sign-in from a particular browser on a particular device. It ends after 1 hour of inactivity, no later than 12 hours after sign-in, or when you sign out. Sign-ins on other devices can be ended on the “Security” tab of your profile.</td></tr>
                     <tr><td>Role / permission</td><td>A permission is the right to perform a specific action; a role is a set of permissions assigned together with a position.</td></tr>
                     <tr><td>Organization</td><td>A top-level (or nested) unit whose type is marked as an organization: a company, agency, institution, foundation. One cabinet can contain several.</td></tr>
                     <tr><td>Unit / unit type</td><td>A part of an organization (department, division, sector, branch…). The type sets the level name and icon and is configured by an administrator.</td></tr>

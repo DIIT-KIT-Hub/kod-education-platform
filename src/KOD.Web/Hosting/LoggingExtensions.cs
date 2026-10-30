@@ -79,7 +79,7 @@ internal static class LoggingExtensions
                 options.EnrichDiagnosticContext = static (diagnostics, context) =>
                 {
                     diagnostics.Set("ClientIp", context.Connection.RemoteIpAddress?.ToString());
-                    diagnostics.Set("UserId", context.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value);
+                    diagnostics.Set("UserId", context.User.FindFirst(KOD.Infrastructure.Identity.AppClaimTypes.Subject)?.Value);
                 };
             });
 

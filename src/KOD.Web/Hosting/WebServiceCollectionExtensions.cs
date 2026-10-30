@@ -1,26 +1,24 @@
 using System.Net;
-using System.Security.Claims;
 using System.Text.Json.Serialization;
 using System.Threading.RateLimiting;
 using KOD.Application.Abstractions;
 using KOD.Domain.Localization;
-using KOD.Infrastructure.Identity;
+using KOD.Infrastructure.Identity.Tokens;
 using KOD.Web.Identity;
 using KOD.Web.Localization;
 using KOD.Web.Security;
 using KOD.Web.Signing;
-using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Server.Circuits;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Options;
 
 namespace KOD.Web.Hosting;
 
 /// <summary>
-/// Registers the presentation layer: Blazor, REST API, authentication cookies, authorization and security services.
+/// Registers the presentation layer: Blazor, REST API, JWT authentication, authorization and security services.
 /// </summary>
 internal static class WebServiceCollectionExtensions
 {
@@ -41,7 +39,7 @@ internal static class WebServiceCollectionExtensions
             services.AddExceptionHandler<ApiExceptionHandler>();
             services.AddOpenApi();
 
-            services.AddCookieAuthentication();
+            services.AddJwtAuthentication();
             services.AddPermissionAuthorization();
             services.AddRateLimiting();
             services.AddTrustedProxies(configuration);
@@ -57,7 +55,6 @@ internal static class WebServiceCollectionExtensions
             services.AddScoped<CircuitUserAccessor>();
             services.AddScoped<CurrentUser>();
             services.AddScoped<ICurrentUser>(static sp => sp.GetRequiredService<CurrentUser>());
-            services.AddScoped<ISessionContext>(static sp => sp.GetRequiredService<CurrentUser>());
             services.AddScoped<CircuitHandler, UserCircuitHandler>();
             services.AddScoped<IdentityRedirectManager>();
 
@@ -93,72 +90,18 @@ internal static class WebServiceCollectionExtensions
         }
 
         /// <summary>
-        /// Configures the ASP.NET Core Identity cookies (session authentication).
+        /// Configures stateless JWT authentication: <see cref="JwtAuthenticationHandler"/> for signed-in users and
+        /// <see cref="TwoFactorJwtHandler"/> for the step between the password and the second factor.
         /// </summary>
         /// <returns>The service collection.</returns>
-        private IServiceCollection AddCookieAuthentication()
+        private IServiceCollection AddJwtAuthentication()
         {
             services.AddCascadingAuthenticationState();
             services.AddScoped<AuthenticationStateProvider, IdentityRevalidatingAuthenticationStateProvider>();
 
-            services.AddAuthentication(static options =>
-                {
-                    options.DefaultScheme = IdentityConstants.ApplicationScheme;
-                    options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
-                })
-                .AddIdentityCookies(static cookies =>
-                {
-                    cookies.TwoFactorUserIdCookie?.Configure(static options =>
-                    {
-                        options.Cookie.Name = "__Host-kod.2fa";
-                        options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-                        options.Cookie.SameSite = SameSiteMode.Strict;
-                        options.ExpireTimeSpan = TimeSpan.FromMinutes(10);
-                    });
-                });
-
-            services.ConfigureApplicationCookie(static options =>
-            {
-                options.Cookie.Name = "__Host-kod";
-                options.Cookie.HttpOnly = true;
-                options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-                options.Cookie.SameSite = SameSiteMode.Lax;
-                options.SlidingExpiration = true;
-                options.LoginPath = "/account/login";
-                options.LogoutPath = "/account/logout";
-                options.AccessDeniedPath = "/account/access-denied";
-                options.ReturnUrlParameter = "returnUrl";
-
-                // API clients get status codes instead of HTML redirects.
-                options.Events.OnRedirectToLogin = static context => RedirectOrStatus(context.HttpContext, context.RedirectUri, StatusCodes.Status401Unauthorized);
-                options.Events.OnRedirectToAccessDenied = static context => RedirectOrStatus(context.HttpContext, context.RedirectUri, StatusCodes.Status403Forbidden);
-            });
-
-            // Idle timeout (sliding); the absolute lifetime is enforced by the server-side ticket store.
-            services.AddOptions<CookieAuthenticationOptions>(IdentityConstants.ApplicationScheme)
-                .Configure<IOptions<SessionLifetimeOptions>>(static (options, lifetime) => options.ExpireTimeSpan = lifetime.Value.IdleTimeout);
-
-            // Permissions are re-read from the database every minute (claims factory). The rebuilt principal keeps the claims
-            // that describe the sign-in itself rather than the user: the server-side session and the authentication methods.
-            services.Configure<SecurityStampValidatorOptions>(static options =>
-            {
-                options.ValidationInterval = TimeSpan.FromMinutes(1);
-                options.OnRefreshingPrincipal = static context =>
-                {
-                    if (context.NewPrincipal?.Identity is ClaimsIdentity identity && context.CurrentPrincipal is { } current)
-                    {
-                        foreach (var type in (string[])[AppClaimTypes.SessionId, AppClaimTypes.AuthenticationMethod])
-                        {
-                            if (identity.FindFirst(type) is null)
-                            {
-                                identity.AddClaims(current.FindAll(type).Select(static c => new Claim(c.Type, c.Value)));
-                            }
-                        }
-                    }
-
-                    return Task.CompletedTask;
-                };
-            });
+            services.AddAuthentication(JwtDefaults.AuthenticationScheme)
+                .AddScheme<JwtAuthenticationOptions, JwtAuthenticationHandler>(JwtDefaults.AuthenticationScheme, static _ => { })
+                .AddScheme<AuthenticationSchemeOptions, TwoFactorJwtHandler>(IdentityConstants.TwoFactorUserIdScheme, static _ => { });
 
             return services;
         }
@@ -253,26 +196,5 @@ internal static class WebServiceCollectionExtensions
 
             return services;
         }
-    }
-
-    /// <summary>
-    /// Redirects browser requests and returns a status code for API requests.
-    /// </summary>
-    /// <param name="context">The HTTP context.</param>
-    /// <param name="redirectUri">The redirect target.</param>
-    /// <param name="status">The status code for API requests.</param>
-    /// <returns>A completed task.</returns>
-    private static Task RedirectOrStatus(HttpContext context, string redirectUri, int status)
-    {
-        if (context.Request.Path.StartsWithSegments("/api", StringComparison.OrdinalIgnoreCase))
-        {
-            context.Response.StatusCode = status;
-        }
-        else
-        {
-            context.Response.Redirect(redirectUri);
-        }
-
-        return Task.CompletedTask;
     }
 }

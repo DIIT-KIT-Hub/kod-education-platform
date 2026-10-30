@@ -118,7 +118,6 @@ internal sealed class UserService(
         }
 
         var now = timeProvider.GetUtcNow();
-        var sessions = await db.UserSessions.CountAsync(s => s.UserId == id && (s.ExpiresAt == null || s.ExpiresAt > now), cancellationToken);
         var effective = await permissions.GetEffectivePermissionsAsync(id, cancellationToken);
         var hierarchy = await UnitHierarchy.LoadAsync(db, cancellationToken);
         var manageScope = await accessScope.GetAdministrationScopeAsync(Permissions.Users.Manage, cancellationToken);
@@ -140,7 +139,6 @@ internal sealed class UserService(
             user.LockoutEnd > now,
             user.CreatedAt,
             user.LastSignInAt,
-            sessions,
             user.Positions
                 .OrderByDescending(static p => p.IsPrimary)
                 .Select(p =>
@@ -157,8 +155,8 @@ internal sealed class UserService(
                         manageScope.Contains(p.OrganizationUnitId));
                 })
                 .ToList(),
-            [.. user.PermissionOverrides.Where(static o => o.IsGranted).Select(static o => o.Permission)],
-            [.. user.PermissionOverrides.Where(static o => !o.IsGranted).Select(static o => o.Permission)],
+            [.. Overrides(user, PermissionClaimTypes.Permission)],
+            [.. Overrides(user, PermissionClaimTypes.DeniedPermission)],
             [.. effective],
             CanEditAccount: withinHierarchy && manageScope.Covers(units),
             CanEditPositions: withinHierarchy && manageScope.Overlaps(units),
@@ -331,7 +329,6 @@ internal sealed class UserService(
         if (result.IsSuccess && !isActive)
         {
             await identity.InvalidateSessionsAsync(user.Value);
-            await db.UserSessions.Where(s => s.UserId == id).ExecuteDeleteAsync(cancellationToken);
         }
 
         return result;
@@ -359,7 +356,7 @@ internal sealed class UserService(
             return result.Error;
         }
 
-        await db.UserSessions.Where(s => s.UserId == id).ExecuteDeleteAsync(cancellationToken);
+        // The new password changed the security stamp: the user's sign-ins end at their next token refresh.
         await audit.WriteAsync(AuditActions.PasswordReset, currentUser.Id, currentUser.DisplayName, $"Скинуто пароль {user.Value.Email}", cancellationToken);
         return new UserCredentials(user.Value.Id, user.Value.Email!, user.Value.FullName, password);
     }
@@ -381,7 +378,6 @@ internal sealed class UserService(
         var result = await identity.ResetAuthenticatorAsync(user.Value);
         if (result.IsSuccess)
         {
-            await db.UserSessions.Where(s => s.UserId == id).ExecuteDeleteAsync(cancellationToken);
             await audit.WriteAsync(AuditActions.AuthenticatorReset, currentUser.Id, currentUser.DisplayName, $"Скинуто автентифікатор {user.Value.Email}", cancellationToken);
         }
 
@@ -403,9 +399,8 @@ internal sealed class UserService(
         }
 
         await identity.InvalidateSessionsAsync(user.Value);
-        var count = await db.UserSessions.Where(s => s.UserId == id).ExecuteDeleteAsync(cancellationToken);
         await identity.UnlockAsync(user.Value);
-        await audit.WriteAsync(AuditActions.SessionRevoked, currentUser.Id, currentUser.DisplayName, $"Завершено {count} сесій {user.Value.Email}", cancellationToken);
+        await audit.WriteAsync(AuditActions.SessionRevoked, currentUser.Id, currentUser.DisplayName, $"Завершено всі входи {user.Value.Email}", cancellationToken);
         return Result.Success();
     }
 
@@ -580,7 +575,6 @@ internal sealed class UserService(
                             if (blocked)
                             {
                                 await identity.InvalidateSessionsAsync(user);
-                                await db.UserSessions.Where(s => s.UserId == user.Id).ExecuteDeleteAsync(ct);
                             }
                         }
                         else
@@ -755,6 +749,15 @@ internal sealed class UserService(
             StringComparison.Ordinal);
 
     /// <summary>
+    /// Gets the individually granted or denied permissions of a loaded user.
+    /// </summary>
+    /// <param name="user">The user with permission overrides.</param>
+    /// <param name="claimType">The override claim type (<see cref="PermissionClaimTypes"/>).</param>
+    /// <returns>The permission codes.</returns>
+    private static HashSet<string> Overrides(User user, string claimType)
+        => user.PermissionOverrides.Where(o => o.ClaimType == claimType).Select(static o => o.ClaimValue!).ToHashSet(StringComparer.Ordinal);
+
+    /// <summary>
     /// Applies the grid filters.
     /// </summary>
     /// <param name="users">The query.</param>
@@ -802,7 +805,7 @@ internal sealed class UserService(
     /// <returns><see langword="true"/> when allowed.</returns>
     private bool CanAssign(Role role)
         => currentUser.Has(Permissions.Roles.Manage)
-            || (!role.IsAdministrator && role.Permissions.All(p => currentUser.Has(p.Permission)));
+            || (!role.IsAdministrator && role.Permissions.All(p => currentUser.Has(p.ClaimValue!)));
 
     /// <summary>
     /// Validates positions: units and roles exist and the roles may be assigned by the current user.
@@ -847,8 +850,8 @@ internal sealed class UserService(
             && Same(user.MiddleName, command.MiddleName)
             && Same(user.PhoneNumber, command.PhoneNumber)
             && (!currentUser.Has(Permissions.Roles.Manage)
-                || (user.PermissionOverrides.Where(static o => o.IsGranted).Select(static o => o.Permission).ToHashSet(StringComparer.Ordinal).SetEquals(command.GrantedPermissions)
-                    && user.PermissionOverrides.Where(static o => !o.IsGranted).Select(static o => o.Permission).ToHashSet(StringComparer.Ordinal).SetEquals(command.DeniedPermissions)));
+                || (Overrides(user, PermissionClaimTypes.Permission).SetEquals(command.GrantedPermissions)
+                    && Overrides(user, PermissionClaimTypes.DeniedPermission).SetEquals(command.DeniedPermissions)));
 
     /// <summary>
     /// Loads a user for a credential operation (<c>users.security</c>).

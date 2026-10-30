@@ -19,7 +19,7 @@ internal sealed class PermissionResolver(IApplicationDbContext db) : IPermission
             .Select(p => new
             {
                 p.Role!.Code,
-                Permissions = p.Role.Permissions.Select(static rp => rp.Permission),
+                Permissions = p.Role.Permissions.Where(static rp => rp.ClaimType == PermissionClaimTypes.Permission).Select(static rp => rp.ClaimValue!),
             })
             .ToListAsync(cancellationToken);
 
@@ -31,11 +31,12 @@ internal sealed class PermissionResolver(IApplicationDbContext db) : IPermission
         var overrides = await db.UserPermissionOverrides
             .AsNoTracking()
             .Where(o => o.UserId == userId)
+            .Select(static o => new { o.ClaimType, o.ClaimValue })
             .ToListAsync(cancellationToken);
 
         var effective = roles.SelectMany(static r => r.Permissions).ToHashSet(StringComparer.Ordinal);
-        effective.UnionWith(overrides.Where(static o => o.IsGranted).Select(static o => o.Permission));
-        effective.ExceptWith(overrides.Where(static o => !o.IsGranted).Select(static o => o.Permission));
+        effective.UnionWith(overrides.Where(static o => o.ClaimType == PermissionClaimTypes.Permission).Select(static o => o.ClaimValue!));
+        effective.ExceptWith(overrides.Where(static o => o.ClaimType == PermissionClaimTypes.DeniedPermission).Select(static o => o.ClaimValue!));
         effective.IntersectWith(Permissions.Codes);
 
         return effective;

@@ -1,17 +1,18 @@
 using System.Security.Cryptography.X509Certificates;
 using KOD.Application.Abstractions;
 using KOD.Application.Features.Users;
+using KOD.Domain.Access;
 using KOD.Domain.Users;
 using KOD.Infrastructure.Auditing;
 using KOD.Infrastructure.Files;
 using KOD.Infrastructure.Identity;
+using KOD.Infrastructure.Identity.Tokens;
 using KOD.Infrastructure.Media;
 using KOD.Infrastructure.Persistence;
 using KOD.Infrastructure.Persistence.Seeding;
 using KOD.Infrastructure.Signatures;
 using KOD.Infrastructure.Spreadsheets;
 using KOD.Infrastructure.Text;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -64,6 +65,7 @@ public static class DependencyInjection
             });
 
             services.Configure<SessionLifetimeOptions>(configuration.GetSection(SessionLifetimeOptions.SectionName));
+            services.Configure<JwtOptions>(configuration.GetSection(JwtOptions.SectionName));
             services.Configure<StorageOptions>(configuration.GetSection(StorageOptions.SectionName));
             services.Configure<SeedOptions>(configuration.GetSection(SeedOptions.SectionName));
 
@@ -83,14 +85,20 @@ public static class DependencyInjection
         }
 
         /// <summary>
-        /// Adds ASP.NET Core Identity (user store, sign-in manager, token providers) and the server-side ticket store
-        /// for the Identity application cookie.
+        /// Adds ASP.NET Core Identity (user and role stores, sign-in manager, token providers) and the token services: the
+        /// ES256 signing key, the JWT access token service and the store of rotating refresh token families.
         /// </summary>
         /// <returns>The service collection.</returns>
         private IServiceCollection AddIdentityServices()
         {
             services.AddIdentityCore<User>(static options =>
                 {
+                    // Registered JWT claim names keep the access tokens compact (RFC 7519 §4.1, OpenID Connect).
+                    options.ClaimsIdentity.UserIdClaimType = AppClaimTypes.Subject;
+                    options.ClaimsIdentity.UserNameClaimType = AppClaimTypes.Name;
+                    options.ClaimsIdentity.EmailClaimType = AppClaimTypes.Email;
+                    options.ClaimsIdentity.RoleClaimType = AppClaimTypes.Role;
+
                     options.User.RequireUniqueEmail = true;
                     options.SignIn.RequireConfirmedAccount = false;
 
@@ -105,6 +113,7 @@ public static class DependencyInjection
                     options.Lockout.MaxFailedAccessAttempts = 5;
                     options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
                 })
+                .AddRoles<Role>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddUserStore<ProtectedUserStore>()
                 .AddSignInManager<AppSignInManager>()
@@ -118,12 +127,10 @@ public static class DependencyInjection
             services.AddSingleton<UserTokenProtector>();
             services.AddHttpContextAccessor();
             services.AddScoped<IIdentityService, IdentityService>();
-            services.AddSingleton<DatabaseTicketStore>();
-            services.AddSingleton<ITicketStore>(static sp => sp.GetRequiredService<DatabaseTicketStore>());
-            services.AddSingleton<IUserSessionValidator>(static sp => sp.GetRequiredService<DatabaseTicketStore>());
-            services.AddOptions<CookieAuthenticationOptions>(IdentityConstants.ApplicationScheme)
-                .Configure<ITicketStore>(static (options, store) => options.SessionStore = store);
-            services.AddHostedService<SessionCleanupService>();
+            services.AddSingleton<JwtSigningKey>();
+            services.AddSingleton<JwtTokenService>();
+            services.AddSingleton<RefreshTokenStore>();
+            services.AddHostedService<RefreshTokenCleanupService>();
 
             return services;
         }

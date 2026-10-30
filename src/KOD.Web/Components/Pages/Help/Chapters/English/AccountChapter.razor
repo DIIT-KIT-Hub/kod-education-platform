@@ -30,7 +30,7 @@
     <HelpTopicSection Id="account-sign-in">
         <ol class="help-steps">
             <li>Enter your <span class="help-ui">Email</span> and <span class="help-ui">Password</span>.</li>
-            <li>If you wish, check <span class="help-ui">Remember me on this device</span> — the session is then kept after the browser is closed. Don't do this on shared computers.</li>
+            <li>If you wish, check <span class="help-ui">Remember me on this device</span> — the sign-in is then kept after the browser is closed (without it, the sign-in ends as soon as you close the browser). Don't do this on shared computers.</li>
             <li>Click <span class="help-ui">Continue</span>.</li>
             <li>On the <span class="help-ui">Authenticator code</span> page, enter the 6-digit code from the app in the <span class="help-ui">Verification code</span> field and click <span class="help-ui">Sign in</span>.</li>
         </ol>
@@ -55,7 +55,7 @@
         <p>After <strong>5 failed attempts</strong> in a row (a wrong password, authenticator code or recovery code), sign-in to the account is temporarily blocked for <strong>15 minutes</strong>. A wrong current password when changing your password and wrong verification codes in the profile also count towards the limit.</p>
         <p>For security reasons, the sign-in page gives the same answer to any error: “Incorrect email or password. After several failed attempts, sign-in is temporarily blocked.” — so outsiders cannot find out whether an account exists. If you are sure of your password but cannot sign in, wait 15 minutes.</p>
         <p>If your account has been <strong>blocked by an administrator</strong>, after entering the correct password you will see “The account is blocked. Contact your administrator.”</p>
-        <p>An administrator can lift a temporary lockout earlier with the <span class="help-ui">End all sessions</span> button on the user's page.</p>
+        <p>An administrator can lift a temporary lockout earlier with the <span class="help-ui">Sign out all sessions</span> button on the user's page.</p>
     </HelpTopicSection>
 
     <HelpTopicSection Id="account-forgot">
@@ -63,7 +63,7 @@
         <ul>
             <li><strong>Forgot your password</strong> — contact the HR department or the system administrator. You will get a new temporary password; when you sign in, the system asks you to replace it with your own.</li>
             <li><strong>Changed or lost your phone</strong> — sign in with a recovery code and ask the administrator to reset your authenticator. You will set up the new phone the next time you sign in. If you have no recovery codes, the administrator resets the authenticator and you set up a new one when you sign in.</li>
-            <li><strong>Suspect someone else knows your password</strong> — change your password immediately (all other sessions will be ended) and check the list of sessions in your profile.</li>
+            <li><strong>Suspect someone else knows your password</strong> — change your password immediately: the sign-ins on all other devices end within a few minutes (see “<a href="/help#account-change-password">Changing your password</a>”).</li>
         </ul>
     </HelpTopicSection>
 
@@ -73,19 +73,20 @@
             <li>Enter your <span class="help-ui">Current password</span>, <span class="help-ui">New password</span> and <span class="help-ui">Repeat new password</span>.</li>
             <li>Click <span class="help-ui">Save password</span>. The message “Password changed” appears.</li>
         </ol>
-        <p>After the password is changed, <strong>all other sessions are ended</strong> — you will need to sign in again on other devices. The current session keeps working.</p>
+        <p>After the password is changed, <strong>the sign-ins on all other devices are ended</strong> within a few minutes — you will need to sign in again there. You stay signed in in this browser.</p>
         <p>If an administrator gave you a temporary password and your authenticator is already set up, after signing in with a code the system immediately opens the password change page: “You signed in with a temporary password. Set your own password to continue.” Other pages are unavailable until you change the password.</p>
     </HelpTopicSection>
 
     <HelpTopicSection Id="account-sessions">
-        <p>A <strong>session</strong> is a sign-in from a particular browser on a particular device. Each session ends automatically:</p>
+        <p>A sign-in works in the browser on the device where you signed in, and it ends automatically:</p>
         <ul>
-            <li>after <strong>8 hours of inactivity</strong>;</li>
-            <li>no later than <strong>12 hours after sign-in</strong>, even if you have been working all the time — then just sign in again.</li>
+            <li>after <strong>1 hour of inactivity</strong>;</li>
+            <li>no later than <strong>12 hours after sign-in</strong>, even if you have been working all the time — then just sign in again;</li>
+            <li>when you close the browser, if you didn't check <span class="help-ui">Remember me on this device</span> when signing in.</li>
         </ul>
-        <p>To sign out, click the sign-out button <Icon Name="log-out" /> next to your name at the bottom of the side menu (on a phone — in the <Icon Name="menu" /> menu) and confirm “Sign out of the cabinet?”.</p>
-        <p>The list of all your sessions is in <span class="help-ui">Profile</span> → <span class="help-ui">Sessions</span> (see “<a href="/help#profile-sessions">Active sessions</a>”). An ended session stops working immediately, even if a page is still open on that device.</p>
-        <p>Sessions are also ended when an administrator blocks the account, issues a temporary password or resets the authenticator.</p>
+        <p>To sign out, click the sign-out button <Icon Name="log-out" /> next to your name at the bottom of the side menu (on a phone — in the <Icon Name="menu" /> menu) and confirm “Sign out of the cabinet?”. This signs you out of this browser only.</p>
+        <p>To end your sign-ins on other devices — for example, if you forgot to sign out on someone else's computer — click <span class="help-ui">Sign out on other devices</span> in <span class="help-ui">Profile</span> → <span class="help-ui">Security</span> (see “<a href="/help#profile-sessions">Signing out on other devices</a>”).</p>
+        <p>Sign-ins on other devices do not end instantly: a device loses access <strong>within a few minutes</strong> (at most 5 minutes, when its access token is renewed), and editing pages open on it lose access in about a minute. This happens when you change your password or sign out on other devices, and also when an administrator blocks the account, issues a temporary password, resets the authenticator or signs out all of the user's sessions.</p>
     </HelpTopicSection>
 
     <HelpTopicSection Id="account-security-tips">
@@ -93,7 +94,7 @@
             <li>Don't use your KOD password for other services. A password manager is the most convenient way to store passwords.</li>
             <li>Never share authenticator codes or recovery codes with anyone — KOD staff never ask for them.</li>
             <li>On shared computers, don't check “Remember me” and always sign out when you finish.</li>
-            <li>Review your list of sessions regularly and end the ones you don't recognize.</li>
+            <li>Forgot to sign out on someone else's computer or lost your phone — click <span class="help-ui">Sign out on other devices</span> on the <span class="help-ui">Security</span> tab of your profile.</li>
             <li>The private key of your electronic signature and its password are separate from your KOD account; they are never sent to the server (see the “<a href="/help#signing">Signing and verifying files</a>” chapter).</li>
         </ul>
     </HelpTopicSection>

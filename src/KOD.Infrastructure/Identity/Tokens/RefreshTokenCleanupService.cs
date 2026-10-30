@@ -3,22 +3,19 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
-namespace KOD.Infrastructure.Identity;
+namespace KOD.Infrastructure.Identity.Tokens;
 
 /// <summary>
-/// Periodically deletes expired server-side sessions (idle timeout or absolute lifetime passed).
+/// Periodically deletes expired refresh token families (idle timeout or absolute lifetime passed).
 /// </summary>
 /// <param name="scopeFactory">Creates scopes for the database context.</param>
-/// <param name="options">The session lifetime options.</param>
 /// <param name="timeProvider">The clock.</param>
 /// <param name="logger">The logger.</param>
-internal sealed partial class SessionCleanupService(
+internal sealed partial class RefreshTokenCleanupService(
     IServiceScopeFactory scopeFactory,
-    IOptions<SessionLifetimeOptions> options,
     TimeProvider timeProvider,
-    ILogger<SessionCleanupService> logger) : BackgroundService
+    ILogger<RefreshTokenCleanupService> logger) : BackgroundService
 {
     /// <summary>
     /// The cleanup period.
@@ -36,10 +33,7 @@ internal sealed partial class SessionCleanupService(
                 await using var scope = scopeFactory.CreateAsyncScope();
                 var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
                 var now = timeProvider.GetUtcNow();
-                var createdBefore = now - options.Value.AbsoluteLifetime;
-                var deleted = await db.UserSessions
-                    .Where(s => s.ExpiresAt < now || s.CreatedAt < createdBefore)
-                    .ExecuteDeleteAsync(stoppingToken);
+                var deleted = await db.RefreshTokenFamilies.Where(f => f.ExpiresAt <= now).ExecuteDeleteAsync(stoppingToken);
                 if (deleted > 0)
                 {
                     LogCleaned(logger, deleted);
@@ -54,11 +48,11 @@ internal sealed partial class SessionCleanupService(
     }
 
     /// <summary>
-    /// Logs the number of deleted sessions.
+    /// Logs the number of deleted families.
     /// </summary>
     /// <param name="logger">The logger.</param>
-    /// <param name="count">The number of deleted sessions.</param>
-    [LoggerMessage(Level = LogLevel.Information, Message = "Deleted {Count} expired sessions")]
+    /// <param name="count">The number of deleted families.</param>
+    [LoggerMessage(Level = LogLevel.Information, Message = "Deleted {Count} expired refresh token families")]
     private static partial void LogCleaned(ILogger logger, int count);
 
     /// <summary>
@@ -66,6 +60,6 @@ internal sealed partial class SessionCleanupService(
     /// </summary>
     /// <param name="logger">The logger.</param>
     /// <param name="exception">The exception.</param>
-    [LoggerMessage(Level = LogLevel.Warning, Message = "Expired session cleanup failed")]
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Expired refresh token cleanup failed")]
     private static partial void LogFailed(ILogger logger, Exception exception);
 }

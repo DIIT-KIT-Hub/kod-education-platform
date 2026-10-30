@@ -10,7 +10,7 @@ namespace KOD.Web.Security;
 /// </summary>
 /// <param name="httpContextAccessor">The HTTP context accessor.</param>
 /// <param name="circuitUser">The circuit user accessor.</param>
-internal sealed class CurrentUser(IHttpContextAccessor httpContextAccessor, CircuitUserAccessor circuitUser) : ICurrentUser, ISessionContext
+internal sealed class CurrentUser(IHttpContextAccessor httpContextAccessor, CircuitUserAccessor circuitUser) : ICurrentUser
 {
     /// <summary>
     /// The cached permission set.
@@ -51,9 +51,6 @@ internal sealed class CurrentUser(IHttpContextAccessor httpContextAccessor, Circ
             return _permissions;
         }
     }
-
-    /// <inheritdoc />
-    public Guid? CurrentSessionId => Principal?.SessionId;
 
     /// <summary>
     /// Gets the principal of the request or circuit.

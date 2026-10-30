@@ -1,6 +1,6 @@
 <HelpChapterSection Id="profile">
     <HelpTopicSection Id="profile-overview">
-        <p>Open <span class="help-ui">Profile</span> in the menu or click your name at the bottom of the side menu. The profile has three tabs: <span class="help-ui">Profile</span>, <span class="help-ui">Security</span> and <span class="help-ui">Sessions</span>.</p>
+        <p>Open <span class="help-ui">Profile</span> in the menu or click your name at the bottom of the side menu. The profile has two tabs: <span class="help-ui">Profile</span> and <span class="help-ui">Security</span>.</p>
         <p>On the <span class="help-ui">Profile</span> tab:</p>
         <ul>
             <li><strong>Card</strong> — full name, email, the <span class="help-ui">2FA enabled</span> badge and the time of your last sign-in.</li>
@@ -24,7 +24,7 @@
     </HelpTopicSection>
 
     <HelpTopicSection Id="profile-security">
-        <p>The <span class="help-ui">Security</span> tab has three cards.</p>
+        <p>The <span class="help-ui">Security</span> tab has four cards. The first three are described below, the <span class="help-ui">Other devices</span> card — in “<a href="/help#profile-sessions">Signing out on other devices</a>”.</p>
         <h4>Password</h4>
         <p>The <span class="help-ui">Change password</span> button opens the password change form (see “<a href="/help#account-change-password">Changing your password</a>”).</p>
         <h4>Two-factor authentication</h4>
@@ -32,7 +32,7 @@
         <h4>Recovery codes</h4>
         <p>Shows how many codes are left. If you are running low on codes or suspect someone has seen them, generate a new set:</p>
         <ol class="help-steps">
-            <li>Open the authenticator app and enter the current 6-digit code in the field next to the <span class="help-ui">New codes</span> button. This is an extra confirmation: without your phone the codes cannot be changed, even with an open session.</li>
+            <li>Open the authenticator app and enter the current 6-digit code in the field next to the <span class="help-ui">New codes</span> button. This is an extra confirmation: without your phone the codes cannot be changed, even by someone who has access to your signed-in browser.</li>
             <li>Click <span class="help-ui">New codes</span> and confirm “Generate new codes? The old ones will stop working.”</li>
             <li>10 new codes appear. Click <span class="help-ui">Copy</span> and save them — they will not be shown again. The old codes no longer work.</li>
         </ol>
@@ -40,11 +40,13 @@
     </HelpTopicSection>
 
     <HelpTopicSection Id="profile-sessions">
-        <p>The <span class="help-ui">Sessions</span> tab shows all devices you are signed in from: <span class="help-ui">Device</span> (browser and operating system), <span class="help-ui">IP address</span>, the time of sign-in (<span class="help-ui">Signed in</span>) and of the last activity (<span class="help-ui">Activity</span>). The session you are working in now is marked <span class="help-ui">Current session</span>.</p>
-        <ul>
-            <li><span class="help-ui">End</span> in a session's row ends that one session (after the “End this session?” confirmation): a new sign-in will be needed on that device. The current session cannot be ended this way — sign out of the cabinet instead.</li>
-            <li><span class="help-ui">End all others</span> — after the “End all other sessions?” confirmation, ends all sessions except the current one and shows “Sessions ended: N”. Useful if you forgot to sign out on someone else's computer or see an unfamiliar device.</li>
-        </ul>
-        <p>Ended sessions stop working immediately, including pages still open on those devices. If you see a session you don't recognize, end it and change your password.</p>
+        <p>The <span class="help-ui">Other devices</span> card on the <span class="help-ui">Security</span> tab ends all your sign-ins except this browser. You will need it if you left yourself signed in on someone else's computer or lost your phone.</p>
+        <ol class="help-steps">
+            <li>Open <span class="help-ui">Profile</span> → the <span class="help-ui">Security</span> tab.</li>
+            <li>In the <span class="help-ui">Other devices</span> card, click <span class="help-ui">Sign out on other devices</span> and confirm “Sign out on all other devices?”.</li>
+            <li>The message “Signed out on other devices” appears.</li>
+        </ol>
+        <p>You stay signed in in this browser. Other devices lose access <strong>within a few minutes</strong> — as soon as their access token expires (at most 5 minutes); editing pages open there lose it in about a minute. After that, a new sign-in is needed on those devices.</p>
+        <p>If you suspect someone else knows your password, change it (see “<a href="/help#account-change-password">Changing your password</a>”) — this also ends the sign-ins on all other devices.</p>
     </HelpTopicSection>
 </HelpChapterSection>

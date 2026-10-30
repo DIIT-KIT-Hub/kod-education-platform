@@ -58,11 +58,13 @@ namespace KOD.Infrastructure.Persistence.Migrations
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     code = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false),
                     name = table.Column<string>(type: "citext", maxLength: 128, nullable: false),
+                    created_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    updated_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
                     description = table.Column<string>(type: "character varying(512)", maxLength: 512, nullable: true),
                     is_system = table.Column<bool>(type: "boolean", nullable: false),
                     is_leadership = table.Column<bool>(type: "boolean", nullable: false),
-                    created_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    updated_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true)
+                    normalized_name = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
+                    concurrency_stamp = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -89,35 +91,20 @@ namespace KOD.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "user_sessions",
+                name: "role_claims",
                 columns: table => new
                 {
-                    id = table.Column<Guid>(type: "uuid", nullable: false),
-                    user_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    ticket = table.Column<byte[]>(type: "bytea", nullable: false),
-                    created_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    last_seen_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    expires_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
-                    ip_address = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: true),
-                    user_agent = table.Column<string>(type: "character varying(512)", maxLength: 512, nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("pk_user_sessions", x => x.id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "role_permissions",
-                columns: table => new
-                {
+                    id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     role_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    permission = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false)
+                    claim_type = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false),
+                    claim_value = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("pk_role_permissions", x => new { x.role_id, x.permission });
+                    table.PrimaryKey("pk_role_claims", x => x.id);
                     table.ForeignKey(
-                        name: "fk_role_permissions_roles_role_id",
+                        name: "fk_role_claims_roles_role_id",
                         column: x => x.role_id,
                         principalTable: "roles",
                         principalColumn: "id",
@@ -340,33 +327,28 @@ namespace KOD.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "staff_positions",
+                name: "refresh_token_families",
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     user_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    organization_unit_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    role_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    title = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: true),
-                    is_primary = table.Column<bool>(type: "boolean", nullable: false)
+                    protected_key = table.Column<byte[]>(type: "bytea", maxLength: 512, nullable: false),
+                    generation = table.Column<int>(type: "integer", nullable: false),
+                    rotated_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    security_stamp = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: false),
+                    authentication_method = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: true),
+                    is_persistent = table.Column<bool>(type: "boolean", nullable: false),
+                    created_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    last_used_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    expires_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    ip_address = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: true),
+                    user_agent = table.Column<string>(type: "character varying(512)", maxLength: 512, nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("pk_staff_positions", x => x.id);
+                    table.PrimaryKey("pk_refresh_token_families", x => x.id);
                     table.ForeignKey(
-                        name: "fk_staff_positions_organization_units_organization_unit_id",
-                        column: x => x.organization_unit_id,
-                        principalTable: "organization_units",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "fk_staff_positions_roles_role_id",
-                        column: x => x.role_id,
-                        principalTable: "roles",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "fk_staff_positions_users_user_id",
+                        name: "fk_refresh_token_families_users_user_id",
                         column: x => x.user_id,
                         principalTable: "users",
                         principalColumn: "id",
@@ -380,14 +362,14 @@ namespace KOD.Infrastructure.Persistence.Migrations
                     id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     user_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    claim_type = table.Column<string>(type: "text", nullable: true),
-                    claim_value = table.Column<string>(type: "text", nullable: true)
+                    claim_type = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false),
+                    claim_value = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("pk_user_claims", x => x.id);
                     table.ForeignKey(
-                        name: "fk_user_claims_asp_net_users_user_id",
+                        name: "fk_user_claims_users_user_id",
                         column: x => x.user_id,
                         principalTable: "users",
                         principalColumn: "id",
@@ -407,7 +389,7 @@ namespace KOD.Infrastructure.Persistence.Migrations
                 {
                     table.PrimaryKey("pk_user_logins", x => new { x.login_provider, x.provider_key });
                     table.ForeignKey(
-                        name: "fk_user_logins_asp_net_users_user_id",
+                        name: "fk_user_logins_users_user_id",
                         column: x => x.user_id,
                         principalTable: "users",
                         principalColumn: "id",
@@ -415,18 +397,33 @@ namespace KOD.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "user_permission_overrides",
+                name: "user_roles",
                 columns: table => new
                 {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    organization_unit_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    title = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: true),
+                    is_primary = table.Column<bool>(type: "boolean", nullable: false),
                     user_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    permission = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false),
-                    is_granted = table.Column<bool>(type: "boolean", nullable: false)
+                    role_id = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("pk_user_permission_overrides", x => new { x.user_id, x.permission });
+                    table.PrimaryKey("pk_user_roles", x => x.id);
                     table.ForeignKey(
-                        name: "fk_user_permission_overrides_users_user_id",
+                        name: "fk_user_roles_organization_units_organization_unit_id",
+                        column: x => x.organization_unit_id,
+                        principalTable: "organization_units",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "fk_user_roles_roles_role_id",
+                        column: x => x.role_id,
+                        principalTable: "roles",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "fk_user_roles_users_user_id",
                         column: x => x.user_id,
                         principalTable: "users",
                         principalColumn: "id",
@@ -446,7 +443,7 @@ namespace KOD.Infrastructure.Persistence.Migrations
                 {
                     table.PrimaryKey("pk_user_tokens", x => new { x.user_id, x.login_provider, x.name });
                     table.ForeignKey(
-                        name: "fk_user_tokens_asp_net_users_user_id",
+                        name: "fk_user_tokens_users_user_id",
                         column: x => x.user_id,
                         principalTable: "users",
                         principalColumn: "id",
@@ -502,15 +499,15 @@ namespace KOD.Infrastructure.Persistence.Migrations
                 {
                     table.PrimaryKey("pk_news_views", x => new { x.article_id, x.user_id });
                     table.ForeignKey(
-                        name: "fk_news_views_asp_net_users_user_id",
-                        column: x => x.user_id,
-                        principalTable: "users",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
                         name: "fk_news_views_news_articles_article_id",
                         column: x => x.article_id,
                         principalTable: "news_articles",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "fk_news_views_users_user_id",
+                        column: x => x.user_id,
+                        principalTable: "users",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -530,12 +527,6 @@ namespace KOD.Infrastructure.Persistence.Migrations
                 {
                     table.PrimaryKey("pk_news_reactions", x => x.id);
                     table.ForeignKey(
-                        name: "fk_news_reactions_asp_net_users_user_id",
-                        column: x => x.user_id,
-                        principalTable: "users",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
                         name: "fk_news_reactions_news_articles_article_id",
                         column: x => x.article_id,
                         principalTable: "news_articles",
@@ -545,6 +536,12 @@ namespace KOD.Infrastructure.Persistence.Migrations
                         name: "fk_news_reactions_news_comments_comment_id",
                         column: x => x.comment_id,
                         principalTable: "news_comments",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "fk_news_reactions_users_user_id",
+                        column: x => x.user_id,
+                        principalTable: "users",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -698,25 +695,31 @@ namespace KOD.Infrastructure.Persistence.Migrations
                 column: "type_id");
 
             migrationBuilder.CreateIndex(
+                name: "ix_refresh_token_families_expires_at",
+                table: "refresh_token_families",
+                column: "expires_at");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_refresh_token_families_user_id",
+                table: "refresh_token_families",
+                column: "user_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_role_claims_role_id_claim_type_claim_value",
+                table: "role_claims",
+                columns: new[] { "role_id", "claim_type", "claim_value" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "ix_roles_code",
                 table: "roles",
                 column: "code",
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "ix_staff_positions_organization_unit_id",
-                table: "staff_positions",
-                column: "organization_unit_id");
-
-            migrationBuilder.CreateIndex(
-                name: "ix_staff_positions_role_id",
-                table: "staff_positions",
-                column: "role_id");
-
-            migrationBuilder.CreateIndex(
-                name: "ix_staff_positions_user_id_organization_unit_id_role_id",
-                table: "staff_positions",
-                columns: new[] { "user_id", "organization_unit_id", "role_id" },
+                name: "ix_roles_normalized_name",
+                table: "roles",
+                column: "normalized_name",
                 unique: true);
 
             migrationBuilder.CreateIndex(
@@ -732,9 +735,10 @@ namespace KOD.Infrastructure.Persistence.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "ix_user_claims_user_id",
+                name: "ix_user_claims_user_id_claim_type_claim_value",
                 table: "user_claims",
-                column: "user_id");
+                columns: new[] { "user_id", "claim_type", "claim_value" },
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "ix_user_logins_user_id",
@@ -742,19 +746,20 @@ namespace KOD.Infrastructure.Persistence.Migrations
                 column: "user_id");
 
             migrationBuilder.CreateIndex(
-                name: "ix_user_sessions_expires_at",
-                table: "user_sessions",
-                column: "expires_at");
+                name: "ix_user_roles_organization_unit_id",
+                table: "user_roles",
+                column: "organization_unit_id");
 
             migrationBuilder.CreateIndex(
-                name: "ix_user_sessions_user_id",
-                table: "user_sessions",
-                column: "user_id");
+                name: "ix_user_roles_role_id",
+                table: "user_roles",
+                column: "role_id");
 
             migrationBuilder.CreateIndex(
-                name: "EmailIndex",
-                table: "users",
-                column: "normalized_email");
+                name: "ix_user_roles_user_id_organization_unit_id_role_id",
+                table: "user_roles",
+                columns: new[] { "user_id", "organization_unit_id", "role_id" },
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "ix_users_last_name_first_name",
@@ -762,15 +767,20 @@ namespace KOD.Infrastructure.Persistence.Migrations
                 columns: new[] { "last_name", "first_name" });
 
             migrationBuilder.CreateIndex(
-                name: "ix_users_photo_id",
+                name: "ix_users_normalized_email",
                 table: "users",
-                column: "photo_id");
+                column: "normalized_email");
 
             migrationBuilder.CreateIndex(
-                name: "UserNameIndex",
+                name: "ix_users_normalized_user_name",
                 table: "users",
                 column: "normalized_user_name",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "ix_users_photo_id",
+                table: "users",
+                column: "photo_id");
 
             migrationBuilder.AddForeignKey(
                 name: "fk_document_signatures_documents_document_id",
@@ -847,10 +857,10 @@ namespace KOD.Infrastructure.Persistence.Migrations
                 name: "news_views");
 
             migrationBuilder.DropTable(
-                name: "role_permissions");
+                name: "refresh_token_families");
 
             migrationBuilder.DropTable(
-                name: "staff_positions");
+                name: "role_claims");
 
             migrationBuilder.DropTable(
                 name: "user_claims");
@@ -859,10 +869,7 @@ namespace KOD.Infrastructure.Persistence.Migrations
                 name: "user_logins");
 
             migrationBuilder.DropTable(
-                name: "user_permission_overrides");
-
-            migrationBuilder.DropTable(
-                name: "user_sessions");
+                name: "user_roles");
 
             migrationBuilder.DropTable(
                 name: "user_tokens");

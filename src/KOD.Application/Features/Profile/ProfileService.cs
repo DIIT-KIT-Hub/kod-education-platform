@@ -20,21 +20,17 @@ namespace KOD.Application.Features.Profile;
 /// </summary>
 /// <param name="db">The database context.</param>
 /// <param name="currentUser">The current user.</param>
-/// <param name="sessionContext">The current session accessor.</param>
 /// <param name="identity">The identity service.</param>
 /// <param name="permissions">The permission resolver.</param>
 /// <param name="audit">The audit logger.</param>
 /// <param name="media">The image library.</param>
-/// <param name="timeProvider">The clock.</param>
 internal sealed class ProfileService(
     IApplicationDbContext db,
     ICurrentUser currentUser,
-    ISessionContext sessionContext,
     IIdentityService identity,
     IPermissionResolver permissions,
     IAuditLogger audit,
-    MediaLibrary media,
-    TimeProvider timeProvider) : IProfileService
+    MediaLibrary media) : IProfileService
 {
     /// <inheritdoc />
     public async Task<Result<ProfileDto>> GetAsync(CancellationToken cancellationToken)
@@ -146,9 +142,7 @@ internal sealed class ProfileService(
         var result = await identity.ChangePasswordAsync(user, currentPassword, newPassword);
         if (result.IsSuccess)
         {
-            // Other sessions must sign in again with the new password.
-            var current = sessionContext.CurrentSessionId;
-            await db.UserSessions.Where(s => s.UserId == user.Id && s.Id != current).ExecuteDeleteAsync(cancellationToken);
+            // The new security stamp ends the other sign-ins; the caller re-issues the tokens of this browser.
             await audit.WriteAsync(AuditActions.PasswordChanged, user.Id, user.FullName, null, cancellationToken);
         }
 
@@ -181,60 +175,17 @@ internal sealed class ProfileService(
     }
 
     /// <inheritdoc />
-    public async Task<Result<IReadOnlyList<SessionDto>>> GetSessionsAsync(CancellationToken cancellationToken)
+    public async Task<Result> SignOutEverywhereAsync(CancellationToken cancellationToken)
     {
-        if (currentUser.Id is not { } me)
+        var user = currentUser.Id is { } me ? await db.Users.FirstOrDefaultAsync(u => u.Id == me, cancellationToken) : null;
+        if (user is null)
         {
             return Error.Unauthorized();
         }
 
-        var now = timeProvider.GetUtcNow();
-        var current = sessionContext.CurrentSessionId;
-        var sessions = await db.UserSessions
-            .AsNoTracking()
-            .Where(s => s.UserId == me && (s.ExpiresAt == null || s.ExpiresAt > now))
-            .OrderByDescending(static s => s.LastSeenAt)
-            .Select(s => new SessionDto(s.Id, s.CreatedAt, s.LastSeenAt, s.ExpiresAt, s.IpAddress, s.UserAgent, s.Id == current))
-            .ToListAsync(cancellationToken);
-
-        return sessions;
-    }
-
-    /// <inheritdoc />
-    public async Task<Result> RevokeSessionAsync(Guid sessionId, CancellationToken cancellationToken)
-    {
-        if (currentUser.Id is not { } me)
-        {
-            return Error.Unauthorized();
-        }
-
-        var deleted = await db.UserSessions.Where(s => s.Id == sessionId && s.UserId == me).ExecuteDeleteAsync(cancellationToken);
-        if (deleted == 0)
-        {
-            return Error.NotFound(Texts.T("Сесію не знайдено."));
-        }
-
-        await audit.WriteAsync(AuditActions.SessionRevoked, me, currentUser.DisplayName, "Завершено одну сесію", cancellationToken);
+        await identity.InvalidateSessionsAsync(user);
+        await audit.WriteAsync(AuditActions.SessionRevoked, user.Id, user.FullName, "Вихід на всіх інших пристроях", cancellationToken);
         return Result.Success();
-    }
-
-    /// <inheritdoc />
-    public async Task<Result<int>> RevokeOtherSessionsAsync(CancellationToken cancellationToken)
-    {
-        if (currentUser.Id is not { } me)
-        {
-            return Error.Unauthorized();
-        }
-
-        // Without a known current session the filter below would also end the session of this request.
-        if (sessionContext.CurrentSessionId is not { } current)
-        {
-            return Error.Validation(Texts.T("Не вдалося визначити поточну сесію. Увійдіть знову та повторіть дію."));
-        }
-
-        var deleted = await db.UserSessions.Where(s => s.UserId == me && s.Id != current).ExecuteDeleteAsync(cancellationToken);
-        await audit.WriteAsync(AuditActions.SessionRevoked, me, currentUser.DisplayName, $"Завершено {deleted} інших сесій", cancellationToken);
-        return deleted;
     }
 
     /// <summary>

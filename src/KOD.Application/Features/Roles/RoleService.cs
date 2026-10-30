@@ -77,7 +77,7 @@ internal sealed class RoleService(IApplicationDbContext db, ICurrentUser current
             role.IsSystem,
             role.IsAdministrator,
             role.IsLeadership,
-            [.. role.Permissions.Select(static p => p.Permission)],
+            [.. role.Permissions.Select(static p => p.ClaimValue!)],
             users);
     }
 
@@ -110,6 +110,11 @@ internal sealed class RoleService(IApplicationDbContext db, ICurrentUser current
             return Error.Conflict(Texts.T("Роль із кодом «{0}» вже існує.", code));
         }
 
+        if (await NameTakenAsync(command.Name, null, cancellationToken))
+        {
+            return Error.Conflict(Texts.T("Роль із назвою «{0}» вже існує.", command.Name.Trim()));
+        }
+
         return await DomainErrors.GuardAsync<Guid>(async () =>
         {
             var role = new Role(code, command.Name, command.Description, isSystem: false);
@@ -137,12 +142,17 @@ internal sealed class RoleService(IApplicationDbContext db, ICurrentUser current
             return Error.NotFound(Texts.T("Роль не знайдено."));
         }
 
-        // Holders get the new permissions at the next periodic session validation.
+        if (await NameTakenAsync(command.Name, id, cancellationToken))
+        {
+            return Error.Conflict(Texts.T("Роль із назвою «{0}» вже існує.", command.Name.Trim()));
+        }
+
+        // Holders get the new permissions with their next access token (at most its lifetime later).
         return await DomainErrors.GuardAsync(async () =>
         {
             role.Update(command.Name, command.Description, command.IsLeadership);
             role.SetPermissions(command.Permissions);
-            audit.Add(AuditActions.RoleChanged, nameof(Role), role.Id.ToString(), $"Змінено роль «{role.Name}»: {string.Join(", ", role.Permissions.Select(static p => p.Permission))}");
+            audit.Add(AuditActions.RoleChanged, nameof(Role), role.Id.ToString(), $"Змінено роль «{role.Name}»: {string.Join(", ", role.Permissions.Select(static p => p.ClaimValue))}");
             await db.SaveChangesAsync(cancellationToken);
             return Result.Success();
         });
@@ -176,5 +186,23 @@ internal sealed class RoleService(IApplicationDbContext db, ICurrentUser current
         audit.Add(AuditActions.RoleDeleted, nameof(Role), role.Id.ToString(), $"Видалено роль «{role.Name}»");
         await db.SaveChangesAsync(cancellationToken);
         return Result.Success();
+    }
+
+    /// <summary>
+    /// Determines whether another role already has the name (names are unique, like Identity role names).
+    /// </summary>
+    /// <param name="name">The requested name.</param>
+    /// <param name="exceptId">The role being edited.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns><see langword="true"/> when the name is taken.</returns>
+    private async Task<bool> NameTakenAsync(string? name, Guid? exceptId, CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            return false;
+        }
+
+        var normalized = Role.NormalizeName(name);
+        return await db.Roles.AnyAsync(r => r.NormalizedName == normalized && r.Id != exceptId, cancellationToken);
     }
 }

@@ -1,9 +1,13 @@
+using Microsoft.AspNetCore.Identity;
+
 namespace KOD.Domain.Access;
 
 /// <summary>
-/// An individual permission adjustment for a single user that is applied on top of the user's roles.
+/// An individual permission adjustment for a single user that is applied on top of the user's roles: an Identity user
+/// claim (table <c>user_claims</c>) of type <see cref="PermissionClaimTypes.Permission"/> (granted) or
+/// <see cref="PermissionClaimTypes.DeniedPermission"/> (denied) whose value is the permission code.
 /// </summary>
-public sealed class UserPermissionOverride
+public sealed class UserPermissionOverride : IdentityUserClaim<Guid>
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="UserPermissionOverride"/> class.
@@ -14,22 +18,15 @@ public sealed class UserPermissionOverride
     public UserPermissionOverride(Guid userId, string permission, bool isGranted)
     {
         UserId = userId;
-        Permission = permission;
-        IsGranted = isGranted;
+        ClaimType = isGranted ? PermissionClaimTypes.Permission : PermissionClaimTypes.DeniedPermission;
+        ClaimValue = permission;
     }
 
     /// <summary>
-    /// Gets the user identifier.
+    /// Initializes a new instance of the <see cref="UserPermissionOverride"/> class for EF Core and the Identity user store
+    /// (<see cref="UserManager{TUser}.AddClaimAsync"/>), which fill the properties afterwards.
     /// </summary>
-    public Guid UserId { get; private set; }
-
-    /// <summary>
-    /// Gets the permission code.
-    /// </summary>
-    public string Permission { get; private set; }
-
-    /// <summary>
-    /// Gets a value indicating whether the permission is granted (<see langword="true"/>) or explicitly denied.
-    /// </summary>
-    public bool IsGranted { get; private set; }
+    public UserPermissionOverride()
+    {
+    }
 }
