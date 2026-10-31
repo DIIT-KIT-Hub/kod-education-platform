@@ -24,6 +24,22 @@ dotnet tool restore
 dotnet ef migrations add <Name> --project src/KOD.Infrastructure --startup-project src/KOD.Web --configuration Release --output-dir Persistence/Migrations
 ```
 
+```bash
+# React client (src/KOD.Client; Node 24+, pnpm). KOD.Web serves its dist/ at /app, so build it before checking it.
+cd src/KOD.Client
+pnpm install
+pnpm build                  # tsc -b + vite build (production; fails on a missing English translation)
+pnpm dev                    # vite build --watch in development mode (sourcemaps); reload the page after a rebuild
+pnpm typecheck && pnpm lint && pnpm test
+pnpm format                 # Prettier (indent from .editorconfig: 4 spaces)
+pnpm i18n:extract           # update src/locales/{uk,en}/messages.po after changing texts
+pnpm api:types              # regenerate src/shared/api/schema.d.ts from a running server's /openapi/v1.json
+                            # (the script points at 7180; for your own server run the same command with 7181)
+```
+
+Publishing KOD.Web runs `pnpm install --frozen-lockfile && pnpm build` and copies `dist` (without source maps) into
+`wwwroot/app`; `dotnet build ... -p:SkipClientBuild=true` skips it.
+
 Secrets live in user-secrets of `src/KOD.Web` (`ConnectionStrings:Database`, `Seed:AdminPassword`, `Seed:DemoPassword`).
 Never print or commit them. The seeded admin password is used only when the admin is created; the first sign-in
 replaces it and enrolls 2FA (TOTP), so it does not keep working afterwards.
@@ -52,6 +68,7 @@ src/KOD.Web             Host: Blazor Web App pages (Components/), REST API (Api/
                         (Identity/), security middleware, signing proxy and trust list (Signing/), localization provider
                         (Localization/), logging (Hosting/).
   DesignSystem/         Razor components (Components/) + DesignTokens; CSS/JS/icons/fonts live in wwwroot.
+src/KOD.Client          React SPA at /app that replaces the Blazor pages module by module (see "React client").
 tests/KOD.UnitTests     Domain rules, access, scoped administration (EF InMemory), JWT tokens, localization coverage,
                         trust list.
 ```
@@ -118,6 +135,45 @@ Dependencies point inward: Web → Infrastructure → Application → Domain. Ce
   and target) and one-level comments via `INewsDiscussionService`; `INewsDiscussionEvents` (in-process) refreshes open
   pages — replace it with a message bus implementation when running several servers.
 
+## React client (`src/KOD.Client`, migration from Blazor)
+
+The frontend moves from Blazor to a React SPA; at the end the MVC/Blazor part disappears and KOD.Web is a Web API plus
+the static SPA. Phases: 1 sign-in + shell + home (done), 2 documents and signing, 3 news (Tiptap, live discussion),
+4 structure and profile, 5 administration, 6 manual, 7 remove Blazor and move the SPA from `/app` to `/`. Until a
+module is moved, the menu links to its Blazor page with a plain `href` (full page load); moved pages use `to`.
+
+- **Stack** (latest versions; the user allowed the newest npm releases, the two-week rule is for NuGet): React 19 +
+  React Compiler (`@rolldown/plugin-babel` + `reactCompilerPreset`), Vite 8, TypeScript 6 (strict,
+  `noUncheckedIndexedAccess`; `exactOptionalPropertyTypes` is off — it fights CSS-module classes and React props),
+  React Router (data mode, `createBrowserRouter`, lazy routes, basename `/app`), TanStack Query, openapi-fetch +
+  openapi-typescript, react-hook-form + zod, Lingui, lucide-react, Vitest + happy-dom + Testing Library.
+  Pinned on purpose: `typescript` 6.0.3 (typescript-eslint does not support 7 yet), `@rolldown/plugin-babel` 0.2.4
+  (0.3 breaks `@vitejs/plugin-react` 6).
+- **No UI libraries**: every component is written by hand, ported from the Blazor design system (`kod-ds.css`,
+  `app.css`, `kod-ds.js`). Add libraries only for real infrastructure, never for trivial cases.
+- **Structure** (bulletproof-react, enforced by `no-restricted-imports` in `eslint.config.js`): `src/shared` (api, i18n,
+  lib, session, styles, ui) ← `src/features/<feature>` (api, components, pages; a feature never imports another
+  feature) ← `src/app` (router, guards, layout, query client). Cross-feature state (the auth context, permissions)
+  lives in `shared/session`.
+- **CSS Modules only** (`*.module.css` next to the component, `localsConvention: camelCaseOnly`). Tokens, themes, base
+  styles and fonts are `:global` in `shared/styles/global.module.css`; reusable layout/text utilities are in
+  `shared/styles/layout.module.css`. Shared keyframes are global (`ds-*`) and used **only** through the `--ds-anim-*`
+  custom properties: a keyframe name written in a module's `animation` is renamed to a local one. Local keyframes
+  (`@keyframes settle`) are fine. Global selectors on `<html>` state: `:global([data-sidebar="collapsed"]) .x`.
+  Inverse surfaces set `data-inverse`, buttons read it for the ink colours.
+- **Data**: `shared/api/client.ts` (`api`, typed by `schema.d.ts`) adds `X-CSRF-TOKEN` to state-changing requests and
+  reports 401s; `unwrap()` turns a failed call into `ApiError(status, code, detail)` (`detail` is already translated);
+  `describeError(error, fallback)` for messages. The JWTs stay in HttpOnly cookies — scripts never see them.
+- **Session**: `authContextQuery` (`GET /api/v1/auth/context`: language, antiforgery token, user with permissions) is
+  loaded by the root route. The antiforgery token is bound to the identity, so **after every sign-in, sign-out,
+  password, photo or language change call `reloadAuthContext(queryClient)`**. Guards in `app/guards.ts`
+  (`requireReadyUser`: signed in, own password, photo; `requireUser`, `requirePasswordSet`, `requireAnonymous`).
+  Return addresses go through `safeReturnUrl`.
+- **Forms**: react-hook-form + `zodResolver`; build the zod schema inside the component with `t` so its messages are
+  translated; `<Field>` gives the control its id / `aria-describedby` / `aria-invalid` through a render prop.
+- **Pages** set the document title with `<DocumentTitle>` or `<PageHeader>` (React hoists `<title>`).
+- Global UI services are module stores read with `useSyncExternalStore`: `toast(text)`, `await confirm({...})`.
+
 ## Conventions
 
 - **StyleCop + analyzers, TreatWarningsAsErrors.** XML documentation in English on every type and member, including
@@ -126,6 +182,8 @@ Dependencies point inward: Web → Infrastructure → Application → Domain. Ce
 - Modern C#: file-scoped namespaces, primary constructors, `field`, extension blocks (`extension(IServiceCollection services) { … }`),
   collection expressions, `_camelCase` private fields, no `this.`.
 - JS: JSDoc on every function; IIFE scripts for global behaviors, ES modules for lazily loaded parts.
+- TypeScript/React: JSDoc on every exported and inner function, component and props member; function components,
+  named exports, `@/` imports across folders.
 - Match the surrounding code: comment density, naming, idioms. Code and docs in English, UI texts in Ukrainian via `T()`.
 - Commits: imperative subject, body with bullets, end with the Co-Authored-By line. Branch `KOD/full-refactoring`,
   main branch `develop`.
@@ -151,6 +209,12 @@ Dependencies point inward: Web → Infrastructure → Application → Domain. Ce
   (English twin with the same Ids). Update both when a feature changes. Structure and titles: `HelpContents.cs`.
 - Culture: `LanguageCultureProvider` (claim `kod:lang` from the profile, then cookie `__Host-kod.lang`, else uk-UA);
   `UseRequestLocalization` runs **after** authentication. Language switch: `POST /account/language` (plain, not enhanced form).
+- **React client**: Lingui with Ukrainian source texts — ``t`Зберегти` `` / `<Trans>` from `@lingui/react/macro`,
+  ``msg`…` `` for module-level descriptors (shown with `t(descriptor)`), `msg({ message, context })` for the same word
+  with different meanings (the context matches the server's `In("context", …)`). Catalogs:
+  `src/KOD.Client/src/locales/{uk,en}/messages.po`; after changing texts run `pnpm i18n:extract` and fill every English
+  `msgstr` (reuse the server JSON translations). The production build fails on a missing translation. Dates in Kyiv
+  time through `shared/i18n/format.ts`, enum names through `shared/i18n/display.ts`.
 - `LocalizationTests` fails for any `T(…)`, `In(…)`, `ErrorMessage`, Guard field name or `kodDs.t(…)` literal without
   an English translation. Tests run in uk-UA (`TestCulture` module initializer).
 
@@ -232,6 +296,13 @@ Use `[LoggerMessage]` partial methods for new log statements.
   append flows with the user (CAdES detached/enveloped, PAdES, ASiC-S/E, sequential and parallel routes).
   A PDF without `/ByteRange` has no signatures (the library would report "damaged data").
 - The audit log category filter uses the query parameter `category`, not `action`.
+- **CSS module without a used class is dropped**: importing a `.module.css` only for its side effects emits no CSS —
+  use at least one of its classes (`global.root` on the root element keeps the global styles).
+- **CSP and Vite**: `script-src 'self'` and `font-src 'self'` forbid `data:` URLs, so `build.assetsInlineLimit` is 0
+  (Vite would inline small fonts). `img-src` allows `data:` (the authenticator QR code is an `<img>` with an SVG data URL).
+- **API JSON**: enums are serialized as names and numbers strictly as numbers, for controllers and the OpenAPI document
+  alike (`ConfigureJson` in `WebServiceCollectionExtensions`); otherwise the generated types say `number | string`.
+  A computed form property needs `[BindNever]` or it shows up in the OpenAPI request body.
 - **Antiforgery tokens are bound to the `sub` claim and its `Issuer`.** Every identity of a signed-in user (validated
   JWT, the one issued during a refresh, a circuit's refreshed principal) must carry the token issuer (`urn:kod`), or a
   form rendered in one request fails with 400 in the next. Testing token refresh: run the app with
@@ -239,7 +310,7 @@ Use `[LoggerMessage]` partial methods for new log statements.
 
 ## Verifying changes
 
-1. Build + tests with your configuration.
+1. Build + tests with your configuration; for the client `pnpm typecheck && pnpm lint && pnpm test && pnpm build`.
 2. For UI changes start `kod-web-verify` (7181) via the preview tools; the JWT cookies are shared with 7180 (same host, same signing key in `App_Data/keys`).
    If the pane is signed out, ask the user to sign in in the Browser pane (2FA) — do not use their credentials.
 3. Check console/server errors (`preview_logs`), use `javascript_tool` for computed state and `find`/refs for clicks.

@@ -26,6 +26,7 @@
 - **.NET 10 / C# 14** (primary constructors, `field`, extension members, collection expressions), рішення у форматі **`.slnx`**, Central Package Management.
 - **ASP.NET Core Blazor Web App**: static SSR + enhanced navigation + streaming rendering за замовчуванням; **Interactive Server** для складних форм (створення документа, редактори користувачів, ролей, підрозділів і новин, імпорт).
 - **ASP.NET Core Web API** (REST, `/api/v1`), OpenAPI + Scalar UI у Development.
+- **React-клієнт** (`src/KOD.Client`, адреса `/app`), який поступово замінює сторінки Blazor: React 19 з React Compiler, TypeScript, Vite 8, pnpm, лише CSS Modules, React Router, TanStack Query, react-hook-form + zod, Lingui, openapi-fetch (типи генеруються з OpenAPI), іконки lucide-react, тести Vitest.
 - **ASP.NET Core Identity** з усіма його таблицями (`users`, `roles`, `user_roles`, `role_claims`, `user_claims`, `user_logins`, `user_tokens`): `SignInManager`, `UserManager`, `RoleManager`, TOTP-автентифікатор, резервні коди, lockout, security stamp.
 - **JWT** (`Microsoft.IdentityModel.JsonWebTokens`): stateless access-токени, підписані **ES256** (ECDSA P-256), і непрозорі refresh-токени з ротацією (RFC 9700) — у захищених cookie.
 - **Entity Framework Core 10 + PostgreSQL** (Npgsql, snake_case, `citext` для регістронезалежного пошуку, `xmin` як токен конкурентності).
@@ -53,6 +54,8 @@ src/
    └─ DesignSystem      Дизайн-система: компоненти (Button, Card, DataGrid + Pagination, Tabs, Dialog,
                         Timeline, DatePicker, OtpInput, PasswordReveal, ValidationError, скелетони…)
                         і шляхи ресурсів; стилі, скрипти, іконки й шрифт — у wwwroot.
+src/KOD.Client          React-клієнт (SPA на /app): shared (API, сесія, переклади, UI-компоненти, стилі)
+                        → features (auth, home, …) → app (маршрути, захист сторінок, оболонка).
 tests/
 └─ KOD.UnitTests        Доменні правила, доступ, адміністрування в межах організацій (EF Core InMemory),
                         транслітерація, пагінація, безпечний Markdown, повнота англійських перекладів.
@@ -172,12 +175,38 @@ tests/
 
 Сітки полів форм реагують на ширину картки (container queries). **Анімації спрацьовують завжди**: стилі навмисно не враховують `prefers-reduced-motion`.
 
+## React-клієнт (перехід з Blazor)
+
+Інтерфейс переноситься з Blazor на React-застосунок `src/KOD.Client` поетапно; наприкінці Blazor і MVC зникнуть, а `KOD.Web` лишиться Web API, що роздає зібраний клієнт.
+
+| Етап | Що переноситься | Стан |
+| --- | --- | --- |
+| 1 | Вхід (пароль, код 2FA, резервний код, перший вхід із прив’язкою автентифікатора), зміна пароля, фото профілю, оболонка (меню, тема, мова, вихід), головна | готово |
+| 2 | Документи й підписання | далі |
+| 3 | Новини (Tiptap, обговорення наживо) | |
+| 4 | Структура й профіль | |
+| 5 | Адміністрування | |
+| 6 | Довідка | |
+| 7 | Видалення Blazor, перенесення клієнта з `/app` на `/` | |
+
+Поки модуль не перенесено, меню клієнта веде на його сторінку Blazor. Обидві частини працюють з тими самими JWT-cookie, тож вхід спільний.
+
+- **Роздача**: і в Development, і в Production клієнт віддає ASP.NET Core. У Development — з `src/KOD.Client/dist` (`Spa:Root` у `appsettings.Development.json`), під час `dotnet publish` клієнт збирається й копіюється в `wwwroot/app`. Файли з хешем у назві (`/app/assets`) кешуються назавжди, `index.html` — ні; невідомі адреси під `/app` отримують `index.html`.
+- **Компоненти** написано власноруч без UI-бібліотек — це перенесена дизайн-система: ті самі токени, теми, ефект «чорнила» на кнопках, комірки коду 2FA, кадрування фото тощо.
+- **Стилі** — лише CSS Modules; глобальні токени, теми й шрифт — у `src/shared/styles/global.module.css`.
+- **Безпека**: токени лишаються в `HttpOnly`-cookie й недоступні скриптам; змінюючі запити несуть `X-CSRF-TOKEN` з `GET /api/v1/auth/context`; сувора CSP без inline-скриптів (тема застосовується файлом `public/theme-init.js` ще до першого малювання).
+
 ## REST API
 
 Базовий шлях `/api/v1`, JSON, enum як рядки, помилки у форматі RFC 9457 (`application/problem+json`). Автентифікація — ті самі JWT у cookie, що й для сторінок (запит із простроченим access-токеном отримує нову пару автоматично; без входу — `401`). Для змінюючих запитів потрібен заголовок `X-CSRF-TOKEN`. У Development документація доступна на `/scalar` (OpenAPI — `/openapi/v1.json`).
 
 | Ресурс | Методи |
 | --- | --- |
+| `/auth/context` | `GET` (мова, антифорджері-токен, поточний користувач із дозволами; без входу — `user: null`) |
+| `/auth/login` · `/auth/login/pending` · `/auth/login/two-factor` · `/auth/login/recovery` | `POST` (пароль → `next`: `two-factor` або `setup`) · `GET` · `POST` · `POST` |
+| `/auth/login/password` · `/auth/login/authenticator` | `POST` (власний пароль замість тимчасового) · `GET` (ключ і QR), `POST` (прив’язка → резервні коди) |
+| `/auth/logout` · `/auth/password` · `/auth/language` | `POST` · `POST` · `PUT` |
+| `/dashboard` | `GET` (показники, документи на підпис, останні новини) |
 | `/documents` | `GET` (пагінація, фільтри), `POST` (multipart) |
 | `/documents/{id}` | `GET`, `PUT` (multipart; файл необов'язковий — без нього лишається поточний), `DELETE` |
 | `/documents/{id}/status` | `PUT` `{ "status": "InSigning" \| "Draft" \| "Archived" }` |
@@ -200,7 +229,7 @@ tests/
 
 ## Запуск
 
-Потрібно: **.NET SDK 10.0.300+**, **PostgreSQL 14+** (розширення `citext` створюється міграцією), довірений dev-сертифікат (`dotnet dev-certs https --trust`).
+Потрібно: **.NET SDK 10.0.300+**, **PostgreSQL 14+** (розширення `citext` створюється міграцією), довірений dev-сертифікат (`dotnet dev-certs https --trust`), для клієнта — **Node.js 24+** і **pnpm** (`corepack enable` встановить версію з `package.json`).
 
 1. Налаштуйте секрети (вони не потрапляють у репозиторій):
 
@@ -221,6 +250,16 @@ tests/
 
 3. У Development (`Seed:DemoData=true`) створюється демонстраційна структура: організація з дирекцією, канцелярією, відділом кадрів, фінансовим та ІТ-департаментами (з відділами й сектором), юридичним відділом, відділом комунікацій і Львівською філією, а також друга організація — благодійний фонд із правлінням і відділом проєктів. Ще створюються 14 демо-акаунтів у різних ролях (`director@kod.local`, `deputy@kod.local`, `head.it@kod.local`, `head.dev@kod.local`, `engineer@kod.local`, `clerk@kod.local`, `hr@kod.local`, `press@kod.local`, `lviv@kod.local`, `external@kod.local`, `fund@kod.local`, `hr.fund@kod.local`, `projects.fund@kod.local` тощо) і новини — загальна, двох організацій. Фахівці з персоналу `hr@kod.local` (перша організація) і `hr.fund@kod.local` (фонд) бачать і змінюють лише облікові записи своєї організації.
 
+React-клієнт (відкривається на <https://localhost:7180/app>; сервер роздає `src/KOD.Client/dist`, тож спершу його треба зібрати):
+
+```bash
+cd src/KOD.Client
+pnpm install
+pnpm build   # або pnpm dev — перезбирає клієнт після кожної зміни (оновіть сторінку)
+```
+
+Інші команди клієнта: `pnpm typecheck`, `pnpm lint`, `pnpm test`, `pnpm format`, `pnpm i18n:extract` (оновити каталоги перекладів), `pnpm api:types` (перегенерувати типи API із запущеного сервера).
+
 Міграції (інструмент встановлено локально в репозиторії):
 
 ```bash
@@ -232,6 +271,7 @@ dotnet ef migrations add <Name> --project src/KOD.Infrastructure --startup-proje
 
 ```bash
 dotnet test --solution KOD.slnx
+cd src/KOD.Client && pnpm test
 ```
 
 ### Налаштування (`appsettings.json`)
@@ -239,6 +279,7 @@ dotnet test --solution KOD.slnx
 | Ключ | Призначення |
 | --- | --- |
 | `ConnectionStrings:Database` | Підключення до PostgreSQL |
+| `Spa:Root` | Каталог зібраного React-клієнта (`wwwroot/app`; у Development — `../KOD.Client/dist`); адреса клієнта — `/app` |
 | `Seed:*` | Назва, скорочена назва й код першої організації (`OrganizationName`, `OrganizationShortName`, `OrganizationCode`), перший адміністратор, демо-дані |
 | `Storage:PrivateRoot` | Каталог приватних файлів (не всередині `wwwroot`) |
 | `Signing:TrustList:*` | Джерело переліку надавачів і CA-сертифікатів, період оновлення (`RefreshInterval`, 0 — вимкнути), кеш (`App_Data/eusign`) |
@@ -269,6 +310,7 @@ Serilog пише кожну подію в три місця: **консоль**,
 - Повідомлення валідації (`ErrorMessage`) лишаються українськими константами й перекладаються під час показу компонентом `<ValidationError>`.
 - Мова визначається з профілю (claim `kod:lang`), інакше з cookie `__Host-kod.lang` (перемикач на сторінці входу), інакше українська. Інтерактивні сторінки тримають мову свого з’єднання, тож зміна мови перезавантажує сторінку.
 - Дані з БД (назви, записи аудиту) не перекладаються; виняток — типові ролі й типи підрозділів у списках.
+- **React-клієнт** використовує Lingui з тим самим принципом — ключ є український текст: ``t`Зберегти` `` або `<Trans>…</Trans>`; слово з різним значенням отримує контекст (`msg({ message: "Довідка", context: "document-kind" })`). Каталоги — `src/KOD.Client/src/locales/{uk,en}/messages.po`: після зміни текстів `pnpm i18n:extract`, потім заповніть англійські `msgstr`. Без перекладу production-збірка клієнта не пройде. Мова змінюється одразу, без перезавантаження сторінки.
 - Тест `LocalizationTests` падає, якщо якийсь текст у `T(…)`, `In(…)`, `ErrorMessage`, назвах полів `Guard` чи `kodDs.t(…)` не має англійського перекладу.
 
 ## Довідка: як доповнювати
@@ -288,8 +330,9 @@ Serilog пише кожну подію в три місця: **консоль**,
 ## Сторонні компоненти
 
 - IIT EUSignCP-JS (Бібліотека користувача ЦСК) — © АТ «ІІТ», використовується відповідно до умов постачальника.
-- Manrope — SIL Open Font License 1.1 (`src/KOD.Web/wwwroot/fonts/OFL.txt`).
-- Lucide icons — ISC License (`src/KOD.Web/wwwroot/icons/LICENSE-lucide.txt`).
+- Manrope — SIL Open Font License 1.1 (`src/KOD.Web/wwwroot/fonts/OFL.txt`, `src/KOD.Client/src/shared/styles/fonts/OFL.txt`).
+- Lucide icons — ISC License (`src/KOD.Web/wwwroot/icons/LICENSE-lucide.txt`; у клієнті — пакет `lucide-react`).
+- Залежності React-клієнта (React, React Router, TanStack Query, Lingui, zod, react-hook-form, openapi-fetch та ін.) — MIT; перелік і версії — `src/KOD.Client/package.json`.
 
 ## Команда
 
