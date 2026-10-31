@@ -15,6 +15,10 @@ msgstr "«Дія», ДПС, ПриватБанк, monobank, Вчасно, Deposi
 msgid "(змінено)"
 msgstr "(змінено)"
 
+#: src/features/structure/pages/UnitPage.tsx
+msgid "(сумісництво)"
+msgstr "(сумісництво)"
+
 #: src/features/news/components/Discussion.tsx
 msgid "[видалено]"
 msgstr "[видалено]"
@@ -51,6 +55,10 @@ msgstr "*.xml · один або кілька файлів"
 msgid "1–2 речення для картки новини."
 msgstr "1–2 речення для картки новини."
 
+#: src/features/profile/pages/ProfilePage.tsx
+msgid "2FA увімкнено"
+msgstr "2FA увімкнено"
+
 #: src/shared/signing/formats.ts
 msgid "B-B — базовий"
 msgstr "B-B — базовий"
@@ -78,6 +86,10 @@ msgstr "B-T — з позначкою часу"
 #: src/features/signing/components/SigningInfo.tsx
 msgid "CAdES (зовнішній і внутрішній), XAdES, PAdES (PDF), ASiC-S, ASiC-E"
 msgstr "CAdES (зовнішній і внутрішній), XAdES, PAdES (PDF), ASiC-S, ASiC-E"
+
+#: src/features/structure/pages/UnitPage.tsx
+msgid "E-mail"
+msgstr "E-mail"
 
 #: src/features/news/pages/NewsEditorPage.tsx
 msgid "JPEG, PNG, WebP, AVIF або GIF до 15 МБ, бажано 16:9. Буде стиснуто в AVIF."
@@ -128,6 +140,7 @@ msgid "Автор публікації"
 msgstr "Автор публікації"
 
 #: src/app/layout/navigation.ts
+#: src/shared/i18n/display.ts
 msgid "Адміністрування"
 msgstr "Адміністрування"
 
@@ -152,6 +165,12 @@ msgstr "Анонс не може бути довшим за 500 символів
 msgid "Апаратні та хмарні ключі"
 msgstr "Апаратні та хмарні ключі"
 
+#: src/shared/i18n/display.ts
+msgid "Аудит"
+msgstr "Аудит"
+
+#: src/features/profile/components/ProfileTabs.tsx
+#: src/features/profile/pages/SecurityPage.tsx
 #: src/features/signing/components/SigningInfo.tsx
 msgid "Безпека"
 msgstr "Безпека"
@@ -175,6 +194,10 @@ msgstr "Ваш підпис"
 #: src/features/news/components/Discussion.tsx
 msgid "Ваша відповідь для {authorName}…"
 msgstr "Ваша відповідь для {authorName}…"
+
+#: src/features/profile/pages/SecurityPage.tsx
+msgid "Введіть 6 цифр із застосунку-автентифікатора."
+msgstr "Введіть 6 цифр із застосунку-автентифікатора."
 
 #: src/features/auth/pages/SetupAuthenticatorPage.tsx
 msgid "Введіть 6-значний код, який показує застосунок."
@@ -239,6 +262,14 @@ msgstr "Вийти"
 #: src/app/layout/UserMenu.tsx
 msgid "Вийти з кабінету?"
 msgstr "Вийти з кабінету?"
+
+#: src/features/profile/pages/SecurityPage.tsx
+msgid "Вийти на всіх інших пристроях?"
+msgstr "Вийти на всіх інших пристроях?"
+
+#: src/features/profile/pages/SecurityPage.tsx
+msgid "Вийти на інших пристроях"
+msgstr "Вийти на інших пристроях"
 
 #: src/features/auth/pages/RecoveryPage.tsx
 msgid "Використайте один із резервних кодів, отриманих під час підключення автентифікатора. Кожен код діє лише один раз."
@@ -353,6 +384,10 @@ msgstr "Вкажіть поточний пароль."
 msgid "Вкажіть причину відмови."
 msgstr "Вкажіть причину відмови."
 
+#: src/features/structure/pages/UnitPage.tsx
+msgid "Вкладені підрозділи"
+msgstr "Вкладені підрозділи"
+
 #: src/shared/i18n/display.ts
 msgid "Вражає"
 msgstr "Вражає"
@@ -385,6 +420,10 @@ msgstr "Вхід за резервним кодом"
 msgid "Вхід тимчасово заблоковано"
 msgstr "Вхід тимчасово заблоковано"
 
+#: src/features/profile/pages/SecurityPage.tsx
+msgid "Входи на інших пристроях завершено"
+msgstr "Входи на інших пристроях завершено"
+
 #: src/features/news/components/RichTextEditor.tsx
 msgid "Галерея фото"
 msgstr "Галерея фото"
@@ -406,6 +445,10 @@ msgstr "Далі"
 msgid "дані всередині підпису"
 msgstr "дані всередині підпису"
 
+#: src/features/profile/pages/SecurityPage.tsx
+msgid "Двофакторна автентифікація"
+msgstr "Двофакторна автентифікація"
+
 #: src/features/documents/pages/DocumentsPage.tsx
 #: src/features/news/pages/NewsManagePage.tsx
 msgid "Дії"
@@ -414,6 +457,10 @@ msgstr "Дії"
 #: src/shared/signing/KeyPanel.tsx
 msgid "Дійсний до"
 msgstr "Дійсний до"
+
+#: src/features/profile/pages/SecurityPage.tsx
+msgid "Для входу без телефону. Кожен код діє один раз."
+msgstr "Для входу без телефону. Кожен код діє один раз."
 
 #: src/features/auth/pages/SetupAuthenticatorPage.tsx
 msgid "Для кожного облікового запису обов'язкова двофакторна автентифікація. Прив'яжіть застосунок-автентифікатор — це займе хвилину."
@@ -485,6 +532,10 @@ msgstr "Додайте підписантів у потрібному поряд
 #: src/features/auth/pages/PhotoPage.tsx
 msgid "Додайте фото профілю"
 msgstr "Додайте фото профілю"
+
+#: src/features/structure/pages/UnitPage.tsx
+msgid "Додати підрозділ"
+msgstr "Додати підрозділ"
 
 #: src/shared/signing/KeyPanel.tsx
 msgid "Додати сертифікати вручну (якщо надавач не підтримує автоматичне завантаження)"
@@ -583,21 +634,34 @@ msgstr "Документів не знайдено"
 msgid "Документів, що очікують вашого підпису, немає."
 msgstr "Документів, що очікують вашого підпису, немає."
 
+#: src/shared/i18n/display.ts
+msgid "Документообіг"
+msgstr "Документообіг"
+
 #: src/app/pages/RouteError.tsx
 msgid "Доступ обмежено"
 msgstr "Доступ обмежено"
+
+#: src/features/profile/pages/ProfilePage.tsx
+msgid "Доступні модулі"
+msgstr "Доступні модулі"
 
 #: src/features/news/pages/NewsEditorPage.tsx
 msgid "Дочекайтеся, поки завантажаться фото."
 msgstr "Дочекайтеся, поки завантажаться фото."
 
 #: src/features/auth/pages/LoginPage.tsx
+#: src/features/profile/pages/ProfilePage.tsx
 msgid "Електронна пошта"
 msgstr "Електронна пошта"
 
 #: src/features/auth/components/AuthLayout.tsx
 msgid "Електронний документообіг для будь-якої організації: структура, маршрути погодження та кваліфікований електронний підпис."
 msgstr "Електронний документообіг для будь-якої організації: структура, маршрути погодження та кваліфікований електронний підпис."
+
+#: src/shared/i18n/display.ts
+msgid "Електронний підпис"
+msgstr "Електронний підпис"
 
 #: src/shared/signing/KeyPanel.tsx
 msgid "ЄДРПОУ"
@@ -684,6 +748,10 @@ msgstr "Закріпити зверху"
 msgid "Закріплено"
 msgstr "Закріплено"
 
+#: src/features/profile/pages/SecurityPage.tsx
+msgid "Залишили вхід на чужому комп'ютері або загубили телефон? Завершіть усі входи, крім цього браузера."
+msgstr "Залишили вхід на чужому комп'ютері або загубили телефон? Завершіть усі входи, крім цього браузера."
+
 #: src/features/documents/pages/DocumentEditorPage.tsx
 msgid "Замінити файл"
 msgstr "Замінити файл"
@@ -715,6 +783,7 @@ msgstr "Заява"
 
 #: src/features/news/components/Discussion.tsx
 #: src/features/news/pages/NewsEditorPage.tsx
+#: src/features/profile/pages/ProfilePage.tsx
 msgid "Зберегти"
 msgstr "Зберегти"
 
@@ -743,6 +812,10 @@ msgstr "Зберегти чернетку"
 msgid "Збережіть резервні коди в надійному місці. Вони знадобляться, якщо ви втратите доступ до телефону. Кожен код діє один раз."
 msgstr "Збережіть резервні коди в надійному місці. Вони знадобляться, якщо ви втратите доступ до телефону. Кожен код діє один раз."
 
+#: src/features/profile/pages/ProfilePage.tsx
+msgid "Зверніться до відділу кадрів."
+msgstr "Зверніться до відділу кадрів."
+
 #: src/features/news/components/RichTextEditor.tsx
 msgid "Звичайний текст"
 msgstr "Звичайний текст"
@@ -751,6 +824,10 @@ msgstr "Звичайний текст"
 msgctxt "document-kind"
 msgid "Звіт"
 msgstr "Звіт"
+
+#: src/features/profile/pages/SecurityPage.tsx
+msgid "Згенерувати нові коди? Старі перестануть діяти."
+msgstr "Згенерувати нові коди? Старі перестануть діяти."
 
 #: src/features/news/components/Discussion.tsx
 msgid "Згорнути гілку"
@@ -776,13 +853,25 @@ msgstr "Зміни збережено"
 msgid "Зміни збережено, документ надіслано на підписання"
 msgstr "Зміни збережено, документ надіслано на підписання"
 
+#: src/features/profile/pages/SecurityPage.tsx
+msgid "Змінили телефон? Попросіть адміністратора скинути автентифікатор — під час наступного входу ви прив'яжете новий."
+msgstr "Змінили телефон? Попросіть адміністратора скинути автентифікатор — під час наступного входу ви прив'яжете новий."
+
 #: src/features/news/components/Discussion.tsx
 msgid "Змінити"
 msgstr "Змінити"
 
+#: src/features/profile/pages/SecurityPage.tsx
+msgid "Змінити пароль"
+msgstr "Змінити пароль"
+
 #: src/shared/ui/ThemeToggle.tsx
 msgid "Змінити тему"
 msgstr "Змінити тему"
+
+#: src/features/profile/pages/ProfilePage.tsx
+msgid "Змінити фото"
+msgstr "Змінити фото"
 
 #: src/features/documents/pages/DocumentEditorPage.tsx
 msgid "Змініть файл, реквізити або маршрут і збережіть документ або надішліть його на підпис."
@@ -813,6 +902,14 @@ msgstr "Інший документ"
 msgid "Інший ключ"
 msgstr "Інший ключ"
 
+#: src/features/profile/pages/SecurityPage.tsx
+msgid "Інші пристрої"
+msgstr "Інші пристрої"
+
+#: src/features/profile/pages/SecurityPage.tsx
+msgid "Інші пристрої втратять доступ протягом кількох хвилин — щойно закінчиться строк їхнього токена доступу."
+msgstr "Інші пристрої втратять доступ протягом кількох хвилин — щойно закінчиться строк їхнього токена доступу."
+
 #: src/shared/ui/Brand.tsx
 msgid "К"
 msgstr "К"
@@ -837,6 +934,10 @@ msgstr "Категорія"
 msgid "Кваліфіковані електронні підписи, накладені на документ"
 msgstr "Кваліфіковані електронні підписи, накладені на документ"
 
+#: src/features/structure/pages/UnitPage.tsx
+msgid "Керівник"
+msgstr "Керівник"
+
 #: src/features/news/pages/NewsEditorPage.tsx
 #: src/features/news/pages/NewsManagePage.tsx
 #: src/features/news/pages/NewsPage.tsx
@@ -846,6 +947,10 @@ msgstr "Керування"
 #: src/features/news/pages/NewsManagePage.tsx
 msgid "Керування новинами"
 msgstr "Керування новинами"
+
+#: src/features/structure/pages/StructurePage.tsx
+msgid "Керувати структурою"
+msgstr "Керувати структурою"
 
 #: src/shared/signing/SigningWizard.tsx
 msgid "Ключ зчитується лише у вашому браузері; пароль не передається на сервер."
@@ -881,6 +986,14 @@ msgstr "Код з автентифікатора"
 msgid "Код з застосунку"
 msgstr "Код з застосунку"
 
+#: src/features/profile/pages/SecurityPage.tsx
+msgid "Код із застосунку-автентифікатора"
+msgstr "Код із застосунку-автентифікатора"
+
+#: src/features/profile/pages/SecurityPage.tsx
+msgid "Код із застосунку-автентифікатора при кожному вході."
+msgstr "Код із застосунку-автентифікатора при кожному вході."
+
 #: src/features/auth/pages/SetupAuthenticatorPage.tsx
 #: src/features/auth/pages/TwoFactorPage.tsx
 msgid "Код містить 6 цифр."
@@ -889,6 +1002,10 @@ msgstr "Код містить 6 цифр."
 #: src/features/auth/pages/TwoFactorPage.tsx
 msgid "Код підтвердження"
 msgstr "Код підтвердження"
+
+#: src/features/profile/pages/SecurityPage.tsx
+msgid "кодів залишилось"
+msgstr "кодів залишилось"
 
 #: src/features/auth/pages/PhotoPage.tsx
 msgid "Колеги бачать ваше фото в документах, новинах і структурі. Без фото кабінетом користуватися не можна."
@@ -918,6 +1035,10 @@ msgstr "Коментарів"
 msgid "Коментарів ще немає. Будьте першими!"
 msgstr "Коментарів ще немає. Будьте першими!"
 
+#: src/features/profile/pages/ProfilePage.tsx
+msgid "Контакти"
+msgstr "Контакти"
+
 #: src/shared/signing/formats.ts
 msgid "контейнер з 1 файлом"
 msgstr "контейнер з 1 файлом"
@@ -937,6 +1058,10 @@ msgstr "Контрольна сума файлу не збігається з з
 #: src/features/auth/pages/SetupAuthenticatorPage.tsx
 msgid "Копіювати"
 msgstr "Копіювати"
+
+#: src/shared/i18n/display.ts
+msgid "Користувачі"
+msgstr "Користувачі"
 
 #: src/features/documents/pages/DocumentEditorPage.tsx
 msgid "Короткий зміст або коментар для підписантів."
@@ -996,10 +1121,16 @@ msgid "Меню"
 msgstr "Меню"
 
 #: src/app/layout/UserMenu.tsx
+#: src/features/profile/pages/ProfilePage.tsx
 msgid "Мій профіль"
 msgstr "Мій профіль"
 
+#: src/features/profile/pages/ProfilePage.tsx
+msgid "Мова зберігається у профілі й застосовується на всіх ваших пристроях."
+msgstr "Мова зберігається у профілі й застосовується на всіх ваших пристроях."
+
 #: src/features/auth/components/LanguageSwitch.tsx
+#: src/features/profile/pages/ProfilePage.tsx
 msgid "Мова інтерфейсу"
 msgstr "Мова інтерфейсу"
 
@@ -1084,6 +1215,10 @@ msgstr "Назва або реєстраційний номер"
 msgid "Назва не може бути довшою за 300 символів."
 msgstr "Назва не може бути довшою за 300 символів."
 
+#: src/features/structure/pages/StructurePage.tsx
+msgid "Назва, абревіатура або код підрозділу"
+msgstr "Назва, абревіатура або код підрозділу"
+
 #: src/features/news/components/Discussion.tsx
 msgid "Найкращі"
 msgstr "Найкращі"
@@ -1124,6 +1259,7 @@ msgstr "Не вдалося вийти. Спробуйте ще раз."
 #: src/features/documents/pages/DocumentPage.tsx
 #: src/features/news/components/Discussion.tsx
 #: src/features/news/pages/NewsEditorPage.tsx
+#: src/features/profile/pages/SecurityPage.tsx
 msgid "Не вдалося виконати дію. Спробуйте ще раз."
 msgstr "Не вдалося виконати дію. Спробуйте ще раз."
 
@@ -1153,6 +1289,23 @@ msgstr "Не вдалося завантажити новини."
 msgid "Не вдалося завантажити останню підписану версію документа."
 msgstr "Не вдалося завантажити останню підписану версію документа."
 
+#: src/features/structure/pages/UnitPage.tsx
+msgid "Не вдалося завантажити підрозділ."
+msgstr "Не вдалося завантажити підрозділ."
+
+#: src/features/structure/pages/UnitPage.tsx
+msgid "Не вдалося завантажити працівників."
+msgstr "Не вдалося завантажити працівників."
+
+#: src/features/profile/pages/ProfilePage.tsx
+#: src/features/profile/pages/SecurityPage.tsx
+msgid "Не вдалося завантажити профіль."
+msgstr "Не вдалося завантажити профіль."
+
+#: src/features/structure/pages/StructurePage.tsx
+msgid "Не вдалося завантажити структуру."
+msgstr "Не вдалося завантажити структуру."
+
 #: src/shared/signing/SigningWizard.tsx
 msgid "Не вдалося завантажити файл документа."
 msgstr "Не вдалося завантажити файл документа."
@@ -1173,6 +1326,10 @@ msgstr "Не вдалося зберегти підпис."
 msgid "Не вдалося зберегти публікацію. Спробуйте ще раз."
 msgstr "Не вдалося зберегти публікацію. Спробуйте ще раз."
 
+#: src/features/profile/pages/ProfilePage.tsx
+msgid "Не вдалося зберегти телефон. Спробуйте ще раз."
+msgstr "Не вдалося зберегти телефон. Спробуйте ще раз."
+
 #: src/features/auth/pages/PhotoPage.tsx
 msgid "Не вдалося зберегти фото. Спробуйте ще раз."
 msgstr "Не вдалося зберегти фото. Спробуйте ще раз."
@@ -1185,7 +1342,12 @@ msgstr "Не вдалося зберегти фото. Спробуйте ще �
 msgid "Не вдалося зв'язатися з сервером. Спробуйте ще раз."
 msgstr "Не вдалося зв'язатися з сервером. Спробуйте ще раз."
 
+#: src/features/profile/pages/SecurityPage.tsx
+msgid "Не вдалося згенерувати коди. Спробуйте ще раз."
+msgstr "Не вдалося згенерувати коди. Спробуйте ще раз."
+
 #: src/features/auth/components/LanguageSwitch.tsx
+#: src/features/profile/pages/ProfilePage.tsx
 msgid "Не вдалося змінити мову."
 msgstr "Не вдалося змінити мову."
 
@@ -1217,9 +1379,17 @@ msgstr "Не використовуйте на спільних комп'юте�
 msgid "Не всі кроки завершено."
 msgstr "Не всі кроки завершено."
 
+#: src/features/profile/pages/SecurityPage.tsx
+msgid "Не налаштовано"
+msgstr "Не налаштовано"
+
 #: src/shared/i18n/display.ts
 msgid "Не подобається"
 msgstr "Не подобається"
+
+#: src/features/structure/pages/UnitPage.tsx
+msgid "Неактивний"
+msgstr "Неактивний"
 
 #: src/shared/signing/client.ts
 msgid "Невідома помилка бібліотеки підпису."
@@ -1232,6 +1402,10 @@ msgstr "Невідомий формат підпису."
 #: src/features/auth/pages/LoginPage.tsx
 msgid "Некоректна адреса електронної пошти."
 msgstr "Некоректна адреса електронної пошти."
+
+#: src/features/profile/pages/ProfilePage.tsx
+msgid "Некоректний номер телефону."
+msgstr "Некоректний номер телефону."
 
 #: src/features/auth/pages/TwoFactorPage.tsx
 msgid "Немає доступу до телефону? <0>Увійти за резервним кодом</0>."
@@ -1252,6 +1426,10 @@ msgstr "Нижче"
 #: src/features/news/pages/NewsEditorPage.tsx
 msgid "Нова"
 msgstr "Нова"
+
+#: src/features/structure/pages/StructurePage.tsx
+msgid "Нова організація"
+msgstr "Нова організація"
 
 #: src/features/news/pages/NewsEditorPage.tsx
 #: src/features/news/pages/NewsManagePage.tsx
@@ -1324,6 +1502,14 @@ msgstr "Нових документів на підпис немає."
 #: src/features/news/components/Discussion.tsx
 msgid "Нові"
 msgstr "Нові"
+
+#: src/features/profile/pages/SecurityPage.tsx
+msgid "Нові коди"
+msgstr "Нові коди"
+
+#: src/features/profile/pages/SecurityPage.tsx
+msgid "Нові коди — збережіть їх зараз, вони більше не відображатимуться:"
+msgstr "Нові коди — збережіть їх зараз, вони більше не відображатимуться:"
 
 #: src/features/documents/pages/DocumentsPage.tsx
 msgid "Номер"
@@ -1414,15 +1600,37 @@ msgstr "Оплески"
 msgid "Опубліковано"
 msgstr "Опубліковано"
 
+#: src/features/structure/pages/StructurePage.tsx
+msgid "Організації, їхні підрозділи та працівники."
+msgstr "Організації, їхні підрозділи та працівники."
+
 #: src/features/news/pages/NewsEditorPage.tsx
 #: src/features/news/pages/NewsManagePage.tsx
 #: src/shared/signing/KeyPanel.tsx
 msgid "Організація"
 msgstr "Організація"
 
+#. placeholder {0}: unit.organization.name
+#: src/features/structure/pages/UnitPage.tsx
+msgid "Організація: {0}"
+msgstr "Організація: {0}"
+
+#: src/features/profile/pages/ProfilePage.tsx
+msgid "Основна"
+msgstr "Основна"
+
+#: src/features/profile/pages/ProfilePage.tsx
+msgid "Особисті дані, посади та доступні можливості."
+msgstr "Особисті дані, посади та доступні можливості."
+
 #: src/features/home/HomePage.tsx
 msgid "Останні оголошення"
 msgstr "Останні оголошення"
+
+#. placeholder {0}: formatDateTime(profile.lastSignInAt)
+#: src/features/profile/pages/ProfilePage.tsx
+msgid "Останній вхід: {0}"
+msgstr "Останній вхід: {0}"
 
 #: src/shared/signing/client.ts
 msgid "Остання підписана версія документа не збігається з даними системи. Оновіть сторінку й спробуйте ще раз."
@@ -1455,6 +1663,7 @@ msgid "Паролі не збігаються."
 msgstr "Паролі не збігаються."
 
 #: src/features/auth/pages/LoginPage.tsx
+#: src/features/profile/pages/SecurityPage.tsx
 msgid "Пароль"
 msgstr "Пароль"
 
@@ -1478,6 +1687,10 @@ msgstr "Пароль не може бути довшим за 128 символі
 #: src/shared/signing/KeyPanel.tsx
 msgid "Пароль не передається на сервер."
 msgstr "Пароль не передається на сервер."
+
+#: src/features/profile/pages/SecurityPage.tsx
+msgid "Пароль, двофакторна автентифікація, резервні коди та входи на інших пристроях."
+msgstr "Пароль, двофакторна автентифікація, резервні коди та входи на інших пристроях."
 
 #: src/features/signing/components/VerifyPanel.tsx
 #: src/features/signing/pages/SigningPages.tsx
@@ -1548,6 +1761,10 @@ msgstr "Перетягніть файли або натисніть, щоб об
 #: src/shared/ui/PhotoPicker.tsx
 msgid "Перетягніть фото та змініть масштаб, щоб обличчя було в колі."
 msgstr "Перетягніть фото та змініть масштаб, щоб обличчя було в колі."
+
+#: src/features/profile/pages/ProfilePage.tsx
+msgid "ПІБ та посади змінює відділ кадрів."
+msgstr "ПІБ та посади змінює відділ кадрів."
 
 #: src/features/news/components/RichTextEditor.tsx
 msgid "Підзаголовок"
@@ -1657,8 +1874,17 @@ msgstr "Підписів ще немає"
 
 #: src/features/documents/pages/DocumentEditorPage.tsx
 #: src/features/documents/pages/DocumentPage.tsx
+#: src/features/structure/pages/UnitPage.tsx
 msgid "Підрозділ"
 msgstr "Підрозділ"
+
+#: src/features/structure/pages/UnitPage.tsx
+msgid "Підрозділ не знайдено"
+msgstr "Підрозділ не знайдено"
+
+#: src/features/structure/pages/StructurePage.tsx
+msgid "Підрозділів не знайдено"
+msgstr "Підрозділів не знайдено"
 
 #: src/features/auth/pages/TwoFactorPage.tsx
 msgid "Підтвердження входу"
@@ -1759,9 +1985,18 @@ msgstr "Порядок коментарів"
 msgid "Порядок підписання"
 msgstr "Порядок підписання"
 
+#: src/features/structure/pages/UnitPage.tsx
 #: src/shared/signing/KeyPanel.tsx
 msgid "Посада"
 msgstr "Посада"
+
+#: src/features/profile/pages/ProfilePage.tsx
+msgid "Посади"
+msgstr "Посади"
+
+#: src/features/profile/pages/ProfilePage.tsx
+msgid "Посади не призначено"
+msgstr "Посади не призначено"
 
 #: src/features/news/components/RichTextEditor.tsx
 msgid "Посилання"
@@ -1800,9 +2035,38 @@ msgstr "потребує сервісу надавача"
 msgid "Почніть писати новину…"
 msgstr "Почніть писати новину…"
 
+#: src/features/structure/pages/UnitPage.tsx
+msgid "Пошук працівника"
+msgstr "Пошук працівника"
+
 #: src/features/news/pages/NewsPage.tsx
 msgid "Пошук у новинах"
 msgstr "Пошук у новинах"
+
+#: src/features/structure/pages/UnitPage.tsx
+msgid "Працівник"
+msgstr "Працівник"
+
+#: src/features/structure/pages/UnitPage.tsx
+msgid "Працівники"
+msgstr "Працівники"
+
+#: src/features/structure/pages/UnitPage.tsx
+msgid "Працівники підрозділу"
+msgstr "Працівники підрозділу"
+
+#: src/features/structure/components/UnitTree.tsx
+msgid "Працівників"
+msgstr "Працівників"
+
+#: src/features/structure/pages/UnitPage.tsx
+msgid "Працівників не знайдено"
+msgstr "Працівників не знайдено"
+
+#. placeholder {0}: child.staffCount
+#: src/features/structure/pages/UnitPage.tsx
+msgid "працівників: {0}"
+msgstr "працівників: {0}"
 
 #: src/features/documents/pages/DocumentEditorPage.tsx
 msgid "Прибрати"
@@ -1850,6 +2114,7 @@ msgid "Протокол"
 msgstr "Протокол"
 
 #: src/app/layout/navigation.ts
+#: src/features/profile/components/ProfileTabs.tsx
 msgid "Профіль"
 msgstr "Профіль"
 
@@ -1889,6 +2154,10 @@ msgstr "Реакцій"
 msgid "Реакція"
 msgstr "Реакція"
 
+#: src/features/profile/pages/SecurityPage.tsx
+msgid "Регулярно змінюйте пароль і не використовуйте його в інших сервісах."
+msgstr "Регулярно змінюйте пароль і не використовуйте його в інших сервісах."
+
 #: src/features/documents/pages/DocumentEditorPage.tsx
 #: src/features/news/pages/NewsEditorPage.tsx
 msgid "Редагування"
@@ -1905,6 +2174,7 @@ msgstr "Редагування публікації"
 #: src/features/documents/pages/DocumentPage.tsx
 #: src/features/news/pages/ArticlePage.tsx
 #: src/features/news/pages/NewsManagePage.tsx
+#: src/features/structure/pages/UnitPage.tsx
 msgid "Редагувати"
 msgstr "Редагувати"
 
@@ -1927,6 +2197,10 @@ msgstr "Резервний код"
 #: src/features/auth/pages/RecoveryPage.tsx
 msgid "Резервний код задовгий."
 msgstr "Резервний код задовгий."
+
+#: src/features/profile/pages/SecurityPage.tsx
+msgid "Резервні коди"
+msgstr "Резервні коди"
 
 #: src/features/documents/pages/DocumentEditorPage.tsx
 msgid "Реквізити"
@@ -1956,6 +2230,10 @@ msgstr "Розгорнути меню"
 msgid "Розділи документів"
 msgstr "Розділи документів"
 
+#: src/features/profile/components/ProfileTabs.tsx
+msgid "Розділи профілю"
+msgstr "Розділи профілю"
+
 #: src/features/news/components/RichTextEditor.tsx
 msgid "Розділювач"
 msgstr "Розділювач"
@@ -1968,6 +2246,11 @@ msgstr "Розмір файлу не може перевищувати 25 МБ."
 msgctxt "document-kind"
 msgid "Розпорядження"
 msgstr "Розпорядження"
+
+#. placeholder {0}: position.roleName
+#: src/features/profile/pages/ProfilePage.tsx
+msgid "роль «{0}»"
+msgstr "роль «{0}»"
 
 #: src/features/news/components/RichTextEditor.tsx
 msgid "Рядок"
@@ -2009,6 +2292,10 @@ msgstr "Скасувати (Ctrl+Z)"
 msgid "Скопійовано"
 msgstr "Скопійовано"
 
+#: src/features/profile/pages/SecurityPage.tsx
+msgid "Скопіювати"
+msgstr "Скопіювати"
+
 #: src/features/auth/pages/SetupAuthenticatorPage.tsx
 msgid "Скопіювати коди"
 msgstr "Скопіювати коди"
@@ -2037,6 +2324,10 @@ msgstr "Спробуйте змінити параметри пошуку або
 #: src/features/news/pages/NewsPage.tsx
 msgid "Спробуйте іншу категорію або пошуковий запит."
 msgstr "Спробуйте іншу категорію або пошуковий запит."
+
+#: src/features/structure/pages/StructurePage.tsx
+msgid "Спробуйте іншу назву або код."
+msgstr "Спробуйте іншу назву або код."
 
 #: src/app/pages/RouteError.tsx
 msgid "Сталася помилка"
@@ -2089,8 +2380,15 @@ msgid "Строк дії сертифіката ключа закінчився 
 msgstr "Строк дії сертифіката ключа закінчився або ще не настав."
 
 #: src/app/layout/navigation.ts
+#: src/features/structure/pages/StructurePage.tsx
+#: src/features/structure/pages/UnitPage.tsx
+#: src/shared/i18n/display.ts
 msgid "Структура"
 msgstr "Структура"
+
+#: src/features/structure/pages/StructurePage.tsx
+msgid "Структуру ще не заповнено"
+msgstr "Структуру ще не заповнено"
 
 #: src/shared/i18n/display.ts
 msgid "Сумнівно"
@@ -2123,6 +2421,15 @@ msgstr "Текст коментаря"
 #: src/features/news/pages/NewsEditorPage.tsx
 msgid "Текст новини"
 msgstr "Текст новини"
+
+#: src/features/profile/pages/ProfilePage.tsx
+#: src/features/structure/pages/UnitPage.tsx
+msgid "Телефон"
+msgstr "Телефон"
+
+#: src/features/profile/pages/ProfilePage.tsx
+msgid "Телефон збережено."
+msgstr "Телефон збережено."
 
 #: src/shared/ui/ThemeToggle.tsx
 msgid "Тема"
@@ -2177,6 +2484,10 @@ msgstr "Увійдіть за обліковим записом, виданим 
 msgid "Увійти"
 msgstr "Увійти"
 
+#: src/features/profile/pages/SecurityPage.tsx
+msgid "Увімкнено"
+msgstr "Увімкнено"
+
 #: src/features/home/HomePage.tsx
 msgid "Усе підписано"
 msgstr "Усе підписано"
@@ -2193,6 +2504,11 @@ msgstr "Усі види"
 #: src/features/documents/pages/DocumentsPage.tsx
 msgid "Усі доступні"
 msgstr "Усі доступні"
+
+#. placeholder {0}: profile.permissions.length
+#: src/features/profile/pages/ProfilePage.tsx
+msgid "Усі мої дозволи ({0})"
+msgstr "Усі мої дозволи ({0})"
 
 #: src/features/news/pages/ArticlePage.tsx
 msgid "Усі новини"

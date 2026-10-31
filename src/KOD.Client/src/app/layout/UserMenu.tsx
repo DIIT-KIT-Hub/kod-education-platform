@@ -1,7 +1,7 @@
 import { useLingui } from "@lingui/react/macro";
 import { useQueryClient } from "@tanstack/react-query";
 import { LogOut } from "lucide-react";
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { authApi } from "@/features/auth/api";
 import { describeError } from "@/shared/api/problem";
 import { disconnectLive } from "@/shared/realtime/live";
@@ -45,13 +45,13 @@ export function UserMenu() {
 
     return (
         <div className={styles.user}>
-            <a className={styles.userCard} href="/profile">
+            <Link className={styles.userCard} to="/profile">
                 <Avatar name={user.fullName} photoId={user.photoId} decorative />
                 <span className={styles.userText}>
                     <span className={[layout.strong, layout.truncate].join(" ")}>{user.shortName}</span>
                     <span className={[layout.textXs, layout.muted].join(" ")}>{t`Мій профіль`}</span>
                 </span>
-            </a>
+            </Link>
             <div className={[layout.row, styles.userActions].join(" ")}>
                 <ThemeToggle />
                 <Button variant="ghost" size="sm" iconOnly icon={LogOut} onClick={() => void signOut()}>

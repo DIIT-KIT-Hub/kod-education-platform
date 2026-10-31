@@ -79,4 +79,5 @@ export const Permissions = {
     usersView: "users.view",
     rolesManage: "roles.manage",
     auditView: "audit.view",
+    administrationAll: "administration.all",
 } as const;

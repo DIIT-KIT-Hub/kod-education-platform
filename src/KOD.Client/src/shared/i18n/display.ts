@@ -1,6 +1,7 @@
 import { msg } from "@lingui/core/macro";
 import type { MessageDescriptor } from "@lingui/core";
 import type {
+    AppModule,
     DocumentKind,
     DocumentStatus,
     NewsCategory,
@@ -26,6 +27,19 @@ export const documentKindNames: Record<DocumentKind, MessageDescriptor> = {
     Letter: msg({ message: "Лист", context: "document-kind" }),
     Act: msg({ message: "Акт", context: "document-kind" }),
     Other: msg({ message: "Інший документ", context: "document-kind" }),
+};
+
+/**
+ * The names of the modules (groups of permissions).
+ */
+export const moduleNames: Record<AppModule, MessageDescriptor> = {
+    Documents: msg`Документообіг`,
+    Signing: msg`Електронний підпис`,
+    News: msg`Новини`,
+    Structure: msg`Структура`,
+    Users: msg`Користувачі`,
+    Administration: msg`Адміністрування`,
+    Audit: msg`Аудит`,
 };
 
 /**

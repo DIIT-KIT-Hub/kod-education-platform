@@ -66,6 +66,20 @@ public sealed class ProfileController(IProfileService profile, UserManager<User>
     }
 
     /// <summary>
+    /// Replaces the recovery codes after the authenticator code is confirmed: a valid session alone is not enough.
+    /// </summary>
+    /// <param name="request">The authenticator code.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The new codes (shown once).</returns>
+    [HttpPost("recovery-codes")]
+    public async Task<ActionResult<RecoveryCodesResponse>> RegenerateRecoveryCodes(StepUpRequest request, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+        var result = await profile.RegenerateRecoveryCodesAsync(request.Code, cancellationToken);
+        return result.IsSuccess ? Ok(new RecoveryCodesResponse(result.Value)) : ProblemFor(result.Error);
+    }
+
+    /// <summary>
     /// Signs out on every other device: tokens issued before are no longer renewed, this browser gets new ones.
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>

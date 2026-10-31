@@ -2270,6 +2270,49 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/profile/recovery-codes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Replaces the recovery codes after the authenticator code is confirmed: a valid session alone is not enough. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            /** @description The cancellation token. */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["StepUpRequest"];
+                    "text/json": components["schemas"]["StepUpRequest"];
+                    "application/*+json": components["schemas"]["StepUpRequest"];
+                };
+            };
+            responses: {
+                /** @description The new codes (shown once). */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["RecoveryCodesResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/profile/sign-out-everywhere": {
         parameters: {
             query?: never;
@@ -3378,19 +3421,7 @@ export interface components {
          * @description Kind of an organizational and administrative document (the common set of Ukrainian office work, DSTU 4163).
          * @enum {unknown}
          */
-        DocumentKind:
-            | "Order"
-            | "Directive"
-            | "Memo"
-            | "Application"
-            | "Report"
-            | "Minutes"
-            | "Contract"
-            | "Certificate"
-            | "Regulation"
-            | "Letter"
-            | "Act"
-            | "Other";
+        DocumentKind: "Order" | "Directive" | "Memo" | "Application" | "Report" | "Minutes" | "Contract" | "Certificate" | "Regulation" | "Letter" | "Act" | "Other";
         /** @description A row of the document registry. */
         DocumentListItem: {
             /**
@@ -4440,6 +4471,11 @@ export interface components {
          * @enum {unknown}
          */
         SpreadsheetFormat: "Xlsx" | "Csv";
+        /** @description A code of the authenticator app that confirms a sensitive action (step-up authentication). */
+        StepUpRequest: {
+            /** @description The current authenticator code. */
+            code: string;
+        };
         /** @description Full information about an organization unit. */
         UnitDetails: {
             /**
@@ -4805,91 +4841,92 @@ export interface components {
     headers: never;
     pathItems: never;
 }
-export type AppModule = components["schemas"]["AppModule"];
-export type AuditEntryDto = components["schemas"]["AuditEntryDto"];
-export type AuthContextResponse = components["schemas"]["AuthContextResponse"];
-export type AuthenticatorSetupResponse = components["schemas"]["AuthenticatorSetupResponse"];
-export type ChangePasswordRequest = components["schemas"]["ChangePasswordRequest"];
-export type CodeRequest = components["schemas"]["CodeRequest"];
-export type CommentRequest = components["schemas"]["CommentRequest"];
-export type CommentSort = components["schemas"]["CommentSort"];
-export type CurrentUserResponse = components["schemas"]["CurrentUserResponse"];
-export type DashboardSummary = components["schemas"]["DashboardSummary"];
-export type DocumentActions = components["schemas"]["DocumentActions"];
-export type DocumentDetails = components["schemas"]["DocumentDetails"];
-export type DocumentEditModel = components["schemas"]["DocumentEditModel"];
-export type DocumentFileInfo = components["schemas"]["DocumentFileInfo"];
-export type DocumentKind = components["schemas"]["DocumentKind"];
-export type DocumentListItem = components["schemas"]["DocumentListItem"];
-export type DocumentScope = components["schemas"]["DocumentScope"];
-export type DocumentSignatureItem = components["schemas"]["DocumentSignatureItem"];
-export type DocumentSignerItem = components["schemas"]["DocumentSignerItem"];
-export type DocumentStatus = components["schemas"]["DocumentStatus"];
-export type DocumentStatusRequest = components["schemas"]["DocumentStatusRequest"];
-export type FileSigningRecord = components["schemas"]["FileSigningRecord"];
-export type IFormFile = components["schemas"]["IFormFile"];
-export type ImageCrop = components["schemas"]["ImageCrop"];
-export type ImportRowError = components["schemas"]["ImportRowError"];
-export type KeyMediaType = components["schemas"]["KeyMediaType"];
-export type LanguageRequest = components["schemas"]["LanguageRequest"];
-export type LoginRequest = components["schemas"]["LoginRequest"];
-export type LoginResponse = components["schemas"]["LoginResponse"];
-export type MediaDto = components["schemas"]["MediaDto"];
-export type NewPasswordRequest = components["schemas"]["NewPasswordRequest"];
-export type NewsArticleDto = components["schemas"]["NewsArticleDto"];
-export type NewsBodyFormat = components["schemas"]["NewsBodyFormat"];
-export type NewsCategory = components["schemas"]["NewsCategory"];
-export type NewsCommentDto = components["schemas"]["NewsCommentDto"];
-export type NewsDiscussion = components["schemas"]["NewsDiscussion"];
-export type NewsListItem = components["schemas"]["NewsListItem"];
-export type NewsOrganizationsResponse = components["schemas"]["NewsOrganizationsResponse"];
-export type NewsRequest = components["schemas"]["NewsRequest"];
-export type PagedResultOfAuditEntryDto = components["schemas"]["PagedResultOfAuditEntryDto"];
-export type PagedResultOfDocumentListItem = components["schemas"]["PagedResultOfDocumentListItem"];
-export type PagedResultOfNewsListItem = components["schemas"]["PagedResultOfNewsListItem"];
-export type PagedResultOfRoleListItem = components["schemas"]["PagedResultOfRoleListItem"];
-export type PagedResultOfUnitStaffItem = components["schemas"]["PagedResultOfUnitStaffItem"];
-export type PagedResultOfUserListItem = components["schemas"]["PagedResultOfUserListItem"];
-export type PendingSignInResponse = components["schemas"]["PendingSignInResponse"];
-export type PermissionDefinition = components["schemas"]["PermissionDefinition"];
-export type PhotoForm = components["schemas"]["PhotoForm"];
-export type PositionDto = components["schemas"]["PositionDto"];
-export type PositionInput = components["schemas"]["PositionInput"];
-export type ProfileDto = components["schemas"]["ProfileDto"];
-export type ProfileUpdateRequest = components["schemas"]["ProfileUpdateRequest"];
-export type ReactionCount = components["schemas"]["ReactionCount"];
-export type ReactionKind = components["schemas"]["ReactionKind"];
-export type ReactionSummary = components["schemas"]["ReactionSummary"];
-export type RecoveryCodesResponse = components["schemas"]["RecoveryCodesResponse"];
-export type RejectionRequest = components["schemas"]["RejectionRequest"];
-export type RoleDetails = components["schemas"]["RoleDetails"];
-export type RoleListItem = components["schemas"]["RoleListItem"];
-export type SaveRoleCommand = components["schemas"]["SaveRoleCommand"];
-export type SaveUnitCommand = components["schemas"]["SaveUnitCommand"];
-export type SaveUnitTypeCommand = components["schemas"]["SaveUnitTypeCommand"];
-export type SaveUserCommand = components["schemas"]["SaveUserCommand"];
-export type SignatureFormat = components["schemas"]["SignatureFormat"];
-export type SignaturePackaging = components["schemas"]["SignaturePackaging"];
-export type SignerCertificate = components["schemas"]["SignerCertificate"];
-export type SignerStatus = components["schemas"]["SignerStatus"];
-export type SigningMode = components["schemas"]["SigningMode"];
-export type SigningSession = components["schemas"]["SigningSession"];
-export type SpreadsheetFormat = components["schemas"]["SpreadsheetFormat"];
-export type UnitDetails = components["schemas"]["UnitDetails"];
-export type UnitOption = components["schemas"]["UnitOption"];
-export type UnitRef = components["schemas"]["UnitRef"];
-export type UnitStaffItem = components["schemas"]["UnitStaffItem"];
-export type UnitTreeNode = components["schemas"]["UnitTreeNode"];
-export type UnitTypeItem = components["schemas"]["UnitTypeItem"];
-export type UnitTypeRef = components["schemas"]["UnitTypeRef"];
-export type UserCredentials = components["schemas"]["UserCredentials"];
-export type UserDetails = components["schemas"]["UserDetails"];
-export type UserImportReport = components["schemas"]["UserImportReport"];
-export type UserListItem = components["schemas"]["UserListItem"];
-export type UserLookupItem = components["schemas"]["UserLookupItem"];
-export type UserPositionDto = components["schemas"]["UserPositionDto"];
-export type UserRef = components["schemas"]["UserRef"];
-export type UserStatusFilter = components["schemas"]["UserStatusFilter"];
-export type UserStatusRequest = components["schemas"]["UserStatusRequest"];
+export type AppModule = components['schemas']['AppModule'];
+export type AuditEntryDto = components['schemas']['AuditEntryDto'];
+export type AuthContextResponse = components['schemas']['AuthContextResponse'];
+export type AuthenticatorSetupResponse = components['schemas']['AuthenticatorSetupResponse'];
+export type ChangePasswordRequest = components['schemas']['ChangePasswordRequest'];
+export type CodeRequest = components['schemas']['CodeRequest'];
+export type CommentRequest = components['schemas']['CommentRequest'];
+export type CommentSort = components['schemas']['CommentSort'];
+export type CurrentUserResponse = components['schemas']['CurrentUserResponse'];
+export type DashboardSummary = components['schemas']['DashboardSummary'];
+export type DocumentActions = components['schemas']['DocumentActions'];
+export type DocumentDetails = components['schemas']['DocumentDetails'];
+export type DocumentEditModel = components['schemas']['DocumentEditModel'];
+export type DocumentFileInfo = components['schemas']['DocumentFileInfo'];
+export type DocumentKind = components['schemas']['DocumentKind'];
+export type DocumentListItem = components['schemas']['DocumentListItem'];
+export type DocumentScope = components['schemas']['DocumentScope'];
+export type DocumentSignatureItem = components['schemas']['DocumentSignatureItem'];
+export type DocumentSignerItem = components['schemas']['DocumentSignerItem'];
+export type DocumentStatus = components['schemas']['DocumentStatus'];
+export type DocumentStatusRequest = components['schemas']['DocumentStatusRequest'];
+export type FileSigningRecord = components['schemas']['FileSigningRecord'];
+export type IFormFile = components['schemas']['IFormFile'];
+export type ImageCrop = components['schemas']['ImageCrop'];
+export type ImportRowError = components['schemas']['ImportRowError'];
+export type KeyMediaType = components['schemas']['KeyMediaType'];
+export type LanguageRequest = components['schemas']['LanguageRequest'];
+export type LoginRequest = components['schemas']['LoginRequest'];
+export type LoginResponse = components['schemas']['LoginResponse'];
+export type MediaDto = components['schemas']['MediaDto'];
+export type NewPasswordRequest = components['schemas']['NewPasswordRequest'];
+export type NewsArticleDto = components['schemas']['NewsArticleDto'];
+export type NewsBodyFormat = components['schemas']['NewsBodyFormat'];
+export type NewsCategory = components['schemas']['NewsCategory'];
+export type NewsCommentDto = components['schemas']['NewsCommentDto'];
+export type NewsDiscussion = components['schemas']['NewsDiscussion'];
+export type NewsListItem = components['schemas']['NewsListItem'];
+export type NewsOrganizationsResponse = components['schemas']['NewsOrganizationsResponse'];
+export type NewsRequest = components['schemas']['NewsRequest'];
+export type PagedResultOfAuditEntryDto = components['schemas']['PagedResultOfAuditEntryDto'];
+export type PagedResultOfDocumentListItem = components['schemas']['PagedResultOfDocumentListItem'];
+export type PagedResultOfNewsListItem = components['schemas']['PagedResultOfNewsListItem'];
+export type PagedResultOfRoleListItem = components['schemas']['PagedResultOfRoleListItem'];
+export type PagedResultOfUnitStaffItem = components['schemas']['PagedResultOfUnitStaffItem'];
+export type PagedResultOfUserListItem = components['schemas']['PagedResultOfUserListItem'];
+export type PendingSignInResponse = components['schemas']['PendingSignInResponse'];
+export type PermissionDefinition = components['schemas']['PermissionDefinition'];
+export type PhotoForm = components['schemas']['PhotoForm'];
+export type PositionDto = components['schemas']['PositionDto'];
+export type PositionInput = components['schemas']['PositionInput'];
+export type ProfileDto = components['schemas']['ProfileDto'];
+export type ProfileUpdateRequest = components['schemas']['ProfileUpdateRequest'];
+export type ReactionCount = components['schemas']['ReactionCount'];
+export type ReactionKind = components['schemas']['ReactionKind'];
+export type ReactionSummary = components['schemas']['ReactionSummary'];
+export type RecoveryCodesResponse = components['schemas']['RecoveryCodesResponse'];
+export type RejectionRequest = components['schemas']['RejectionRequest'];
+export type RoleDetails = components['schemas']['RoleDetails'];
+export type RoleListItem = components['schemas']['RoleListItem'];
+export type SaveRoleCommand = components['schemas']['SaveRoleCommand'];
+export type SaveUnitCommand = components['schemas']['SaveUnitCommand'];
+export type SaveUnitTypeCommand = components['schemas']['SaveUnitTypeCommand'];
+export type SaveUserCommand = components['schemas']['SaveUserCommand'];
+export type SignatureFormat = components['schemas']['SignatureFormat'];
+export type SignaturePackaging = components['schemas']['SignaturePackaging'];
+export type SignerCertificate = components['schemas']['SignerCertificate'];
+export type SignerStatus = components['schemas']['SignerStatus'];
+export type SigningMode = components['schemas']['SigningMode'];
+export type SigningSession = components['schemas']['SigningSession'];
+export type SpreadsheetFormat = components['schemas']['SpreadsheetFormat'];
+export type StepUpRequest = components['schemas']['StepUpRequest'];
+export type UnitDetails = components['schemas']['UnitDetails'];
+export type UnitOption = components['schemas']['UnitOption'];
+export type UnitRef = components['schemas']['UnitRef'];
+export type UnitStaffItem = components['schemas']['UnitStaffItem'];
+export type UnitTreeNode = components['schemas']['UnitTreeNode'];
+export type UnitTypeItem = components['schemas']['UnitTypeItem'];
+export type UnitTypeRef = components['schemas']['UnitTypeRef'];
+export type UserCredentials = components['schemas']['UserCredentials'];
+export type UserDetails = components['schemas']['UserDetails'];
+export type UserImportReport = components['schemas']['UserImportReport'];
+export type UserListItem = components['schemas']['UserListItem'];
+export type UserLookupItem = components['schemas']['UserLookupItem'];
+export type UserPositionDto = components['schemas']['UserPositionDto'];
+export type UserRef = components['schemas']['UserRef'];
+export type UserStatusFilter = components['schemas']['UserStatusFilter'];
+export type UserStatusRequest = components['schemas']['UserStatusRequest'];
 export type $defs = Record<string, never>;
 export type operations = Record<string, never>;

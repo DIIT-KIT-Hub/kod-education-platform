@@ -29,7 +29,7 @@ const items: readonly NavigationItem[] = [
     { to: "/documents", text: msg`Документи`, icon: FileText, permissions: [Permissions.documentsView], tabBar: true },
     { to: "/signing", text: msg`Підписання`, icon: Signature, permissions: [Permissions.signingUse], tabBar: true },
     { to: "/news", text: msg`Новини`, icon: Newspaper, permissions: [Permissions.newsView], tabBar: true },
-    { href: "/structure", text: msg`Структура`, icon: Network, permissions: [Permissions.structureView], tabBar: false },
+    { to: "/structure", text: msg`Структура`, icon: Network, permissions: [Permissions.structureView], tabBar: false },
     {
         href: "/admin",
         text: msg`Адміністрування`,
@@ -43,7 +43,7 @@ const items: readonly NavigationItem[] = [
         ],
         tabBar: false,
     },
-    { href: "/profile", text: msg`Профіль`, icon: User, permissions: [], tabBar: true },
+    { to: "/profile", text: msg`Профіль`, icon: User, permissions: [], tabBar: true },
     { href: "/help", text: msg`Довідка`, icon: BookOpen, permissions: [], tabBar: false },
 ];
 

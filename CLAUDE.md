@@ -148,7 +148,7 @@ Dependencies point inward: Web → Infrastructure → Application → Domain. Ce
 
 The frontend moves from Blazor to a React SPA; at the end the MVC/Blazor part disappears and KOD.Web is a Web API plus
 the static SPA. Phases: 1 sign-in + shell + home (done), 2 documents and signing (done), 3 news (done),
-4 structure and profile, 5 administration, 6 manual, 7 remove Blazor and move the SPA from `/app` to `/`. Until a
+4 structure and profile (done), 5 administration, 6 manual, 7 remove Blazor and move the SPA from `/app` to `/`. Until a
 module is moved, the menu links to its Blazor page with a plain `href` (full page load); moved pages use `to`. A moved
 section loses its Blazor pages and its old addresses redirect to `/app/...` (`MovedSections` in `SpaHostingExtensions`),
 so links in the remaining Blazor pages and the manual keep working.
@@ -184,6 +184,10 @@ so links in the remaining Blazor pages and the manual keep working.
   translated; `<Field>` gives the control its id / `aria-describedby` / `aria-invalid` through a render prop.
 - **Pages** set the document title with `<DocumentTitle>` or `<PageHeader>` (React hoists `<title>`).
 - Global UI services are module stores read with `useSyncExternalStore`: `toast(text)`, `await confirm({...})`.
+- Unit type icons are stored as Lucide names (`UnitType.Icons` on the server); the client maps them to components in
+  `shared/lib/unitTypeIcons.ts` — add a new icon in both places. Module names: `moduleNames` in `shared/i18n/display.ts`.
+- After a language change, queries other than the auth context are invalidated: some data comes translated by the
+  server (permission titles, role and unit type names).
 - **Signing** (`shared/signing`): `SigningClient` (typed worker client; worker messages are Ukrainian and translated
   through a table in `client.ts`), `SigningWizard` (document or local files), `KeyPanel`, format rules in `formats.ts`.
   The worker (`eusign.worker.js`, plain JS) is bundled by Vite (`new Worker(new URL(...))`); the IIT library stays in

@@ -170,6 +170,41 @@ export const router = createBrowserRouter(
                                         },
                                     ],
                                 },
+                                {
+                                    path: "structure",
+                                    loader: requirePermission(Permissions.structureView),
+                                    children: [
+                                        {
+                                            index: true,
+                                            lazy: async () => ({
+                                                Component: (await import("@/features/structure/pages/StructurePage")).StructurePage,
+                                            }),
+                                        },
+                                        {
+                                            path: ":id",
+                                            lazy: async () => ({
+                                                Component: (await import("@/features/structure/pages/UnitPage")).UnitPage,
+                                            }),
+                                        },
+                                    ],
+                                },
+                                {
+                                    path: "profile",
+                                    children: [
+                                        {
+                                            index: true,
+                                            lazy: async () => ({
+                                                Component: (await import("@/features/profile/pages/ProfilePage")).ProfilePage,
+                                            }),
+                                        },
+                                        {
+                                            path: "security",
+                                            lazy: async () => ({
+                                                Component: (await import("@/features/profile/pages/SecurityPage")).SecurityPage,
+                                            }),
+                                        },
+                                    ],
+                                },
                                 { path: "*", Component: NotFoundPage },
                             ],
                         },

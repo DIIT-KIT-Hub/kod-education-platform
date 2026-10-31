@@ -176,7 +176,7 @@ internal static class WebServiceCollectionExtensions
                     if (HttpMethods.IsPost(context.Request.Method)
                         && (context.Request.Path.StartsWithSegments("/account", StringComparison.OrdinalIgnoreCase)
                             || context.Request.Path.StartsWithSegments("/api/v1/auth", StringComparison.OrdinalIgnoreCase)
-                            || context.Request.Path.StartsWithSegments("/profile", StringComparison.OrdinalIgnoreCase)))
+                            || context.Request.Path.StartsWithSegments("/api/v1/profile", StringComparison.OrdinalIgnoreCase)))
                     {
                         return RateLimitPartition.GetFixedWindowLimiter($"account:{client}", static _ => new FixedWindowRateLimiterOptions
                         {

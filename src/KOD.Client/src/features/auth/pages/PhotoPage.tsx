@@ -45,11 +45,7 @@ export function PhotoPage() {
             await uploadPhoto(photo.file, photo.crop);
             await reloadAuthContext(queryClient);
             toast(t`Фото збережено.`);
-            if (required) {
-                await navigate(returnUrl, { replace: true });
-            } else {
-                window.location.assign("/profile");
-            }
+            await navigate(required ? returnUrl : "/profile", { replace: true });
         } catch (failure) {
             setError(describeError(failure, t`Не вдалося зберегти фото. Спробуйте ще раз.`));
         } finally {
@@ -105,7 +101,7 @@ export function PhotoPage() {
                     {t`Вийти`}
                 </Button>
             ) : (
-                <ButtonLink href="/profile" variant="ghost" icon={ArrowLeft}>
+                <ButtonLink to="/profile" variant="ghost" icon={ArrowLeft}>
                     {t`Повернутися`}
                 </ButtonLink>
             )}

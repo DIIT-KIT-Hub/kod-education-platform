@@ -310,9 +310,9 @@ function DocumentView({ document }: { readonly document: DocumentDetails }) {
                                 [t`Вид`, t(documentKindNames[document.kind])],
                                 [
                                     t`Підрозділ`,
-                                    <a key="unit" className={layout.link} href={`/structure/${document.unit.id}`}>
+                                    <Link key="unit" className={layout.link} to={`/structure/${document.unit.id}`}>
                                         {document.unit.name}
-                                    </a>,
+                                    </Link>,
                                 ],
                                 [t`Автор`, <PersonName key="author" name={document.author.fullName} photoId={document.author.photoId} />],
                                 [t`Порядок підписання`, t(signingModeNames[document.signingMode])],

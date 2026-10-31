@@ -1750,35 +1750,6 @@ a.ds-list__item {
 
 a.ds-list__item:hover { background: var(--ds-color-surface-2); padding-inline: var(--ds-space-3); }
 
-/* Tree */
-.ds-tree,
-.ds-tree ul { margin: 0; padding: 0; list-style: none; }
-.ds-tree ul { margin-left: 1.15rem; padding-left: var(--ds-space-4); border-left: 1.5px solid var(--ds-color-border); }
-
-.ds-tree summary {
-    list-style: none;
-    cursor: pointer;
-}
-
-.ds-tree summary::-webkit-details-marker { display: none; }
-
-.ds-tree__row {
-    display: flex;
-    align-items: center;
-    gap: var(--ds-space-3);
-    padding: var(--ds-space-2) var(--ds-space-3);
-    border-radius: var(--ds-radius-sm);
-    transition: background-color var(--ds-duration-fast);
-}
-
-.ds-tree__row:hover { background: var(--ds-color-surface-2); }
-.ds-tree__chevron { transition: transform var(--ds-duration-base) var(--ds-ease-out); color: var(--ds-color-text-muted); }
-.ds-tree details[open] > summary .ds-tree__chevron { transform: rotate(90deg); }
-.ds-tree details[open] > ul { animation: ds-fade-up var(--ds-duration-base) var(--ds-ease-out) both; }
-.ds-tree__spacer { width: 1.25em; flex: none; }
-.ds-tree__name { font-weight: 650; text-decoration: none; }
-.ds-tree__name:hover { text-decoration: underline; }
-
 /* Toast */
 .ds-toast-region {
     position: fixed;

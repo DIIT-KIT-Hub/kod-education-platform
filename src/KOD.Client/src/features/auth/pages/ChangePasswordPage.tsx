@@ -61,11 +61,7 @@ export function ChangePasswordPage() {
             await authApi.changePassword(values.currentPassword, values.newPassword);
             await reloadAuthContext(queryClient);
             toast(t`Пароль змінено.`);
-            if (forced) {
-                await navigate(returnUrl, { replace: true });
-            } else {
-                window.location.assign("/profile/security");
-            }
+            await navigate(forced ? returnUrl : "/profile/security", { replace: true });
         } catch (failure) {
             setError(describeError(failure, t`Не вдалося зв'язатися з сервером. Спробуйте ще раз.`));
         }
@@ -106,7 +102,7 @@ export function ChangePasswordPage() {
             </form>
 
             {!forced && (
-                <ButtonLink href="/profile/security" variant="ghost" icon={ArrowLeft}>
+                <ButtonLink to="/profile/security" variant="ghost" icon={ArrowLeft}>
                     {t`Повернутися`}
                 </ButtonLink>
             )}
