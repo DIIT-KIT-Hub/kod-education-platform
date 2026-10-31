@@ -22,6 +22,7 @@ public static class Permissions
         new(Signing.Use, AppModule.Signing, "Підписання та перевірка файлів", "Інструменти підписання та перевірки довільних файлів у браузері."),
         new(News.View, AppModule.News, "Перегляд новин", "Перегляд новин та оголошень."),
         new(News.Manage, AppModule.News, "Керування новинами", "Створення, редагування та публікація новин."),
+        new(Chats.Use, AppModule.Chats, "Чати", "Особисті та групові чати з колегами в реальному часі: повідомлення, файли й фото."),
         new(Structure.View, AppModule.Structure, "Перегляд структури", "Перегляд організацій, їхніх підрозділів і працівників."),
         new(Structure.Manage, AppModule.Structure, "Керування структурою", "Створення та редагування організацій, підрозділів і типів підрозділів."),
         new(Users.View, AppModule.Users, "Перегляд користувачів", "Перегляд облікових записів користувачів."),
@@ -85,6 +86,15 @@ public static class Permissions
 
         /// <summary>Create, edit and publish news.</summary>
         public const string Manage = "news.manage";
+    }
+
+    /// <summary>
+    /// Chat permissions.
+    /// </summary>
+    public static class Chats
+    {
+        /// <summary>Write in one-to-one and group chats.</summary>
+        public const string Use = "chats.use";
     }
 
     /// <summary>

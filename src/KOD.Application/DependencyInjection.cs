@@ -1,5 +1,6 @@
 using KOD.Application.Common.Access;
 using KOD.Application.Features.Audit;
+using KOD.Application.Features.Chats;
 using KOD.Application.Features.Dashboard;
 using KOD.Application.Features.Documents;
 using KOD.Application.Features.Media;
@@ -35,6 +36,7 @@ public static class DependencyInjection
             services.AddScoped<IDocumentService, DocumentService>();
             services.AddScoped<INewsService, NewsService>();
             services.AddScoped<INewsDiscussionService, NewsDiscussionService>();
+            services.AddScoped<IChatService, ChatService>();
             services.AddScoped<MediaLibrary>();
             services.AddScoped<IMediaService, MediaService>();
             services.AddScoped<IOrganizationService, OrganizationService>();

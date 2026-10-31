@@ -1,6 +1,6 @@
 import { msg } from "@lingui/core/macro";
 import type { MessageDescriptor } from "@lingui/core";
-import { BookOpen, FileText, House, Network, Newspaper, Shield, Signature, User, type LucideIcon } from "lucide-react";
+import { BookOpen, FileText, House, MessagesSquare, Network, Newspaper, Shield, Signature, User, type LucideIcon } from "lucide-react";
 import { hasPermission, Permissions, type CurrentUser } from "@/shared/session/session";
 
 /**
@@ -38,7 +38,8 @@ export const adminPermissions: readonly string[] = [
 const items: readonly NavigationItem[] = [
     { to: "/", text: msg`Головна`, icon: House, permissions: [], tabBar: true },
     { to: "/documents", text: msg`Документи`, icon: FileText, permissions: [Permissions.documentsView], tabBar: true },
-    { to: "/signing", text: msg`Підписання`, icon: Signature, permissions: [Permissions.signingUse], tabBar: true },
+    { to: "/chats", text: msg`Чати`, icon: MessagesSquare, permissions: [Permissions.chatsUse], tabBar: true },
+    { to: "/signing", text: msg`Підписання`, icon: Signature, permissions: [Permissions.signingUse], tabBar: false },
     { to: "/news", text: msg`Новини`, icon: Newspaper, permissions: [Permissions.newsView], tabBar: true },
     { to: "/structure", text: msg`Структура`, icon: Network, permissions: [Permissions.structureView], tabBar: false },
     { to: "/admin", text: msg`Адміністрування`, icon: Shield, permissions: adminPermissions, tabBar: false },

@@ -45,15 +45,16 @@ export function GettingStartedChapter() {
                 <ul>
                     <li>
                         <strong>On a computer</strong> (screens from 1024 px) the menu is always visible on the left: <Ui>Home</Ui>,{" "}
-                        <Ui>Documents</Ui>, <Ui>Signing</Ui>, <Ui>News</Ui>, <Ui>Structure</Ui>, <Ui>Administration</Ui>, <Ui>Profile</Ui>,{" "}
-                        <Ui>Help</Ui>. At the bottom are your name (a link to your profile), the theme switch and the sign-out button. The
-                        round <Icon icon={ChevronLeft} /> button on the edge of the menu next to the logo collapses it to a narrow bar of
-                        icons (the item name appears on hover) and expands it again; your choice is remembered in the browser.
+                        <Ui>Documents</Ui>, <Ui>Chats</Ui>, <Ui>Signing</Ui>, <Ui>News</Ui>, <Ui>Structure</Ui>, <Ui>Administration</Ui>,{" "}
+                        <Ui>Profile</Ui>, <Ui>Help</Ui>. A number next to <Ui>Chats</Ui> shows unread messages. At the bottom are your name
+                        (a link to your profile), the theme switch and the sign-out button. The round <Icon icon={ChevronLeft} /> button on
+                        the edge of the menu next to the logo collapses it to a narrow bar of icons (the item name appears on hover) and
+                        expands it again; your choice is remembered in the browser.
                     </li>
                     <li>
                         <strong>On a phone</strong> there is a quick navigation bar at the bottom of the screen: <Ui>Home</Ui>,{" "}
-                        <Ui>Documents</Ui>, <Ui>Signing</Ui>, <Ui>News</Ui>, <Ui>Profile</Ui>. The other items are in the{" "}
-                        <Icon icon={Menu} /> menu in the top-right corner.
+                        <Ui>Documents</Ui>, <Ui>Chats</Ui>, <Ui>News</Ui>, <Ui>Profile</Ui>. The other items are in the <Icon icon={Menu} />{" "}
+                        menu in the top-right corner.
                     </li>
                     <li>
                         <strong>On a tablet</strong> the menu opens with the <Icon icon={Menu} /> button in the top bar.

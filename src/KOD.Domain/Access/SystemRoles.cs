@@ -43,7 +43,7 @@ public static class SystemRoles
     /// Permissions every staff member gets.
     /// </summary>
     private static readonly string[] BasePermissions =
-        [P.Documents.View, P.Documents.Create, P.Documents.Sign, P.Signing.Use, P.News.View, P.Structure.View];
+        [P.Documents.View, P.Documents.Create, P.Documents.Sign, P.Signing.Use, P.News.View, P.Chats.Use, P.Structure.View];
 
     /// <summary>
     /// Gets the definitions of all predefined roles.

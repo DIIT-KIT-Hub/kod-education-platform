@@ -15,7 +15,7 @@ the React single-page application (`src/KOD.Client`) at the root of the site. Th
 # from bin/Debug, which locks the Debug output. Warnings are errors (StyleCop + .NET analyzers).
 dotnet build tests/KOD.UnitTests/KOD.UnitTests.csproj -c Lead -v q -nologo -p:SkipClientBuild=true 2>&1 | grep -E "error|warn" | sort -u
 
-# Tests (xUnit v3 on Microsoft Testing Platform; ~130 tests, a few seconds)
+# Tests (xUnit v3 on Microsoft Testing Platform; ~140 tests, a few seconds)
 dotnet test tests/KOD.UnitTests -c Lead --no-build
 
 # Run (migrations and seeding run at startup). The user's own instance is usually on https://localhost:7180;
@@ -56,11 +56,12 @@ Write tool and run them with `node`. `/tmp` in Git Bash is not visible to Window
 
 ```
 src/KOD.Domain          Entities + invariants (User, Role, StaffPosition, OrganizationUnit, UnitType, Document with
-                        signers and signatures, NewsArticle with NewsComment/NewsReaction/NewsView, MediaFile, AuditEntry),
+                        signers and signatures, NewsArticle with NewsComment/NewsReaction/NewsView, Chat with ChatMember/
+                        ChatMessage/ChatAttachment/ChatReaction, MediaFile, AuditEntry),
                         permission catalog, system roles, Guard, DomainException, localization catalog
                         (Localization/Texts.cs, Languages.cs).
 src/KOD.Application     Use-case services (DocumentService, UserService, OrganizationService, UnitTypeService, RoleService,
-                        NewsService, NewsDiscussionService, MediaService + MediaLibrary, ProfileService, DashboardService,
+                        NewsService, NewsDiscussionService, ChatService, MediaService + MediaLibrary, ProfileService, DashboardService,
                         AuditService, SigningJournal), DTOs, Result<T>/Error, paging, access rules (IPermissionResolver,
                         IAccessScope, AdministrationScope), abstractions.
 src/KOD.Infrastructure  EF Core + PostgreSQL (snake_case, citext, xmin concurrency), migrations, seeding, Identity
@@ -141,11 +142,27 @@ Dependencies point inward: Web → Infrastructure → Application → Domain. Ce
   author answered, `ReplyCount` counts the branch). A deleted comment stays a placeholder while replies remain and goes
   away with the last one; nobody can answer it. The client draws branches with fold lines, shows 5 replies then "more",
   opens branches deeper than 6 on their own, pages threads (`?comments=`) and sorts them (Best / Newest / Oldest).
-- **Real time: SignalR** (`Realtime/LiveHub` at `/api/v1/live`, `[Authorize]`, own-origin connections only). One
-  connection per client (`shared/realtime/live.ts`, `useLiveGroup`); a page joins groups (`news:{id}` now, chats later)
-  and gets signals only — data still comes from the REST API, and every change goes through REST (antiforgery, audit).
-  `INewsDiscussionEvents.Publish` → `LiveNewsDiscussionEvents` → the article group. With several servers add a SignalR
-  backplane (Redis). Groups are joined again after a reconnect; sign-out and 401 stop the connection.
+- **Real time: SignalR** (`Realtime/LiveHub` at `/api/v1/live`, `[Authorize]`, own-origin connections only,
+  `CloseOnAuthenticationExpiration`: a connection closes when its access token expires and the client reconnects with a
+  fresh one, so a revoked sign-in stops receiving within minutes). One connection per client (`shared/realtime/live.ts`:
+  `useLiveEvent` for user-addressed messages, `useLiveGroup` for groups; it reconnects forever and backs off when
+  connections drop right after connecting). Every change goes through REST (antiforgery, validation); the only client →
+  hub call is `Typing`. News: `INewsDiscussionEvents` → the article group gets a signal, the page reloads through REST.
+  Chats: `IChatEvents` → `LiveChatEvents` → `Clients.Users(members)` (`SubjectUserIdProvider` maps connections to the
+  token subject) with the full `ChatMessageDto`; the members are read from the database for every change, never from
+  SignalR groups. Hub JSON uses the API conventions (enums as names). With several servers add a SignalR backplane
+  (Redis).
+- **Chats** (`ChatService`, `features/chats`): one-to-one (`Chat.DirectKey`, unique per pair) and group chats (owner
+  removes people, anyone renames/adds/leaves; the last member leaving deletes the chat with its files). Every message
+  takes the next `Chat.LastSequence` (xmin concurrency, retried), so numbers have no gaps: the client detects a gap in a
+  live message and fetches `?after=`; members keep `LastReadSequence` (unread = newer text messages of others).
+  `ClientId` (unique per chat and author) makes a resend idempotent; the client shows the message at once as pending
+  and offers "send again" with the same id. Bodies are sanitized by `IRichTextSanitizer.SanitizeMessage` (text
+  formatting and links only) and `ToText` gives previews. Attachments (`FileRules.ChatFileTypes` allow-list, 10 × 25 MB,
+  50 MB per message) go to `IFileStorage` (`chats/…`); photos become AVIF (`MediaPurpose.Chat`) with a thumbnail; all
+  are served by `GET /api/v1/chats/{id}/attachments/{attachmentId}` to members only, as downloads. The client keeps
+  each open conversation in the query cache (`threadQuery`, merged by `mergeMessages`), and `ChatSync` (mounted in the
+  shell for users with `chats.use`) applies live events everywhere, including the unread badge of the menu.
 
 ## React client (`src/KOD.Client`)
 
@@ -321,6 +338,11 @@ API at Information, static files, images and the SignalR connection at Debug, >3
   JWT, the one issued during a refresh) must carry the token issuer (`urn:kod`), or a token issued in one request fails
   with 400 in the next. Testing token refresh: run the app with
   `--Authentication:Jwt:AccessTokenLifetime=00:00:10 --Authentication:Jwt:ClockSkew=00:00:01` after `--`.
+- **Vitest transform cache**: `import.meta.glob` results are cached in `node_modules/.vitest-cache`; after adding a
+  file a glob should find (e.g. a manual chapter) delete that folder if a test still sees the old list.
+- **JWT clock skew and SignalR**: a token past its expiry but within the skew is renewed on requests that can set
+  cookies (`JwtAuthenticationHandler`); otherwise a SignalR connection opened with it closes at once and reconnects in
+  a loop until the skew runs out.
 - Navigating the browser to the same address with another `#hash` does not reload the page (the client keeps its
   language and state); reload explicitly when a test needs a fresh start.
 

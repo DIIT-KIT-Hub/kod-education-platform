@@ -43,6 +43,9 @@ internal sealed partial class VipsImageProcessor : IImageProcessor, IDisposable
 
         // Text and gallery images: up to 1600 px within 100 KB, thumbnails for gallery tiles and cards.
         [MediaPurpose.News] = new(MainSize: 1600, ThumbnailSize: 640, Square: false, MaxBytes: 100 * 1024),
+
+        // Chat photos: people zoom into screenshots and documents, so a larger size and budget; small conversation tiles.
+        [MediaPurpose.Chat] = new(MainSize: 2560, ThumbnailSize: 480, Square: false, MaxBytes: 600 * 1024),
     }.ToFrozenDictionary();
 
     /// <summary>

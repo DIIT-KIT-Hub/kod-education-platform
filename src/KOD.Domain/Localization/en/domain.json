@@ -55,6 +55,8 @@
   "Інструменти підписання та перевірки довільних файлів у браузері.": "In-browser tools to sign and verify any files.",
   "Перегляд новин": "View news",
   "Перегляд новин та оголошень.": "View news and announcements.",
+  "Чати": "Chats",
+  "Особисті та групові чати з колегами в реальному часі: повідомлення, файли й фото.": "One-to-one and group chats with colleagues in real time: messages, files and photos.",
   "Керування новинами": "Manage news",
   "Створення, редагування та публікація новин.": "Create, edit and publish news.",
   "Перегляд структури": "View structure",
@@ -103,5 +105,17 @@
   "Некоректне зображення.": "Invalid image.",
   "Коментар": "Comment",
   "Коментар видалено.": "The comment was deleted.",
-  "Гілка обговорення надто глибока: відповідайте вище.": "The discussion branch is too deep: reply higher up."
+  "Гілка обговорення надто глибока: відповідайте вище.": "The discussion branch is too deep: reply higher up.",
+  "Вилучати людей із чату може лише його власник.": "Only the owner of the chat can remove people from it.",
+  "Додайте до чату хоча б одну людину.": "Add at least one person to the chat.",
+  "Назва чату": "Chat title",
+  "Не можна почати чат із самим собою.": "You cannot start a chat with yourself.",
+  "У груповому чаті може бути не більше {0} учасників.": "A group chat can have at most {0} members.",
+  "Це можна зробити лише в груповому чаті.": "This can only be done in a group chat.",
+  "Цієї людини немає в чаті.": "This person is not in the chat.",
+  "До повідомлення можна додати не більше {0} файлів.": "A message can have at most {0} files.",
+  "Напишіть повідомлення або додайте файл.": "Write a message or attach a file.",
+  "Повідомлення задовге: не більше {0} символів.": "The message is too long: at most {0} characters.",
+  "Це повідомлення не можна видалити.": "This message cannot be deleted.",
+  "Це повідомлення не можна змінити.": "This message cannot be edited."
 }

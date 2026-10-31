@@ -1,6 +1,7 @@
 using KOD.Application.Abstractions;
 using KOD.Application.Common.Access;
 using KOD.Application.Common.Results;
+using KOD.Application.Features.Chats;
 using KOD.Application.Features.Media;
 using KOD.Application.Features.News;
 using KOD.Application.Features.News.Discussion;
@@ -45,7 +46,7 @@ internal sealed class TwoOrganizations : IDisposable
         BProj = Unit("B-PROJ", DivisionType, B);
 
         Hr = Role(SystemRoles.HrSpecialist, Permissions.Users.View, Permissions.Users.Manage, Permissions.Users.Import, Permissions.Users.Export, Permissions.Users.Security, Permissions.Documents.View);
-        Employee = Role(SystemRoles.Employee, Permissions.Documents.View, Permissions.News.View);
+        Employee = Role(SystemRoles.Employee, Permissions.Documents.View, Permissions.News.View, Permissions.Chats.Use);
         Steward = Role("steward", Permissions.Structure.View, Permissions.Structure.Manage, Permissions.News.View, Permissions.News.Manage, Permissions.Documents.View);
         Administrator = Role(SystemRoles.Administrator);
 
@@ -123,6 +124,16 @@ internal sealed class TwoOrganizations : IDisposable
     /// <summary>Gets the image storage shared by the services.</summary>
     public MemoryMediaStorage Storage { get; } = new();
 
+    /// <summary>
+    /// Gets the private file storage of the chat attachments.
+    /// </summary>
+    public MemoryFileStorage Files { get; } = new();
+
+    /// <summary>
+    /// Gets the chat changes sent to the members' pages.
+    /// </summary>
+    public RecordedChatEvents ChatEvents { get; } = new();
+
     /// <summary>Gets or sets the rows the fake spreadsheet returns.</summary>
     public IReadOnlyList<UserSheetRow> SheetRows { get; set; } = [];
 
@@ -147,7 +158,8 @@ internal sealed class TwoOrganizations : IDisposable
             new OrganizationService(Db, currentUser, scope, audit),
             new NewsService(Db, currentUser, scope, new FakeMarkdown(), new RichTextSanitizer(), media, audit, TimeProvider.System),
             new NewsDiscussionService(Db, currentUser, scope, new SilentDiscussionEvents(), audit, TimeProvider.System),
-            new MediaService(currentUser, media));
+            new MediaService(currentUser, media),
+            new ChatService(Db, currentUser, new RichTextSanitizer(), new FakeImageProcessor(), Files, ChatEvents, TimeProvider.System));
     }
 
     /// <summary>
@@ -217,13 +229,15 @@ internal sealed class TwoOrganizations : IDisposable
     /// <param name="News">The news service.</param>
     /// <param name="Discussion">The news discussion service.</param>
     /// <param name="Media">The image upload service.</param>
+    /// <param name="Chats">The chat service.</param>
     internal sealed record Services(
         IAccessScope Scope,
         IUserService Users,
         IOrganizationService Organization,
         INewsService News,
         INewsDiscussionService Discussion,
-        IMediaService Media);
+        IMediaService Media,
+        IChatService Chats);
 
     /// <summary>
     /// An in-memory image storage.
@@ -247,6 +261,75 @@ internal sealed class TwoOrganizations : IDisposable
 
         /// <inheritdoc />
         public void Delete(Guid id) => Stored.Remove(id);
+    }
+
+    /// <summary>
+    /// Keeps chat files in memory.
+    /// </summary>
+    internal sealed class MemoryFileStorage : IFileStorage
+    {
+        /// <summary>
+        /// Gets the stored files by key.
+        /// </summary>
+        public Dictionary<string, byte[]> Stored { get; } = [];
+
+        /// <inheritdoc />
+        public async Task<StoredBlob> SaveAsync(Stream content, string category, long maxSize, CancellationToken cancellationToken)
+        {
+            using var buffer = new MemoryStream();
+            await content.CopyToAsync(buffer, cancellationToken);
+            var key = $"{category}/{Guid.NewGuid():N}";
+            Stored[key] = buffer.ToArray();
+            return new StoredBlob(key, buffer.Length, "sha");
+        }
+
+        /// <inheritdoc />
+        public Task<Stream> OpenReadAsync(string storageKey, CancellationToken cancellationToken)
+            => Task.FromResult<Stream>(new MemoryStream(Stored[storageKey]));
+
+        /// <inheritdoc />
+        public Task DeleteAsync(string storageKey, CancellationToken cancellationToken)
+        {
+            Stored.Remove(storageKey);
+            return Task.CompletedTask;
+        }
+    }
+
+    /// <summary>
+    /// Records the chat changes sent to the members' pages.
+    /// </summary>
+    internal sealed class RecordedChatEvents : IChatEvents
+    {
+        /// <summary>
+        /// Gets the delivered messages with their recipients.
+        /// </summary>
+        public List<(IReadOnlyCollection<Guid> Recipients, ChatMessageDto Message)> Added { get; } = [];
+
+        /// <summary>
+        /// Gets the chats removed for some people.
+        /// </summary>
+        public List<(IReadOnlyCollection<Guid> Recipients, Guid ChatId)> Removed { get; } = [];
+
+        /// <inheritdoc />
+        public void MessageAdded(IReadOnlyCollection<Guid> recipients, ChatMessageDto message) => Added.Add((recipients, message));
+
+        /// <inheritdoc />
+        public void MessageChanged(IReadOnlyCollection<Guid> recipients, ChatMessageDto message)
+        {
+        }
+
+        /// <inheritdoc />
+        public void ChatChanged(IReadOnlyCollection<Guid> recipients, Guid chatId)
+        {
+        }
+
+        /// <inheritdoc />
+        public void ChatRemoved(IReadOnlyCollection<Guid> recipients, Guid chatId) => Removed.Add((recipients, chatId));
+
+        /// <inheritdoc />
+        public void Read(IReadOnlyCollection<Guid> recipients, Guid chatId, Guid userId, long sequence)
+        {
+        }
     }
 
     /// <summary>

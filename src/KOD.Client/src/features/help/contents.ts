@@ -5,6 +5,7 @@ import {
     FileText,
     House,
     KeyRound,
+    MessagesSquare,
     Network,
     Newspaper,
     Shield,
@@ -166,6 +167,31 @@ export const helpChapters: readonly HelpChapter[] = [
                 title: msg({ message: "Форматування тексту, фото та галереї", context: "help" }),
                 permissions: ["news.manage"],
             },
+        ],
+    },
+    {
+        id: "chats",
+        title: msg({ message: "Чати", context: "help" }),
+        icon: MessagesSquare,
+        summary: msg({
+            message: "Особисті та групові чати з колегами в реальному часі: повідомлення, форматування, файли й фото.",
+            context: "help",
+        }),
+        permissions: ["chats.use"],
+        topics: [
+            { id: "chats-start", title: msg({ message: "Список чатів і новий чат", context: "help" }), permissions: ["chats.use"] },
+            {
+                id: "chats-write",
+                title: msg({ message: "Повідомлення, форматування та файли", context: "help" }),
+                permissions: ["chats.use"],
+            },
+            {
+                id: "chats-actions",
+                title: msg({ message: "Реакції, зміна та видалення, прочитання", context: "help" }),
+                permissions: ["chats.use"],
+            },
+            { id: "chats-groups", title: msg({ message: "Групові чати та учасники", context: "help" }), permissions: ["chats.use"] },
+            { id: "chats-privacy", title: msg({ message: "Хто бачить чати і файли", context: "help" }), permissions: ["chats.use"] },
         ],
     },
     {

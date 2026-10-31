@@ -220,6 +220,268 @@ namespace KOD.Infrastructure.Persistence.Migrations
                     b.ToTable("audit_entries", (string)null);
                 });
 
+            modelBuilder.Entity("KOD.Domain.Chats.Chat", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid>("CreatedById")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by_id");
+
+                    b.Property<string>("DirectKey")
+                        .HasMaxLength(65)
+                        .HasColumnType("character varying(65)")
+                        .HasColumnName("direct_key");
+
+                    b.Property<int>("Kind")
+                        .HasColumnType("integer")
+                        .HasColumnName("kind");
+
+                    b.Property<DateTimeOffset>("LastActivityAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_activity_at");
+
+                    b.Property<long>("LastSequence")
+                        .HasColumnType("bigint")
+                        .HasColumnName("last_sequence");
+
+                    b.Property<string>("Title")
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("title");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id")
+                        .HasName("pk_chats");
+
+                    b.HasIndex("DirectKey")
+                        .IsUnique()
+                        .HasDatabaseName("ix_chats_direct_key")
+                        .HasFilter("direct_key IS NOT NULL");
+
+                    b.ToTable("chats", (string)null);
+                });
+
+            modelBuilder.Entity("KOD.Domain.Chats.ChatAttachment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("ChatId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("chat_id");
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("content_type");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("file_name");
+
+                    b.Property<int?>("Height")
+                        .HasColumnType("integer")
+                        .HasColumnName("height");
+
+                    b.Property<int>("Kind")
+                        .HasColumnType("integer")
+                        .HasColumnName("kind");
+
+                    b.Property<Guid>("MessageId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("message_id");
+
+                    b.Property<int>("Position")
+                        .HasColumnType("integer")
+                        .HasColumnName("position");
+
+                    b.Property<long>("Size")
+                        .HasColumnType("bigint")
+                        .HasColumnName("size");
+
+                    b.Property<string>("StorageKey")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)")
+                        .HasColumnName("storage_key");
+
+                    b.Property<string>("ThumbnailKey")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)")
+                        .HasColumnName("thumbnail_key");
+
+                    b.Property<int?>("Width")
+                        .HasColumnType("integer")
+                        .HasColumnName("width");
+
+                    b.HasKey("Id")
+                        .HasName("pk_chat_attachments");
+
+                    b.HasIndex("ChatId")
+                        .HasDatabaseName("ix_chat_attachments_chat_id");
+
+                    b.HasIndex("MessageId")
+                        .HasDatabaseName("ix_chat_attachments_message_id");
+
+                    b.ToTable("chat_attachments", (string)null);
+                });
+
+            modelBuilder.Entity("KOD.Domain.Chats.ChatMember", b =>
+                {
+                    b.Property<Guid>("ChatId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("chat_id");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.Property<DateTimeOffset>("JoinedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("joined_at");
+
+                    b.Property<long>("LastReadSequence")
+                        .HasColumnType("bigint")
+                        .HasColumnName("last_read_sequence");
+
+                    b.Property<int>("Role")
+                        .HasColumnType("integer")
+                        .HasColumnName("role");
+
+                    b.HasKey("ChatId", "UserId")
+                        .HasName("pk_chat_members");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("ix_chat_members_user_id");
+
+                    b.ToTable("chat_members", (string)null);
+                });
+
+            modelBuilder.Entity("KOD.Domain.Chats.ChatMessage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("AuthorId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("author_id");
+
+                    b.Property<string>("Body")
+                        .IsRequired()
+                        .HasMaxLength(20000)
+                        .HasColumnType("character varying(20000)")
+                        .HasColumnName("body");
+
+                    b.Property<Guid>("ChatId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("chat_id");
+
+                    b.Property<Guid?>("ClientId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("client_id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateTimeOffset?>("EditedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("edited_at");
+
+                    b.Property<int?>("Event")
+                        .HasColumnType("integer")
+                        .HasColumnName("event");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<int>("Kind")
+                        .HasColumnType("integer")
+                        .HasColumnName("kind");
+
+                    b.Property<long>("Sequence")
+                        .HasColumnType("bigint")
+                        .HasColumnName("sequence");
+
+                    b.Property<string>("Text")
+                        .IsRequired()
+                        .HasMaxLength(5000)
+                        .HasColumnType("character varying(5000)")
+                        .HasColumnName("text");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_chat_messages");
+
+                    b.HasIndex("AuthorId")
+                        .HasDatabaseName("ix_chat_messages_author_id");
+
+                    b.HasIndex("ChatId", "Sequence")
+                        .IsUnique()
+                        .HasDatabaseName("ix_chat_messages_chat_id_sequence");
+
+                    b.HasIndex("ChatId", "AuthorId", "ClientId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_chat_messages_chat_id_author_id_client_id")
+                        .HasFilter("client_id IS NOT NULL");
+
+                    b.ToTable("chat_messages", (string)null);
+                });
+
+            modelBuilder.Entity("KOD.Domain.Chats.ChatReaction", b =>
+                {
+                    b.Property<Guid>("MessageId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("message_id");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)")
+                        .HasColumnName("kind");
+
+                    b.HasKey("MessageId", "UserId")
+                        .HasName("pk_chat_reactions");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("ix_chat_reactions_user_id");
+
+                    b.ToTable("chat_reactions", (string)null);
+                });
+
             modelBuilder.Entity("KOD.Domain.Documents.Document", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1285,6 +1547,71 @@ namespace KOD.Infrastructure.Persistence.Migrations
                         .HasConstraintName("fk_user_claims_users_user_id");
                 });
 
+            modelBuilder.Entity("KOD.Domain.Chats.ChatAttachment", b =>
+                {
+                    b.HasOne("KOD.Domain.Chats.ChatMessage", null)
+                        .WithMany("Attachments")
+                        .HasForeignKey("MessageId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_chat_attachments_chat_messages_message_id");
+                });
+
+            modelBuilder.Entity("KOD.Domain.Chats.ChatMember", b =>
+                {
+                    b.HasOne("KOD.Domain.Chats.Chat", null)
+                        .WithMany("Members")
+                        .HasForeignKey("ChatId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_chat_members_chats_chat_id");
+
+                    b.HasOne("KOD.Domain.Users.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_chat_members_users_user_id");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("KOD.Domain.Chats.ChatMessage", b =>
+                {
+                    b.HasOne("KOD.Domain.Users.User", "Author")
+                        .WithMany()
+                        .HasForeignKey("AuthorId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_chat_messages_users_author_id");
+
+                    b.HasOne("KOD.Domain.Chats.Chat", null)
+                        .WithMany()
+                        .HasForeignKey("ChatId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_chat_messages_chats_chat_id");
+
+                    b.Navigation("Author");
+                });
+
+            modelBuilder.Entity("KOD.Domain.Chats.ChatReaction", b =>
+                {
+                    b.HasOne("KOD.Domain.Chats.ChatMessage", null)
+                        .WithMany()
+                        .HasForeignKey("MessageId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_chat_reactions_chat_messages_message_id");
+
+                    b.HasOne("KOD.Domain.Users.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_chat_reactions_users_user_id");
+                });
+
             modelBuilder.Entity("KOD.Domain.Documents.Document", b =>
                 {
                     b.HasOne("KOD.Domain.Users.User", "Author")
@@ -1530,6 +1857,16 @@ namespace KOD.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("KOD.Domain.Access.Role", b =>
                 {
                     b.Navigation("Permissions");
+                });
+
+            modelBuilder.Entity("KOD.Domain.Chats.Chat", b =>
+                {
+                    b.Navigation("Members");
+                });
+
+            modelBuilder.Entity("KOD.Domain.Chats.ChatMessage", b =>
+                {
+                    b.Navigation("Attachments");
                 });
 
             modelBuilder.Entity("KOD.Domain.Documents.Document", b =>

@@ -111,6 +111,17 @@ export const router = createBrowserRouter([
                                 ],
                             },
                             {
+                                path: "chats",
+                                loader: requirePermission(Permissions.chatsUse),
+                                children: [
+                                    {
+                                        // One page for the list and the open chat: switching chats keeps the list.
+                                        path: ":chatId?",
+                                        lazy: async () => ({ Component: (await import("@/features/chats/pages/ChatsPage")).ChatsPage }),
+                                    },
+                                ],
+                            },
+                            {
                                 path: "news",
                                 loader: requirePermission(Permissions.newsView),
                                 children: [

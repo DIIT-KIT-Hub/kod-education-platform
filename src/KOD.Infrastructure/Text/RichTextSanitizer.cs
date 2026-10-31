@@ -1,3 +1,4 @@
+using System.Net;
 using System.Text.RegularExpressions;
 using AngleSharp.Dom;
 using Ganss.Xss;
@@ -17,6 +18,11 @@ internal sealed partial class RichTextSanitizer : IRichTextSanitizer
     /// The configured sanitizer (thread-safe once configured).
     /// </summary>
     private readonly HtmlSanitizer _sanitizer;
+
+    /// <summary>
+    /// The sanitizer of chat messages (text formatting only; the chat editor produces nothing else).
+    /// </summary>
+    private readonly HtmlSanitizer _messageSanitizer;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="RichTextSanitizer"/> class.
@@ -46,10 +52,40 @@ internal sealed partial class RichTextSanitizer : IRichTextSanitizer
                 Normalize(element);
             }
         };
+
+        _messageSanitizer = new HtmlSanitizer(new HtmlSanitizerOptions
+        {
+            AllowedTags = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+            {
+                "p", "br", "strong", "b", "em", "i", "u", "s", "code", "pre", "blockquote", "ul", "ol", "li", "a",
+            },
+            AllowedAttributes = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "href", "target", "rel", "start" },
+            AllowedSchemes = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "http", "https", "mailto", "tel" },
+            UriAttributes = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "href" },
+        });
+        _messageSanitizer.PostProcessNode += static (_, args) =>
+        {
+            if (args.Node is IElement element)
+            {
+                Normalize(element);
+            }
+        };
     }
 
     /// <inheritdoc />
     public string Sanitize(string html) => _sanitizer.Sanitize(html ?? string.Empty).Trim();
+
+    /// <inheritdoc />
+    public string SanitizeMessage(string html) => _messageSanitizer.Sanitize(html ?? string.Empty).Trim();
+
+    /// <inheritdoc />
+    public string ToText(string html)
+    {
+        var text = BlockEndPattern().Replace(html ?? string.Empty, "\n");
+        text = WebUtility.HtmlDecode(TagPattern().Replace(text, string.Empty)).Replace(' ', ' ');
+        var lines = text.Split('\n').Select(static line => SpacePattern().Replace(line, " ").Trim());
+        return BlankLinesPattern().Replace(string.Join('\n', lines), "\n\n").Trim();
+    }
 
     /// <inheritdoc />
     public bool IsEmpty(string html)
@@ -131,4 +167,25 @@ internal sealed partial class RichTextSanitizer : IRichTextSanitizer
     /// <returns>The regular expression.</returns>
     [GeneratedRegex("<[^>]*>", RegexOptions.CultureInvariant)]
     private static partial Regex TagPattern();
+
+    /// <summary>
+    /// Matches the end of a block (and a line break), which separates lines of the visible text.
+    /// </summary>
+    /// <returns>The regular expression.</returns>
+    [GeneratedRegex("<br\\s*/?>|</(p|li|pre|blockquote|h[1-6]|tr|div)>", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)]
+    private static partial Regex BlockEndPattern();
+
+    /// <summary>
+    /// Matches a run of spaces and tabs.
+    /// </summary>
+    /// <returns>The regular expression.</returns>
+    [GeneratedRegex("[ \\t\\r]+", RegexOptions.CultureInvariant)]
+    private static partial Regex SpacePattern();
+
+    /// <summary>
+    /// Matches more than one empty line.
+    /// </summary>
+    /// <returns>The regular expression.</returns>
+    [GeneratedRegex("\\n{3,}", RegexOptions.CultureInvariant)]
+    private static partial Regex BlankLinesPattern();
 }

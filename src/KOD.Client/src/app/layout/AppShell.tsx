@@ -3,7 +3,8 @@ import { ChevronLeft, Menu, X } from "lucide-react";
 import { useRef, useState, type FocusEvent, type MouseEvent } from "react";
 import { Link, Outlet } from "react-router";
 import { toggleSidebar, useSidebarCollapsed } from "@/shared/lib/preferences";
-import { useCurrentUser } from "@/shared/session/session";
+import { ChatSync, useUnreadChats } from "@/features/chats/components/ChatSync";
+import { hasPermission, Permissions, useCurrentUser } from "@/shared/session/session";
 import layout from "@/shared/styles/layout.module.css";
 import { BrandMark, ProductName } from "@/shared/ui/Brand";
 import { Button } from "@/shared/ui/Button";
@@ -31,6 +32,8 @@ export function AppShell() {
     const { t } = useLingui();
     const user = useCurrentUser();
     const items = navigationFor(user);
+    const canChat = hasPermission(user, Permissions.chatsUse);
+    const counts = { "/chats": useUnreadChats(canChat) };
     const collapsed = useSidebarCollapsed();
     const drawer = useRef<HTMLDivElement>(null);
     const [tip, setTip] = useState<RailTip | null>(null);
@@ -79,6 +82,7 @@ export function AppShell() {
                             items={items}
                             linkClassName={styles.navLink}
                             activeClassName={styles.active}
+                            counts={counts}
                             onHint={hint}
                             onNavigate={() => setTip(null)}
                         />
@@ -126,6 +130,7 @@ export function AppShell() {
                             items={items}
                             linkClassName={styles.navLink}
                             activeClassName={styles.active}
+                            counts={counts}
                             onNavigate={() => drawer.current?.hidePopover()}
                         />
                     </nav>
@@ -144,11 +149,14 @@ export function AppShell() {
                     <NavLinks
                         items={items.filter((item) => item.tabBar)}
                         limit={5}
+                        counts={counts}
                         linkClassName={styles.tab}
                         activeClassName={styles.active}
                     />
                 </nav>
             </div>
+
+            {canChat && <ChatSync />}
 
             {tip && (
                 <div className={styles.railTip} style={{ left: tip.left, top: tip.top }} aria-hidden="true">

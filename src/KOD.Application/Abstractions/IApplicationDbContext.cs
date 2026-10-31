@@ -1,5 +1,6 @@
 using KOD.Domain.Access;
 using KOD.Domain.Audit;
+using KOD.Domain.Chats;
 using KOD.Domain.Documents;
 using KOD.Domain.Media;
 using KOD.Domain.News;
@@ -78,6 +79,31 @@ public interface IApplicationDbContext
     /// Gets the uploaded images.
     /// </summary>
     DbSet<MediaFile> MediaFiles { get; }
+
+    /// <summary>
+    /// Gets the chats.
+    /// </summary>
+    DbSet<Chat> Chats { get; }
+
+    /// <summary>
+    /// Gets the members of chats.
+    /// </summary>
+    DbSet<ChatMember> ChatMembers { get; }
+
+    /// <summary>
+    /// Gets the chat messages.
+    /// </summary>
+    DbSet<ChatMessage> ChatMessages { get; }
+
+    /// <summary>
+    /// Gets the files and photos of chat messages.
+    /// </summary>
+    DbSet<ChatAttachment> ChatAttachments { get; }
+
+    /// <summary>
+    /// Gets the reactions to chat messages.
+    /// </summary>
+    DbSet<ChatReaction> ChatReactions { get; }
 
     /// <summary>
     /// Gets the audit trail.

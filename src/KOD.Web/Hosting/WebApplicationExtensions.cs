@@ -58,7 +58,11 @@ internal static class WebApplicationExtensions
 
             app.MapStaticAssets().AllowAnonymous();
             app.MapControllers();
-            app.MapHub<LiveHub>(LiveHub.Route);
+
+            // SignalR checks the user only when connecting: closing at the token expiry makes the client reconnect with
+            // a fresh token, so a blocked user or an ended sign-in stops receiving chat messages.
+            app.MapHub<LiveHub>(LiveHub.Route, static options => options.CloseOnAuthenticationExpiration = true);
+
             app.MapEuSignProxy();
             app.MapTrustList();
             app.MapMediaEndpoints();

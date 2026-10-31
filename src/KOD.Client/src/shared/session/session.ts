@@ -84,4 +84,5 @@ export const Permissions = {
     usersImport: "users.import",
     usersExport: "users.export",
     administrationAll: "administration.all",
+    chatsUse: "chats.use",
 } as const;

@@ -129,6 +129,26 @@
     animation: var(--ds-anim-pop);
 }
 
+/* The number on a menu entry (unread chat messages). */
+.count {
+    margin-left: auto;
+    min-width: 1.25rem;
+    padding: 0.05rem 0.4rem;
+    border-radius: var(--ds-radius-pill);
+    background: var(--ds-color-inverse);
+    color: var(--ds-color-on-inverse);
+    font-size: var(--ds-fs-xs);
+    font-weight: 800;
+    line-height: 1.4;
+    text-align: center;
+    animation: var(--ds-anim-pop-fast);
+}
+
+.active .count {
+    background: var(--ds-color-on-primary);
+    color: var(--ds-color-primary);
+}
+
 /* Drawer (popover) */
 .drawer {
     position: fixed;
@@ -233,6 +253,20 @@
 .tab.active {
     background: var(--ds-color-primary);
     color: var(--ds-color-on-primary);
+}
+
+.tab {
+    position: relative;
+}
+
+.tab .count {
+    position: absolute;
+    top: 0.15rem;
+    right: 18%;
+    min-width: 1rem;
+    margin: 0;
+    padding: 0 0.3rem;
+    font-size: 0.625rem;
 }
 
 @media (min-width: 768px) {
@@ -384,10 +418,18 @@
     }
 
     :global([data-sidebar="collapsed"]) .sidebar .brandText,
-    :global([data-sidebar="collapsed"]) .sidebar .navLink > span,
+    :global([data-sidebar="collapsed"]) .sidebar .navLink > span:not(.count),
     :global([data-sidebar="collapsed"]) .sidebar .userText {
         max-width: 0;
         opacity: 0;
+    }
+
+    /* On the rail the count sits on the corner of the icon. */
+    :global([data-sidebar="collapsed"]) .sidebar .count {
+        position: absolute;
+        top: 0.2rem;
+        right: 0.35rem;
+        margin: 0;
     }
 
     :global([data-sidebar="collapsed"]) .sidebar .user {

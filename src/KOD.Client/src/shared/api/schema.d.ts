@@ -4,124 +4,6 @@
  */
 
 export interface paths {
-    "/account/language": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody: {
-                content: {
-                    "multipart/form-data": {
-                        language: string;
-                    } & {
-                        returnUrl?: string;
-                    };
-                    "application/x-www-form-urlencoded": {
-                        language: string;
-                    } & {
-                        returnUrl?: string;
-                    };
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/account/logout": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/account/photo": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody: {
-                content: {
-                    "multipart/form-data": {
-                        photo?: components["schemas"]["IFormFile"];
-                    } & components["schemas"]["PhotoForm"];
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/media/{id}": {
         parameters: {
             query?: never;
@@ -674,6 +556,651 @@ export interface paths {
                 };
             };
         };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/chats": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Lists the chats of the current user, the most recently active first, with unread counts. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description The chats. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ChatSummary"][];
+                    };
+                };
+            };
+        };
+        put?: never;
+        /** Creates a group chat. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            /** @description The cancellation token. */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["CreateGroupChatRequest"];
+                    "text/json": components["schemas"]["CreateGroupChatRequest"];
+                    "application/*+json": components["schemas"]["CreateGroupChatRequest"];
+                };
+            };
+            responses: {
+                /** @description 201 with the chat. */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ChatIdResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/chats/people": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Finds people to chat with by name or e-mail. */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description The search text (at least two characters). */
+                    term?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Up to 20 people. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["UserLookupItem"][];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/chats/direct": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Opens the one-to-one chat with a person, creating it on the first call. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            /** @description The cancellation token. */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["OpenDirectChatRequest"];
+                    "text/json": components["schemas"]["OpenDirectChatRequest"];
+                    "application/*+json": components["schemas"]["OpenDirectChatRequest"];
+                };
+            };
+            responses: {
+                /** @description The chat. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ChatIdResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/chats/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Gets a chat with its members. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The chat. */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description The chat with its members. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ChatDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/chats/{id}/title": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Renames a group chat. */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The chat. */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            /** @description The cancellation token. */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["ChatTitleRequest"];
+                    "text/json": components["schemas"]["ChatTitleRequest"];
+                    "application/*+json": components["schemas"]["ChatTitleRequest"];
+                };
+            };
+            responses: {
+                /** @description 204 on success. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/chats/{id}/members": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Adds people to a group chat. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The chat. */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            /** @description The cancellation token. */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["ChatMembersRequest"];
+                    "text/json": components["schemas"]["ChatMembersRequest"];
+                    "application/*+json": components["schemas"]["ChatMembersRequest"];
+                };
+            };
+            responses: {
+                /** @description 204 on success. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/chats/{id}/members/{userId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Leaves a group chat (the current user) or removes a person from it (the owner). */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The chat. */
+                    id: string;
+                    /** @description The person. */
+                    userId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description 204 on success. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/chats/{id}/messages": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Gets messages: the newest page, the page before a number or the messages after a number. */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Return older messages than this number. */
+                    before?: number;
+                    /** @description Return newer messages than this number. */
+                    after?: number;
+                    /** @description The number of messages (1–100). */
+                    limit?: number;
+                };
+                header?: never;
+                path: {
+                    /** @description The chat. */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description The messages, oldest first. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ChatMessagePage"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        /**
+         * Sends a message (multipart: the HTML of the editor and up to ten files). A resend with the same client identifier
+         *     returns the message already sent.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The chat. */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            /** @description Gets or sets the attached files and photos. */
+            requestBody: {
+                content: {
+                    "multipart/form-data": {
+                        /** Format: uuid */
+                        ClientId?: string;
+                        Body?: string;
+                        Files?: components["schemas"]["IFormFile"][];
+                    };
+                };
+            };
+            responses: {
+                /** @description The saved message. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ChatMessageDto"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/chats/{id}/messages/{messageId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Replaces the text of the current user's message. */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The chat. */
+                    id: string;
+                    /** @description The message. */
+                    messageId: string;
+                };
+                cookie?: never;
+            };
+            /** @description The cancellation token. */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["ChatMessageRequest"];
+                    "text/json": components["schemas"]["ChatMessageRequest"];
+                    "application/*+json": components["schemas"]["ChatMessageRequest"];
+                };
+            };
+            responses: {
+                /** @description The edited message. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ChatMessageDto"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        /** Deletes the current user's message with its files. */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The chat. */
+                    id: string;
+                    /** @description The message. */
+                    messageId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description 204 on success. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/chats/{id}/messages/{messageId}/reactions/{kind}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Sets the current user's reaction to a message; the same reaction again removes it. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The chat. */
+                    id: string;
+                    /** @description The message. */
+                    messageId: string;
+                    /** @description The emotion. */
+                    kind: components["schemas"]["ReactionKind"];
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description The message with its reactions. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ChatMessageDto"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/chats/{id}/read": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Marks the chat as read up to a message. */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The chat. */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            /** @description The cancellation token. */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["ChatReadRequest"];
+                    "text/json": components["schemas"]["ChatReadRequest"];
+                    "application/*+json": components["schemas"]["ChatReadRequest"];
+                };
+            };
+            responses: {
+                /** @description 204 on success. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/chats/{id}/attachments/{attachmentId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Downloads a file of a message, or a photo in full size. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The chat. */
+                    id: string;
+                    /** @description The attachment. */
+                    attachmentId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description The file. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/octet-stream": components["schemas"]["FileStreamResult"];
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/chats/{id}/attachments/{attachmentId}/thumb": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Gets the thumbnail of a photo. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The chat. */
+                    id: string;
+                    /** @description The attachment. */
+                    attachmentId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description The thumbnail. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "image/avif": components["schemas"]["FileStreamResult"];
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        put?: never;
         post?: never;
         delete?: never;
         options?: never;
@@ -3447,7 +3974,7 @@ export interface components {
          * @description Functional module of the cabinet. A module is visible to a user when the user has at least one of its permissions.
          * @enum {unknown}
          */
-        AppModule: "Documents" | "Signing" | "News" | "Structure" | "Users" | "Administration" | "Audit";
+        AppModule: "Documents" | "Signing" | "News" | "Structure" | "Users" | "Administration" | "Audit" | "Chats";
         /** @description A row of the audit trail. */
         AuditEntryDto: {
             /**
@@ -3513,6 +4040,261 @@ export interface components {
             /** @description The new password. */
             newPassword: string;
         };
+        /** @description A file or a photo of a chat message. */
+        ChatAttachmentDto: {
+            /**
+             * Format: uuid
+             * @description The identifier.
+             */
+            id: string;
+            /** @description The kind. */
+            kind: components["schemas"]["ChatAttachmentKind"];
+            /** @description The file name. */
+            fileName: string;
+            /** @description The media type. */
+            contentType: string;
+            /**
+             * Format: int64
+             * @description The size in bytes.
+             */
+            size: number;
+            /**
+             * Format: int32
+             * @description The width of a photo.
+             */
+            width: null | number;
+            /**
+             * Format: int32
+             * @description The height of a photo.
+             */
+            height: null | number;
+            /** @description The address of the file (members only). */
+            url: string;
+            /** @description The address of the thumbnail of a photo. */
+            thumbnailUrl: null | string;
+        };
+        /**
+         * @description The kind of a chat attachment.
+         * @enum {unknown}
+         */
+        ChatAttachmentKind: "File" | "Image";
+        /** @description A chat with its members. */
+        ChatDetails: {
+            /**
+             * Format: uuid
+             * @description The identifier.
+             */
+            id: string;
+            /** @description The kind. */
+            kind: components["schemas"]["ChatKind"];
+            /** @description The title of a group chat. */
+            title: null | string;
+            /** @description The members, the owner first, then by name. */
+            members: components["schemas"]["ChatMemberDto"][];
+            /**
+             * Format: int64
+             * @description The number of the newest message.
+             */
+            lastSequence: number;
+            /** @description The role of the current user. */
+            myRole: components["schemas"]["ChatMemberRole"];
+        };
+        /** @enum {unknown} */
+        ChatEvent: "Created" | "Renamed" | "MembersAdded" | "MemberRemoved" | "MemberLeft" | null;
+        /** @description The chat a request opened or created. */
+        ChatIdResponse: {
+            /**
+             * Format: uuid
+             * @description The chat identifier.
+             */
+            id: string;
+        };
+        /**
+         * @description The kind of a chat.
+         * @enum {unknown}
+         */
+        ChatKind: "Direct" | "Group";
+        /** @description A member of a chat. */
+        ChatMemberDto: {
+            /** @description The person. */
+            user: components["schemas"]["UserRef"];
+            /** @description The role. */
+            role: components["schemas"]["ChatMemberRole"];
+            /** @description The primary position with its unit. */
+            position: null | string;
+            /**
+             * Format: int64
+             * @description The number of the last message the person has read ("seen").
+             */
+            lastReadSequence: number;
+            /** @description Whether the account is active (a blocked person still reads nothing). */
+            isActive: boolean;
+        };
+        /**
+         * @description The role of a member in a group chat.
+         * @enum {unknown}
+         */
+        ChatMemberRole: "Member" | "Owner";
+        /** @description Body of `POST /api/v1/chats/{id}/members`. */
+        ChatMembersRequest: {
+            /** @description The people to add. */
+            userIds: string[];
+        };
+        /**
+         * @description A chat message. It is the same for every member (it is pushed to all of them), so it carries no per-reader flags:
+         *     the client compares the author and the reacting people with the current user.
+         */
+        ChatMessageDto: {
+            /**
+             * Format: uuid
+             * @description The identifier.
+             */
+            id: string;
+            /**
+             * Format: uuid
+             * @description The chat.
+             */
+            chatId: string;
+            /**
+             * Format: int64
+             * @description The number in the chat.
+             */
+            sequence: number;
+            /** @description The author (for a system note, the person who acted). */
+            author: components["schemas"]["UserRef"];
+            /** @description The kind. */
+            kind: components["schemas"]["ChatMessageKind"];
+            event: null | components["schemas"]["ChatEvent"];
+            /** @description The sanitized HTML (empty for a system note and once deleted). */
+            body: string;
+            /** @description The visible text (the details of a system note). */
+            text: string;
+            /**
+             * Format: date-time
+             * @description The moment of writing.
+             */
+            createdAt: string;
+            /**
+             * Format: date-time
+             * @description The moment of the last edit.
+             */
+            editedAt: null | string;
+            /** @description Whether the message was deleted. */
+            isDeleted: boolean;
+            /**
+             * Format: uuid
+             * @description The identifier the author's browser gave the message (matches a message being sent).
+             */
+            clientId: null | string;
+            /** @description The files and photos. */
+            attachments: components["schemas"]["ChatAttachmentDto"][];
+            /** @description The reactions, by emotion. */
+            reactions: components["schemas"]["ChatReactionDto"][];
+        };
+        /**
+         * @description The kind of a chat message.
+         * @enum {unknown}
+         */
+        ChatMessageKind: "Text" | "System";
+        /** @description A run of consecutive messages of a chat, oldest first. */
+        ChatMessagePage: {
+            /** @description The messages. */
+            messages: components["schemas"]["ChatMessageDto"][];
+            /** @description Whether more messages exist in the requested direction (older, or newer after a number). */
+            hasMore: boolean;
+            /**
+             * Format: int64
+             * @description The number of the newest message of the chat.
+             */
+            lastSequence: number;
+        };
+        /** @description Body of `PUT /api/v1/chats/{id}/messages/{messageId}`. */
+        ChatMessageRequest: {
+            /** @description The HTML of the editor. */
+            body: string;
+        };
+        /** @description The newest message of a chat, as the chat list shows it. */
+        ChatPreview: {
+            /** @description The author. */
+            author: components["schemas"]["UserRef"];
+            /** @description The kind. */
+            kind: components["schemas"]["ChatMessageKind"];
+            event: null | components["schemas"]["ChatEvent"];
+            /** @description The visible text (the details of a system note). */
+            text: string;
+            /** @description Whether the message was deleted. */
+            isDeleted: boolean;
+            /**
+             * Format: int32
+             * @description The number of attachments.
+             */
+            attachmentCount: number;
+            /**
+             * Format: date-time
+             * @description The moment of writing.
+             */
+            createdAt: string;
+        };
+        /** @description The people who showed one emotion on a message. */
+        ChatReactionDto: {
+            /** @description The emotion. */
+            kind: components["schemas"]["ReactionKind"];
+            /** @description The people. */
+            userIds: string[];
+        };
+        /** @description Body of `PUT /api/v1/chats/{id}/read`. */
+        ChatReadRequest: {
+            /**
+             * Format: int64
+             * @description The number of the last read message.
+             */
+            sequence: number;
+        };
+        /** @description A chat in the list of the current user's chats. */
+        ChatSummary: {
+            /**
+             * Format: uuid
+             * @description The identifier.
+             */
+            id: string;
+            /** @description The kind. */
+            kind: components["schemas"]["ChatKind"];
+            /** @description The title of a group chat (`null`: the client shows the members' names). */
+            title: null | string;
+            /** @description The other members (up to four, for the avatars and the name of an untitled chat). */
+            members: components["schemas"]["UserRef"][];
+            /**
+             * Format: int32
+             * @description The number of members, the current user included.
+             */
+            memberCount: number;
+            lastMessage: null | components["schemas"]["ChatPreview"];
+            /**
+             * Format: date-time
+             * @description The moment of the newest message, or of the creation.
+             */
+            lastActivityAt: string;
+            /**
+             * Format: int64
+             * @description The number of the newest message.
+             */
+            lastSequence: number;
+            /**
+             * Format: int64
+             * @description The number of the last message the current user has read.
+             */
+            lastReadSequence: number;
+            /**
+             * Format: int32
+             * @description The number of messages of others the current user has not read.
+             */
+            unreadCount: number;
+        };
+        /** @description Body of `PUT /api/v1/chats/{id}/title`. */
+        ChatTitleRequest: {
+            /** @description The new title, or empty to show the members' names. */
+            title: null | string;
+        };
         /** @description A one-time code: an authenticator (TOTP) code or a recovery code. */
         CodeRequest: {
             /** @description The code. */
@@ -3535,6 +4317,13 @@ export interface components {
          * @enum {unknown}
          */
         CommentSort: "Best" | "Newest" | "Oldest";
+        /** @description Body of `POST /api/v1/chats`: a group chat. */
+        CreateGroupChatRequest: {
+            /** @description The title, or empty to show the members' names. */
+            title: null | string;
+            /** @description The other members. */
+            memberIds: string[];
+        };
         /** @description Body of `POST /api/v1/user-imports/credentials`: the temporary passwords of an applied import. */
         CredentialsFileRequest: {
             /** @description The credentials. */
@@ -3837,6 +4626,10 @@ export interface components {
             /** @description The target state. */
             status: components["schemas"]["DocumentStatus"];
         };
+        EntityTagHeaderValue: {
+            tag?: components["schemas"]["StringSegment"];
+            isWeak?: boolean;
+        };
         /** @description What the file signing tool reports after signing files in the browser: names and parameters only, never the content. */
         FileSigningRecord: {
             /** @description The names of the signed files. */
@@ -3852,19 +4645,17 @@ export interface components {
             /** @description The certificate issuer (trust service provider). */
             issuer: null | string;
         };
+        FileStreamResult: {
+            fileStream?: components["schemas"]["Stream"];
+            contentType?: null | string;
+            fileDownloadName?: null | string;
+            /** Format: date-time */
+            lastModified?: null | string;
+            entityTag?: null | components["schemas"]["EntityTagHeaderValue"];
+            enableRangeProcessing?: boolean;
+        };
         /** Format: binary */
         IFormFile: string;
-        ImageCrop: {
-            /** Format: double */
-            left?: number;
-            /** Format: double */
-            top?: number;
-            /** Format: double */
-            width?: number;
-            /** Format: double */
-            height?: number;
-            isValid?: boolean;
-        };
         /** @description A validation problem of an imported row. */
         ImportRowError: {
             /**
@@ -4164,6 +4955,14 @@ export interface components {
              */
             allowComments: boolean;
         };
+        /** @description Body of `POST /api/v1/chats/direct`. */
+        OpenDirectChatRequest: {
+            /**
+             * Format: uuid
+             * @description The person to chat with.
+             */
+            userId: string;
+        };
         /** @description A single page of items with the information needed to render pagination. */
         PagedResultOfAuditEntryDto: {
             /** @description The items of the current page. */
@@ -4454,21 +5253,6 @@ export interface components {
             title?: null | string;
             /** @description Gets the user-facing explanation of what the permission allows, in the current interface language. */
             description?: null | string;
-        };
-        /** @description The text fields of the photo form. */
-        PhotoForm: {
-            /** @description Gets or sets the left edge of the crop square (a fraction, invariant culture). */
-            cropLeft?: null | string;
-            /** @description Gets or sets the top edge of the crop square. */
-            cropTop?: null | string;
-            /** @description Gets or sets the width of the crop square. */
-            cropWidth?: null | string;
-            /** @description Gets or sets the height of the crop square. */
-            cropHeight?: null | string;
-            /** @description Gets or sets the local page to return to. */
-            returnUrl?: null | string;
-            /** @description Gets the crop square, or `null` when the browser sent none (no script): the centre is used. */
-            crop?: components["schemas"]["ImageCrop"];
         };
         /** @description A position held by a user. */
         PositionDto: {
@@ -4813,6 +5597,17 @@ export interface components {
         StepUpRequest: {
             /** @description The current authenticator code. */
             code: string;
+        };
+        /** Format: binary */
+        Stream: string;
+        StringSegment: {
+            buffer?: null | string;
+            /** Format: int32 */
+            offset?: number;
+            /** Format: int32 */
+            length?: number;
+            value?: null | string;
+            hasValue?: boolean;
         };
         /** @description Describes a predefined role that is created on the first start of the system. */
         SystemRoleDefinition: {
@@ -5220,9 +6015,28 @@ export type AuditEntryDto = components['schemas']['AuditEntryDto'];
 export type AuthContextResponse = components['schemas']['AuthContextResponse'];
 export type AuthenticatorSetupResponse = components['schemas']['AuthenticatorSetupResponse'];
 export type ChangePasswordRequest = components['schemas']['ChangePasswordRequest'];
+export type ChatAttachmentDto = components['schemas']['ChatAttachmentDto'];
+export type ChatAttachmentKind = components['schemas']['ChatAttachmentKind'];
+export type ChatDetails = components['schemas']['ChatDetails'];
+export type ChatEvent = components['schemas']['ChatEvent'];
+export type ChatIdResponse = components['schemas']['ChatIdResponse'];
+export type ChatKind = components['schemas']['ChatKind'];
+export type ChatMemberDto = components['schemas']['ChatMemberDto'];
+export type ChatMemberRole = components['schemas']['ChatMemberRole'];
+export type ChatMembersRequest = components['schemas']['ChatMembersRequest'];
+export type ChatMessageDto = components['schemas']['ChatMessageDto'];
+export type ChatMessageKind = components['schemas']['ChatMessageKind'];
+export type ChatMessagePage = components['schemas']['ChatMessagePage'];
+export type ChatMessageRequest = components['schemas']['ChatMessageRequest'];
+export type ChatPreview = components['schemas']['ChatPreview'];
+export type ChatReactionDto = components['schemas']['ChatReactionDto'];
+export type ChatReadRequest = components['schemas']['ChatReadRequest'];
+export type ChatSummary = components['schemas']['ChatSummary'];
+export type ChatTitleRequest = components['schemas']['ChatTitleRequest'];
 export type CodeRequest = components['schemas']['CodeRequest'];
 export type CommentRequest = components['schemas']['CommentRequest'];
 export type CommentSort = components['schemas']['CommentSort'];
+export type CreateGroupChatRequest = components['schemas']['CreateGroupChatRequest'];
 export type CredentialsFileRequest = components['schemas']['CredentialsFileRequest'];
 export type CurrentUserResponse = components['schemas']['CurrentUserResponse'];
 export type DashboardSummary = components['schemas']['DashboardSummary'];
@@ -5237,9 +6051,10 @@ export type DocumentSignatureItem = components['schemas']['DocumentSignatureItem
 export type DocumentSignerItem = components['schemas']['DocumentSignerItem'];
 export type DocumentStatus = components['schemas']['DocumentStatus'];
 export type DocumentStatusRequest = components['schemas']['DocumentStatusRequest'];
+export type EntityTagHeaderValue = components['schemas']['EntityTagHeaderValue'];
 export type FileSigningRecord = components['schemas']['FileSigningRecord'];
+export type FileStreamResult = components['schemas']['FileStreamResult'];
 export type IFormFile = components['schemas']['IFormFile'];
-export type ImageCrop = components['schemas']['ImageCrop'];
 export type ImportRowError = components['schemas']['ImportRowError'];
 export type KeyMediaType = components['schemas']['KeyMediaType'];
 export type LanguageRequest = components['schemas']['LanguageRequest'];
@@ -5255,6 +6070,7 @@ export type NewsDiscussion = components['schemas']['NewsDiscussion'];
 export type NewsListItem = components['schemas']['NewsListItem'];
 export type NewsOrganizationsResponse = components['schemas']['NewsOrganizationsResponse'];
 export type NewsRequest = components['schemas']['NewsRequest'];
+export type OpenDirectChatRequest = components['schemas']['OpenDirectChatRequest'];
 export type PagedResultOfAuditEntryDto = components['schemas']['PagedResultOfAuditEntryDto'];
 export type PagedResultOfDocumentListItem = components['schemas']['PagedResultOfDocumentListItem'];
 export type PagedResultOfNewsListItem = components['schemas']['PagedResultOfNewsListItem'];
@@ -5264,7 +6080,6 @@ export type PagedResultOfUnitStaffItem = components['schemas']['PagedResultOfUni
 export type PagedResultOfUserListItem = components['schemas']['PagedResultOfUserListItem'];
 export type PendingSignInResponse = components['schemas']['PendingSignInResponse'];
 export type PermissionDefinition = components['schemas']['PermissionDefinition'];
-export type PhotoForm = components['schemas']['PhotoForm'];
 export type PositionDto = components['schemas']['PositionDto'];
 export type PositionInput = components['schemas']['PositionInput'];
 export type ProfileDto = components['schemas']['ProfileDto'];
@@ -5289,6 +6104,8 @@ export type SigningMode = components['schemas']['SigningMode'];
 export type SigningSession = components['schemas']['SigningSession'];
 export type SpreadsheetFormat = components['schemas']['SpreadsheetFormat'];
 export type StepUpRequest = components['schemas']['StepUpRequest'];
+export type Stream = components['schemas']['Stream'];
+export type StringSegment = components['schemas']['StringSegment'];
 export type SystemRoleDefinition = components['schemas']['SystemRoleDefinition'];
 export type UnitDetails = components['schemas']['UnitDetails'];
 export type UnitListItem = components['schemas']['UnitListItem'];

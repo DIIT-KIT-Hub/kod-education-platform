@@ -10,4 +10,7 @@ public enum MediaPurpose
 
     /// <summary>An image of a news article: in the text, in a gallery or the cover.</summary>
     News,
+
+    /// <summary>A photo sent in a chat (kept with the chat's private files, not as a <see cref="MediaFile"/>).</summary>
+    Chat,
 }

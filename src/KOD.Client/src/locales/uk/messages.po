@@ -41,6 +41,21 @@ msgstr "[видалено]"
 msgid "{0} або {1}"
 msgstr "{0} або {1}"
 
+#. placeholder {0}: shortName(first.fullName)
+#: src/features/chats/components/Conversation.tsx
+msgid "{0} пише…"
+msgstr "{0} пише…"
+
+#. placeholder {0}: typing.map((user) => shortName(user.fullName).split(" ")[1] ?? user.fullName).join(", ")
+#: src/features/chats/components/Conversation.tsx
+msgid "{0} пишуть…"
+msgstr "{0} пишуть…"
+
+#. placeholder {0}: names.join(", ")
+#: src/features/chats/display.ts
+msgid "{0} та ще {rest}"
+msgstr "{0} та ще {rest}"
+
 #. placeholder {0}: quoted[0]
 #. placeholder {1}: quoted[1]
 #. placeholder {2}: quoted.length - 2
@@ -63,6 +78,34 @@ msgstr "{firstText}–{lastText} з {totalText}"
 #: src/features/signing/components/VerifyPanel.tsx
 msgid "{format} · {container} · підписів: {count}"
 msgstr "{format} · {container} · підписів: {count}"
+
+#: src/features/chats/display.ts
+msgid "{name} вилучає з чату: {details}"
+msgstr "{name} вилучає з чату: {details}"
+
+#: src/features/chats/display.ts
+msgid "{name} додає до чату: {details}"
+msgstr "{name} додає до чату: {details}"
+
+#: src/features/chats/display.ts
+msgid "{name} залишає чат"
+msgstr "{name} залишає чат"
+
+#: src/features/chats/display.ts
+msgid "{name} змінює назву чату на «{details}»"
+msgstr "{name} змінює назву чату на «{details}»"
+
+#: src/features/chats/display.ts
+msgid "{name} прибирає назву чату"
+msgstr "{name} прибирає назву чату"
+
+#: src/features/chats/display.ts
+msgid "{name} створює чат"
+msgstr "{name} створює чат"
+
+#: src/features/chats/display.ts
+msgid "{name} створює чат «{details}»"
+msgstr "{name} створює чат «{details}»"
 
 #: src/shared/signing/formats.ts
 msgid "*.p7s · будь-який файл"
@@ -129,6 +172,10 @@ msgstr "B-T — з позначкою часу"
 msgid "CAdES (зовнішній і внутрішній), XAdES, PAdES (PDF), ASiC-S, ASiC-E"
 msgstr "CAdES (зовнішній і внутрішній), XAdES, PAdES (PDF), ASiC-S, ASiC-E"
 
+#: src/features/chats/components/Composer.tsx
+msgid "Ctrl+Enter — надіслати, Enter — новий рядок"
+msgstr "Ctrl+Enter — надіслати, Enter — новий рядок"
+
 #: src/features/structure/pages/UnitPage.tsx
 msgid "E-mail"
 msgstr "E-mail"
@@ -162,6 +209,10 @@ msgstr "QR-код для автентифікатора"
 #: src/shared/signing/SigningWizard.tsx
 msgid "SHA-256 файлу збігається з зареєстрованим у системі."
 msgstr "SHA-256 файлу збігається з зареєстрованим у системі."
+
+#: src/features/chats/pages/ChatsPage.tsx
+msgid "Або почніть нову розмову з колегою чи групою."
+msgstr "Або почніть нову розмову з колегою чи групою."
 
 #: src/features/auth/pages/SetupAuthenticatorPage.tsx
 msgid "Автентифікатор підключено"
@@ -219,6 +270,7 @@ msgctxt "help"
 msgid "Адміністрування в межах організацій"
 msgstr "Адміністрування в межах організацій"
 
+#: src/features/chats/components/Composer.tsx
 #: src/features/news/components/RichTextEditor.tsx
 msgid "Адреса посилання"
 msgstr "Адреса посилання"
@@ -304,6 +356,10 @@ msgstr "Безпека: пароль, 2FA, резервні коди"
 msgid "Бібліотеку підпису не запущено."
 msgstr "Бібліотеку підпису не запущено."
 
+#: src/features/chats/components/Composer.tsx
+msgid "Блок коду"
+msgstr "Блок коду"
+
 #: src/shared/i18n/display.ts
 msgctxt "audit"
 msgid "Блокування після спроб входу"
@@ -349,13 +405,29 @@ msgstr "Введіть пароль."
 msgid "Введіть резервний код."
 msgstr "Введіть резервний код."
 
+#: src/features/chats/components/PeoplePicker.tsx
+msgid "Введіть щонайменше два символи."
+msgstr "Введіть щонайменше два символи."
+
 #: src/features/documents/pages/DocumentPage.tsx
 msgid "Версія після цього підпису"
 msgstr "Версія після цього підпису"
 
+#: src/features/chats/components/MembersDialog.tsx
+msgid "Ви"
+msgstr "Ви"
+
+#: src/features/chats/components/ChatSync.tsx
+msgid "Ви більше не в цьому чаті."
+msgstr "Ви більше не в цьому чаті."
+
 #: src/features/auth/pages/ChangePasswordPage.tsx
 msgid "Ви увійшли з тимчасовим паролем. Задайте власний пароль, щоб продовжити роботу."
 msgstr "Ви увійшли з тимчасовим паролем. Задайте власний пароль, щоб продовжити роботу."
+
+#: src/features/chats/display.ts
+msgid "Ви: {content}"
+msgstr "Ви: {content}"
 
 #: src/features/admin/pages/UsersImportPage.tsx
 msgid "Вивантажує всіх користувачів у форматі, сумісному з імпортом (без паролів)."
@@ -392,6 +464,7 @@ msgstr "Видалення типу підрозділу"
 
 #: src/features/admin/pages/RoleEditorPage.tsx
 #: src/features/admin/pages/UnitTypeEditorPage.tsx
+#: src/features/chats/components/MessageItem.tsx
 #: src/features/documents/pages/DocumentPage.tsx
 #: src/features/news/components/Discussion.tsx
 #: src/features/news/pages/NewsEditorPage.tsx
@@ -405,6 +478,10 @@ msgstr "Видалити документ остаточно?"
 #: src/features/news/components/Discussion.tsx
 msgid "Видалити коментар?"
 msgstr "Видалити коментар?"
+
+#: src/features/chats/components/MessageItem.tsx
+msgid "Видалити повідомлення?"
+msgstr "Видалити повідомлення?"
 
 #: src/features/news/pages/NewsEditorPage.tsx
 msgid "Видалити публікацію остаточно?"
@@ -444,12 +521,21 @@ msgstr "Визначити автоматично"
 
 #: src/app/layout/UserMenu.tsx
 #: src/features/auth/pages/PhotoPage.tsx
+#: src/features/chats/components/MembersDialog.tsx
 msgid "Вийти"
 msgstr "Вийти"
 
 #: src/app/layout/UserMenu.tsx
 msgid "Вийти з кабінету?"
 msgstr "Вийти з кабінету?"
+
+#: src/features/chats/components/MembersDialog.tsx
+msgid "Вийти з чату"
+msgstr "Вийти з чату"
+
+#: src/features/chats/components/MembersDialog.tsx
+msgid "Вийти з чату?"
+msgstr "Вийти з чату?"
 
 #: src/features/profile/pages/SecurityPage.tsx
 msgid "Вийти на всіх інших пристроях?"
@@ -466,6 +552,11 @@ msgstr "Використайте один із резервних кодів, о
 #: src/features/signing/components/SigningInfo.tsx
 msgid "Використовується офіційна бібліотека ІІТ «Користувач ЦСК» (EUSignCP-JS)."
 msgstr "Використовується офіційна бібліотека ІІТ «Користувач ЦСК» (EUSignCP-JS)."
+
+#. placeholder {0}: member.user.fullName
+#: src/features/chats/components/MembersDialog.tsx
+msgid "Вилучити {0}"
+msgstr "Вилучити {0}"
 
 #: src/features/documents/pages/DocumentEditorPage.tsx
 msgid "Виправте його та надішліть на підпис повторно. Підписи, накладені на поточний файл, збережуться — ці підписанти не підписуватимуть знову, якщо ви не заміните файл і не приберете їх із маршруту."
@@ -509,6 +600,11 @@ msgstr "Відкрийте застосунок-автентифікатор і 
 #: src/features/documents/pages/DocumentsPage.tsx
 msgid "Відкрити"
 msgstr "Відкрити"
+
+#. placeholder {0}: photo.fileName
+#: src/features/chats/components/Attachments.tsx
+msgid "Відкрити фото {0}"
+msgstr "Відкрити фото {0}"
 
 #: src/features/documents/pages/DocumentPage.tsx
 msgid "Відмова в підписанні"
@@ -638,9 +734,23 @@ msgstr "Вкажіть число."
 msgid "Вкладені підрозділи"
 msgstr "Вкладені підрозділи"
 
+#: src/features/chats/components/Composer.tsx
+#: src/features/chats/display.ts
+msgid "Вкладення"
+msgstr "Вкладення"
+
+#. placeholder {0}: preview.attachmentCount
+#: src/features/chats/display.ts
+msgid "Вкладень: {0}"
+msgstr "Вкладень: {0}"
+
 #: src/features/admin/pages/RolesPage.tsx
 msgid "Власна"
 msgstr "Власна"
+
+#: src/features/chats/components/MembersDialog.tsx
+msgid "Власник"
+msgstr "Власник"
 
 #: src/shared/i18n/display.ts
 msgid "Вражає"
@@ -719,6 +829,15 @@ msgstr "Головна сторінка"
 msgid "Головне меню"
 msgstr "Головне меню"
 
+#: src/features/chats/display.ts
+msgid "Груповий чат"
+msgstr "Груповий чат"
+
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Групові чати та учасники"
+msgstr "Групові чати та учасники"
+
 #: src/shared/ui/Wizard.tsx
 msgid "Далі"
 msgstr "Далі"
@@ -793,6 +912,10 @@ msgstr "До документа"
 msgid "До новин"
 msgstr "До новин"
 
+#: src/features/chats/components/Composer.tsx
+msgid "До повідомлення можна додати не більше {maxFiles} файлів."
+msgstr "До повідомлення можна додати не більше {maxFiles} файлів."
+
 #: src/features/documents/pages/DocumentPage.tsx
 msgid "До реєстру"
 msgstr "До реєстру"
@@ -805,6 +928,10 @@ msgstr "До серверів надавачів передаються лише
 #: src/features/auth/pages/SetupAuthenticatorPage.tsx
 msgid "До сторінки входу"
 msgstr "До сторінки входу"
+
+#: src/features/chats/components/Conversation.tsx
+msgid "До чатів"
+msgstr "До чатів"
 
 #: src/features/home/HomePage.tsx
 msgid "Доброго вечора,"
@@ -855,8 +982,14 @@ msgid "Додайте фото профілю"
 msgstr "Додайте фото профілю"
 
 #: src/features/admin/pages/UsersPage.tsx
+#: src/features/chats/components/Composer.tsx
+#: src/features/chats/components/MembersDialog.tsx
 msgid "Додати"
 msgstr "Додати"
+
+#: src/features/chats/components/MembersDialog.tsx
+msgid "Додати людей"
+msgstr "Додати людей"
 
 #: src/features/structure/pages/UnitPage.tsx
 msgid "Додати підрозділ"
@@ -869,6 +1002,10 @@ msgstr "Додати посаду"
 #: src/shared/signing/KeyPanel.tsx
 msgid "Додати сертифікати вручну (якщо надавач не підтримує автоматичне завантаження)"
 msgstr "Додати сертифікати вручну (якщо надавач не підтримує автоматичне завантаження)"
+
+#: src/features/chats/components/Composer.tsx
+msgid "Додати файли"
+msgstr "Додати файли"
 
 #: src/features/help/components/RoleReference.tsx
 msgid "Дозвіл"
@@ -1071,6 +1208,10 @@ msgstr "Є"
 msgid "ЄДРПОУ"
 msgstr "ЄДРПОУ"
 
+#: src/features/chats/components/Composer.tsx
+msgid "Жирний"
+msgstr "Жирний"
+
 #: src/features/news/components/RichTextEditor.tsx
 msgid "Жирний (Ctrl+B)"
 msgstr "Жирний (Ctrl+B)"
@@ -1145,6 +1286,7 @@ msgstr "Завантаження фото… ({count})"
 msgid "Завантаження фото… ({left})"
 msgstr "Завантаження фото… ({left})"
 
+#: src/features/chats/components/Attachments.tsx
 #: src/features/documents/pages/DocumentPage.tsx
 msgid "Завантажити"
 msgstr "Завантажити"
@@ -1192,6 +1334,7 @@ msgstr "Заголовок або анонс"
 msgid "Заголовок не може бути довшим за 200 символів."
 msgstr "Заголовок не може бути довшим за 200 символів."
 
+#: src/features/chats/components/Composer.tsx
 #: src/features/news/components/RichTextEditor.tsx
 msgid "Закреслений"
 msgstr "Закреслений"
@@ -1255,6 +1398,8 @@ msgstr "Заява"
 #: src/features/admin/pages/RoleEditorPage.tsx
 #: src/features/admin/pages/UnitEditorPage.tsx
 #: src/features/admin/pages/UnitTypeEditorPage.tsx
+#: src/features/chats/components/Composer.tsx
+#: src/features/chats/components/MembersDialog.tsx
 #: src/features/news/components/Discussion.tsx
 #: src/features/news/pages/NewsEditorPage.tsx
 #: src/features/profile/pages/ProfilePage.tsx
@@ -1356,6 +1501,10 @@ msgctxt "audit"
 msgid "Зміна типу підрозділу"
 msgstr "Зміна типу підрозділу"
 
+#: src/features/chats/components/MessageItem.tsx
+msgid "змінено"
+msgstr "змінено"
+
 #: src/features/news/pages/NewsManagePage.tsx
 msgid "Змінено"
 msgstr "Змінено"
@@ -1381,6 +1530,7 @@ msgstr "Зміни збережено."
 msgid "Змінили телефон? Попросіть адміністратора скинути автентифікатор — під час наступного входу ви прив'яжете новий."
 msgstr "Змінили телефон? Попросіть адміністратора скинути автентифікатор — під час наступного входу ви прив'яжете новий."
 
+#: src/features/chats/components/MessageItem.tsx
 #: src/features/news/components/Discussion.tsx
 msgid "Змінити"
 msgstr "Змінити"
@@ -1438,6 +1588,10 @@ msgstr "Іконка"
 #: src/features/admin/pages/UserEditorPage.tsx
 msgid "Ім'я"
 msgstr "Ім'я"
+
+#: src/features/chats/components/PeoplePicker.tsx
+msgid "Ім'я, прізвище або e-mail"
+msgstr "Ім'я, прізвище або e-mail"
 
 #: src/features/admin/pages/UsersPage.tsx
 msgid "Імпорт"
@@ -1651,6 +1805,10 @@ msgstr "Код містить 6 цифр."
 msgid "Код підтвердження"
 msgstr "Код підтвердження"
 
+#: src/features/chats/components/Composer.tsx
+msgid "Код у рядку"
+msgstr "Код у рядку"
+
 #: src/features/admin/pages/UsersImportPage.tsx
 msgid "Коди ролей"
 msgstr "Коди ролей"
@@ -1780,6 +1938,10 @@ msgctxt "help"
 msgid "Куди звертатися по допомогу"
 msgstr "Куди звертатися по допомогу"
 
+#: src/features/chats/components/Composer.tsx
+msgid "Курсив"
+msgstr "Курсив"
+
 #: src/features/news/components/RichTextEditor.tsx
 msgid "Курсив (Ctrl+I)"
 msgstr "Курсив (Ctrl+I)"
@@ -1827,6 +1989,7 @@ msgstr "Любов"
 msgid "Малий заголовок"
 msgstr "Малий заголовок"
 
+#: src/features/chats/components/Composer.tsx
 #: src/features/news/components/RichTextEditor.tsx
 msgid "Маркований список"
 msgstr "Маркований список"
@@ -1880,6 +2043,10 @@ msgstr "Мова зберігається у профілі й застосов�
 #: src/features/profile/pages/ProfilePage.tsx
 msgid "Мова інтерфейсу"
 msgstr "Мова інтерфейсу"
+
+#: src/features/chats/components/Conversation.tsx
+msgid "Можливо, вас вилучили з чату або його видалено."
+msgstr "Можливо, вас вилучили з чату або його видалено."
 
 #: src/features/news/pages/ArticlePage.tsx
 msgid "Можливо, її було видалено або знято з публікації."
@@ -1950,6 +2117,7 @@ msgstr "Надати або заборонити окремі дозволи п�
 msgid "Надіслано на підпис"
 msgstr "Надіслано на підпис"
 
+#: src/features/chats/components/Composer.tsx
 #: src/features/news/components/Discussion.tsx
 msgid "Надіслати"
 msgstr "Надіслати"
@@ -1958,10 +2126,18 @@ msgstr "Надіслати"
 msgid "Надіслати документ на підписання?"
 msgstr "Надіслати документ на підписання?"
 
+#: src/features/chats/components/MessageItem.tsx
+msgid "Надіслати ще раз"
+msgstr "Надіслати ще раз"
+
 #: src/features/help/contents.ts
 msgctxt "help"
 msgid "Надсилання, відкликання та повторне надсилання"
 msgstr "Надсилання, відкликання та повторне надсилання"
+
+#: src/features/chats/components/MessageItem.tsx
+msgid "Надсилання…"
+msgstr "Надсилання…"
 
 #: src/shared/ui/Wizard.tsx
 msgid "Назад"
@@ -1993,6 +2169,11 @@ msgstr "Назва не може бути довшою за 300 символів
 #: src/features/admin/pages/UserEditorPage.tsx
 msgid "Назва посади"
 msgstr "Назва посади"
+
+#: src/features/chats/components/MembersDialog.tsx
+#: src/features/chats/components/NewChatDialog.tsx
+msgid "Назва чату"
+msgstr "Назва чату"
 
 #: src/features/structure/pages/StructurePage.tsx
 msgid "Назва, абревіатура або код підрозділу"
@@ -2031,6 +2212,10 @@ msgstr "Налаштувати"
 msgid "Напишіть коментар…"
 msgstr "Напишіть коментар…"
 
+#: src/features/chats/components/Composer.tsx
+msgid "Напишіть повідомлення"
+msgstr "Напишіть повідомлення"
+
 #: src/features/news/pages/NewsEditorPage.tsx
 msgid "Напишіть текст новини."
 msgstr "Напишіть текст новини."
@@ -2059,6 +2244,14 @@ msgstr "Наступний місяць"
 msgid "Наступний рік"
 msgstr "Наступний рік"
 
+#: src/features/chats/components/MessageItem.tsx
+msgid "Не вдалося видалити повідомлення."
+msgstr "Не вдалося видалити повідомлення."
+
+#: src/features/chats/components/MembersDialog.tsx
+msgid "Не вдалося вийти з чату."
+msgstr "Не вдалося вийти з чату."
+
 #: src/app/layout/UserMenu.tsx
 msgid "Не вдалося вийти. Спробуйте ще раз."
 msgstr "Не вдалося вийти. Спробуйте ще раз."
@@ -2072,6 +2265,18 @@ msgstr "Не вдалося вийти. Спробуйте ще раз."
 #: src/features/profile/pages/SecurityPage.tsx
 msgid "Не вдалося виконати дію. Спробуйте ще раз."
 msgstr "Не вдалося виконати дію. Спробуйте ще раз."
+
+#: src/features/chats/components/MembersDialog.tsx
+msgid "Не вдалося вилучити людину з чату."
+msgstr "Не вдалося вилучити людину з чату."
+
+#: src/features/chats/components/MembersDialog.tsx
+msgid "Не вдалося додати людей."
+msgstr "Не вдалося додати людей."
+
+#: src/features/chats/components/MessageItem.tsx
+msgid "Не вдалося додати реакцію."
+msgstr "Не вдалося додати реакцію."
 
 #: src/shared/signing/client.ts
 msgid "Не вдалося завантажити {0} ({1})."
@@ -2161,6 +2366,10 @@ msgstr "Не вдалося завантажити файл."
 msgid "Не вдалося завантажити фото."
 msgstr "Не вдалося завантажити фото."
 
+#: src/features/chats/components/ChatList.tsx
+msgid "Не вдалося завантажити чати."
+msgstr "Не вдалося завантажити чати."
+
 #: src/features/documents/pages/DocumentEditorPage.tsx
 msgid "Не вдалося зберегти документ. Спробуйте ще раз."
 msgstr "Не вдалося зберегти документ. Спробуйте ще раз."
@@ -2172,6 +2381,10 @@ msgstr "Не вдалося зберегти підпис."
 #: src/features/admin/pages/UnitEditorPage.tsx
 msgid "Не вдалося зберегти підрозділ. Спробуйте ще раз."
 msgstr "Не вдалося зберегти підрозділ. Спробуйте ще раз."
+
+#: src/features/chats/components/Composer.tsx
+msgid "Не вдалося зберегти повідомлення."
+msgstr "Не вдалося зберегти повідомлення."
 
 #: src/features/news/pages/NewsEditorPage.tsx
 msgid "Не вдалося зберегти публікацію. Спробуйте ще раз."
@@ -2210,6 +2423,10 @@ msgstr "Не вдалося згенерувати коди. Спробуйте 
 msgid "Не вдалося змінити мову."
 msgstr "Не вдалося змінити мову."
 
+#: src/features/chats/components/MembersDialog.tsx
+msgid "Не вдалося змінити назву."
+msgstr "Не вдалося змінити назву."
+
 #: src/shared/signing/client.ts
 msgid "Не вдалося знайти сертифікат ключа. Оберіть надавача вручну або додайте файли сертифікатів."
 msgstr "Не вдалося знайти сертифікат ключа. Оберіть надавача вручну або додайте файли сертифікатів."
@@ -2226,6 +2443,10 @@ msgstr "Не вдалося отримати позначку часу. Спро
 msgid "Не вдалося перевірити статус сертифіката (OCSP). Спробуйте пізніше."
 msgstr "Не вдалося перевірити статус сертифіката (OCSP). Спробуйте пізніше."
 
+#: src/features/chats/components/NewChatDialog.tsx
+msgid "Не вдалося почати чат."
+msgstr "Не вдалося почати чат."
+
 #: src/shared/signing/SigningWizard.tsx
 msgid "Не вдалося розпочати підписання."
 msgstr "Не вдалося розпочати підписання."
@@ -2241,6 +2462,10 @@ msgstr "Не використовуйте на спільних комп'юте�
 #: src/shared/signing/SigningWizard.tsx
 msgid "Не всі кроки завершено."
 msgstr "Не всі кроки завершено."
+
+#: src/features/chats/components/MessageItem.tsx
+msgid "Не надіслано"
+msgstr "Не надіслано"
 
 #: src/features/profile/pages/SecurityPage.tsx
 msgid "Не налаштовано"
@@ -2301,13 +2526,34 @@ msgstr "Немає зв'язку з сервером надавача (ЦСК). 
 msgid "Немає потрібного типу?"
 msgstr "Немає потрібного типу?"
 
+#: src/features/chats/components/NewChatDialog.tsx
+msgid "Необов'язково: без назви чат називається іменами учасників."
+msgstr "Необов'язково: без назви чат називається іменами учасників."
+
 #: src/shared/signing/client.ts
 msgid "Неправильний пароль або пошкоджений файл ключа."
 msgstr "Неправильний пароль або пошкоджений файл ключа."
 
+#. placeholder {0}: chat.unreadCount
+#: src/features/chats/components/ChatList.tsx
+msgid "Непрочитаних: {0}"
+msgstr "Непрочитаних: {0}"
+
+#: src/app/layout/NavLinks.tsx
+msgid "Непрочитаних: {count}"
+msgstr "Непрочитаних: {count}"
+
 #: src/features/documents/pages/DocumentEditorPage.tsx
 msgid "Нижче"
 msgstr "Нижче"
+
+#: src/features/chats/components/PeoplePicker.tsx
+msgid "Нікого не знайдено."
+msgstr "Нікого не знайдено."
+
+#: src/features/chats/components/ChatList.tsx
+msgid "Нічого не знайдено."
+msgstr "Нічого не знайдено."
 
 #: src/features/help/pages/HelpPage.tsx
 msgid "Нічого не знайдено. Спробуйте інше слово."
@@ -2387,6 +2633,12 @@ msgstr "Новий тип підрозділу"
 msgid "Новий файл · {0}"
 msgstr "Новий файл · {0}"
 
+#: src/features/chats/components/ChatList.tsx
+#: src/features/chats/components/NewChatDialog.tsx
+#: src/features/chats/pages/ChatsPage.tsx
+msgid "Новий чат"
+msgstr "Новий чат"
+
 #: src/features/news/pages/NewsPage.tsx
 msgid "Новин не знайдено"
 msgstr "Новин не знайдено"
@@ -2448,6 +2700,10 @@ msgstr "Нові коди"
 msgid "Нові коди — збережіть їх зараз, вони більше не відображатимуться:"
 msgstr "Нові коди — збережіть їх зараз, вони більше не відображатимуться:"
 
+#: src/features/chats/components/MessageList.tsx
+msgid "Нові повідомлення"
+msgstr "Нові повідомлення"
+
 #: src/shared/i18n/display.ts
 msgctxt "audit"
 msgid "Нові резервні коди"
@@ -2457,6 +2713,7 @@ msgstr "Нові резервні коди"
 msgid "Номер"
 msgstr "Номер"
 
+#: src/features/chats/components/Composer.tsx
 #: src/features/news/components/RichTextEditor.tsx
 msgid "Нумерований список"
 msgstr "Нумерований список"
@@ -2472,6 +2729,10 @@ msgstr "Оберіть дату"
 #: src/features/news/pages/NewsEditorPage.tsx
 msgid "Оберіть зображення"
 msgstr "Оберіть зображення"
+
+#: src/features/chats/components/NewChatDialog.tsx
+msgid "Оберіть одну людину для особистого чату або кількох — для групового."
+msgstr "Оберіть одну людину для особистого чату або кількох — для групового."
 
 #: src/features/documents/pages/DocumentEditorPage.tsx
 msgid "Оберіть підрозділ"
@@ -2501,6 +2762,10 @@ msgstr "Оберіть файл ключа."
 msgid "Оберіть фото."
 msgstr "Оберіть фото."
 
+#: src/features/chats/pages/ChatsPage.tsx
+msgid "Оберіть чат"
+msgstr "Оберіть чат"
+
 #: src/features/admin/pages/UserEditorPage.tsx
 msgid "Оберіть…"
 msgstr "Оберіть…"
@@ -2512,6 +2777,10 @@ msgstr "Обкладинка"
 #: src/features/admin/pages/UserEditorPage.tsx
 msgid "Обліковий запис"
 msgstr "Обліковий запис"
+
+#: src/features/chats/components/MembersDialog.tsx
+msgid "Обліковий запис заблоковано"
+msgstr "Обліковий запис заблоковано"
 
 #: src/features/admin/pages/UserEditorPage.tsx
 msgid "Обліковий запис заблоковано."
@@ -2548,6 +2817,10 @@ msgstr "Облікові записи, посади, блокування, ск�
 #: src/features/admin/pages/AdminPage.tsx
 msgid "Облікові записи, ролі, організації та їхня структура, журнал подій."
 msgstr "Облікові записи, ролі, організації та їхня структура, журнал подій."
+
+#: src/features/chats/components/PeoplePicker.tsx
+msgid "Обрані люди"
+msgstr "Обрані люди"
 
 #: src/shared/i18n/display.ts
 msgid "Обурює"
@@ -2668,6 +2941,11 @@ msgstr "Особисті дані, посади та доступні можли
 msgctxt "help"
 msgid "Особисті дані, фото, посади, дозволи, безпека облікового запису та входи на інших пристроях."
 msgstr "Особисті дані, фото, посади, дозволи, безпека облікового запису та входи на інших пристроях."
+
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Особисті та групові чати з колегами в реальному часі: повідомлення, форматування, файли й фото."
+msgstr "Особисті та групові чати з колегами в реальному часі: повідомлення, форматування, файли й фото."
 
 #: src/features/home/HomePage.tsx
 msgid "Останні оголошення"
@@ -2814,6 +3092,10 @@ msgstr "Переглядів"
 msgid "Переглянути"
 msgstr "Переглянути"
 
+#: src/features/chats/components/MessageItem.tsx
+msgid "Переглянуто"
+msgstr "Переглянуто"
+
 #: src/features/admin/pages/UserEditorPage.tsx
 msgid "Передайте його користувачу захищеним каналом. Під час першого входу пароль потрібно змінити."
 msgstr "Передайте його користувачу захищеним каналом. Під час першого входу пароль потрібно змінити."
@@ -2885,6 +3167,10 @@ msgstr "Підключення автентифікатора"
 msgctxt "audit"
 msgid "Підключено автентифікатор"
 msgstr "Підключено автентифікатор"
+
+#: src/features/chats/components/Composer.tsx
+msgid "Підкреслений"
+msgstr "Підкреслений"
 
 #: src/features/news/components/RichTextEditor.tsx
 msgid "Підкреслений (Ctrl+U)"
@@ -3093,10 +3379,38 @@ msgstr "По центру"
 msgid "Повернутися"
 msgstr "Повернутися"
 
+#: src/features/chats/components/Composer.tsx
+#: src/features/chats/components/MessageList.tsx
+msgid "Повідомлення"
+msgstr "Повідомлення"
+
+#: src/features/chats/components/MessageItem.tsx
+#: src/features/chats/display.ts
+msgid "Повідомлення видалено"
+msgstr "Повідомлення видалено"
+
+#: src/features/chats/components/Composer.tsx
+#: src/features/chats/components/MessageItem.tsx
+msgid "Повідомлення не надіслано."
+msgstr "Повідомлення не надіслано."
+
 #: src/features/help/contents.ts
 msgctxt "help"
 msgid "Повідомлення про помилки та що робити"
 msgstr "Повідомлення про помилки та що робити"
+
+#: src/features/chats/components/MessageItem.tsx
+msgid "Повідомлення та його файли буде видалено для всіх учасників чату."
+msgstr "Повідомлення та його файли буде видалено для всіх учасників чату."
+
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Повідомлення, форматування та файли"
+msgstr "Повідомлення, форматування та файли"
+
+#: src/features/chats/display.ts
+msgid "Повідомлень ще немає"
+msgstr "Повідомлень ще немає"
 
 #: src/features/admin/pages/UnitEditorPage.tsx
 msgid "Повна назва"
@@ -3238,6 +3552,7 @@ msgstr "Посади"
 msgid "Посади не призначено"
 msgstr "Посади не призначено"
 
+#: src/features/chats/components/Composer.tsx
 #: src/features/news/components/RichTextEditor.tsx
 msgid "Посилання"
 msgstr "Посилання"
@@ -3279,14 +3594,26 @@ msgstr "потребує сервісу надавача"
 msgid "Потрібен дозвіл: {required}"
 msgstr "Потрібен дозвіл: {required}"
 
+#: src/features/chats/components/NewChatDialog.tsx
+msgid "Почати чат"
+msgstr "Почати чат"
+
 #: src/features/help/contents.ts
 msgctxt "help"
 msgid "Початок роботи"
 msgstr "Початок роботи"
 
+#: src/features/chats/components/MessageList.tsx
+msgid "Початок розмови"
+msgstr "Початок розмови"
+
 #: src/features/news/pages/NewsEditorPage.tsx
 msgid "Почніть писати новину…"
 msgstr "Почніть писати новину…"
+
+#: src/features/chats/components/ChatList.tsx
+msgid "Почніть розмову з колегою або створіть груповий чат."
+msgstr "Почніть розмову з колегою або створіть груповий чат."
 
 #: src/features/structure/pages/UnitPage.tsx
 msgid "Пошук працівника"
@@ -3299,6 +3626,10 @@ msgstr "Пошук у довідці: наприклад, «підпис», «п
 #: src/features/news/pages/NewsPage.tsx
 msgid "Пошук у новинах"
 msgstr "Пошук у новинах"
+
+#: src/features/chats/components/ChatList.tsx
+msgid "Пошук чатів"
+msgstr "Пошук чатів"
 
 #: src/features/structure/pages/UnitPage.tsx
 msgid "Працівник"
@@ -3330,9 +3661,17 @@ msgstr "Працівників не знайдено"
 msgid "працівників: {0}"
 msgstr "працівників: {0}"
 
+#: src/features/chats/components/MessageItem.tsx
 #: src/features/documents/pages/DocumentEditorPage.tsx
 msgid "Прибрати"
 msgstr "Прибрати"
+
+#. placeholder {0}: file.name
+#. placeholder {0}: person.fullName
+#: src/features/chats/components/Composer.tsx
+#: src/features/chats/components/PeoplePicker.tsx
+msgid "Прибрати {0}"
+msgstr "Прибрати {0}"
 
 #: src/features/news/pages/NewsEditorPage.tsx
 msgid "Прибрати обкладинку"
@@ -3342,6 +3681,7 @@ msgstr "Прибрати обкладинку"
 msgid "Прибрати посаду"
 msgstr "Прибрати посаду"
 
+#: src/features/chats/components/Composer.tsx
 #: src/features/news/components/RichTextEditor.tsx
 msgid "Прибрати посилання"
 msgstr "Прибрати посилання"
@@ -3369,6 +3709,11 @@ msgstr "Прізвище"
 #: src/features/documents/pages/DocumentEditorPage.tsx
 msgid "Прізвище, ім'я або e-mail"
 msgstr "Прізвище, ім'я або e-mail"
+
+#: src/features/chats/components/Conversation.tsx
+#: src/features/chats/components/MembersDialog.tsx
+msgid "Про чат"
+msgstr "Про чат"
 
 #: src/features/auth/pages/LoginPage.tsx
 msgid "Продовжити"
@@ -3421,6 +3766,10 @@ msgstr "Публікація"
 msgid "Разом з даними"
 msgstr "Разом з даними"
 
+#: src/features/chats/components/MessageItem.tsx
+msgid "Реакції"
+msgstr "Реакції"
+
 #: src/features/news/pages/NewsEditorPage.tsx
 msgid "Реакції доступні завжди."
 msgstr "Реакції доступні завжди."
@@ -3434,10 +3783,16 @@ msgstr "Реакції та коментарі"
 msgid "Реакції та коментарі з'являться після публікації."
 msgstr "Реакції та коментарі з'являться після публікації."
 
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Реакції, зміна та видалення, прочитання"
+msgstr "Реакції, зміна та видалення, прочитання"
+
 #: src/features/news/pages/NewsPage.tsx
 msgid "Реакцій"
 msgstr "Реакцій"
 
+#: src/features/chats/components/MessageItem.tsx
 #: src/features/news/components/ReactionBar.tsx
 msgid "Реакція"
 msgstr "Реакція"
@@ -3666,6 +4021,8 @@ msgstr "Системний адміністратор завжди має всі
 msgid "Скасовано."
 msgstr "Скасовано."
 
+#: src/features/chats/components/Composer.tsx
+#: src/features/chats/components/NewChatDialog.tsx
 #: src/features/documents/pages/DocumentEditorPage.tsx
 #: src/features/documents/pages/DocumentPage.tsx
 #: src/features/news/components/Discussion.tsx
@@ -3735,6 +4092,15 @@ msgstr "Сортувати"
 msgctxt "help"
 msgid "Список користувачів"
 msgstr "Список користувачів"
+
+#: src/features/chats/components/ChatList.tsx
+msgid "Список чатів"
+msgstr "Список чатів"
+
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Список чатів і новий чат"
+msgstr "Список чатів і новий чат"
 
 #: src/shared/signing/client.ts
 msgid "Спочатку зчитайте ключ."
@@ -3827,6 +4193,11 @@ msgstr "Створено користувача"
 msgid "Створено облікових записів: {0}. Завантажте тимчасові паролі — вони показуються лише зараз."
 msgstr "Створено облікових записів: {0}. Завантажте тимчасові паролі — вони показуються лише зараз."
 
+#: src/features/chats/components/MembersDialog.tsx
+#: src/features/chats/components/NewChatDialog.tsx
+msgid "Створити груповий чат"
+msgstr "Створити груповий чат"
+
 #: src/features/documents/pages/DocumentEditorPage.tsx
 msgid "Створити й надіслати на підпис"
 msgstr "Створити й надіслати на підпис"
@@ -3905,6 +4276,11 @@ msgstr "Сумно"
 msgid "Сховати пароль"
 msgstr "Сховати пароль"
 
+#: src/features/chats/components/Composer.tsx
+msgid "Сховати форматування"
+msgstr "Сховати форматування"
+
+#: src/features/chats/components/MessageList.tsx
 #: src/shared/ui/DatePicker.tsx
 msgid "Сьогодні"
 msgstr "Сьогодні"
@@ -3928,6 +4304,10 @@ msgstr "Текст коментаря"
 #: src/features/news/pages/NewsEditorPage.tsx
 msgid "Текст новини"
 msgstr "Текст новини"
+
+#: src/features/chats/components/Composer.tsx
+msgid "Текст повідомлення"
+msgstr "Текст повідомлення"
 
 #: src/features/admin/pages/UserEditorPage.tsx
 #: src/features/profile/pages/ProfilePage.tsx
@@ -4117,9 +4497,31 @@ msgstr "Усі статуси"
 msgid "Усі типи"
 msgstr "Усі типи"
 
+#: src/features/chats/components/Conversation.tsx
+msgid "Учасники"
+msgstr "Учасники"
+
+#: src/features/chats/components/MembersDialog.tsx
+msgid "Учасники чату"
+msgstr "Учасники чату"
+
+#. placeholder {0}: chat.members.length
+#: src/features/chats/components/Conversation.tsx
+msgid "Учасників: {0}"
+msgstr "Учасників: {0}"
+
+#: src/features/chats/components/MessageList.tsx
+msgid "Учора"
+msgstr "Учора"
+
 #: src/features/documents/pages/DocumentEditorPage.tsx
 msgid "Файл"
 msgstr "Файл"
+
+#. placeholder {0}: tooLarge.name
+#: src/features/chats/components/Composer.tsx
+msgid "Файл більший за 25 МБ: {0}"
+msgstr "Файл більший за 25 МБ: {0}"
 
 #: src/features/documents/pages/DocumentPage.tsx
 msgid "Файл документа"
@@ -4153,6 +4555,10 @@ msgstr "Файли"
 msgid "Файли не залишають ваш пристрій."
 msgstr "Файли не залишають ваш пристрій."
 
+#: src/features/chats/components/Composer.tsx
+msgid "Файли одного повідомлення не можуть бути більшими за 50 МБ разом."
+msgstr "Файли одного повідомлення не можуть бути більшими за 50 МБ разом."
+
 #: src/shared/signing/SigningWizard.tsx
 msgid "Файли понад 25 МБ не підтримуються."
 msgstr "Файли понад 25 МБ не підтримуються."
@@ -4160,6 +4566,11 @@ msgstr "Файли понад 25 МБ не підтримуються."
 #: src/shared/signing/KeyPanel.tsx
 msgid "Файли сертифікатів"
 msgstr "Файли сертифікатів"
+
+#. placeholder {0}: refused.name
+#: src/features/chats/components/Composer.tsx
+msgid "Файли такого типу не можна надсилати в чат: {0}"
+msgstr "Файли такого типу не можна надсилати в чат: {0}"
 
 #: src/shared/signing/KeyPanel.tsx
 msgid "Файловий ключ"
@@ -4194,6 +4605,10 @@ msgctxt "help"
 msgid "Формати та рівні підпису"
 msgstr "Формати та рівні підпису"
 
+#: src/features/chats/components/Composer.tsx
+msgid "Форматування"
+msgstr "Форматування"
+
 #: src/features/news/components/RichTextEditor.tsx
 msgid "Форматування тексту"
 msgstr "Форматування тексту"
@@ -4224,6 +4639,11 @@ msgstr "Фото профілю"
 msgid "Хмарний / Дія.Підпис"
 msgstr "Хмарний / Дія.Підпис"
 
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Хто бачить чати і файли"
+msgstr "Хто бачить чати і файли"
+
 #: src/shared/signing/client.ts
 msgid "Це зовнішній підпис: додайте також файл, який було підписано."
 msgstr "Це зовнішній підпис: додайте також файл, який було підписано."
@@ -4240,6 +4660,7 @@ msgstr "Це оригінал без підписів. Підписані фай
 msgid "Цей тип файлу не підтримується."
 msgstr "Цей тип файлу не підтримується."
 
+#: src/features/chats/components/Composer.tsx
 #: src/features/news/components/RichTextEditor.tsx
 msgid "Цитата"
 msgstr "Цитата"
@@ -4268,6 +4689,34 @@ msgstr "Частину підписів буде анульовано"
 msgctxt "help"
 msgid "Часті запитання"
 msgstr "Часті запитання"
+
+#: src/features/chats/display.ts
+msgid "Чат"
+msgstr "Чат"
+
+#: src/features/chats/components/MembersDialog.tsx
+msgid "Чат зникне з вашого списку. Повернутися можна, лише якщо хтось із учасників додасть вас знову."
+msgstr "Чат зникне з вашого списку. Повернутися можна, лише якщо хтось із учасників додасть вас знову."
+
+#: src/features/chats/components/Conversation.tsx
+msgid "Чат не знайдено"
+msgstr "Чат не знайдено"
+
+#: src/app/layout/navigation.ts
+#: src/features/chats/components/ChatList.tsx
+#: src/features/chats/pages/ChatsPage.tsx
+#: src/shared/i18n/display.ts
+msgid "Чати"
+msgstr "Чати"
+
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Чати"
+msgstr "Чати"
+
+#: src/features/chats/components/ChatList.tsx
+msgid "Чатів ще немає"
+msgstr "Чатів ще немає"
 
 #: src/features/news/pages/ArticlePage.tsx
 #: src/features/news/pages/NewsManagePage.tsx

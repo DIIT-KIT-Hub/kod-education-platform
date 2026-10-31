@@ -2,6 +2,7 @@ import { useLingui } from "@lingui/react/macro";
 import type { FocusEvent, MouseEvent } from "react";
 import { NavLink } from "react-router";
 import { Icon } from "@/shared/ui/Icon";
+import styles from "./AppShell.module.css";
 import type { NavigationItem } from "./navigation";
 
 /**
@@ -18,6 +19,8 @@ export interface NavLinksProps {
     readonly limit?: number;
     /** Called when a link is chosen (closes the drawer). */
     readonly onNavigate?: () => void;
+    /** Numbers shown on entries by their route (unread chat messages). */
+    readonly counts?: Readonly<Record<string, number>>;
     /** Called when the pointer or the focus reaches a link (rail tooltips). */
     readonly onHint?: (event: MouseEvent<HTMLElement> | FocusEvent<HTMLElement>, text: string) => void;
 }
@@ -28,14 +31,20 @@ export interface NavLinksProps {
  * @param props The props.
  * @returns The links.
  */
-export function NavLinks({ items, linkClassName, activeClassName, limit, onNavigate, onHint }: NavLinksProps) {
+export function NavLinks({ items, linkClassName, activeClassName, limit, counts, onNavigate, onHint }: NavLinksProps) {
     const { t } = useLingui();
     return items.slice(0, limit).map((item) => {
         const text = t(item.text);
+        const count = counts?.[item.to] ?? 0;
         const content = (
             <>
                 <Icon icon={item.icon} />
                 <span>{text}</span>
+                {count > 0 && (
+                    <span className={styles.count} aria-label={t`Непрочитаних: ${count}`}>
+                        {count > 99 ? "99+" : count}
+                    </span>
+                )}
             </>
         );
         const hint = onHint ? (event: MouseEvent<HTMLElement> | FocusEvent<HTMLElement>) => onHint(event, text) : undefined;

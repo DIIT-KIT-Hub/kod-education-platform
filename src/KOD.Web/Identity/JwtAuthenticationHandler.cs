@@ -62,21 +62,27 @@ internal sealed partial class JwtAuthenticationHandler(
     protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
     {
         var accessToken = Request.Cookies[JwtDefaults.AccessTokenCookie];
+        var refreshToken = Request.Cookies[JwtDefaults.RefreshTokenCookie];
         if (!string.IsNullOrEmpty(accessToken))
         {
             var validated = await tokens.ValidateAccessTokenAsync(accessToken);
             if (validated.IsValid && JwtTokenService.ReadSignIn(validated.ClaimsIdentity) is { } signIn)
             {
-                return Success(validated.ClaimsIdentity, signIn, new DateTimeOffset(validated.SecurityToken.ValidTo, TimeSpan.Zero));
+                // A token past its expiry but within the clock skew is renewed when this response can carry the new
+                // cookies: a SignalR connection opened with it would be closed at once (its expiry has passed) and
+                // reconnect with the same token until the skew ran out.
+                var expires = new DateTimeOffset(validated.SecurityToken.ValidTo, TimeSpan.Zero);
+                if (expires > TimeProvider.GetUtcNow() || string.IsNullOrEmpty(refreshToken) || !CanIssueCookies)
+                {
+                    return Success(validated.ClaimsIdentity, signIn, expires);
+                }
             }
-
-            if (validated.Exception is not null and not SecurityTokenExpiredException)
+            else if (validated.Exception is not null and not SecurityTokenExpiredException)
             {
                 LogTokenRejected(Logger, validated.Exception);
             }
         }
 
-        var refreshToken = Request.Cookies[JwtDefaults.RefreshTokenCookie];
         if (string.IsNullOrEmpty(refreshToken) || !CanIssueCookies)
         {
             return AuthenticateResult.NoResult();

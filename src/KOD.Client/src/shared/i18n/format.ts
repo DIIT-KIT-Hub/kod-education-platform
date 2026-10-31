@@ -102,3 +102,42 @@ export function formatAgo(moment: string, now: Date = new Date()): string {
           ? relative.format(-minutes, "minute")
           : relative.format(-Math.floor(minutes / 60), "hour");
 }
+
+/**
+ * The calendar day of a moment in Kyiv time («2026-10-31»), for comparing days.
+ * @param moment The moment.
+ * @returns The day.
+ */
+export function kyivDay(moment: Date): string {
+    return new Intl.DateTimeFormat("en-CA", { timeZone, year: "numeric", month: "2-digit", day: "2-digit" }).format(moment);
+}
+
+/**
+ * Formats the time of a message: the hour today, the day this year, otherwise the date («14:05», «25 жовт.», «25.10.2025»).
+ * @param moment The ISO moment.
+ * @param now The current time.
+ * @returns The text.
+ */
+export function formatShortMoment(moment: string, now: Date = new Date()): string {
+    const date = new Date(moment);
+    if (kyivDay(date) === kyivDay(now)) {
+        return formatClock(moment);
+    }
+
+    const sameYear = kyivDay(date).slice(0, 4) === kyivDay(now).slice(0, 4);
+    const options: Intl.DateTimeFormatOptions = sameYear
+        ? { timeZone, day: "numeric", month: "short" }
+        : { timeZone, day: "2-digit", month: "2-digit", year: "numeric" };
+    return new Intl.DateTimeFormat(formattingLocale(), options).format(date);
+}
+
+/**
+ * Formats the hour and minute of a moment («14:05»).
+ * @param moment The ISO moment.
+ * @returns The text.
+ */
+export function formatClock(moment: string): string {
+    return new Intl.DateTimeFormat(formattingLocale(), { timeZone, hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).format(
+        new Date(moment),
+    );
+}

@@ -15,6 +15,10 @@
 
 .input {
     composes: input from "./TextInput.module.css";
+}
+
+/* Scoped to the field, so the composed input styles cannot win when a page bundles them after this file. */
+.search .input {
     padding-left: 2.75rem;
     border-radius: var(--ds-radius-pill);
 }

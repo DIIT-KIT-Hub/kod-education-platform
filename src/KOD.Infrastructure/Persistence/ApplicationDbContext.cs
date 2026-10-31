@@ -1,6 +1,7 @@
 using KOD.Application.Abstractions;
 using KOD.Domain.Access;
 using KOD.Domain.Audit;
+using KOD.Domain.Chats;
 using KOD.Domain.Common;
 using KOD.Domain.Documents;
 using KOD.Domain.Media;
@@ -69,6 +70,21 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
 
     /// <inheritdoc />
     public DbSet<MediaFile> MediaFiles => Set<MediaFile>();
+
+    /// <inheritdoc />
+    public DbSet<Chat> Chats => Set<Chat>();
+
+    /// <inheritdoc />
+    public DbSet<ChatMember> ChatMembers => Set<ChatMember>();
+
+    /// <inheritdoc />
+    public DbSet<ChatMessage> ChatMessages => Set<ChatMessage>();
+
+    /// <inheritdoc />
+    public DbSet<ChatAttachment> ChatAttachments => Set<ChatAttachment>();
+
+    /// <inheritdoc />
+    public DbSet<ChatReaction> ChatReactions => Set<ChatReaction>();
 
     /// <inheritdoc />
     public DbSet<AuditEntry> AuditEntries => Set<AuditEntry>();

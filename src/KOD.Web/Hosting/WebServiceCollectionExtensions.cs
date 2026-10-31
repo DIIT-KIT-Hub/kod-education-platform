@@ -3,6 +3,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.RateLimiting;
 using KOD.Application.Abstractions;
+using KOD.Application.Features.Chats;
 using KOD.Application.Features.News.Discussion;
 using KOD.Domain.Localization;
 using KOD.Infrastructure.Identity.Tokens;
@@ -15,6 +16,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.SignalR;
 
 namespace KOD.Web.Hosting;
 
@@ -42,8 +44,12 @@ internal static class WebServiceCollectionExtensions
             services.AddProblemDetails();
             services.AddExceptionHandler<ApiExceptionHandler>();
             services.AddOpenApi();
-            services.AddSignalR();
+
+            // Hub messages carry the same DTOs as the REST API: the same JSON conventions.
+            services.AddSignalR().AddJsonProtocol(static options => ConfigureJson(options.PayloadSerializerOptions));
+            services.AddSingleton<IUserIdProvider, SubjectUserIdProvider>();
             services.AddSingleton<INewsDiscussionEvents, LiveNewsDiscussionEvents>();
+            services.AddSingleton<IChatEvents, LiveChatEvents>();
 
             services.AddJwtAuthentication();
             services.AddPermissionAuthorization();

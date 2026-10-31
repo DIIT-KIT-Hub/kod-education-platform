@@ -41,6 +41,7 @@ export const moduleNames: Record<AppModule, MessageDescriptor> = {
     Users: msg`Користувачі`,
     Administration: msg`Адміністрування`,
     Audit: msg`Аудит`,
+    Chats: msg`Чати`,
 };
 
 /**

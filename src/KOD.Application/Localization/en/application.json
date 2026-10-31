@@ -96,5 +96,14 @@
   "Коментар не знайдено.": "Comment not found.",
   "Коментарі до цієї новини вимкнено.": "Comments on this post are turned off.",
   "Реакції доступні лише для опублікованих новин.": "Reactions are available only for published posts.",
-  "Редагувати можна лише власні коментарі.": "You can edit only your own comments."
+  "Редагувати можна лише власні коментарі.": "You can edit only your own comments.",
+  "Видаляти можна лише власні повідомлення.": "You can delete only your own messages.",
+  "Повідомлення не знайдено.": "Message not found.",
+  "Повідомлення не має ідентифікатора.": "The message has no identifier.",
+  "Редагувати можна лише власні повідомлення.": "You can edit only your own messages.",
+  "Файл не знайдено.": "File not found.",
+  "Файли одного повідомлення не можуть бути більшими за {0} МБ разом.": "The files of one message cannot exceed {0} MB in total.",
+  "Файли типу «{0}» не можна надсилати в чат.": "Files of type “{0}” cannot be sent to a chat.",
+  "Цій людині не можна написати: обліковий запис заблоковано або чати для неї вимкнено.": "You cannot write to this person: the account is blocked or chats are turned off for them.",
+  "Чат не знайдено.": "Chat not found."
 }

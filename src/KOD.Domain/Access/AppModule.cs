@@ -39,4 +39,9 @@ public enum AppModule
     /// Security and activity audit trail.
     /// </summary>
     Audit = 6,
+
+    /// <summary>
+    /// One-to-one and group chats.
+    /// </summary>
+    Chats = 7,
 }
