@@ -28,8 +28,9 @@ dotnet ef migrations add <Name> --project src/KOD.Infrastructure --startup-proje
 ```
 
 ```bash
-# React client (src/KOD.Client; Node 24+, pnpm). In development KOD.Web serves its dist/ (Spa:Root), so build it
-# before checking it in the browser.
+# React client (src/KOD.Client; Node 24+, pnpm). In development KOD.Web serves its dist/ (Spa:Root). Building KOD.Web
+# (F5 in Visual Studio, dotnet run/build) runs pnpm install/build itself when the lockfile or client sources are newer
+# than the last result (incremental targets in KOD.Web.csproj); -p:SkipClientBuild=true skips that.
 cd src/KOD.Client
 pnpm install
 pnpm build                  # tsc -b + vite build (production; fails on a missing English translation)

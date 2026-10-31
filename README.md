@@ -250,13 +250,9 @@ tests/
    dotnet run --project src/KOD.Web --launch-profile https
    ```
 
-   Спершу зберіть React-клієнт (у Development сервер роздає `src/KOD.Client/dist`):
+   Або у Visual Studio: відкрийте `KOD.slnx`, зробіть `KOD.Web` стартовим проєктом і запустіть профіль **https** (F5). Секрети зручно задати через **Manage User Secrets** на проєкті `KOD.Web`.
 
-   ```bash
-   cd src/KOD.Client
-   pnpm install
-   pnpm build   # або pnpm dev — перезбирає клієнт після кожної зміни (оновіть сторінку)
-   ```
+   Збірка `KOD.Web` (кнопка запуску, `dotnet run` чи `dotnet build`) сама встановлює залежності й збирає React-клієнт у `src/KOD.Client/dist`, звідки його роздає сервер у Development, — але лише коли клієнта ще немає або його файли змінилися, тож повторний запуск не гає часу. Потрібні Node.js 24+ і pnpm; `-p:SkipClientBuild=true` пропускає цей крок. Під час роботи над клієнтом зручно тримати `pnpm dev` у `src/KOD.Client`: він перезбирає клієнт після кожного збереження (оновіть сторінку).
 
    Відкрийте <https://localhost:7180>. Перший вхід: `admin@kod.local` з паролем `Seed:AdminPassword`. Якщо пароль не задано, він генерується й записується у `src/KOD.Web/App_Data/initial-admin-password.txt` (видаліть файл після входу). Під час першого входу ви замінете пароль і прив'яжете автентифікатор.
 
