@@ -1,0 +1,623 @@
+import { TriangleAlert } from "lucide-react";
+import { Alert } from "@/shared/ui/Alert";
+import { Chapter, Code, Ref, Steps, Table, Topic, Ui } from "../../components/Manual";
+
+/**
+ * Administration (English).
+ * @returns The chapter.
+ */
+export function AdministrationChapter() {
+    return (
+        <Chapter id="admin">
+            <Topic id="admin-overview">
+                <p>
+                    The <Ui>Administration</Ui> menu item is visible to users with at least one administrative permission. The page contains
+                    tiles, each shown only if you have the matching permission:
+                </p>
+                <Table>
+                    <thead>
+                        <tr>
+                            <th>Tile</th>
+                            <th>What it contains</th>
+                            <th>Required permission</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Users</td>
+                            <td>Accounts, positions, blocking, password and 2FA resets.</td>
+                            <td>View users</td>
+                        </tr>
+                        <tr>
+                            <td>Import and export</td>
+                            <td>Bulk adding of users from XLSX/CSV and exporting them.</td>
+                            <td>Import users or Export users</td>
+                        </tr>
+                        <tr>
+                            <td>Roles and permissions</td>
+                            <td>Permission sets for positions and modules.</td>
+                            <td>Manage roles</td>
+                        </tr>
+                        <tr>
+                            <td>Structure</td>
+                            <td>
+                                Organizations and their units: departments, divisions, branches (see “
+                                <Ref to="structure-manage">Managing organizations and units</Ref>”).
+                            </td>
+                            <td>Manage structure</td>
+                        </tr>
+                        <tr>
+                            <td>Unit types</td>
+                            <td>
+                                Names of the structure levels: organization, department, division, section… (see “
+                                <Ref to="structure-types">Unit types</Ref>”).
+                            </td>
+                            <td>Manage structure</td>
+                        </tr>
+                        <tr>
+                            <td>News</td>
+                            <td>
+                                Posts and announcements (see “<Ref to="news-list">Managing posts</Ref>”).
+                            </td>
+                            <td>Manage news</td>
+                        </tr>
+                        <tr>
+                            <td>Audit log</td>
+                            <td>Sign-ins, permission changes, document signing.</td>
+                            <td>Audit log</td>
+                        </tr>
+                    </tbody>
+                </Table>
+                <p>
+                    You manage users, structure and news only in the organizations of your positions — see “
+                    <Ref to="admin-scope">Administration within organizations</Ref>”.
+                </p>
+            </Topic>
+            <Topic id="admin-scope">
+                <p>
+                    Several organizations can work in one cabinet, and each administers its own people, structure and news. That is why the
+                    permissions “View users”, “Manage users”, “Import users”, “Export users”, “Account security”, “Manage structure” and
+                    “Manage news” apply <strong>only in the organizations of your positions</strong> — including all their units and nested
+                    (subsidiary) organizations.
+                </p>
+                <ul>
+                    <li>
+                        A permission applies in the organization of the position whose role grants it. For example, an HR specialist of
+                        organization A who also holds a regular staff position in organization B manages accounts only in A. A permission
+                        granted individually applies in the organizations of all your positions.
+                    </li>
+                    <li>
+                        The <strong>“Administer all organizations”</strong> permission extends your administrative permissions to the whole
+                        cabinet. By default only the “System administrator” role has it; grant it only to administrators of the entire
+                        cabinet.
+                    </li>
+                </ul>
+                <Table>
+                    <thead>
+                        <tr>
+                            <th>What</th>
+                            <th>Organization administrator</th>
+                            <th>Administrator of all organizations</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>User list, user card, export</td>
+                            <td>
+                                Accounts that have at least one position in their organizations. The export includes only positions in these
+                                organizations.
+                            </td>
+                            <td>All accounts, including those without positions.</td>
+                        </tr>
+                        <tr>
+                            <td>Positions</td>
+                            <td>Assigns and changes positions only in units of their own organizations.</td>
+                            <td>In any unit.</td>
+                        </tr>
+                        <tr>
+                            <td>Personal details, email, blocking, password, 2FA, sessions, individual permissions</td>
+                            <td>Only for accounts whose positions are all in their organizations.</td>
+                            <td>
+                                For all accounts (subject to the “<Ref to="admin-hierarchy">authority limits</Ref>”).
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Import</td>
+                            <td>
+                                Unit codes of their own organizations only; updates only accounts whose positions are all in their
+                                organizations; a new account must have a position.
+                            </td>
+                            <td>Without these restrictions.</td>
+                        </tr>
+                        <tr>
+                            <td>Structure</td>
+                            <td>Creates, edits and moves units and subsidiary organizations within their own organizations.</td>
+                            <td>
+                                Also creates and moves top-level organizations, turns an organization into a regular unit and maintains the
+                                unit type catalog.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>News</td>
+                            <td>Publishes and edits news of their own organizations.</td>
+                            <td>Also news of the whole cabinet and of any organization.</td>
+                        </tr>
+                    </tbody>
+                </Table>
+                <h4>Account in several organizations</h4>
+                <p>
+                    If a person holds positions both in your organization and in another one, you see them in the list, and their card is
+                    marked “Account in several organizations”. You change only their positions in your organizations; positions in other
+                    organizations are shown as “Position in another organization” and cannot be edited, and if the primary position is
+                    there, it stays primary. The personal details, email, status and security of such an account are changed by an
+                    administrator who manages all of its organizations, or by an administrator of all organizations. Otherwise you will see:
+                    “The user also holds positions in organizations you don't manage…”
+                </p>
+                <p>
+                    An account without any position belongs to no organization, so only an administrator of all organizations can see it. An
+                    organization administrator cannot leave a user without positions: “Assign at least one position in a unit of your
+                    organization…” — to revoke access, block the account instead.
+                </p>
+                <p>
+                    Roles, the unit type catalog and the audit log are shared by the whole cabinet: the “Audit log” permission opens events
+                    of all organizations.
+                </p>
+            </Topic>
+            <Topic id="admin-users-list">
+                <p>
+                    <Ui>Administration</Ui> → <Ui>Users</Ui>. Self-registration is disabled — all accounts are created here or by import.
+                    The list shows the accounts of your organizations (an administrator of all organizations sees the whole cabinet).
+                </p>
+                <ul>
+                    <li>
+                        Search by full name or email; filters: status (<Ui>All</Ui> / <Ui>Active</Ui> / <Ui>Blocked</Ui>),{" "}
+                        <Ui>All units</Ui> (the selected unit together with all nested ones; select an organization to see all of its
+                        people), <Ui>All roles</Ui>.
+                    </li>
+                    <li>
+                        Columns: <strong>User</strong> (full name and email), <strong>Position</strong> (primary position and unit; for
+                        people in several organizations — the position in your organization), <strong>Status</strong>,{" "}
+                        <strong>Last sign-in</strong>, <Ui>Open</Ui>.
+                    </li>
+                    <li>
+                        Statuses: “Active”, “Blocked” (by an administrator), “Temporarily locked” (after failed sign-in attempts), and also
+                        “No 2FA” — the user hasn't set up an authenticator yet.
+                    </li>
+                    <li>
+                        Buttons: <Ui>XLSX</Ui> / <Ui>CSV</Ui> — export the list with the current filters; <Ui>Import</Ui>; <Ui>Add</Ui> — a
+                        new account.
+                    </li>
+                </ul>
+                <p>Without the “Manage users” permission, the user card opens read-only.</p>
+            </Topic>
+            <Topic id="admin-users-create">
+                <Steps>
+                    <li>
+                        Click <Ui>Add</Ui>.
+                    </li>
+                    <li>
+                        Fill in “Personal details”: <Ui>Last name</Ui>, <Ui>First name</Ui> (required), <Ui>Middle name</Ui>, <Ui>Phone</Ui>
+                        , <Ui>Email (sign-in)</Ui> (required, unique).
+                    </li>
+                    <li>
+                        Add at least one position (see “<Ref to="admin-users-edit">Personal details and positions</Ref>”) — without a
+                        position the user won't have access to the modules.
+                    </li>
+                    <li>
+                        Click <Ui>Create account</Ui> — “Account created.”
+                    </li>
+                    <li>
+                        A “Temporary password for … (shown once)” block appears. Click <Ui>Copy</Ui> — the sign-in email and password are
+                        copied.
+                    </li>
+                    <li>
+                        Pass the details to the user over a secure channel (in person, by phone, in an end-to-end encrypted messenger — not
+                        in group chats and not in the same email as the sign-in name). On first sign-in the user replaces the password with
+                        their own and sets up an authenticator.
+                    </li>
+                </Steps>
+                <p>
+                    Possible errors: “A user with this email already exists.”, “Enter a valid email address.”, “Select a unit and a role for
+                    each position.”, “You can assign positions only in units of organizations you manage.”, “Assign at least one position in
+                    a unit of your organization…”
+                </p>
+            </Topic>
+            <Topic id="admin-users-edit">
+                <p>
+                    Open the user (<Ui>Open</Ui> in the list). At the top are the full name, email and badges: “Active” / “Blocked”, “2FA
+                    enabled” / “2FA not set up”, “Temporary password”.
+                </p>
+                <h4>Positions</h4>
+                <p>The role of a position defines permissions; the unit defines the scope of access to documents.</p>
+                <Steps>
+                    <li>
+                        Click <Ui>Add position</Ui>.
+                    </li>
+                    <li>
+                        Select a <Ui>Unit</Ui> and a <Ui>Role</Ui>, and enter the <Ui>Position title</Ui> (for example, “Chief accountant”;
+                        up to 128 characters). The unit list contains only units of organizations you manage; positions in other
+                        organizations are assigned by their administrators (see “
+                        <Ref to="admin-scope">Administration within organizations</Ref>”).
+                    </li>
+                    <li>
+                        Check <Ui>Primary</Ui> for the main position (only one; if none is selected, the first one becomes primary). The
+                        primary position is shown in lists and signing routes; the others count as secondary positions.
+                    </li>
+                    <li>
+                        Remove an unneeded position with <Ui>Remove position</Ui>. The same “unit + role” pair cannot appear twice.
+                    </li>
+                    <li>
+                        Click <Ui>Save changes</Ui> — “Changes saved.” The new permissions take effect for the user within 5 minutes at
+                        most, without signing in again.
+                    </li>
+                </Steps>
+                <p>
+                    Without the “Manage roles” permission you can assign only roles whose permissions you all have yourself; the system
+                    administrator role is unavailable. Error: “You can't assign the role “X” because it grants more permissions than you
+                    have.”
+                </p>
+                <p>An account cannot be deleted — only blocked. This preserves the history of documents and signatures.</p>
+            </Topic>
+            <Topic id="admin-users-overrides">
+                <p>
+                    The “Individual permissions” card (visible with the “Manage roles” permission) lets you grant or deny specific
+                    permissions on top of the position roles. For each permission choose:
+                </p>
+                <ul>
+                    <li>
+                        <Ui>By roles</Ui> — as defined by the position roles (default);
+                    </li>
+                    <li>
+                        <Ui>Grant</Ui> — the permission applies even if the roles don't give it;
+                    </li>
+                    <li>
+                        <Ui>Deny</Ui> — the permission doesn't apply even if a role gives it.
+                    </li>
+                </ul>
+                <p>
+                    The “in effect” badge marks the permissions the user actually has. Denials don't apply to system administrators. Use
+                    individual permissions for exceptions; for typical cases, configure a role instead.
+                </p>
+            </Topic>
+            <Topic id="admin-users-security">
+                <p>The “Account security” card on the user's page. Each action requires confirmation.</p>
+                <Table>
+                    <thead>
+                        <tr>
+                            <th>Button</th>
+                            <th>Required permission</th>
+                            <th>What happens</th>
+                            <th>When to use</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Block</td>
+                            <td>Manage users</td>
+                            <td>
+                                A new sign-in becomes impossible, the sign-ins on all devices end within a few minutes. “Account blocked.”
+                            </td>
+                            <td>Dismissal, long absence, suspected compromise.</td>
+                        </tr>
+                        <tr>
+                            <td>Unblock</td>
+                            <td>Manage users</td>
+                            <td>Sign-in is allowed again. “Account unblocked.”</td>
+                            <td>The employee returns.</td>
+                        </tr>
+                        <tr>
+                            <td>Issue a temporary password</td>
+                            <td>Account security</td>
+                            <td>
+                                The current password stops working, the sign-ins on all devices end within a few minutes, a new temporary
+                                password is shown (once). “Temporary password issued.”
+                            </td>
+                            <td>The user forgot their password.</td>
+                        </tr>
+                        <tr>
+                            <td>Reset authenticator</td>
+                            <td>Account security</td>
+                            <td>
+                                2FA is turned off, recovery codes are revoked, the sign-ins on all devices end within a few minutes. On next
+                                sign-in the user sets up a new phone. “Authenticator reset.”
+                            </td>
+                            <td>The user changed or lost their phone.</td>
+                        </tr>
+                        <tr>
+                            <td>Sign out all sessions</td>
+                            <td>Account security</td>
+                            <td>
+                                All of the user's sign-ins on all devices end within a few minutes; the temporary lockout after failed
+                                sign-in attempts is also lifted. “Sessions signed out.”
+                            </td>
+                            <td>
+                                The user forgot to sign out on someone else's device; the account needs unlocking after failed sign-ins.
+                            </td>
+                        </tr>
+                    </tbody>
+                </Table>
+                <p>“Within a few minutes” means at most 5 minutes, when the access token on the user's device is renewed.</p>
+                <p>
+                    Before resetting a password or an authenticator, make sure the request really comes from the account owner (in person or
+                    via a known phone number). Below the card are the “Created” and “Last sign-in” dates. You cannot block your own account.
+                </p>
+            </Topic>
+            <Topic id="admin-import">
+                <p>
+                    <Ui>Administration</Ui> → <Ui>Import and export</Ui> (or <Ui>Import</Ui> in the user list). Import creates new accounts
+                    and updates existing ones (matched by email).
+                </p>
+                <h4>Preparing the file</h4>
+                <Steps>
+                    <li>
+                        In the “Template” card, download the <Ui>XLSX</Ui> or <Ui>CSV</Ui> template — it contains three examples. Expand{" "}
+                        <Ui>Role codes</Ui> to see the allowed codes.
+                    </li>
+                    <li>
+                        Fill in the columns (the first row holds the headers; keep the Ukrainian header names from the template, case
+                        doesn't matter):
+                    </li>
+                </Steps>
+                <Table>
+                    <thead>
+                        <tr>
+                            <th>Column</th>
+                            <th>Required</th>
+                            <th>What to enter</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Email</td>
+                            <td>yes</td>
+                            <td>The user's sign-in name. The headers “e-mail”, “пошта” and “електронна пошта” are also accepted.</td>
+                        </tr>
+                        <tr>
+                            <td>Прізвище</td>
+                            <td>yes</td>
+                            <td>Last name.</td>
+                        </tr>
+                        <tr>
+                            <td>Ім'я</td>
+                            <td>yes</td>
+                            <td>First name.</td>
+                        </tr>
+                        <tr>
+                            <td>По батькові</td>
+                            <td>no</td>
+                            <td>Middle name.</td>
+                        </tr>
+                        <tr>
+                            <td>Телефон</td>
+                            <td>no</td>
+                            <td>Phone number in the +380… format; an empty cell doesn't erase an existing number.</td>
+                        </tr>
+                        <tr>
+                            <td>Код підрозділу</td>
+                            <td>for a position</td>
+                            <td>Unit code from the structure (for example, SALES). Codes are unique across all organizations.</td>
+                        </tr>
+                        <tr>
+                            <td>Код ролі</td>
+                            <td>for a position</td>
+                            <td>Role code (for example, head-of-unit).</td>
+                        </tr>
+                        <tr>
+                            <td>Посада</td>
+                            <td>no</td>
+                            <td>Position title (for example, “Associate professor”).</td>
+                        </tr>
+                        <tr>
+                            <td>Статус</td>
+                            <td>no</td>
+                            <td>
+                                “заблокований”, “заблоковано”, “blocked”, “inactive”, “0”, “ні” or “no” — the account will be blocked;
+                                anything else or empty — active.
+                            </td>
+                        </tr>
+                    </tbody>
+                </Table>
+                <ul>
+                    <li>Several rows with the same email are several positions of one person. The first row sets the primary position.</li>
+                    <li>If the file has no positions for an existing user, their positions don't change.</li>
+                    <li>CSV must be UTF-8 encoded; the delimiter is detected automatically. For XLSX, the first sheet is read.</li>
+                    <li>Limits: up to 5 MB and up to 10,000 rows.</li>
+                </ul>
+                <h4>Validation and import</h4>
+                <Steps>
+                    <li>
+                        Drag the file into the “1. Select a file” card and click <Ui>Validate</Ui> — the file is checked without saving
+                        anything.
+                    </li>
+                    <li>
+                        The “2. Validation result” card shows “Rows in file”, “Will be created”, “Will be updated”. If there are errors, a
+                        “Row / Email / Error” table appears. Fix the file and validate again: import is possible only when there are no
+                        errors.
+                    </li>
+                    <li>
+                        When there are no errors, click <Ui>Import</Ui>. The import is applied completely or not at all.
+                    </li>
+                    <li>
+                        If new accounts were created, the <Ui>Passwords (XLSX)</Ui> and <Ui>Passwords (CSV)</Ui> buttons appear — a file
+                        with the columns “Email”, “Full name”, “Temporary password”. <strong>Download it right away</strong>: passwords are
+                        shown only once. Keep the file secure and delete it after handing out the passwords.
+                    </li>
+                </Steps>
+                <h4>Common row errors</h4>
+                <ul>
+                    <li>“Invalid email.”, “Last name and first name are required.”</li>
+                    <li>“Unit with code “X” not found.”, “Role with code “X” not found.”</li>
+                    <li>“Unit “X” belongs to an organization you don't manage…” — import assigns positions only in your organizations.</li>
+                    <li>
+                        “An account with this email already exists and has positions in organizations you don't manage…” — such an account
+                        is changed by an administrator of all of its organizations.
+                    </li>
+                    <li>
+                        “Specify the unit code and the role code…” — a new account without a position would end up outside your
+                        organizations.
+                    </li>
+                    <li>“You can't assign the role “X”.” — the role grants more permissions than you have.</li>
+                    <li>“This account has more permissions than you, so the import can't change it.”</li>
+                    <li>“You can't block your own account.”</li>
+                </ul>
+                <p>Blocking through import ends the sign-ins of the blocked users within a few minutes.</p>
+            </Topic>
+            <Topic id="admin-export">
+                <ul>
+                    <li>
+                        In the user list, the <Ui>XLSX</Ui> / <Ui>CSV</Ui> buttons export users{" "}
+                        <strong>with the current filters applied</strong> (search, status, unit, role).
+                    </li>
+                    <li>
+                        The “Export” card on the import page exports <strong>all</strong> users of your organizations.
+                    </li>
+                </ul>
+                <p>
+                    Only positions in your organizations are exported — so the export can be imported back without errors about other
+                    organizations' units.
+                </p>
+                <p>
+                    The format matches the import (the same 9 columns, each position on a separate row, status “активний” / “заблокований”);
+                    passwords are not exported. So you can edit the export and import it back for bulk changes. The file name is{" "}
+                    <Code>users-YYYYMMDD-HHMM.xlsx</Code> or <Code>.csv</Code> (CSV uses the “;” delimiter and opens in Excel without any
+                    setup).
+                </p>
+            </Topic>
+            <Topic id="admin-roles">
+                <p>
+                    <Ui>Administration</Ui> → <Ui>Roles and permissions</Ui>. A role is a set of permissions for a position; a user receives
+                    the permissions of all their positions.
+                </p>
+                <ul>
+                    <li>
+                        List: search by name or code, columns “Role”, “Code”, “Type” (“System” / “Custom”, and also “Managerial”),
+                        “Permissions” (count), “Users” (count), <Ui>Configure</Ui>.
+                    </li>
+                    <li>
+                        <Ui>New role</Ui> — create a custom role for the needs of your field (for example, “Project manager”, “Dean”, “Chief
+                        physician”).
+                    </li>
+                </ul>
+                <h4>Configuring a role</h4>
+                <Steps>
+                    <li>
+                        In the “Role” card, enter the <Ui>Code</Ui> (only when creating: lowercase Latin letters, digits and “-”, up to 64
+                        characters, for example <Code>project-manager</Code> — used in import), the <Ui>Name</Ui> (required) and the{" "}
+                        <Ui>Description</Ui>. The <Ui>Managerial position</Ui> checkbox lists holders of the role first among the unit's
+                        staff, with the “Head” badge.
+                    </li>
+                    <li>
+                        In the “Permissions” card, check the permissions you need — they are grouped by module, each with a description.
+                    </li>
+                    <li>
+                        Click <Ui>Save</Ui> — “Role saved”. The changes take effect for all holders of the role within 5 minutes at most,
+                        without signing in again.
+                    </li>
+                </Steps>
+                <ul>
+                    <li>
+                        The names, descriptions and permissions of system roles can be changed (for example, rename “Head of organization”
+                        to “Rector” or “CEO”), but the system roles themselves can't be deleted. The “System administrator” role always has
+                        all permissions.
+                    </li>
+                    <li>
+                        <Ui>Delete role</Ui> — only for custom roles that aren't assigned to anyone (otherwise: “The role is assigned to
+                        users — change their positions first.”).
+                    </li>
+                </ul>
+                <Alert
+                    tone="outline"
+                    icon={TriangleAlert}
+                    title="Be careful with the “Manage roles” and “Administer all organizations” permissions"
+                >
+                    Anyone with “Manage roles” can change the permissions of roles and assign any role, including system administrator.
+                    “Administer all organizations” extends administrative permissions to the whole cabinet. Grant these permissions only to
+                    administrators of the entire cabinet.
+                </Alert>
+            </Topic>
+            <Topic id="admin-audit">
+                <p>
+                    <Ui>Administration</Ui> → <Ui>Audit log</Ui> — a timeline of important events: who did what, when, and from which IP
+                    address.
+                </p>
+                <ul>
+                    <li>Search by user name, details or IP.</li>
+                    <li>
+                        Category filter: <Ui>All events</Ui>, “Authentication”, “Documents”, “Users”, “Roles”, “Structure”, “News”.
+                    </li>
+                    <li>
+                        Period: <Ui>From date</Ui> and <Ui>To date</Ui> (inclusive). Dates are calendar days in Kyiv time, as are the event
+                        times in the table: “to 25.10” covers events up to 23:59 on October 25, Kyiv time.
+                    </li>
+                    <li>Columns “Time” (newest first), “Event” (with details), “User”, “IP”. 50 entries per page.</li>
+                </ul>
+                <Table>
+                    <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th>Events</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Authentication</td>
+                            <td>
+                                Sign-in (with details: “Password + authenticator”, “Password + recovery code”), Failed sign-in attempt,
+                                Lockout after sign-in attempts, Sign-out, Authenticator connected, Authenticator reset, New recovery codes,
+                                Password change, Password reset, Sessions ended.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Users</td>
+                            <td>User created, User changed, User status change, User import, User export.</td>
+                        </tr>
+                        <tr>
+                            <td>Roles</td>
+                            <td>Role change, Role deletion.</td>
+                        </tr>
+                        <tr>
+                            <td>Structure</td>
+                            <td>Structure change.</td>
+                        </tr>
+                        <tr>
+                            <td>Documents</td>
+                            <td>
+                                Document created, Document changed (with the new file name and the number of revoked signatures), Document
+                                sent for signing, Document withdrawn, Document signed (with the format, provider and certificate number),
+                                Signing declined, Document archived, Document deleted.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>News</td>
+                            <td>News change, News deletion.</td>
+                        </tr>
+                    </tbody>
+                </Table>
+                <p>
+                    A series of “Failed sign-in attempt” events for one account from different IP addresses may indicate password guessing —
+                    check whether the user has 2FA enabled and, if needed, issue a new temporary password.
+                </p>
+            </Topic>
+            <Topic id="admin-hierarchy">
+                <p>To prevent any administrator from expanding their own permissions, the following rules apply:</p>
+                <ul>
+                    <li>
+                        Administrative permissions apply only in the organizations of your positions (see “
+                        <Ref to="admin-scope">Administration within organizations</Ref>”).
+                    </li>
+                    <li>
+                        You can manage only accounts whose permissions you all have too. Otherwise: “This account has more permissions than
+                        you, so you can't manage it.” The same rule applies to import.
+                    </li>
+                    <li>
+                        Without the “Manage roles” permission you can't assign a role that grants more permissions than you have, nor the
+                        system administrator role.
+                    </li>
+                    <li>Individual permissions can be changed only by holders of the “Manage roles” permission.</li>
+                    <li>You can't block your own account.</li>
+                    <li>Every administrative action is recorded in the audit log.</li>
+                </ul>
+            </Topic>
+        </Chapter>
+    );
+}

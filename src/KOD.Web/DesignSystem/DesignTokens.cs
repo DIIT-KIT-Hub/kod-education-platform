@@ -47,6 +47,6 @@ public static class DesignTokens
     /// <param name="language">The language code.</param>
     /// <returns>The script paths.</returns>
     public static IReadOnlyList<string> TranslationScripts(string language) => language == KOD.Domain.Localization.Languages.English
-        ? ["js/i18n/en.js", "js/i18n/en.help.js"]
+        ? ["js/i18n/en.js"]
         : [];
 }

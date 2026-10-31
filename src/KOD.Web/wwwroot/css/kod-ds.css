@@ -1146,7 +1146,7 @@ hr {
 /* Scrollbars of scrolling panels: dialogs, drop-down lists, the manual's contents, long grids.
  * A thin rounded thumb on a transparent track, kept away from rounded corners; darker on hover.
  * Chromium and Safari style ::-webkit-scrollbar; Firefox (no such selector) gets the standard properties. */
-:is(.ds-dialog, .ds-listbox, .help-toc) {
+:is(.ds-dialog, .ds-listbox) {
     --_scroll-thumb: color-mix(in srgb, var(--ds-color-text) 22%, transparent);
     --_scroll-thumb-hover: color-mix(in srgb, var(--ds-color-text) 42%, transparent);
     --_scroll-inset: 0.75rem;
@@ -1154,23 +1154,23 @@ hr {
 
 .ds-dialog { --_scroll-inset: 1.75rem; }
 
-:is(.ds-dialog, .ds-listbox, .help-toc)::-webkit-scrollbar { width: 0.875rem; height: 0.875rem; }
-:is(.ds-dialog, .ds-listbox, .help-toc)::-webkit-scrollbar-track { background: transparent; margin-block: var(--_scroll-inset); }
-:is(.ds-dialog, .ds-listbox, .help-toc)::-webkit-scrollbar-button { display: none; width: 0; height: 0; }
-:is(.ds-dialog, .ds-listbox, .help-toc)::-webkit-scrollbar-corner { background: transparent; }
+:is(.ds-dialog, .ds-listbox)::-webkit-scrollbar { width: 0.875rem; height: 0.875rem; }
+:is(.ds-dialog, .ds-listbox)::-webkit-scrollbar-track { background: transparent; margin-block: var(--_scroll-inset); }
+:is(.ds-dialog, .ds-listbox)::-webkit-scrollbar-button { display: none; width: 0; height: 0; }
+:is(.ds-dialog, .ds-listbox)::-webkit-scrollbar-corner { background: transparent; }
 
-:is(.ds-dialog, .ds-listbox, .help-toc)::-webkit-scrollbar-thumb {
+:is(.ds-dialog, .ds-listbox)::-webkit-scrollbar-thumb {
     min-height: 2.5rem;
     border: 4px solid transparent;
     border-radius: var(--ds-radius-pill);
     background: var(--_scroll-thumb) padding-box;
 }
 
-:is(.ds-dialog, .ds-listbox, .help-toc)::-webkit-scrollbar-thumb:hover,
-:is(.ds-dialog, .ds-listbox, .help-toc)::-webkit-scrollbar-thumb:active { background-color: var(--_scroll-thumb-hover); border-width: 3px; }
+:is(.ds-dialog, .ds-listbox)::-webkit-scrollbar-thumb:hover,
+:is(.ds-dialog, .ds-listbox)::-webkit-scrollbar-thumb:active { background-color: var(--_scroll-thumb-hover); border-width: 3px; }
 
 @supports not selector(::-webkit-scrollbar) {
-    :is(.ds-dialog, .ds-listbox, .help-toc) { scrollbar-width: thin; scrollbar-color: var(--_scroll-thumb) transparent; }
+    :is(.ds-dialog, .ds-listbox) { scrollbar-width: thin; scrollbar-color: var(--_scroll-thumb) transparent; }
 }
 
 /* Tabs */

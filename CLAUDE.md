@@ -107,11 +107,11 @@ Dependencies point inward: Web → Infrastructure → Application → Domain. Ce
 ### Rendering model
 
 - Pages are **static SSR + enhanced navigation**; list pages use `[StreamRendering]` with a skeleton first.
-- The remaining Blazor pages (home, sign-in, manual, errors) are static; every interactive form has moved to React.
+- The remaining Blazor pages (home, sign-in, errors) are static; every interactive form has moved to React.
 - Global behaviors are plain JS with event delegation on `document` (they survive enhanced navigation):
   `wwwroot/js/kod-ds.js` (dialogs, confirm, toasts, autosubmit, theme, sidebar, button ink, password toggle, OTP cells),
   `kod-pickers.js` (custom select drop-down and date picker calendar), `app.js` (ES module: page entrance, navigation
-  progress bar, lazy manual), `help.js`.
+  progress bar).
 - Strict CSP: no inline scripts, no `eval`. New scripts are static files referenced through `DesignTokens` / `@Assets[...]`.
 
 ### Images, news editor, discussion
@@ -147,7 +147,7 @@ Dependencies point inward: Web → Infrastructure → Application → Domain. Ce
 
 The frontend moves from Blazor to a React SPA; at the end the MVC/Blazor part disappears and KOD.Web is a Web API plus
 the static SPA. Phases: 1 sign-in + shell + home (done), 2 documents and signing (done), 3 news (done),
-4 structure and profile (done), 5 administration (done), 6 manual, 7 remove Blazor and move the SPA from `/app` to `/`. Until a
+4 structure and profile (done), 5 administration (done), 6 manual (done), 7 remove Blazor and move the SPA from `/app` to `/`. Until a
 module is moved, the menu links to its Blazor page with a plain `href` (full page load); moved pages use `to`. A moved
 section loses its Blazor pages and its old addresses redirect to `/app/...` (`MovedSections` in `SpaHostingExtensions`),
 so links in the remaining Blazor pages and the manual keep working.
@@ -221,7 +221,7 @@ so links in the remaining Blazor pages and the manual keep working.
   plain literal so the coverage test can find it.
 - Same Ukrainian word, different English: `Texts.In("context", "…")` looks up `"context|…"` first
   (e.g. `In("document-kind", "Довідка")` = Certificate, plain `T("Довідка")` = Help; `audit|…` for audit event names,
-  `help|…` for manual titles that collide with UI buttons).
+  `help|…` for manual titles that collide with UI buttons; the React manual uses the same `help` context).
 - Translations: `src/<Project>/Localization/en/*.json` (flat `{ "uk": "en" }`, embedded automatically by
   `Directory.Build.props`), client side `wwwroot/js/i18n/en*.js` (loaded only on English pages, see `DesignTokens.TranslationScripts`).
 - Data-annotation `ErrorMessage` stays a Ukrainian constant; show it with `<ValidationError For="…"/>` (never `ValidationMessage`).
@@ -230,8 +230,13 @@ so links in the remaining Blazor pages and the manual keep working.
   Ukrainian source is `Source*` (used for seeding). Seeded role and unit-type names are translated in display-only DTOs
   via `StoredText.Display` (never in edit models — a translated name must not be saved back).
 - Database data (audit details, user-entered names, seed data) is not translated.
-- The manual: `Components/Pages/Help/Chapters/<X>Chapter.razor` (Ukrainian) and `Chapters/English/<X>Chapter.razor`
-  (English twin with the same Ids). Update both when a feature changes. Structure and titles: `HelpContents.cs`.
+- The manual (React, `features/help`): the table of contents (anchors, titles, icons, permissions) is
+  `contents.ts`; the text is `chapters/uk/<X>Chapter.tsx` and its English twin `chapters/en/<X>Chapter.tsx` with the
+  same anchors (only the reader's language is loaded). Building blocks from `components/Manual.tsx`: `<Chapter id>`,
+  `<Topic id>`, `<Ui>` (an interface label written exactly as on screen), `<Steps>`, `<Ref to>` (link to a topic),
+  `<Table>`, `<Faq>`, `<Code>`. The roles chapter is built from `GET /api/v1/permissions` and `/permissions/system-roles`.
+  Update both languages when a feature changes; `contents.test.ts` checks that both use every anchor and that
+  every `<Ref>` points to an existing topic.
 - Culture: `LanguageCultureProvider` (claim `kod:lang` from the profile, then cookie `__Host-kod.lang`, else uk-UA);
   `UseRequestLocalization` runs **after** authentication. Language switch: `POST /account/language` (plain, not enhanced form).
 - **React client**: Lingui with Ukrainian source texts — ``t`Зберегти` `` / `<Trans>` from `@lingui/react/macro`,
@@ -292,7 +297,7 @@ Use `[LoggerMessage]` partial methods for new log statements.
   `data-enhance`), `DatePicker` (hidden ISO input + text field), custom `select.ds-select` (no markup change needed),
   `OtpInput`, `PasswordReveal`, `ValidationError`, `GridSkeleton` / `CardSkeleton` / `FormSkeleton`, `Dialog`, `Tabs`,
   `PageHeader` (renders `<PageTitle>`).
-- Scrollbars of dialogs, listboxes and `.help-toc` are styled; in Chromium do not set `scrollbar-width`
+- Scrollbars of dialogs, listboxes and the manual's contents are styled; in Chromium do not set `scrollbar-width`
   on them (it disables the `::-webkit-scrollbar` styles).
 
 ## Gotchas learned the hard way
@@ -311,8 +316,9 @@ Use `[LoggerMessage]` partial methods for new log statements.
   is a different resource: the font downloads twice and the first paint uses the fallback font).
 - **`replaceChildren(…, null)`** prints "null"; filter optional children first.
 - `<html>` attributes are re-synced by enhanced navigation: theme/sidebar/navigation state are restored on `enhancedload`.
-- Help page performance: topics use `content-visibility: auto`; `help.js` renders them once to remember real heights so
-  anchors land exactly. Keep that when changing the manual's layout.
+- Manual performance: topics use `content-visibility: auto`; `HelpPage` renders them once (`data-help-measuring`) to
+  remember real heights so anchors land exactly. Keep that when changing the manual's layout. Its scroll, search
+  highlight and contents tracking run in animation frames, which a hidden browser tab pauses.
 - PAdES has no signing-time attribute; verification shows the signature time-stamp, else the PDF `/M` time.
 - Cumulative signing could only be checked structurally here: producing real signatures needs a qualified key, so test
   append flows with the user (CAdES detached/enveloped, PAdES, ASiC-S/E, sequential and parallel routes).

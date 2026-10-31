@@ -45,7 +45,7 @@ const items: readonly NavigationItem[] = [
     { to: "/structure", text: msg`Структура`, icon: Network, permissions: [Permissions.structureView], tabBar: false },
     { to: "/admin", text: msg`Адміністрування`, icon: Shield, permissions: adminPermissions, tabBar: false },
     { to: "/profile", text: msg`Профіль`, icon: User, permissions: [], tabBar: true },
-    { href: "/help", text: msg`Довідка`, icon: BookOpen, permissions: [], tabBar: false },
+    { to: "/help", text: msg`Довідка`, icon: BookOpen, permissions: [], tabBar: false },
 ];
 
 /**

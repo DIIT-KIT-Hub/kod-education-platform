@@ -422,3 +422,18 @@
         --_sidebar-width: 19rem;
     }
 }
+
+/* Printing (the manual's "Print / PDF"): only the page content. */
+@media print {
+    .topbar,
+    .sidebar,
+    .tabbar {
+        display: none !important;
+    }
+    .shell {
+        display: block;
+    }
+    .main {
+        padding: 0;
+    }
+}

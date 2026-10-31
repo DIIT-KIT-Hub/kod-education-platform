@@ -15,6 +15,10 @@ msgstr "— немає (організація верхнього рівня) �
 msgid "— оберіть тип —"
 msgstr "— оберіть тип —"
 
+#: src/features/help/components/Manual.tsx
+msgid "«{name}»"
+msgstr "«{name}»"
+
 #: src/features/signing/components/SigningInfo.tsx
 msgid "«Дія», ДПС, ПриватБанк, monobank, Вчасно, DepositSign та інші з переліку ЦЗО"
 msgstr "«Дія», ДПС, ПриватБанк, monobank, Вчасно, DepositSign та інші з переліку ЦЗО"
@@ -30,6 +34,19 @@ msgstr "(сумісництво)"
 #: src/features/news/components/Discussion.tsx
 msgid "[видалено]"
 msgstr "[видалено]"
+
+#. placeholder {0}: quoted[0]
+#. placeholder {1}: quoted[1]
+#: src/features/help/components/Manual.tsx
+msgid "{0} або {1}"
+msgstr "{0} або {1}"
+
+#. placeholder {0}: quoted[0]
+#. placeholder {1}: quoted[1]
+#. placeholder {2}: quoted.length - 2
+#: src/features/help/components/Manual.tsx
+msgid "{0}, {1} або один з інших ({2})"
+msgstr "{0}, {1} або один з інших ({2})"
 
 #: src/features/news/components/RichTextEditor.tsx
 msgid "{characters} / {textLimit} символів"
@@ -192,6 +209,16 @@ msgstr "Автор публікації"
 msgid "Адміністрування"
 msgstr "Адміністрування"
 
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Адміністрування"
+msgstr "Адміністрування"
+
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Адміністрування в межах організацій"
+msgstr "Адміністрування в межах організацій"
+
 #: src/features/news/components/RichTextEditor.tsx
 msgid "Адреса посилання"
 msgstr "Адреса посилання"
@@ -223,6 +250,11 @@ msgstr "Анонс не може бути довшим за 500 символів
 #: src/features/signing/components/SigningInfo.tsx
 msgid "Апаратні та хмарні ключі"
 msgstr "Апаратні та хмарні ключі"
+
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Архівування та видалення"
+msgstr "Архівування та видалення"
 
 #: src/shared/i18n/display.ts
 msgid "Аудит"
@@ -257,6 +289,16 @@ msgstr "Безпека"
 #: src/features/admin/pages/UserEditorPage.tsx
 msgid "Безпека облікового запису"
 msgstr "Безпека облікового запису"
+
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Безпека облікового запису: блокування, пароль, 2FA, сесії"
+msgstr "Безпека облікового запису: блокування, пароль, 2FA, сесії"
+
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Безпека: пароль, 2FA, резервні коди"
+msgstr "Безпека: пароль, 2FA, резервні коди"
 
 #: src/shared/signing/client.ts
 msgid "Бібліотеку підпису не запущено."
@@ -438,6 +480,11 @@ msgctxt "audit"
 msgid "Вихід із системи"
 msgstr "Вихід із системи"
 
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Вихід на інших пристроях"
+msgstr "Вихід на інших пристроях"
+
 #: src/features/documents/pages/DocumentEditorPage.tsx
 msgid "Вище"
 msgstr "Вище"
@@ -472,6 +519,11 @@ msgctxt "audit"
 msgid "Відмова в підписанні"
 msgstr "Відмова в підписанні"
 
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Відмова в підписанні"
+msgstr "Відмова в підписанні"
+
 #: src/shared/i18n/display.ts
 msgid "Відмовив(-ла)"
 msgstr "Відмовив(-ла)"
@@ -491,6 +543,11 @@ msgstr "Відомості"
 #: src/features/news/components/Discussion.tsx
 msgid "відповідей: {replyCount}"
 msgstr "відповідей: {replyCount}"
+
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Відповіді на часті запитання та що робити, коли щось не працює."
+msgstr "Відповіді на часті запитання та що робити, коли щось не працює."
 
 #: src/features/news/components/Discussion.tsx
 msgid "Відповідь на коментар"
@@ -613,6 +670,16 @@ msgstr "Вхід до облікового запису тимчасово за�
 msgid "Вхід за резервним кодом"
 msgstr "Вхід за резервним кодом"
 
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Вхід за резервним кодом"
+msgstr "Вхід за резервним кодом"
+
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Вхід і безпека облікового запису"
+msgstr "Вхід і безпека облікового запису"
+
 #: src/features/auth/pages/LockoutPage.tsx
 msgid "Вхід тимчасово заблоковано"
 msgstr "Вхід тимчасово заблоковано"
@@ -643,6 +710,11 @@ msgstr "Галерея фото"
 msgid "Головна"
 msgstr "Головна"
 
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Головна сторінка"
+msgstr "Головна сторінка"
+
 #: src/app/layout/AppShell.tsx
 msgid "Головне меню"
 msgstr "Головне меню"
@@ -663,6 +735,11 @@ msgstr "Двофакторна автентифікація"
 msgid "Дерево"
 msgstr "Дерево"
 
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Дерево організацій і підрозділів"
+msgstr "Дерево організацій і підрозділів"
+
 #: src/features/admin/pages/UserEditorPage.tsx
 msgid "діє зараз"
 msgstr "діє зараз"
@@ -679,6 +756,10 @@ msgstr "Дії"
 #: src/shared/signing/KeyPanel.tsx
 msgid "Дійсний до"
 msgstr "Дійсний до"
+
+#: src/features/help/components/Manual.tsx
+msgid "Для всіх користувачів"
+msgstr "Для всіх користувачів"
 
 #: src/features/profile/pages/SecurityPage.tsx
 msgid "Для входу без телефону. Кожен код діє один раз."
@@ -742,6 +823,7 @@ msgid "Доброї ночі,"
 msgstr "Доброї ночі,"
 
 #: src/app/layout/navigation.ts
+#: src/features/help/pages/HelpPage.tsx
 msgid "Довідка"
 msgstr "Довідка"
 
@@ -749,6 +831,11 @@ msgstr "Довідка"
 msgctxt "document-kind"
 msgid "Довідка"
 msgstr "Довідка"
+
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Довідник усіх дозволів і стандартних ролей."
+msgstr "Довідник усіх дозволів і стандартних ролей."
 
 #: src/shared/i18n/display.ts
 msgctxt "document-kind"
@@ -782,6 +869,10 @@ msgstr "Додати посаду"
 #: src/shared/signing/KeyPanel.tsx
 msgid "Додати сертифікати вручну (якщо надавач не підтримує автоматичне завантаження)"
 msgstr "Додати сертифікати вручну (якщо надавач не підтримує автоматичне завантаження)"
+
+#: src/features/help/components/RoleReference.tsx
+msgid "Дозвіл"
+msgstr "Дозвіл"
 
 #: src/features/admin/pages/RoleEditorPage.tsx
 #: src/features/admin/pages/RolesPage.tsx
@@ -896,6 +987,11 @@ msgstr "Документ уже має підписів: {0}. Ваш підпи�
 msgid "Документи"
 msgstr "Документи"
 
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Документи"
+msgstr "Документи"
+
 #: src/features/home/HomePage.tsx
 msgid "Документи, де зараз ваша черга"
 msgstr "Документи, де зараз ваша черга"
@@ -924,9 +1020,17 @@ msgstr "Доступ обмежено"
 msgid "Доступні модулі"
 msgstr "Доступні модулі"
 
+#: src/features/help/components/Manual.tsx
+msgid "Доступно вам"
+msgstr "Доступно вам"
+
 #: src/features/news/pages/NewsEditorPage.tsx
 msgid "Дочекайтеся, поки завантажаться фото."
 msgstr "Дочекайтеся, поки завантажаться фото."
+
+#: src/features/help/pages/HelpPage.tsx
+msgid "Друк / PDF"
+msgstr "Друк / PDF"
 
 #: src/features/admin/pages/UsersImportPage.tsx
 msgid "Експорт"
@@ -934,6 +1038,11 @@ msgstr "Експорт"
 
 #: src/shared/i18n/display.ts
 msgctxt "audit"
+msgid "Експорт користувачів"
+msgstr "Експорт користувачів"
+
+#: src/features/help/contents.ts
+msgctxt "help"
 msgid "Експорт користувачів"
 msgstr "Експорт користувачів"
 
@@ -954,6 +1063,10 @@ msgstr "Електронний документообіг для будь-яко
 msgid "Електронний підпис"
 msgstr "Електронний підпис"
 
+#: src/features/help/components/RoleReference.tsx
+msgid "Є"
+msgstr "Є"
+
 #: src/shared/signing/KeyPanel.tsx
 msgid "ЄДРПОУ"
 msgstr "ЄДРПОУ"
@@ -964,6 +1077,11 @@ msgstr "Жирний (Ctrl+B)"
 
 #: src/features/admin/pages/AdminPage.tsx
 #: src/features/admin/pages/AuditPage.tsx
+msgid "Журнал аудиту"
+msgstr "Журнал аудиту"
+
+#: src/features/help/contents.ts
+msgctxt "help"
 msgid "Журнал аудиту"
 msgstr "Журнал аудиту"
 
@@ -1004,10 +1122,20 @@ msgstr "Заблокувати обліковий запис? Усі сесії 
 msgid "Заборонити"
 msgstr "Заборонити"
 
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Забули пароль або змінили телефон"
+msgstr "Забули пароль або змінили телефон"
+
 #: src/shared/ui/Progress.tsx
 #: src/shared/ui/Spinner.tsx
 msgid "Завантаження"
 msgstr "Завантаження"
+
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Завантаження файлу та підписів"
+msgstr "Завантаження файлу та підписів"
 
 #: src/features/news/components/RichTextEditor.tsx
 msgid "Завантаження фото… ({count})"
@@ -1098,6 +1226,11 @@ msgstr "Замінити файл"
 msgid "Запам'ятати мене на цьому пристрої"
 msgstr "Запам'ятати мене на цьому пристрої"
 
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Запитання та відповіді"
+msgstr "Запитання та відповіді"
+
 #: src/features/news/components/RichTextEditor.tsx
 msgid "Застосувати"
 msgstr "Застосувати"
@@ -1158,6 +1291,11 @@ msgstr "Збережіть резервні коди в надійному мі�
 msgid "Зверніться до відділу кадрів."
 msgstr "Зверніться до відділу кадрів."
 
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Звичайний вхід"
+msgstr "Звичайний вхід"
+
 #: src/features/news/components/RichTextEditor.tsx
 msgid "Звичайний текст"
 msgstr "Звичайний текст"
@@ -1190,6 +1328,11 @@ msgstr "Зміна пароля"
 
 #: src/shared/i18n/display.ts
 msgctxt "audit"
+msgid "Зміна пароля"
+msgstr "Зміна пароля"
+
+#: src/features/help/contents.ts
+msgctxt "help"
 msgid "Зміна пароля"
 msgstr "Зміна пароля"
 
@@ -1258,10 +1401,23 @@ msgstr "Змінити фото"
 msgid "Змініть файл, реквізити або маршрут і збережіть документ або надішліть його на підпис."
 msgstr "Змініть файл, реквізити або маршрут і збережіть документ або надішліть його на підпис."
 
+#: src/features/help/pages/HelpPage.tsx
+msgid "Зміст"
+msgstr "Зміст"
+
+#: src/features/help/pages/HelpPage.tsx
+msgid "Зміст довідки"
+msgstr "Зміст довідки"
+
 #. placeholder {0}: report.errors.length
 #: src/features/admin/pages/UsersImportPage.tsx
 msgid "Знайдено помилок: {0}"
 msgstr "Знайдено помилок: {0}"
+
+#. placeholder {0}: matched.size
+#: src/features/help/pages/HelpPage.tsx
+msgid "Знайдено тем: {0}"
+msgstr "Знайдено тем: {0}"
 
 #: src/features/documents/pages/DocumentEditorPage.tsx
 msgid "Знайти працівника"
@@ -1301,6 +1457,11 @@ msgctxt "audit"
 msgid "Імпорт користувачів"
 msgstr "Імпорт користувачів"
 
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Імпорт користувачів"
+msgstr "Імпорт користувачів"
+
 #: src/features/admin/pages/UsersImportPage.tsx
 msgid "Імпортувати"
 msgstr "Імпортувати"
@@ -1309,9 +1470,23 @@ msgstr "Імпортувати"
 msgid "Індивідуальні дозволи"
 msgstr "Індивідуальні дозволи"
 
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Індивідуальні дозволи"
+msgstr "Індивідуальні дозволи"
+
+#: src/features/help/pages/HelpPage.tsx
+msgid "Інструкція користувача Кабінету організаційних документів: усі модулі, можливості та покрокові дії."
+msgstr "Інструкція користувача Кабінету організаційних документів: усі модулі, можливості та покрокові дії."
+
 #: src/features/signing/pages/SigningPages.tsx
 msgid "Інструменти підпису"
 msgstr "Інструменти підпису"
+
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Інтерфейс: меню, тема, сповіщення"
+msgstr "Інтерфейс: меню, тема, сповіщення"
 
 #: src/shared/i18n/display.ts
 msgctxt "document-kind"
@@ -1342,6 +1517,11 @@ msgstr "Кабінет організаційних<0/>документів"
 msgid "Кабінет<0/>організаційних документів"
 msgstr "Кабінет<0/>організаційних документів"
 
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Картка документа"
+msgstr "Картка документа"
+
 #: src/features/admin/pages/UnitTypeEditorPage.tsx
 msgid "Каталог типів спільний для всіх організацій кабінету, тому змінювати його може лише адміністратор усіх організацій."
 msgstr "Каталог типів спільний для всіх організацій кабінету, тому змінювати його може лише адміністратор усіх організацій."
@@ -1358,6 +1538,11 @@ msgstr "Категорії"
 #: src/features/news/pages/NewsEditorPage.tsx
 msgid "Категорія"
 msgstr "Категорія"
+
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Кваліфікований електронний підпис будь-яких файлів у браузері та перевірка підписів."
+msgstr "Кваліфікований електронний підпис будь-яких файлів у браузері та перевірка підписів."
 
 #: src/features/documents/pages/DocumentPage.tsx
 msgid "Кваліфіковані електронні підписи, накладені на документ"
@@ -1385,9 +1570,24 @@ msgstr "Керування"
 msgid "Керування новинами"
 msgstr "Керування новинами"
 
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Керування організаціями та підрозділами"
+msgstr "Керування організаціями та підрозділами"
+
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Керування публікаціями"
+msgstr "Керування публікаціями"
+
 #: src/features/structure/pages/StructurePage.tsx
 msgid "Керувати структурою"
 msgstr "Керувати структурою"
+
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Кілька організацій в одному кабінеті"
+msgstr "Кілька організацій в одному кабінеті"
 
 #: src/shared/signing/SigningWizard.tsx
 msgid "Ключ зчитується лише у вашому браузері; пароль не передається на сервер."
@@ -1404,6 +1604,11 @@ msgstr "Ключ і підпис"
 #: src/features/signing/components/SigningInfo.tsx
 msgid "Ключі"
 msgstr "Ключі"
+
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Ключі та надавачі"
+msgstr "Ключі та надавачі"
 
 #: src/features/admin/pages/RoleEditorPage.tsx
 #: src/features/admin/pages/RolesPage.tsx
@@ -1528,6 +1733,11 @@ msgstr "Користувач, деталі або IP"
 msgid "Користувачі"
 msgstr "Користувачі"
 
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Користувачі, імпорт та експорт, ролі й дозволи, структура, журнал аудиту."
+msgstr "Користувачі, імпорт та експорт, ролі й дозволи, структура, журнал аудиту."
+
 #: src/features/admin/pages/UsersPage.tsx
 msgid "Користувачів не знайдено"
 msgstr "Користувачів не знайдено"
@@ -1540,6 +1750,11 @@ msgstr "Користувачів: {0}"
 #: src/features/documents/pages/DocumentEditorPage.tsx
 msgid "Короткий зміст або коментар для підписантів."
 msgstr "Короткий зміст або коментар для підписантів."
+
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Короткий огляд: що чекає на вашу дію, ключові показники та свіжі новини."
+msgstr "Короткий огляд: що чекає на вашу дію, ключові показники та свіжі новини."
 
 #. placeholder {0}: index + 1
 #. placeholder {1}: steps.length
@@ -1559,6 +1774,11 @@ msgstr "Крок 1 з 2"
 #: src/features/auth/pages/SetupAuthenticatorPage.tsx
 msgid "Крок 2 з 2"
 msgstr "Крок 2 з 2"
+
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Куди звертатися по допомогу"
+msgstr "Куди звертатися по допомогу"
 
 #: src/features/news/components/RichTextEditor.tsx
 msgid "Курсив (Ctrl+I)"
@@ -1616,6 +1836,11 @@ msgstr "Маркований список"
 msgid "Маршрут підписання"
 msgstr "Маршрут підписання"
 
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Маршрут підписання"
+msgstr "Маршрут підписання"
+
 #: src/features/admin/pages/AdminPage.tsx
 msgid "Масове додавання користувачів з XLSX/CSV та вивантаження."
 msgstr "Масове додавання користувачів з XLSX/CSV та вивантаження."
@@ -1628,12 +1853,22 @@ msgstr "Масове створення та оновлення облікови
 msgid "Масштаб"
 msgstr "Масштаб"
 
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Межі повноважень адміністраторів"
+msgstr "Межі повноважень адміністраторів"
+
 #: src/app/layout/AppShell.tsx
 msgid "Меню"
 msgstr "Меню"
 
 #: src/app/layout/UserMenu.tsx
 #: src/features/profile/pages/ProfilePage.tsx
+msgid "Мій профіль"
+msgstr "Мій профіль"
+
+#: src/features/help/contents.ts
+msgctxt "help"
 msgid "Мій профіль"
 msgstr "Мій профіль"
 
@@ -1722,6 +1957,11 @@ msgstr "Надіслати"
 #: src/features/documents/pages/DocumentPage.tsx
 msgid "Надіслати документ на підписання?"
 msgstr "Надіслати документ на підписання?"
+
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Надсилання, відкликання та повторне надсилання"
+msgstr "Надсилання, відкликання та повторне надсилання"
 
 #: src/shared/ui/Wizard.tsx
 msgid "Назад"
@@ -2024,6 +2264,11 @@ msgctxt "audit"
 msgid "Невдала спроба входу"
 msgstr "Невдала спроба входу"
 
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Невдалі спроби та блокування"
+msgstr "Невдалі спроби та блокування"
+
 #: src/shared/signing/client.ts
 msgid "Невідома помилка бібліотеки підпису."
 msgstr "Невідома помилка бібліотеки підпису."
@@ -2063,6 +2308,10 @@ msgstr "Неправильний пароль або пошкоджений фа
 #: src/features/documents/pages/DocumentEditorPage.tsx
 msgid "Нижче"
 msgstr "Нижче"
+
+#: src/features/help/pages/HelpPage.tsx
+msgid "Нічого не знайдено. Спробуйте інше слово."
+msgstr "Нічого не знайдено. Спробуйте інше слово."
 
 #: src/features/admin/pages/RoleEditorPage.tsx
 #: src/features/news/pages/NewsEditorPage.tsx
@@ -2160,6 +2409,16 @@ msgstr "Новина"
 #: src/shared/i18n/display.ts
 msgid "Новини"
 msgstr "Новини"
+
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Новини"
+msgstr "Новини"
+
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Новини та оголошення: читання, реакції й коментарі, створення, публікація."
+msgstr "Новини та оголошення: читання, реакції й коментарі, створення, публікація."
 
 #: src/features/news/pages/NewsPage.tsx
 msgid "Новини, оголошення та події організації."
@@ -2353,6 +2612,11 @@ msgstr "Організації та їхні підрозділи: департ�
 msgid "Організації та підрозділи"
 msgstr "Організації та підрозділи"
 
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Організації, їхні підрозділи та працівники; власні типи підрозділів для будь-якої сфери."
+msgstr "Організації, їхні підрозділи та працівники; власні типи підрозділів для будь-якої сфери."
+
 #: src/features/structure/pages/StructurePage.tsx
 msgid "Організації, їхні підрозділи та працівники."
 msgstr "Організації, їхні підрозділи та працівники."
@@ -2391,9 +2655,19 @@ msgstr "Основна"
 msgid "Особисті дані"
 msgstr "Особисті дані"
 
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Особисті дані та посади"
+msgstr "Особисті дані та посади"
+
 #: src/features/profile/pages/ProfilePage.tsx
 msgid "Особисті дані, посади та доступні можливості."
 msgstr "Особисті дані, посади та доступні можливості."
+
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Особисті дані, фото, посади, дозволи, безпека облікового запису та входи на інших пристроях."
+msgstr "Особисті дані, фото, посади, дозволи, безпека облікового запису та входи на інших пристроях."
 
 #: src/features/home/HomePage.tsx
 msgid "Останні оголошення"
@@ -2429,6 +2703,11 @@ msgstr "Очікується підпис"
 #: src/features/home/HomePage.tsx
 msgid "Очікують мого підпису"
 msgstr "Очікують мого підпису"
+
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Панель адміністрування"
+msgstr "Панель адміністрування"
 
 #: src/shared/i18n/display.ts
 msgid "Паралельно"
@@ -2499,6 +2778,11 @@ msgstr "Перевірити будь-який підпис можна на ст
 msgid "Перевірка підпису"
 msgstr "Перевірка підпису"
 
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Перевірка підпису"
+msgstr "Перевірка підпису"
+
 #: src/features/signing/components/VerifyPanel.tsx
 msgid "Перевірку не пройдено"
 msgstr "Перевірку не пройдено"
@@ -2542,6 +2826,11 @@ msgstr "Перейти до змісту"
 msgid "Перейти до кабінету"
 msgstr "Перейти до кабінету"
 
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Перелік дозволів"
+msgstr "Перелік дозволів"
+
 #: src/features/documents/pages/DocumentPage.tsx
 msgid "Перемістити документ в архів?"
 msgstr "Перемістити документ в архів?"
@@ -2565,6 +2854,16 @@ msgstr "Перетягніть файли або натисніть, щоб об
 #: src/shared/ui/PhotoPicker.tsx
 msgid "Перетягніть фото та змініть масштаб, щоб обличчя було в колі."
 msgstr "Перетягніть фото та змініть масштаб, щоб обличчя було в колі."
+
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Перший вхід у систему"
+msgstr "Перший вхід у систему"
+
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Перший вхід, двофакторна автентифікація, резервні коди, паролі та вихід із системи."
+msgstr "Перший вхід, двофакторна автентифікація, резервні коди, паролі та вихід із системи."
 
 #: src/features/admin/pages/UsersPage.tsx
 msgid "ПІБ або e-mail"
@@ -2628,11 +2927,26 @@ msgstr "Підписання"
 msgid "Підписання документа"
 msgstr "Підписання документа"
 
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Підписання документа"
+msgstr "Підписання документа"
+
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Підписання та перевірка файлів"
+msgstr "Підписання та перевірка файлів"
+
 #: src/features/signing/pages/SigningPages.tsx
 #: src/shared/i18n/display.ts
 #: src/shared/signing/SigningWizard.tsx
 msgid "Підписання файлів"
 msgstr "Підписання файлів"
+
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Підписання файлів: покроковий майстер"
+msgstr "Підписання файлів: покроковий майстер"
 
 #: src/shared/i18n/display.ts
 msgid "Підписано"
@@ -2779,6 +3093,11 @@ msgstr "По центру"
 msgid "Повернутися"
 msgstr "Повернутися"
 
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Повідомлення про помилки та що робити"
+msgstr "Повідомлення про помилки та що робити"
+
 #: src/features/admin/pages/UnitEditorPage.tsx
 msgid "Повна назва"
 msgstr "Повна назва"
@@ -2823,6 +3142,11 @@ msgstr "Показати пароль"
 #: src/features/home/HomePage.tsx
 msgid "Показники"
 msgstr "Показники"
+
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Показники документів"
+msgstr "Показники документів"
 
 #: src/shared/signing/SigningWizard.tsx
 msgid "Поки ви підписували, документ підписав інший підписант. Завантажено останню версію — натисніть «Підписати» ще раз."
@@ -2869,6 +3193,11 @@ msgstr "Попередній рік"
 msgid "Попередня сторінка"
 msgstr "Попередня сторінка"
 
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Поради з безпеки"
+msgstr "Поради з безпеки"
+
 #: src/features/admin/pages/UnitEditorPage.tsx
 msgid "Порядок відображення"
 msgstr "Порядок відображення"
@@ -2913,6 +3242,10 @@ msgstr "Посади не призначено"
 msgid "Посилання"
 msgstr "Посилання"
 
+#: src/features/help/components/Manual.tsx
+msgid "Посилання на розділ «{title}»"
+msgstr "Посилання на розділ «{title}»"
+
 #: src/shared/i18n/display.ts
 msgid "Послідовно"
 msgstr "Послідовно"
@@ -2942,6 +3275,15 @@ msgstr "потребує агента ІІТ"
 msgid "потребує сервісу надавача"
 msgstr "потребує сервісу надавача"
 
+#: src/features/help/components/Manual.tsx
+msgid "Потрібен дозвіл: {required}"
+msgstr "Потрібен дозвіл: {required}"
+
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Початок роботи"
+msgstr "Початок роботи"
+
 #: src/features/news/pages/NewsEditorPage.tsx
 msgid "Почніть писати новину…"
 msgstr "Почніть писати новину…"
@@ -2949,6 +3291,10 @@ msgstr "Почніть писати новину…"
 #: src/features/structure/pages/UnitPage.tsx
 msgid "Пошук працівника"
 msgstr "Пошук працівника"
+
+#: src/features/help/pages/HelpPage.tsx
+msgid "Пошук у довідці: наприклад, «підпис», «пароль», «імпорт»"
+msgstr "Пошук у довідці: наприклад, «підпис», «пароль», «імпорт»"
 
 #: src/features/news/pages/NewsPage.tsx
 msgid "Пошук у новинах"
@@ -3000,6 +3346,10 @@ msgstr "Прибрати посаду"
 msgid "Прибрати посилання"
 msgstr "Прибрати посилання"
 
+#: src/features/help/components/RoleReference.tsx
+msgid "Призначення"
+msgstr "Призначення"
+
 #: src/features/documents/pages/DocumentPage.tsx
 msgid "Причина"
 msgstr "Причина"
@@ -3042,6 +3392,11 @@ msgstr "Протокол"
 msgid "Профіль"
 msgstr "Профіль"
 
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Профіль"
+msgstr "Профіль"
+
 #: src/features/admin/pages/AdminPage.tsx
 msgid "Публікації та оголошення."
 msgstr "Публікації та оголошення."
@@ -3069,6 +3424,11 @@ msgstr "Разом з даними"
 #: src/features/news/pages/NewsEditorPage.tsx
 msgid "Реакції доступні завжди."
 msgstr "Реакції доступні завжди."
+
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Реакції та коментарі"
+msgstr "Реакції та коментарі"
 
 #: src/features/news/components/Discussion.tsx
 msgid "Реакції та коментарі з'являться після публікації."
@@ -3101,6 +3461,11 @@ msgstr "Редагування документа"
 msgid "Редагування публікації"
 msgstr "Редагування публікації"
 
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Редагування чернетки та відхиленого документа"
+msgstr "Редагування чернетки та відхиленого документа"
+
 #: src/features/admin/pages/UnitsPage.tsx
 #: src/features/admin/pages/UnitTypesPage.tsx
 #: src/features/documents/pages/DocumentPage.tsx
@@ -3117,6 +3482,11 @@ msgstr "Редагувати новину можуть фахівці з ком�
 #: src/features/documents/pages/DocumentsPage.tsx
 msgid "Реєстр документів, маршрути погодження та підписання."
 msgstr "Реєстр документів, маршрути погодження та підписання."
+
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Реєстр документів: вкладки, пошук, фільтри"
+msgstr "Реєстр документів: вкладки, пошук, фільтри"
 
 #: src/features/documents/pages/DocumentPage.tsx
 msgid "Реєстраційний номер"
@@ -3167,6 +3537,10 @@ msgstr "Розблокувати обліковий запис?"
 msgid "Розгорнути меню"
 msgstr "Розгорнути меню"
 
+#: src/features/help/components/Manual.tsx
+msgid "Розділ {number}"
+msgstr "Розділ {number}"
+
 #: src/features/documents/pages/DocumentsPage.tsx
 msgid "Розділи документів"
 msgstr "Розділи документів"
@@ -3203,10 +3577,26 @@ msgstr "Ролі"
 msgid "Ролі та дозволи"
 msgstr "Ролі та дозволи"
 
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Ролі та дозволи"
+msgstr "Ролі та дозволи"
+
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Ролі та доступ"
+msgstr "Ролі та доступ"
+
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Ролі та матриця дозволів"
+msgstr "Ролі та матриця дозволів"
+
 #: src/features/admin/pages/RoleEditorPage.tsx
 #: src/features/admin/pages/RolesPage.tsx
 #: src/features/admin/pages/UserEditorPage.tsx
 #: src/features/admin/pages/UsersPage.tsx
+#: src/features/help/components/RoleReference.tsx
 msgid "Роль"
 msgstr "Роль"
 
@@ -3323,6 +3713,11 @@ msgstr "Скопіювати коди"
 msgid "Скорочена назва"
 msgstr "Скорочена назва"
 
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Словник термінів"
+msgstr "Словник термінів"
+
 #: src/shared/i18n/display.ts
 msgctxt "document-kind"
 msgid "Службова записка"
@@ -3335,6 +3730,11 @@ msgstr "Смішно"
 #: src/shared/ui/DataGrid.tsx
 msgid "Сортувати"
 msgstr "Сортувати"
+
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Список користувачів"
+msgstr "Список користувачів"
 
 #: src/shared/signing/client.ts
 msgid "Спочатку зчитайте ключ."
@@ -3356,6 +3756,15 @@ msgstr "Спробуйте іншу назву або код."
 msgid "Сталася помилка"
 msgstr "Сталася помилка"
 
+#: src/features/help/components/RoleReference.tsx
+msgid "Стандартні дозволи"
+msgstr "Стандартні дозволи"
+
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Стандартні ролі"
+msgstr "Стандартні ролі"
+
 #: src/features/news/components/Discussion.tsx
 msgid "Старі"
 msgstr "Старі"
@@ -3367,9 +3776,34 @@ msgstr "Старі"
 msgid "Статус"
 msgstr "Статус"
 
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Статуси та життєвий цикл документа"
+msgstr "Статуси та життєвий цикл документа"
+
 #: src/features/documents/pages/DocumentsPage.tsx
 msgid "Створені мною"
 msgstr "Створені мною"
+
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Створення документа"
+msgstr "Створення документа"
+
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Створення документів, маршрут підписання, підписання, відмова та архівування."
+msgstr "Створення документів, маршрут підписання, підписання, відмова та архівування."
+
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Створення облікового запису"
+msgstr "Створення облікового запису"
+
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Створення та редагування публікації"
+msgstr "Створення та редагування публікації"
 
 #: src/features/admin/pages/UserEditorPage.tsx
 #: src/features/admin/pages/UsersImportPage.tsx
@@ -3417,6 +3851,11 @@ msgstr "Стовпець"
 msgid "Стовпці: {importColumns}."
 msgstr "Стовпці: {importColumns}."
 
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Сторінка підрозділу та працівники"
+msgstr "Сторінка підрозділу та працівники"
+
 #: src/shared/ui/Pagination.tsx
 msgid "Сторінки"
 msgstr "Сторінки"
@@ -3442,6 +3881,11 @@ msgstr "Строк дії сертифіката ключа закінчився
 #: src/features/structure/pages/StructurePage.tsx
 #: src/features/structure/pages/UnitPage.tsx
 #: src/shared/i18n/display.ts
+msgid "Структура"
+msgstr "Структура"
+
+#: src/features/help/contents.ts
+msgctxt "help"
 msgid "Структура"
 msgstr "Структура"
 
@@ -3559,13 +4003,27 @@ msgstr "Тип підрозділу збережено"
 msgid "Типи підрозділів"
 msgstr "Типи підрозділів"
 
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Типи підрозділів"
+msgstr "Типи підрозділів"
+
 #: src/features/admin/pages/UnitTypesPage.tsx
 msgid "Типів ще немає"
 msgstr "Типів ще немає"
 
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Тривалість входу та вихід із системи"
+msgstr "Тривалість входу та вихід із системи"
+
 #: src/features/documents/pages/DocumentEditorPage.tsx
 msgid "у будь-якому порядку"
 msgstr "у будь-якому порядку"
+
+#: src/features/help/components/RoleReference.tsx
+msgid "У вас"
+msgstr "У вас"
 
 #: src/app/pages/RouteError.tsx
 msgid "У вас немає доступу до цього розділу"
@@ -3731,9 +4189,19 @@ msgstr "Формат підпису"
 msgid "Формати"
 msgstr "Формати"
 
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Формати та рівні підпису"
+msgstr "Формати та рівні підпису"
+
 #: src/features/news/components/RichTextEditor.tsx
 msgid "Форматування тексту"
 msgstr "Форматування тексту"
+
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Форматування тексту, фото та галереї"
+msgstr "Форматування тексту, фото та галереї"
 
 #: src/features/news/components/RichTextEditor.tsx
 msgid "Фото в тексті"
@@ -3744,6 +4212,11 @@ msgid "Фото збережено."
 msgstr "Фото збережено."
 
 #: src/features/auth/pages/PhotoPage.tsx
+msgid "Фото профілю"
+msgstr "Фото профілю"
+
+#: src/features/help/contents.ts
+msgctxt "help"
 msgid "Фото профілю"
 msgstr "Фото профілю"
 
@@ -3791,6 +4264,11 @@ msgstr "Час підпису (вказаний у документі)"
 msgid "Частину підписів буде анульовано"
 msgstr "Частину підписів буде анульовано"
 
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Часті запитання"
+msgstr "Часті запитання"
+
 #: src/features/news/pages/ArticlePage.tsx
 #: src/features/news/pages/NewsManagePage.tsx
 #: src/shared/i18n/display.ts
@@ -3805,6 +4283,16 @@ msgstr "Чернетки та опубліковані матеріали орг
 msgid "Чернетку збережено"
 msgstr "Чернетку збережено"
 
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Чиї документи ви бачите"
+msgstr "Чиї документи ви бачите"
+
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Читання новин"
+msgstr "Читання новин"
+
 #: src/features/admin/pages/UsersImportPage.tsx
 msgid "Шаблон"
 msgstr "Шаблон"
@@ -3817,9 +4305,28 @@ msgstr "Швидка навігація"
 msgid "Ще відповідей: {hidden}"
 msgstr "Ще відповідей: {hidden}"
 
+#: src/features/help/components/RoleReference.tsx
+msgid "Що дає"
+msgstr "Що дає"
+
 #: src/features/signing/components/SigningInfo.tsx
 msgid "Що підтримується"
 msgstr "Що підтримується"
+
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Що показує головна сторінка"
+msgstr "Що показує головна сторінка"
+
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Що таке Кабінет організаційних документів"
+msgstr "Що таке Кабінет організаційних документів"
+
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Що таке КОД, як влаштований інтерфейс і від чого залежить, що ви бачите."
+msgstr "Що таке КОД, як влаштований інтерфейс і від чого залежить, що ви бачите."
 
 #: src/features/auth/pages/ChangePasswordPage.tsx
 msgid "Щонайменше 12 символів: великі й малі латинські літери та цифри."
@@ -3828,6 +4335,11 @@ msgstr "Щонайменше 12 символів: великі й малі ла�
 #: src/features/documents/pages/DocumentsPage.tsx
 msgid "Я в маршруті"
 msgstr "Я в маршруті"
+
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Як працює електронний підпис у КОД"
+msgstr "Як працює електронний підпис у КОД"
 
 #: src/features/admin/pages/UnitTypeEditorPage.tsx
 msgid "Як рівень називається у вашій організації: «Департамент», «Кафедра», «Відділення», «Цех»…"

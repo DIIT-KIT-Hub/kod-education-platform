@@ -306,6 +306,10 @@ export const router = createBrowserRouter(
                                         },
                                     ],
                                 },
+                                {
+                                    path: "help",
+                                    lazy: async () => ({ Component: (await import("@/features/help/pages/HelpPage")).HelpPage }),
+                                },
                                 { path: "*", Component: NotFoundPage },
                             ],
                         },

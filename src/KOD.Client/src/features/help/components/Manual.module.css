@@ -1,0 +1,320 @@
+/* Chapters and topics -------------------------------------------------------------------------------------------- */
+
+.chapter {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--ds-space-6);
+    scroll-margin-top: 5rem;
+}
+
+.chapter[hidden] {
+    display: none;
+}
+
+.chapterHeader {
+    display: flex;
+    gap: var(--ds-space-5);
+    align-items: flex-start;
+    padding: var(--ds-space-6);
+    border-radius: var(--ds-radius-xl);
+    background: var(--ds-color-inverse);
+    color: var(--ds-color-on-inverse);
+    animation: var(--ds-anim-fade-up);
+}
+
+.chapterIcon {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 3.5rem;
+    height: 3.5rem;
+    border-radius: var(--ds-radius-md);
+    background: color-mix(in srgb, var(--ds-color-on-inverse) 14%, transparent);
+}
+
+.chapterHeading {
+    display: grid;
+    gap: var(--ds-space-2);
+    min-width: 0;
+}
+
+.chapterNumber {
+    font-size: var(--ds-fs-xs);
+    font-weight: 750;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    opacity: 0.7;
+}
+
+.chapterTitle {
+    margin: 0;
+    font-size: var(--ds-fs-2xl);
+    line-height: 1.15;
+}
+
+.chapterSummary {
+    margin: 0;
+    opacity: 0.75;
+}
+
+/* Access badges may name several permissions: they wrap on narrow screens. */
+.badge {
+    max-width: 100%;
+    border-radius: 0.75rem;
+    white-space: normal;
+}
+
+.headerBadge {
+    composes: badge;
+    border-color: currentColor;
+    background: transparent;
+    color: inherit;
+}
+
+.headerBadgeOn {
+    composes: badge;
+    background: var(--ds-color-on-inverse);
+    color: var(--ds-color-inverse);
+}
+
+.topic {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--ds-space-4);
+    padding: var(--ds-space-6);
+    border: 1px solid var(--ds-color-border);
+    border-radius: var(--ds-radius-lg);
+    background: var(--ds-color-surface);
+    scroll-margin-top: 5rem;
+
+    /* The manual is long: topics outside the viewport skip layout and paint, so resizing the page (the sidebar
+       animation, window resizes) reflows only what is on screen. "auto" remembers the last rendered height. */
+    content-visibility: auto;
+    contain-intrinsic-size: auto 28rem;
+}
+
+.topic[hidden] {
+    display: none;
+}
+
+/* The page renders every topic once (and after width changes) so the remembered heights are real. */
+:global([data-help-measuring]) .topic {
+    content-visibility: visible;
+}
+
+.topicTitle {
+    display: flex;
+    align-items: center;
+    gap: var(--ds-space-2);
+    margin: 0;
+    font-size: var(--ds-fs-xl);
+    line-height: 1.25;
+}
+
+.anchor {
+    display: inline-grid;
+    place-items: center;
+    flex: none;
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: var(--ds-radius-sm);
+    color: var(--ds-color-text-subtle);
+    opacity: 0.5;
+    transition:
+        opacity var(--ds-duration-fast),
+        background-color var(--ds-duration-fast);
+}
+.topic:hover .anchor,
+.anchor:focus-visible {
+    opacity: 1;
+}
+.anchor:hover {
+    background: var(--ds-color-surface-2);
+    color: var(--ds-color-text);
+}
+
+@media (max-width: 479.98px) {
+    .chapterHeader {
+        flex-direction: column;
+        padding: var(--ds-space-5);
+    }
+    .topic {
+        padding: var(--ds-space-5) var(--ds-space-4);
+    }
+}
+
+/* Typography ------------------------------------------------------------------------------------------------------ */
+
+.prose {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--ds-space-4);
+    line-height: 1.65;
+}
+.prose > * {
+    margin: 0;
+}
+.prose h4 {
+    display: flex;
+    align-items: center;
+    gap: var(--ds-space-2);
+    margin-top: var(--ds-space-2);
+    font-size: var(--ds-fs-md);
+    font-weight: 750;
+}
+.prose ul,
+.prose ol {
+    display: grid;
+    gap: var(--ds-space-2);
+    margin: 0;
+    padding-left: 1.4rem;
+}
+.prose li::marker {
+    color: var(--ds-color-text-muted);
+    font-weight: 700;
+}
+.prose strong {
+    font-weight: 750;
+}
+.prose a {
+    color: var(--ds-color-text);
+    font-weight: 650;
+    text-underline-offset: 3px;
+}
+.prose p {
+    margin: 0;
+}
+
+/* An interface label (button, field, menu item) written exactly as it appears on screen. */
+.ui {
+    display: inline-block;
+    padding: 0 0.45em;
+    border: 1px solid var(--ds-color-border-strong);
+    border-radius: 0.45em;
+    background: var(--ds-color-surface-2);
+    font-size: 0.92em;
+    font-weight: 700;
+    line-height: 1.55;
+}
+
+.code {
+    padding: 0.15em 0.45em;
+    border-radius: 0.4rem;
+    background: var(--ds-color-surface-3);
+    font-family: var(--ds-font-mono);
+    font-size: var(--ds-fs-sm);
+    overflow-wrap: anywhere;
+}
+
+.muted {
+    color: var(--ds-color-text-muted);
+}
+
+/* Numbered step-by-step instructions. */
+.prose .steps {
+    counter-reset: step;
+    gap: var(--ds-space-3);
+    padding: 0;
+    list-style: none;
+}
+
+.steps > li {
+    counter-increment: step;
+    position: relative;
+    padding: var(--ds-space-3) var(--ds-space-4) var(--ds-space-3) 3.25rem;
+    border-radius: var(--ds-radius-md);
+    background: var(--ds-color-surface-2);
+}
+
+.steps > li::before {
+    content: counter(step);
+    position: absolute;
+    left: var(--ds-space-3);
+    top: var(--ds-space-3);
+    display: grid;
+    place-items: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 50%;
+    background: var(--ds-color-inverse);
+    color: var(--ds-color-on-inverse);
+    font-size: var(--ds-fs-xs);
+    font-weight: 800;
+}
+
+.tableWrap {
+    overflow-x: auto;
+    border: 1px solid var(--ds-color-border);
+    border-radius: var(--ds-radius-md);
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--ds-fs-sm);
+    line-height: 1.5;
+}
+.table th,
+.table td {
+    padding: var(--ds-space-3) var(--ds-space-4);
+    border-bottom: 1px solid var(--ds-color-border);
+    text-align: left;
+    vertical-align: top;
+}
+.table th {
+    background: var(--ds-color-surface-2);
+    color: var(--ds-color-text-muted);
+    font-size: var(--ds-fs-xs);
+    font-weight: 750;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+.table tr:last-child td {
+    border-bottom: 0;
+}
+.table td:first-child {
+    font-weight: 700;
+}
+
+.faq {
+    display: grid;
+    gap: var(--ds-space-2);
+}
+.faq details {
+    border: 1px solid var(--ds-color-border);
+    border-radius: var(--ds-radius-md);
+    background: var(--ds-color-surface);
+}
+.faq summary {
+    padding: var(--ds-space-3) var(--ds-space-4);
+    font-weight: 700;
+    cursor: pointer;
+}
+.faq details > div {
+    display: grid;
+    gap: var(--ds-space-3);
+    padding: 0 var(--ds-space-4) var(--ds-space-4);
+}
+.faq details > div > * {
+    margin: 0;
+}
+
+@media print {
+    .anchor {
+        display: none;
+    }
+    .topic {
+        content-visibility: visible;
+        break-inside: avoid-page;
+        border-color: #999;
+    }
+    .chapter {
+        break-before: page;
+    }
+    .chapterHeader {
+        border: 2px solid #000;
+        background: none;
+        color: #000;
+    }
+}

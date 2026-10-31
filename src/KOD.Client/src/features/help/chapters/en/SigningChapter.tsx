@@ -1,0 +1,337 @@
+import { Info } from "lucide-react";
+import { Alert } from "@/shared/ui/Alert";
+import { Chapter, Code, Ref, Steps, Table, Topic, Ui } from "../../components/Manual";
+
+/**
+ * Signing and verifying files (English).
+ * @returns The chapter.
+ */
+export function SigningChapter() {
+    return (
+        <Chapter id="signing">
+            <Topic id="signing-how">
+                <p>
+                    KOD applies a <strong>qualified electronic signature (QES)</strong> using IIT's official “CSK User” library — the same
+                    one used by the Diia portal (ID.GOV.UA). The signature has the same legal force as a handwritten one.
+                </p>
+                <ul>
+                    <li>
+                        <strong>The key and password never leave your device.</strong> The key file is read in the browser, in a separate
+                        protected thread (Web Worker). Neither the key nor its password is sent to the server.
+                    </li>
+                    <li>
+                        Only public service requests to the provider go through the server: certificate status checks (OCSP) and obtaining a
+                        timestamp (TSP — only the data hash is sent, not the document itself).
+                    </li>
+                    <li>
+                        The key is released from memory right after signing, and also when you go back in the wizard, close the signing
+                        window or leave the page.
+                    </li>
+                    <li>
+                        The server updates the list of providers and their certificates from IIT's official source twice a day, so keys with
+                        new or reissued certificates work without any extra setup.
+                    </li>
+                </ul>
+                <p>Where the signature is used:</p>
+                <ul>
+                    <li>
+                        <strong>Signing documents</strong> in the “Documents” module — the signature is stored in the system together with
+                        the document (see “<Ref to="documents-sign">Signing a document</Ref>”).
+                    </li>
+                    <li>
+                        <strong>Signing any files</strong> on the <Ui>Signing</Ui> page — you download the result to your device; the files
+                        themselves are not stored in the system. Only the fact of signing goes to the audit log: the file names, the format
+                        and the certificate. Save the signed file right away — it cannot be downloaded from the system later. If you need a
+                        history with the files, create a document in the Documents module.
+                    </li>
+                    <li>
+                        <strong>Verifying signed files</strong> on the <Ui>Verify</Ui> tab.
+                    </li>
+                </ul>
+            </Topic>
+            <Topic id="signing-keys">
+                <p>
+                    <strong>File keys</strong> from all qualified trust service providers (QTSPs) on the Central Certification Authority's
+                    list are supported: the State Tax Service, Diia, PrivatBank, monobank, Oschadbank, PUMB, Ukrgasbank, DepositSign,
+                    Vchasno, MASTERKEY, the Treasury and others — more than 30 providers.
+                </p>
+                <Table>
+                    <thead>
+                        <tr>
+                            <th>File type</th>
+                            <th>Where it comes from</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Key-6.dat</td>
+                            <td>
+                                The classic key of most providers (State Tax Service, Diia and others). Certificates are found
+                                automatically.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>*.pfx, *.p12</td>
+                            <td>A PKCS#12 container (often PrivatBank and bank QTSPs).</td>
+                        </tr>
+                        <tr>
+                            <td>*.jks</td>
+                            <td>Java KeyStore (PrivatBank and others).</td>
+                        </tr>
+                        <tr>
+                            <td>*.pk8, *.zs2</td>
+                            <td>Other key container formats.</td>
+                        </tr>
+                    </tbody>
+                </Table>
+                <p>
+                    Usually leave the <Ui>Trust service provider</Ui> field set to <Ui>Detect automatically</Ui>. Select a specific provider
+                    only if automatic detection didn't work.
+                </p>
+                <p>
+                    If the provider doesn't support automatic certificate download, expand{" "}
+                    <Ui>Add certificates manually (if the provider doesn't support automatic download)</Ui> and add the <Code>*.cer</Code>,{" "}
+                    <Code>*.crt</Code> or <Code>*.p7b</Code> certificate files issued to you by the provider.
+                </p>
+                <Alert tone="outline" icon={Info} title="Hardware tokens and cloud keys">
+                    The “Hardware token” options (Almaz-1K, Krystal-1 tokens, etc.) and “Cloud / Diia.Signature” are shown as disabled: they
+                    require separate provider components (the IIT web agent or a cloud signing service) that are not connected to KOD at the
+                    moment.
+                </Alert>
+            </Topic>
+            <Topic id="signing-wizard">
+                <p>
+                    Open <Ui>Signing</Ui> in the menu. The <Ui>Sign</Ui> tab contains a three-step wizard. The top of the page shows which
+                    step you're on; you can return to a completed step with the <Ui>Back</Ui> button or by clicking its number.
+                </p>
+                <h4>Step 1. Files</h4>
+                <Steps>
+                    <li>
+                        Drag files into the <Ui>Drag files here or click to select</Ui> area, or click it and select the files.
+                    </li>
+                    <li>
+                        A list of files with their sizes appears below the area. Each file can be up to <strong>25 MB</strong>.
+                    </li>
+                    <li>
+                        Click <Ui>Next</Ui>. The button is enabled only when at least one file is selected.
+                    </li>
+                </Steps>
+                <h4>Step 2. Parameters</h4>
+                <Steps>
+                    <li>
+                        Choose the <Ui>Signature format</Ui>. Formats unavailable for the selected files are disabled (for example, PAdES is
+                        only for PDF; CAdES and ASiC-S are only for a single file).
+                    </li>
+                    <li>
+                        For CAdES and XAdES, choose the <Ui>Signature type</Ui>: <Ui>Detached</Ui> (the signature file sits next to the
+                        document) or <Ui>Enveloped</Ui> (the data is inside the signature).
+                    </li>
+                    <li>
+                        Choose the <Ui>Signature level</Ui>. <strong>B-LT</strong> is recommended — it contains everything needed for
+                        verification years later.
+                    </li>
+                    <li>
+                        Click <Ui>Next</Ui>. How to choose a format — see “<Ref to="signing-formats">Signature formats and levels</Ref>”.
+                    </li>
+                </Steps>
+                <h4>Step 3. Key and signature</h4>
+                <Steps>
+                    <li>Check the summary at the top: which files, format and level will be used.</li>
+                    <li>
+                        Key type — <Ui>File key</Ui>. Leave the provider set to <Ui>Detect automatically</Ui>.
+                    </li>
+                    <li>
+                        Select the key file in the <Ui>Select the key file</Ui> area.
+                    </li>
+                    <li>
+                        Enter the <Ui>Key password</Ui> and click <Ui>Read key</Ui> (or press Enter). The password is cleared from the field
+                        immediately.
+                    </li>
+                    <li>
+                        The key owner card appears: full name, organization, position, individual tax number / EDRPOU code, provider,
+                        certificate number and validity period. Make sure this is your key. You can choose a different key with the{" "}
+                        <Ui>Another key</Ui> button.
+                    </li>
+                    <li>
+                        Click <Ui>Sign</Ui>.
+                    </li>
+                    <li>
+                        After successful signing, “File signed” appears with the format, level and time. Click <Ui>Download …</Ui> to save
+                        the result. To sign other files, click <Ui>Sign other files</Ui> — you'll need to read the key again.
+                    </li>
+                </Steps>
+                <p>The link to the signed file is valid for 10 minutes — save the file right away.</p>
+            </Topic>
+            <Topic id="signing-formats">
+                <Table>
+                    <thead>
+                        <tr>
+                            <th>Format</th>
+                            <th>Result</th>
+                            <th>When to choose</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>CAdES</td>
+                            <td>
+                                <Code>*.p7s</Code>
+                            </td>
+                            <td>
+                                A universal format for any single file. “Detached” — the signature file sits next to the original;
+                                “Enveloped” — a single file containing both the document and the signature. The most common format in
+                                Ukraine.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>XAdES</td>
+                            <td>
+                                <Code>*.xml</Code>
+                            </td>
+                            <td>An XML signature; several files can be signed at once. Needed if the recipient requires XML.</td>
+                        </tr>
+                        <tr>
+                            <td>PAdES</td>
+                            <td>
+                                <Code>*_signed.pdf</Code>
+                            </td>
+                            <td>A signature inside the PDF — the document opens in a regular PDF viewer. Only for a single PDF file.</td>
+                        </tr>
+                        <tr>
+                            <td>ASiC-S</td>
+                            <td>
+                                <Code>*.asics</Code>
+                            </td>
+                            <td>A container (ZIP) with one file and its signature. A European standard.</td>
+                        </tr>
+                        <tr>
+                            <td>ASiC-E</td>
+                            <td>
+                                <Code>*.asice</Code>
+                            </td>
+                            <td>A container with several files and one signature covering all of them.</td>
+                        </tr>
+                    </tbody>
+                </Table>
+                <Table>
+                    <thead>
+                        <tr>
+                            <th>Level</th>
+                            <th>What it contains</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>B-B — basic</td>
+                            <td>Only the signature and the certificate. The signing time comes from your computer's clock.</td>
+                        </tr>
+                        <tr>
+                            <td>B-T — with a timestamp</td>
+                            <td>Adds a qualified timestamp from the provider: a precise, provable signing time.</td>
+                        </tr>
+                        <tr>
+                            <td>B-LT — with long-term validation data</td>
+                            <td>
+                                Plus the certificate status at the moment of signing (OCSP) and the certificate chain. The signature can be
+                                verified years later, even after the certificate has expired. <strong>Recommended.</strong>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>B-LTA — archival</td>
+                            <td>Plus an archival timestamp for long-term storage over many years.</td>
+                        </tr>
+                    </tbody>
+                </Table>
+            </Topic>
+            <Topic id="signing-verify">
+                <Steps>
+                    <li>
+                        Open <Ui>Signing</Ui> → the <Ui>Verify</Ui> tab.
+                    </li>
+                    <li>
+                        Drag in the signed file (<Code>*.p7s</Code>, <Code>*.pdf</Code>, <Code>*.xml</Code>, <Code>*.asics</Code>,{" "}
+                        <Code>*.asice</Code>). For a detached signature, also add the original file.
+                    </li>
+                    <li>
+                        Click <Ui>Verify</Ui>.
+                    </li>
+                    <li>
+                        If the signatures are valid, “Signatures are valid” appears with the format, container name and number of
+                        signatures, and for each signature — the signer's full name, organization, individual tax number / EDRPOU code,
+                        provider, certificate number and signing time (or timestamp).
+                    </li>
+                    <li>
+                        If the signature contains the data inside, the <Ui>Download …</Ui> button lets you save the original document.
+                    </li>
+                    <li>If verification fails, “Verification failed” appears with an explanation of the reason.</li>
+                </Steps>
+                <p>Verification takes place in your browser — the file is not sent to the server.</p>
+            </Topic>
+            <Topic id="signing-problems">
+                <Table>
+                    <thead>
+                        <tr>
+                            <th>Message</th>
+                            <th>What to do</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Wrong password or damaged key file.</td>
+                            <td>
+                                Check the keyboard layout and Caps Lock, and select the right file (the key file itself, for example
+                                Key-6.dat, not a certificate).
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>The key certificate could not be found. Select the provider manually or add certificate files.</td>
+                            <td>
+                                Select your provider in the list instead of “Detect automatically”, or add certificates via “Add
+                                certificates manually”.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>The key certificate has expired or is not yet valid.</td>
+                            <td>The key has expired — get a new one from your provider.</td>
+                        </tr>
+                        <tr>
+                            <td>The key certificate has been revoked (it is on the revocation list).</td>
+                            <td>The key has been blocked by the provider. Contact the provider to get a new one.</td>
+                        </tr>
+                        <tr>
+                            <td>Could not obtain a timestamp. Try the B-B signature level or try again later.</td>
+                            <td>
+                                The provider's timestamp server is temporarily unavailable. Try again in a few minutes; if the signature is
+                                urgent, choose the B-B level.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Could not check the certificate status (OCSP). Try again later.</td>
+                            <td>The provider's server is temporarily unavailable. Try again later.</td>
+                        </tr>
+                        <tr>
+                            <td>No connection to the provider's server (CA). Check your connection and try again.</td>
+                            <td>Check your internet connection and try again.</td>
+                        </tr>
+                        <tr>
+                            <td>Files larger than 25 MB are not supported.</td>
+                            <td>Reduce the file size (for example, compress the PDF) or split it into parts.</td>
+                        </tr>
+                        <tr>
+                            <td>Could not load the signing library.</td>
+                            <td>Refresh the page. The library is several megabytes in size and loads when the signing panel opens.</td>
+                        </tr>
+                        <tr>
+                            <td>This is a detached signature: also add the file that was signed.</td>
+                            <td>When verifying, add the original document together with the signature file.</td>
+                        </tr>
+                        <tr>
+                            <td>No signatures found in the file.</td>
+                            <td>The selected file doesn't contain a signature — make sure you uploaded the signed file.</td>
+                        </tr>
+                    </tbody>
+                </Table>
+            </Topic>
+        </Chapter>
+    );
+}

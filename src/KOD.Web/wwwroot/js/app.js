@@ -39,18 +39,7 @@ function showQueryToast() {
     window.history.replaceState(window.history.state, "", url.pathname + url.search + url.hash);
 }
 
-/**
- * Lazily loads and mounts the user manual behaviors (table of contents, search).
- */
-async function mountHelpPage() {
-    const root = document.querySelector("[data-help]:not([data-help-mounted])");
-    if (!root) {
-        return;
-    }
-
-    root.setAttribute("data-help-mounted", "true");
-    const { mountHelp } = await import("./help.js");
-    mountHelp(/** @type {HTMLElement} */ (root));
+/** @type {HTMLElement} */ (root));
 }
 
 /**
@@ -186,7 +175,6 @@ function onPageReady() {
     }
 
     showQueryToast();
-    mountHelpPage().catch((error) => console.error("Manual behaviors failed to load", error));
     mountPhotoForms().catch((error) => console.error("Photo cropper failed to load", error));
 }
 

@@ -15,4 +15,11 @@ public sealed class PermissionsController : ApiControllerBase
     /// <returns>The permissions.</returns>
     [HttpGet]
     public ActionResult<IReadOnlyList<PermissionDefinition>> List() => Ok(Permissions.All);
+
+    /// <summary>
+    /// Lists the standard roles created at deployment with their default permissions (the manual's reference).
+    /// </summary>
+    /// <returns>The roles.</returns>
+    [HttpGet("system-roles")]
+    public ActionResult<IReadOnlyList<SystemRoleDefinition>> SystemRoleList() => Ok(SystemRoles.All);
 }

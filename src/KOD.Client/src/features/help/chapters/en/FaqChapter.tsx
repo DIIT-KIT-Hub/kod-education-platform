@@ -1,0 +1,170 @@
+import { Chapter, Faq, Ref, Topic, Ui } from "../../components/Manual";
+
+/**
+ * Questions and answers (English).
+ * @returns The chapter.
+ */
+export function FaqChapter() {
+    return (
+        <Chapter id="faq">
+            <Topic id="faq-common">
+                <Faq>
+                    <details>
+                        <summary>How do I get access to KOD?</summary>
+                        <div>
+                            <p>
+                                There is no self-registration. Contact the HR department or the system administrator — they will create an
+                                account for you and give you a temporary password. Then see “
+                                <Ref to="account-first-login">Signing in for the first time</Ref>”.
+                            </p>
+                        </div>
+                    </details>
+                    <details>
+                        <summary>The authenticator code is not accepted.</summary>
+                        <div>
+                            <p>The most common reasons:</p>
+                            <ul>
+                                <li>the time on your phone is inaccurate — turn on automatic date and time;</li>
+                                <li>the code has already been used — each code works once, wait for the next one (up to 30 seconds);</li>
+                                <li>
+                                    the app has several “KOD” entries — use the newest one (after setting up the authenticator again, the
+                                    old entries can be deleted).
+                                </li>
+                            </ul>
+                            <p>If nothing helps, sign in with a recovery code and ask the administrator to reset your authenticator.</p>
+                        </div>
+                    </details>
+                    <details>
+                        <summary>I lost my phone or deleted the authenticator app.</summary>
+                        <div>
+                            <p>
+                                Sign in with a recovery code (<Ui>Sign in with a recovery code</Ui> on the code page) and ask the
+                                administrator to reset your authenticator. If you have no recovery codes, contact the administrator right
+                                away. After the reset, you will set up the new phone when you sign in.
+                            </p>
+                        </div>
+                    </details>
+                    <details>
+                        <summary>Why was I signed out of the cabinet?</summary>
+                        <div>
+                            <ul>
+                                <li>
+                                    an hour passed without activity or 12 hours since sign-in — this is a security limit, just sign in
+                                    again;
+                                </li>
+                                <li>you closed the browser and didn't check “Remember me on this device” when signing in;</li>
+                                <li>
+                                    you changed your password or clicked <Ui>Sign out on other devices</Ui> on another device — the sign-ins
+                                    on the other devices end within a few minutes;
+                                </li>
+                                <li>
+                                    an administrator blocked the account, issued a temporary password, reset the authenticator or signed out
+                                    all your sessions.
+                                </li>
+                            </ul>
+                        </div>
+                    </details>
+                    <details>
+                        <summary>A module I need is missing from the menu.</summary>
+                        <div>
+                            <p>
+                                The menu shows only the modules you have permissions for. Check your permissions in <Ui>Profile</Ui> →{" "}
+                                <Ui>All my permissions</Ui> and contact the head of your unit or the administrator. Changes to permissions
+                                take effect within 5 minutes at most, without signing in again.
+                            </p>
+                        </div>
+                    </details>
+                    <details>
+                        <summary>My document was rejected. What should I do?</summary>
+                        <div>
+                            <p>
+                                Open the document, read the reason in the signing route, click <Ui>Edit</Ui>, correct the file, the details
+                                or the route, and click <Ui>Save and send for signing</Ui>. Those who have already signed the current file
+                                don't sign again; if you replace the file, everyone will have to sign it. Details — “
+                                <Ref to="documents-edit">Editing a draft or a rejected document</Ref>”.
+                            </p>
+                        </div>
+                    </details>
+                    <details>
+                        <summary>Can I change a document that is already in signing?</summary>
+                        <div>
+                            <p>
+                                As long as nobody has signed it, the author can click <Ui>Withdraw</Ui> — the document returns to drafts and
+                                can be edited. If someone has already signed it, the document can be changed only after one of the signers
+                                declines.
+                            </p>
+                        </div>
+                    </details>
+                    <details>
+                        <summary>Is my key or key password sent to the server?</summary>
+                        <div>
+                            <p>
+                                No. The key is read only in your browser, in a separate protected thread, and is released from memory right
+                                after signing. Only the finished signature (for documents) and service requests to the provider reach the
+                                server: the certificate status check and the timestamp (only a hash of the data).
+                            </p>
+                        </div>
+                    </details>
+                    <details>
+                        <summary>Which signature format should I choose?</summary>
+                        <div>
+                            <p>
+                                Unless the recipient requires something else — <strong>CAdES</strong>, level <strong>B-LT</strong>. For a
+                                PDF that must open in a regular viewer — <strong>PAdES</strong>. Details — “
+                                <Ref to="signing-formats">Signature formats and levels</Ref>”.
+                            </p>
+                        </div>
+                    </details>
+                    <details>
+                        <summary>My key is on a token (Almaz, Crystal) or in the cloud (Diia.Signature). Can I sign?</summary>
+                        <div>
+                            <p>
+                                Not yet: KOD supports file keys (Key-6.dat, PFX, JKS, etc.). Most providers, including Diia and the State
+                                Tax Service, also issue file keys free of charge.
+                            </p>
+                        </div>
+                    </details>
+                    <details>
+                        <summary>Can I sign a document from my phone?</summary>
+                        <div>
+                            <p>
+                                Yes, if the key file is on your phone: the interface fully works on mobile devices. Signing is done in the
+                                browser the same way as on a computer.
+                            </p>
+                        </div>
+                    </details>
+                    <details>
+                        <summary>How do I print or save this manual?</summary>
+                        <div>
+                            <p>
+                                Click <Ui>Print / PDF</Ui> at the top of the page and choose a printer or “Save as PDF”. Each chapter starts
+                                on a new page.
+                            </p>
+                        </div>
+                    </details>
+                </Faq>
+            </Topic>
+            <Topic id="faq-support">
+                <ul>
+                    <li>
+                        <strong>Account, full name, positions, forgotten password</strong> — the HR department.
+                    </li>
+                    <li>
+                        <strong>Access to modules, authenticator reset, blocking, technical problems</strong> — the system administrator.
+                    </li>
+                    <li>
+                        <strong>Signing route, document content, declined signing</strong> — the author of the document.
+                    </li>
+                    <li>
+                        <strong>Electronic signature key, its password, validity period, revocation</strong> — your trust service provider
+                        (for example, the State Tax Service, Diia or a bank). KOD does not store and cannot recover your key.
+                    </li>
+                </ul>
+                <p>
+                    When reporting a problem, include: what you were doing, the exact text of the message, the time and the browser.
+                    Important actions are recorded in the audit log, so the administrator can quickly find the event.
+                </p>
+            </Topic>
+        </Chapter>
+    );
+}

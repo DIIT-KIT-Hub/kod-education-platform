@@ -2229,6 +2229,42 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/permissions/system-roles": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Lists the standard roles created at deployment with their default permissions (the manual's reference). */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description The roles. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SystemRoleDefinition"][];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/profile": {
         parameters: {
             query?: never;
@@ -4778,6 +4814,19 @@ export interface components {
             /** @description The current authenticator code. */
             code: string;
         };
+        /** @description Describes a predefined role that is created on the first start of the system. */
+        SystemRoleDefinition: {
+            /** @description The stable role code. */
+            code: string;
+            /** @description The default permissions of the role. */
+            permissions: string[];
+            /** @description Whether the role is a leadership position. */
+            isLeadership: boolean;
+            /** @description Gets the user-facing role name in the current interface language. */
+            name?: null | string;
+            /** @description Gets the user-facing role description in the current interface language. */
+            description?: null | string;
+        };
         /** @description Full information about an organization unit. */
         UnitDetails: {
             /**
@@ -5240,6 +5289,7 @@ export type SigningMode = components['schemas']['SigningMode'];
 export type SigningSession = components['schemas']['SigningSession'];
 export type SpreadsheetFormat = components['schemas']['SpreadsheetFormat'];
 export type StepUpRequest = components['schemas']['StepUpRequest'];
+export type SystemRoleDefinition = components['schemas']['SystemRoleDefinition'];
 export type UnitDetails = components['schemas']['UnitDetails'];
 export type UnitListItem = components['schemas']['UnitListItem'];
 export type UnitOption = components['schemas']['UnitOption'];
