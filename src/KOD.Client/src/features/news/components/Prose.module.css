@@ -1,0 +1,116 @@
+/* The typography of an article text: shown on the article page and inside the editor. */
+.prose {
+    font-size: var(--ds-fs-lg);
+    line-height: 1.7;
+    overflow-wrap: anywhere;
+}
+
+.prose > * + * {
+    margin-top: 1em;
+}
+
+.prose h2,
+.prose h3 {
+    margin-top: 1.6em;
+}
+
+.prose h4 {
+    font-size: var(--ds-fs-lg);
+    margin-top: 1.4em;
+}
+
+.prose a {
+    font-weight: 650;
+}
+
+.prose ul,
+.prose ol {
+    padding-left: 1.4em;
+}
+
+.prose blockquote {
+    margin: 1.5em 0;
+    padding: var(--ds-space-4) var(--ds-space-5);
+    border-left: 4px solid var(--ds-color-text);
+    background: var(--ds-color-surface-2);
+    border-radius: 0 var(--ds-radius-md) var(--ds-radius-md) 0;
+}
+
+.prose code {
+    font-family: var(--ds-font-mono);
+    font-size: 0.9em;
+    padding: 0.1em 0.35em;
+    border-radius: 0.35rem;
+    background: var(--ds-color-surface-3);
+}
+
+.prose pre {
+    padding: var(--ds-space-4);
+    border-radius: var(--ds-radius-md);
+    background: var(--ds-color-surface-3);
+    overflow-x: auto;
+    font-size: var(--ds-fs-sm);
+}
+
+.prose pre code {
+    padding: 0;
+    background: none;
+}
+
+.prose table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--ds-fs-md);
+}
+
+.prose th,
+.prose td {
+    border: 1px solid var(--ds-color-border);
+    padding: 0.5em 0.75em;
+    text-align: left;
+}
+
+.prose th {
+    background: var(--ds-color-surface-2);
+    font-weight: 700;
+}
+
+.prose hr {
+    margin: 2em 0;
+}
+
+.prose p:empty::before {
+    content: "\200b";
+}
+
+/* Images keep their intrinsic ratio (width/height attributes reserve the space) and open full size on click. */
+.prose img {
+    height: auto;
+    margin-inline: auto;
+    border-radius: var(--ds-radius-lg);
+    cursor: zoom-in;
+}
+
+/* A gallery: square tiles (thumbnails), 2 columns on phones, up to 4 on wide screens. */
+.prose [data-type="gallery"] {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(10rem, 45%), 1fr));
+    gap: var(--ds-space-2);
+}
+
+.prose [data-type="gallery"] img {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+    margin: 0;
+    border-radius: var(--ds-radius-md);
+    background: var(--ds-color-surface-3);
+    transition:
+        transform var(--ds-duration-base) var(--ds-ease-out),
+        filter var(--ds-duration-base);
+}
+
+.prose [data-type="gallery"] img:hover {
+    transform: scale(1.02);
+    filter: brightness(0.92);
+}

@@ -704,6 +704,10 @@ namespace KOD.Infrastructure.Persistence.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
 
+                    b.Property<int>("Depth")
+                        .HasColumnType("integer")
+                        .HasColumnName("depth");
+
                     b.Property<DateTimeOffset?>("EditedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("edited_at");
@@ -715,6 +719,10 @@ namespace KOD.Infrastructure.Persistence.Migrations
                     b.Property<Guid?>("ParentId")
                         .HasColumnType("uuid")
                         .HasColumnName("parent_id");
+
+                    b.Property<Guid>("RootId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("root_id");
 
                     b.Property<DateTimeOffset?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
@@ -728,6 +736,9 @@ namespace KOD.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("ParentId")
                         .HasDatabaseName("ix_news_comments_parent_id");
+
+                    b.HasIndex("ArticleId", "RootId")
+                        .HasDatabaseName("ix_news_comments_article_id_root_id");
 
                     b.HasIndex("ArticleId", "ParentId", "CreatedAt")
                         .HasDatabaseName("ix_news_comments_article_id_parent_id_created_at");

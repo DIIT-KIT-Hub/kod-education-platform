@@ -2,6 +2,7 @@ using KOD.Application.Common.Files;
 using KOD.Application.Common.Media;
 using KOD.Application.Common.Results;
 using KOD.Application.Features.News;
+using KOD.Application.Features.News.Discussion;
 using KOD.Domain.News;
 
 namespace KOD.UnitTests.Application;
@@ -33,7 +34,7 @@ public sealed class NewsDiscussionTests : IDisposable
     }
 
     [Fact]
-    public async Task Replies_form_one_level_and_a_deleted_comment_keeps_its_replies()
+    public async Task A_reply_goes_under_the_very_comment_it_answers_and_names_its_author()
     {
         var article = _world.News("Новина", _world.A);
         var author = _world.As(_world.EmployeeA).Discussion;
@@ -41,16 +42,61 @@ public sealed class NewsDiscussionTests : IDisposable
 
         var root = (await author.CommentAsync(article.Id, null, "Перший", CancellationToken.None)).Ok();
         var reply = (await other.CommentAsync(article.Id, root, "Відповідь", CancellationToken.None)).Ok();
-        (await author.CommentAsync(article.Id, reply, "Відповідь на відповідь", CancellationToken.None)).Ok();
+        var deeper = (await author.CommentAsync(article.Id, reply, "Відповідь на відповідь", CancellationToken.None)).Ok();
+
+        var thread = Assert.Single((await other.GetAsync(article.Id, 1, 10, CommentSort.Newest, CancellationToken.None)).Ok().Comments);
+        Assert.Equal(2, thread.ReplyCount);
+        var first = Assert.Single(thread.Replies);
+        Assert.Equal(reply, first.Id);
+        Assert.Equal(1, first.Depth);
+        Assert.Equal(_world.EmployeeA.Id, first.ReplyTo?.Id);
+        var second = Assert.Single(first.Replies);
+        Assert.Equal(deeper, second.Id);
+        Assert.Equal(2, second.Depth);
+        Assert.Equal(_world.EmployeeB.Id, second.ReplyTo?.Id);
+    }
+
+    [Fact]
+    public async Task A_deleted_comment_keeps_its_branch_and_goes_away_with_the_last_reply()
+    {
+        var article = _world.News("Новина", _world.A);
+        var author = _world.As(_world.EmployeeA).Discussion;
+        var other = _world.As(_world.EmployeeB).Discussion;
+
+        var root = (await author.CommentAsync(article.Id, null, "Перший", CancellationToken.None)).Ok();
+        var reply = (await other.CommentAsync(article.Id, root, "Відповідь", CancellationToken.None)).Ok();
         Assert.True((await author.DeleteCommentAsync(article.Id, root, CancellationToken.None)).IsSuccess);
 
-        var discussion = (await other.GetAsync(article.Id, 20, CancellationToken.None)).Ok();
+        var discussion = (await other.GetAsync(article.Id, 1, 10, CommentSort.Best, CancellationToken.None)).Ok();
         var thread = Assert.Single(discussion.Comments);
         Assert.True(thread.IsDeleted);
         Assert.Equal(string.Empty, thread.Body);
-        Assert.Equal(2, thread.Replies.Count);
-        Assert.All(thread.Replies, r => Assert.Equal(root, r.ParentId));
-        Assert.Equal(2, discussion.CommentCount);
+        Assert.Equal(1, discussion.CommentCount);
+
+        // Nobody can answer a deleted comment; when its last reply goes, the placeholder goes too.
+        Assert.Equal(ErrorType.Validation, (await other.CommentAsync(article.Id, root, "Ще", CancellationToken.None)).Failure());
+        Assert.True((await other.DeleteCommentAsync(article.Id, reply, CancellationToken.None)).IsSuccess);
+        Assert.Empty(_world.Db.NewsComments);
+        Assert.Empty((await other.GetAsync(article.Id, 1, 10, CommentSort.Best, CancellationToken.None)).Ok().Comments);
+    }
+
+    [Fact]
+    public async Task Threads_are_paged_with_their_whole_branches()
+    {
+        var article = _world.News("Новина", _world.A);
+        var reader = _world.As(_world.EmployeeB).Discussion;
+        for (var i = 1; i <= 3; i++)
+        {
+            var thread = (await reader.CommentAsync(article.Id, null, $"Гілка {i}", CancellationToken.None)).Ok();
+            (await reader.CommentAsync(article.Id, thread, $"Відповідь {i}", CancellationToken.None)).Ok();
+        }
+
+        var second = (await reader.GetAsync(article.Id, 2, 2, CommentSort.Oldest, CancellationToken.None)).Ok();
+        Assert.Equal(3, second.ThreadCount);
+        Assert.Equal(6, second.CommentCount);
+        var last = Assert.Single(second.Comments);
+        Assert.Equal("Гілка 3", last.Body);
+        Assert.Equal("Відповідь 3", Assert.Single(last.Replies).Body);
     }
 
     [Fact]
@@ -80,7 +126,7 @@ public sealed class NewsDiscussionTests : IDisposable
 
         Assert.Equal(ErrorType.Validation, (await reader.CommentAsync(closed.Id, null, "Текст", CancellationToken.None)).Failure());
         Assert.True((await reader.ReactAsync(closed.Id, null, ReactionKind.Wow, CancellationToken.None)).IsSuccess);
-        Assert.Equal(ErrorType.NotFound, (await reader.GetAsync(draft.Id, 20, CancellationToken.None)).Failure());
+        Assert.Equal(ErrorType.NotFound, (await reader.GetAsync(draft.Id, 1, 10, CommentSort.Best, CancellationToken.None)).Failure());
     }
 
     [Fact]

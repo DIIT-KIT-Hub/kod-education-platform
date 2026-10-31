@@ -1,6 +1,14 @@
 import { msg } from "@lingui/core/macro";
 import type { MessageDescriptor } from "@lingui/core";
-import type { DocumentKind, DocumentStatus, NewsCategory, SignaturePackaging, SignerStatus, SigningMode } from "@/shared/api/schema";
+import type {
+    DocumentKind,
+    DocumentStatus,
+    NewsCategory,
+    ReactionKind,
+    SignaturePackaging,
+    SignerStatus,
+    SigningMode,
+} from "@/shared/api/schema";
 
 /**
  * The names of document kinds (the context separates "Довідка" = Certificate from "Довідка" = Help).
@@ -71,3 +79,19 @@ export const packagingNames: Record<SignaturePackaging, MessageDescriptor> = {
  * The names of signature formats (not translated).
  */
 export const formatNames = { CAdES: "CAdES", XAdES: "XAdES", PAdES: "PAdES", AsicS: "ASiC-S", AsicE: "ASiC-E" } as const;
+
+/**
+ * The reactions in the order of the picker: their names (for assistive technology and tooltips) and emojis.
+ */
+export const reactions: readonly { readonly kind: ReactionKind; readonly name: MessageDescriptor; readonly emoji: string }[] = [
+    { kind: "Like", name: msg`Подобається`, emoji: "👍" },
+    { kind: "Dislike", name: msg`Не подобається`, emoji: "👎" },
+    { kind: "Love", name: msg`Любов`, emoji: "❤️" },
+    { kind: "Clap", name: msg`Оплески`, emoji: "👏" },
+    { kind: "Celebrate", name: msg`Вітаю`, emoji: "🎉" },
+    { kind: "Laugh", name: msg`Смішно`, emoji: "😄" },
+    { kind: "Wow", name: msg`Вражає`, emoji: "😮" },
+    { kind: "Thinking", name: msg`Сумнівно`, emoji: "🤔" },
+    { kind: "Sad", name: msg`Сумно`, emoji: "😢" },
+    { kind: "Angry", name: msg`Обурює`, emoji: "😡" },
+];

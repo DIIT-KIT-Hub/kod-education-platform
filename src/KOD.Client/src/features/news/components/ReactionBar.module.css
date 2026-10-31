@@ -1,0 +1,110 @@
+.reactions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--ds-space-2);
+}
+
+.chip,
+.add {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    height: 2.25rem;
+    padding: 0 0.8rem;
+    border: 1px solid var(--ds-color-border-strong);
+    border-radius: var(--ds-radius-pill);
+    background: var(--ds-color-surface);
+    color: var(--ds-color-text);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    cursor: pointer;
+    transition:
+        transform var(--ds-duration-fast) var(--ds-ease-out),
+        background var(--ds-duration-fast),
+        border-color var(--ds-duration-fast);
+}
+
+.chip:hover:not(:disabled),
+.add:hover:not(:disabled) {
+    border-color: var(--ds-color-text);
+    transform: translateY(-1px);
+}
+
+.chip[aria-pressed="true"] {
+    background: var(--ds-color-inverse);
+    border-color: var(--ds-color-inverse);
+    color: var(--ds-color-on-inverse);
+}
+
+.chip:disabled {
+    cursor: default;
+}
+
+.add {
+    color: var(--ds-color-text-muted);
+}
+
+.emoji {
+    font-size: 1.1em;
+    line-height: 1;
+}
+
+.compact .chip,
+.compact .add {
+    height: 1.75rem;
+    padding: 0 0.55rem;
+    font-size: var(--ds-fs-xs);
+}
+
+.picker {
+    position: relative;
+}
+
+.menu {
+    position: absolute;
+    bottom: calc(100% + 0.4rem);
+    left: 0;
+    z-index: 5;
+    display: grid;
+    grid-template-columns: repeat(10, auto);
+    gap: 2px;
+    padding: 0.3rem;
+    border: 1px solid var(--ds-color-border);
+    border-radius: var(--ds-radius-pill);
+    background: var(--ds-color-surface);
+    box-shadow: var(--ds-shadow-md);
+    animation: var(--ds-anim-scale-in);
+}
+
+.option {
+    display: grid;
+    place-items: center;
+    width: 2.4rem;
+    height: 2.4rem;
+    padding: 0; /* The browser's button padding leaves less room than an emoji takes, pushing it off centre. */
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    font-size: 1.35rem;
+    line-height: 1;
+    cursor: pointer;
+    transition:
+        transform var(--ds-duration-fast) var(--ds-ease-out),
+        background var(--ds-duration-fast);
+}
+
+.option:hover {
+    transform: scale(1.25);
+}
+
+.option[aria-checked="true"] {
+    background: var(--ds-color-surface-3);
+}
+
+@media (max-width: 640px) {
+    .menu {
+        grid-template-columns: repeat(5, auto);
+        border-radius: var(--ds-radius-lg);
+    }
+}

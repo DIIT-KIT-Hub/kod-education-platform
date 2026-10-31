@@ -11,18 +11,33 @@ namespace KOD.Application.Features.News.Discussion;
 public interface INewsDiscussionService
 {
     /// <summary>
-    /// The default number of top-level comments loaded at once.
+    /// The default number of comment threads per page.
     /// </summary>
-    const int PageSize = 20;
+    const int PageSize = 10;
 
     /// <summary>
-    /// Gets the reactions and the newest comments of an article.
+    /// The largest number of comment threads per page.
+    /// </summary>
+    const int MaxPageSize = 50;
+
+    /// <summary>
+    /// Gets the reactions to an article and one page of its comment threads, each with the whole branch of replies.
     /// </summary>
     /// <param name="articleId">The article.</param>
-    /// <param name="limit">How many top-level comments to load.</param>
+    /// <param name="page">The 1-based page of threads.</param>
+    /// <param name="pageSize">The number of threads per page.</param>
+    /// <param name="sort">The order of the threads.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The discussion.</returns>
-    Task<Result<NewsDiscussion>> GetAsync(Guid articleId, int limit, CancellationToken cancellationToken);
+    Task<Result<NewsDiscussion>> GetAsync(Guid articleId, int page, int pageSize, CommentSort sort, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Checks that the current user may read the discussion of an article (e.g. before following its changes).
+    /// </summary>
+    /// <param name="articleId">The article.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns><see langword="true"/> when the article is readable.</returns>
+    Task<bool> CanReadAsync(Guid articleId, CancellationToken cancellationToken);
 
     /// <summary>
     /// Sets the current user's emotion on the article or a comment; choosing the same emotion again removes it.
@@ -35,7 +50,7 @@ public interface INewsDiscussionService
     Task<Result<ReactionSummary>> ReactAsync(Guid articleId, Guid? commentId, ReactionKind kind, CancellationToken cancellationToken);
 
     /// <summary>
-    /// Adds a comment or a reply (a reply to a reply joins the same thread).
+    /// Adds a top-level comment or a reply to any comment of the article (the reply goes under that very comment).
     /// </summary>
     /// <param name="articleId">The article.</param>
     /// <param name="parentId">The comment to reply to, if any.</param>

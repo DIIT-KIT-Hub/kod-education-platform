@@ -1507,7 +1507,30 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /** Gets an article for editing (drafts included) by its identifier. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The article identifier. */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description The article. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["NewsArticleDto"];
+                    };
+                };
+            };
+        };
         /** Replaces an article. */
         put: {
             parameters: {
@@ -1569,6 +1592,45 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/news/organizations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Gets the organizations the user publishes news for; `cabinetWide` tells whether news for the whole cabinet
+         *     (no organization) are allowed too.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description The organizations. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["NewsOrganizationsResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/news/{id}/cover": {
         parameters: {
             query?: never;
@@ -1622,12 +1684,16 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Gets the reactions and the newest comments of an article. */
+        /** Gets the reactions to an article and one page of its comment threads, each with its whole branch of replies. */
         get: {
             parameters: {
                 query?: {
-                    /** @description How many top-level comments to return (1–500). */
-                    limit?: number;
+                    /** @description The 1-based page of threads. */
+                    page?: number;
+                    /** @description The number of threads per page (1–50). */
+                    pageSize?: number;
+                    /** @description The order of the threads. */
+                    sort?: components["schemas"]["CommentSort"];
                 };
                 header?: never;
                 path: {
@@ -3139,6 +3205,11 @@ export interface components {
              */
             parentId?: null | string;
         };
+        /**
+         * @description The order of the comment threads under an article.
+         * @enum {unknown}
+         */
+        CommentSort: "Best" | "Newest" | "Oldest";
         /** @description The signed-in user as the access token describes them. */
         CurrentUserResponse: {
             /**
@@ -3605,7 +3676,7 @@ export interface components {
          * @enum {unknown}
          */
         NewsCategory: "News" | "Announcement" | "Event" | "Training" | "Projects";
-        /** @description A comment with its replies. */
+        /** @description A comment with the branch of replies under it. */
         NewsCommentDto: {
             /**
              * Format: uuid
@@ -3617,6 +3688,12 @@ export interface components {
              * @description The comment this one replies to.
              */
             parentId: null | string;
+            replyTo: null | components["schemas"]["UserRef"];
+            /**
+             * Format: int32
+             * @description The nesting level: 0 for a top-level comment.
+             */
+            depth: number;
             /** @description The author. */
             author: components["schemas"]["UserRef"];
             /** @description The plain text (empty when deleted). */
@@ -3639,22 +3716,42 @@ export interface components {
             canEdit: boolean;
             /** @description Whether the current user may delete the comment (its author or a moderator). */
             canDelete: boolean;
-            /** @description The replies, oldest first. */
+            /**
+             * Format: int32
+             * @description The number of replies in the whole branch under this comment (deleted ones excluded).
+             */
+            replyCount: number;
+            /** @description The direct replies, oldest first, each with its own branch. */
             replies: components["schemas"]["NewsCommentDto"][];
         };
-        /** @description The reactions and comments under an article. */
+        /** @description The reactions and one page of comment threads under an article. */
         NewsDiscussion: {
             /** @description The reactions to the article. */
             reactions: components["schemas"]["ReactionSummary"];
-            /** @description The newest top-level comments with their replies. */
+            /** @description The top-level comments of the page, each with its whole branch of replies. */
             comments: components["schemas"]["NewsCommentDto"][];
             /**
              * Format: int32
              * @description The number of all comments and replies (deleted ones excluded).
              */
             commentCount: number;
-            /** @description Whether older top-level comments exist. */
-            hasMore: boolean;
+            /**
+             * Format: int32
+             * @description The number of top-level comments (the pages are counted from it).
+             */
+            threadCount: number;
+            /**
+             * Format: int32
+             * @description The 1-based page.
+             */
+            page: number;
+            /**
+             * Format: int32
+             * @description The number of threads per page.
+             */
+            pageSize: number;
+            /** @description The order of the threads. */
+            sort: components["schemas"]["CommentSort"];
             /** @description Whether the current user may react and comment at all (the article is published). */
             canReact: boolean;
             /** @description Whether comments are open. */
@@ -3714,6 +3811,13 @@ export interface components {
             viewCount: number;
             /** @description Gets the URL of a small cover for cards (the thumbnail of the cover image). */
             coverThumbnailUrl?: null | string;
+        };
+        /** @description Where the user may publish news. */
+        NewsOrganizationsResponse: {
+            /** @description The organizations whose news the user manages. */
+            organizations: components["schemas"]["UnitOption"][];
+            /** @description Whether the user may also publish for the whole cabinet (no organization). */
+            cabinetWide: boolean;
         };
         /** @description Body of `POST /api/v1/news` and `PUT /api/v1/news/{id}`. */
         NewsRequest: {
@@ -4708,6 +4812,7 @@ export type AuthenticatorSetupResponse = components["schemas"]["AuthenticatorSet
 export type ChangePasswordRequest = components["schemas"]["ChangePasswordRequest"];
 export type CodeRequest = components["schemas"]["CodeRequest"];
 export type CommentRequest = components["schemas"]["CommentRequest"];
+export type CommentSort = components["schemas"]["CommentSort"];
 export type CurrentUserResponse = components["schemas"]["CurrentUserResponse"];
 export type DashboardSummary = components["schemas"]["DashboardSummary"];
 export type DocumentActions = components["schemas"]["DocumentActions"];
@@ -4737,6 +4842,7 @@ export type NewsCategory = components["schemas"]["NewsCategory"];
 export type NewsCommentDto = components["schemas"]["NewsCommentDto"];
 export type NewsDiscussion = components["schemas"]["NewsDiscussion"];
 export type NewsListItem = components["schemas"]["NewsListItem"];
+export type NewsOrganizationsResponse = components["schemas"]["NewsOrganizationsResponse"];
 export type NewsRequest = components["schemas"]["NewsRequest"];
 export type PagedResultOfAuditEntryDto = components["schemas"]["PagedResultOfAuditEntryDto"];
 export type PagedResultOfDocumentListItem = components["schemas"]["PagedResultOfDocumentListItem"];

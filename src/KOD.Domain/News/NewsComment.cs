@@ -5,7 +5,8 @@ using KOD.Domain.Users;
 namespace KOD.Domain.News;
 
 /// <summary>
-/// A comment on a news article or a reply to a comment (one level of replies).
+/// A comment on a news article or a reply to any comment: the discussion is a tree of threads, like on Reddit. Every
+/// comment knows the top-level comment of its thread (<see cref="RootId"/>), so a page of threads loads with one query.
 /// </summary>
 public sealed class NewsComment : AuditableEntity
 {
@@ -15,17 +16,42 @@ public sealed class NewsComment : AuditableEntity
     public const int BodyMaxLength = 2000;
 
     /// <summary>
+    /// The deepest reply allowed (a top-level comment has depth 0).
+    /// </summary>
+    public const int MaxDepth = 50;
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="NewsComment"/> class.
     /// </summary>
     /// <param name="articleId">The article.</param>
     /// <param name="authorId">The author.</param>
-    /// <param name="parentId">The comment this one replies to; <see langword="null"/> for a top-level comment.</param>
+    /// <param name="parent">The comment this one replies to; <see langword="null"/> for a top-level comment.</param>
     /// <param name="body">The plain text.</param>
-    public NewsComment(Guid articleId, Guid authorId, Guid? parentId, string body)
+    public NewsComment(Guid articleId, Guid authorId, NewsComment? parent, string body)
     {
+        if (parent is not null)
+        {
+            if (parent.ArticleId != articleId)
+            {
+                throw new DomainException(Texts.T("Коментар не знайдено."));
+            }
+
+            if (parent.IsDeleted)
+            {
+                throw new DomainException(Texts.T("Коментар видалено."));
+            }
+
+            if (parent.Depth >= MaxDepth)
+            {
+                throw new DomainException(Texts.T("Гілка обговорення надто глибока: відповідайте вище."));
+            }
+        }
+
         ArticleId = articleId;
         AuthorId = authorId;
-        ParentId = parentId;
+        ParentId = parent?.Id;
+        RootId = parent?.RootId ?? Id;
+        Depth = parent is null ? 0 : parent.Depth + 1;
         Body = Guard.Text(body, BodyMaxLength, "Коментар");
     }
 
@@ -56,6 +82,16 @@ public sealed class NewsComment : AuditableEntity
     /// Gets the comment this one replies to; <see langword="null"/> for a top-level comment.
     /// </summary>
     public Guid? ParentId { get; private set; }
+
+    /// <summary>
+    /// Gets the top-level comment of the thread (the comment itself for a top-level one).
+    /// </summary>
+    public Guid RootId { get; private set; }
+
+    /// <summary>
+    /// Gets the nesting level: 0 for a top-level comment, 1 for a reply to it and so on.
+    /// </summary>
+    public int Depth { get; private set; }
 
     /// <summary>
     /// Gets the plain text (empty once deleted).

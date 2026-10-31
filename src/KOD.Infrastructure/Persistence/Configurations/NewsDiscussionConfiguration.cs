@@ -20,6 +20,7 @@ internal sealed class NewsDiscussionConfiguration :
         builder.ToTable("news_comments");
         builder.Property(static c => c.Body).HasMaxLength(NewsComment.BodyMaxLength);
         builder.HasIndex(static c => new { c.ArticleId, c.ParentId, c.CreatedAt });
+        builder.HasIndex(static c => new { c.ArticleId, c.RootId });
 
         builder.HasOne<NewsArticle>()
             .WithMany()

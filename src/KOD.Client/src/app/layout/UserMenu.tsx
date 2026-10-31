@@ -4,6 +4,7 @@ import { LogOut } from "lucide-react";
 import { useNavigate } from "react-router";
 import { authApi } from "@/features/auth/api";
 import { describeError } from "@/shared/api/problem";
+import { disconnectLive } from "@/shared/realtime/live";
 import { reloadAuthContext, useCurrentUser } from "@/shared/session/session";
 import layout from "@/shared/styles/layout.module.css";
 import { Avatar } from "@/shared/ui/Avatar";
@@ -33,6 +34,7 @@ export function UserMenu() {
 
         try {
             await authApi.logout();
+            await disconnectLive();
             await reloadAuthContext(queryClient);
             queryClient.removeQueries({ predicate: (query) => query.queryKey[0] !== "auth" });
             await navigate("/account/login", { replace: true });

@@ -9,7 +9,7 @@ import styles from "./Pagination.module.css";
 import { Select } from "./Select";
 
 /** The page sizes offered. */
-const pageSizes = [10, 20, 50, 100];
+const defaultPageSizes: readonly number[] = [10, 20, 50, 100];
 
 /**
  * Props of {@link Pagination}.
@@ -21,6 +21,10 @@ export interface PaginationProps {
     readonly pageSize: number;
     /** The number of items. */
     readonly totalCount: number;
+    /** The query parameter of the page (another one when a page has two lists). */
+    readonly pageParam?: string;
+    /** The page sizes offered; null hides the choice. */
+    readonly pageSizes?: readonly number[] | null;
 }
 
 /**
@@ -56,7 +60,7 @@ export function pageWindow(page: number, total: number): (number | null)[] {
  * @param props The props.
  * @returns The pagination.
  */
-export function Pagination({ page, pageSize, totalCount }: PaginationProps) {
+export function Pagination({ page, pageSize, totalCount, pageParam = "page", pageSizes = defaultPageSizes }: PaginationProps) {
     const { t } = useLingui();
     const sizeId = useId();
     const [params, setParams] = useSearchParams();
@@ -71,7 +75,7 @@ export function Pagination({ page, pageSize, totalCount }: PaginationProps) {
      */
     function pageHref(target: number): string {
         const next = new URLSearchParams(params);
-        next.set("page", String(Math.min(Math.max(target, 1), totalPages)));
+        next.set(pageParam, String(Math.min(Math.max(target, 1), totalPages)));
         return `?${next.toString()}`;
     }
 
@@ -87,6 +91,7 @@ export function Pagination({ page, pageSize, totalCount }: PaginationProps) {
                 <div className={styles.pages}>
                     <Link
                         className={styles.page}
+                        preventScrollReset={pageParam !== "page"}
                         to={pageHref(page - 1)}
                         aria-disabled={page <= 1 || undefined}
                         aria-label={t`Попередня сторінка`}
@@ -103,6 +108,7 @@ export function Pagination({ page, pageSize, totalCount }: PaginationProps) {
                             <Link
                                 key={item}
                                 className={styles.page}
+                                preventScrollReset={pageParam !== "page"}
                                 to={pageHref(item)}
                                 aria-current={item === page ? "page" : undefined}
                                 data-far={(Math.abs(item - page) > 1 && item !== 1 && item !== totalPages) || undefined}
@@ -114,6 +120,7 @@ export function Pagination({ page, pageSize, totalCount }: PaginationProps) {
                     )}
                     <Link
                         className={styles.page}
+                        preventScrollReset={pageParam !== "page"}
                         to={pageHref(page + 1)}
                         aria-disabled={page >= totalPages || undefined}
                         aria-label={t`Наступна сторінка`}
@@ -124,23 +131,25 @@ export function Pagination({ page, pageSize, totalCount }: PaginationProps) {
                 </div>
             )}
 
-            <div className={styles.size}>
-                <label htmlFor={sizeId} className={styles.sizeLabel}>
-                    {t`На сторінці`}
-                </label>
-                <Select
-                    id={sizeId}
-                    compact
-                    options={pageSizes.map((size) => ({ value: String(size), label: String(size) }))}
-                    value={String(pageSize)}
-                    onChange={(value) => {
-                        const next = new URLSearchParams(params);
-                        next.set("pageSize", value);
-                        next.delete("page");
-                        setParams(next);
-                    }}
-                />
-            </div>
+            {pageSizes && (
+                <div className={styles.size}>
+                    <label htmlFor={sizeId} className={styles.sizeLabel}>
+                        {t`На сторінці`}
+                    </label>
+                    <Select
+                        id={sizeId}
+                        compact
+                        options={pageSizes.map((size) => ({ value: String(size), label: String(size) }))}
+                        value={String(pageSize)}
+                        onChange={(value) => {
+                            const next = new URLSearchParams(params);
+                            next.set("pageSize", value);
+                            next.delete(pageParam);
+                            setParams(next);
+                        }}
+                    />
+                </div>
+            )}
         </nav>
     );
 }

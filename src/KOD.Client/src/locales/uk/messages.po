@@ -11,6 +11,22 @@ msgstr ""
 msgid "«Дія», ДПС, ПриватБанк, monobank, Вчасно, DepositSign та інші з переліку ЦЗО"
 msgstr "«Дія», ДПС, ПриватБанк, monobank, Вчасно, DepositSign та інші з переліку ЦЗО"
 
+#: src/features/news/components/Discussion.tsx
+msgid "(змінено)"
+msgstr "(змінено)"
+
+#: src/features/news/components/Discussion.tsx
+msgid "[видалено]"
+msgstr "[видалено]"
+
+#: src/features/news/components/RichTextEditor.tsx
+msgid "{characters} / {textLimit} символів"
+msgstr "{characters} / {textLimit} символів"
+
+#: src/features/news/components/ArticleBody.tsx
+msgid "{counterNumber} / {counterTotal}"
+msgstr "{counterNumber} / {counterTotal}"
+
 #: src/shared/ui/Pagination.tsx
 msgid "{firstText}–{lastText} з {totalText}"
 msgstr "{firstText}–{lastText} з {totalText}"
@@ -30,6 +46,10 @@ msgstr "*.p7s, *.pdf, *.xml, *.asics, *.asice. Для зовнішнього п�
 #: src/shared/signing/formats.ts
 msgid "*.xml · один або кілька файлів"
 msgstr "*.xml · один або кілька файлів"
+
+#: src/features/news/pages/NewsEditorPage.tsx
+msgid "1–2 речення для картки новини."
+msgstr "1–2 речення для картки новини."
 
 #: src/shared/signing/formats.ts
 msgid "B-B — базовий"
@@ -58,6 +78,10 @@ msgstr "B-T — з позначкою часу"
 #: src/features/signing/components/SigningInfo.tsx
 msgid "CAdES (зовнішній і внутрішній), XAdES, PAdES (PDF), ASiC-S, ASiC-E"
 msgstr "CAdES (зовнішній і внутрішній), XAdES, PAdES (PDF), ASiC-S, ASiC-E"
+
+#: src/features/news/pages/NewsEditorPage.tsx
+msgid "JPEG, PNG, WebP, AVIF або GIF до 15 МБ, бажано 16:9. Буде стиснуто в AVIF."
+msgstr "JPEG, PNG, WebP, AVIF або GIF до 15 МБ, бажано 16:9. Буде стиснуто в AVIF."
 
 #: src/shared/ui/PhotoPicker.tsx
 msgid "JPEG, PNG, WebP, AVIF або GIF до 15 МБ. Фото буде стиснуто, метадані (зокрема геолокацію) видалено."
@@ -91,6 +115,7 @@ msgstr "Автентифікатор підключено"
 
 #: src/features/documents/pages/DocumentPage.tsx
 #: src/features/documents/pages/DocumentsPage.tsx
+#: src/features/news/pages/NewsManagePage.tsx
 msgid "Автор"
 msgstr "Автор"
 
@@ -98,14 +123,30 @@ msgstr "Автор"
 msgid "Автор побачить причину й зможе виправити документ."
 msgstr "Автор побачить причину й зможе виправити документ."
 
+#: src/features/news/pages/ArticlePage.tsx
+msgid "Автор публікації"
+msgstr "Автор публікації"
+
 #: src/app/layout/navigation.ts
 msgid "Адміністрування"
 msgstr "Адміністрування"
+
+#: src/features/news/components/RichTextEditor.tsx
+msgid "Адреса посилання"
+msgstr "Адреса посилання"
 
 #: src/shared/i18n/display.ts
 msgctxt "document-kind"
 msgid "Акт"
 msgstr "Акт"
+
+#: src/features/news/pages/NewsEditorPage.tsx
+msgid "Анонс"
+msgstr "Анонс"
+
+#: src/features/news/pages/NewsEditorPage.tsx
+msgid "Анонс не може бути довшим за 500 символів."
+msgstr "Анонс не може бути довшим за 500 символів."
 
 #: src/features/signing/components/SigningInfo.tsx
 msgid "Апаратні та хмарні ключі"
@@ -130,6 +171,10 @@ msgstr "В архіві"
 #: src/features/documents/pages/DocumentsPage.tsx
 msgid "Ваш підпис"
 msgstr "Ваш підпис"
+
+#: src/features/news/components/Discussion.tsx
+msgid "Ваша відповідь для {authorName}…"
+msgstr "Ваша відповідь для {authorName}…"
 
 #: src/features/auth/pages/SetupAuthenticatorPage.tsx
 msgid "Введіть 6-значний код, який показує застосунок."
@@ -161,12 +206,26 @@ msgid "Вид документа"
 msgstr "Вид документа"
 
 #: src/features/documents/pages/DocumentPage.tsx
+#: src/features/news/components/Discussion.tsx
+#: src/features/news/pages/NewsEditorPage.tsx
 msgid "Видалити"
 msgstr "Видалити"
 
 #: src/features/documents/pages/DocumentPage.tsx
 msgid "Видалити документ остаточно?"
 msgstr "Видалити документ остаточно?"
+
+#: src/features/news/components/Discussion.tsx
+msgid "Видалити коментар?"
+msgstr "Видалити коментар?"
+
+#: src/features/news/pages/NewsEditorPage.tsx
+msgid "Видалити публікацію остаточно?"
+msgstr "Видалити публікацію остаточно?"
+
+#: src/features/news/components/RichTextEditor.tsx
+msgid "Видалити таблицю"
+msgstr "Видалити таблицю"
 
 #: src/shared/signing/KeyPanel.tsx
 msgid "Визначити автоматично"
@@ -237,6 +296,18 @@ msgstr "Відмову зафіксовано"
 msgid "Відомості"
 msgstr "Відомості"
 
+#: src/features/news/components/Discussion.tsx
+msgid "відповідей: {replyCount}"
+msgstr "відповідей: {replyCount}"
+
+#: src/features/news/components/Discussion.tsx
+msgid "Відповідь на коментар"
+msgstr "Відповідь на коментар"
+
+#: src/features/news/components/Discussion.tsx
+msgid "Відповісти"
+msgstr "Відповісти"
+
 #: src/features/auth/pages/SetupAuthenticatorPage.tsx
 msgid "Відскануйте QR-код або введіть ключ вручну:"
 msgstr "Відскануйте QR-код або введіть ключ вручну:"
@@ -245,9 +316,21 @@ msgstr "Відскануйте QR-код або введіть ключ вруч
 msgid "Відхилено"
 msgstr "Відхилено"
 
+#: src/shared/i18n/display.ts
+msgid "Вітаю"
+msgstr "Вітаю"
+
+#: src/features/news/pages/NewsEditorPage.tsx
+msgid "Вкажіть анонс."
+msgstr "Вкажіть анонс."
+
 #: src/features/auth/pages/LoginPage.tsx
 msgid "Вкажіть електронну пошту."
 msgstr "Вкажіть електронну пошту."
+
+#: src/features/news/pages/NewsEditorPage.tsx
+msgid "Вкажіть заголовок."
+msgstr "Вкажіть заголовок."
 
 #: src/features/documents/pages/DocumentEditorPage.tsx
 msgid "Вкажіть назву документа."
@@ -269,6 +352,10 @@ msgstr "Вкажіть поточний пароль."
 #: src/features/documents/pages/DocumentPage.tsx
 msgid "Вкажіть причину відмови."
 msgstr "Вкажіть причину відмови."
+
+#: src/shared/i18n/display.ts
+msgid "Вражає"
+msgstr "Вражає"
 
 #: src/features/auth/pages/SetupAuthenticatorPage.tsx
 msgid "Встановіть <0>Google Authenticator</0>, <1>Microsoft Authenticator</1> або інший TOTP-застосунок."
@@ -298,6 +385,10 @@ msgstr "Вхід за резервним кодом"
 msgid "Вхід тимчасово заблоковано"
 msgstr "Вхід тимчасово заблоковано"
 
+#: src/features/news/components/RichTextEditor.tsx
+msgid "Галерея фото"
+msgstr "Галерея фото"
+
 #: src/app/layout/navigation.ts
 #: src/features/home/HomePage.tsx
 msgid "Головна"
@@ -316,6 +407,7 @@ msgid "дані всередині підпису"
 msgstr "дані всередині підпису"
 
 #: src/features/documents/pages/DocumentsPage.tsx
+#: src/features/news/pages/NewsManagePage.tsx
 msgid "Дії"
 msgstr "Дії"
 
@@ -331,9 +423,17 @@ msgstr "Для кожного облікового запису обов'язк�
 msgid "До 25 МБ кожен. Для XAdES та ASiC-E можна обрати кілька файлів; для PAdES — PDF."
 msgstr "До 25 МБ кожен. Для XAdES та ASiC-E можна обрати кілька файлів; для PAdES — PDF."
 
+#: src/features/news/components/Discussion.tsx
+msgid "До всіх коментарів"
+msgstr "До всіх коментарів"
+
 #: src/features/documents/pages/DocumentEditorPage.tsx
 msgid "До документа"
 msgstr "До документа"
+
+#: src/features/news/pages/ArticlePage.tsx
+msgid "До новин"
+msgstr "До новин"
 
 #: src/features/documents/pages/DocumentPage.tsx
 msgid "До реєстру"
@@ -389,6 +489,10 @@ msgstr "Додайте фото профілю"
 #: src/shared/signing/KeyPanel.tsx
 msgid "Додати сертифікати вручну (якщо надавач не підтримує автоматичне завантаження)"
 msgstr "Додати сертифікати вручну (якщо надавач не підтримує автоматичне завантаження)"
+
+#: src/features/news/pages/NewsEditorPage.tsx
+msgid "Дозволити коментарі"
+msgstr "Дозволити коментарі"
 
 #: src/features/documents/pages/DocumentPage.tsx
 #: src/features/documents/pages/DocumentsPage.tsx
@@ -483,6 +587,10 @@ msgstr "Документів, що очікують вашого підпису,
 msgid "Доступ обмежено"
 msgstr "Доступ обмежено"
 
+#: src/features/news/pages/NewsEditorPage.tsx
+msgid "Дочекайтеся, поки завантажаться фото."
+msgstr "Дочекайтеся, поки завантажаться фото."
+
 #: src/features/auth/pages/LoginPage.tsx
 msgid "Електронна пошта"
 msgstr "Електронна пошта"
@@ -494,6 +602,10 @@ msgstr "Електронний документообіг для будь-яко
 #: src/shared/signing/KeyPanel.tsx
 msgid "ЄДРПОУ"
 msgstr "ЄДРПОУ"
+
+#: src/features/news/components/RichTextEditor.tsx
+msgid "Жирний (Ctrl+B)"
+msgstr "Жирний (Ctrl+B)"
 
 #: src/shared/i18n/display.ts
 msgid "з даними (внутрішній)"
@@ -507,6 +619,14 @@ msgstr "Забагато спроб"
 #: src/shared/ui/Spinner.tsx
 msgid "Завантаження"
 msgstr "Завантаження"
+
+#: src/features/news/components/RichTextEditor.tsx
+msgid "Завантаження фото… ({count})"
+msgstr "Завантаження фото… ({count})"
+
+#: src/features/news/components/RichTextEditor.tsx
+msgid "Завантаження фото… ({left})"
+msgstr "Завантаження фото… ({left})"
 
 #: src/features/documents/pages/DocumentPage.tsx
 msgid "Завантажити"
@@ -524,6 +644,29 @@ msgstr "Завантажте файл, вкажіть реквізити та с
 msgid "Завершено"
 msgstr "Завершено"
 
+#: src/features/news/pages/NewsEditorPage.tsx
+msgid "Заголовки, списки, цитати, таблиці, посилання, фото в тексті та галереї. Фото можна вставити з буфера обміну або перетягнути; вони стискаються до 10–100 КБ."
+msgstr "Заголовки, списки, цитати, таблиці, посилання, фото в тексті та галереї. Фото можна вставити з буфера обміну або перетягнути; вони стискаються до 10–100 КБ."
+
+#: src/features/news/components/RichTextEditor.tsx
+#: src/features/news/pages/NewsEditorPage.tsx
+#: src/features/news/pages/NewsManagePage.tsx
+msgid "Заголовок"
+msgstr "Заголовок"
+
+#: src/features/news/pages/NewsManagePage.tsx
+msgid "Заголовок або анонс"
+msgstr "Заголовок або анонс"
+
+#: src/features/news/pages/NewsEditorPage.tsx
+msgid "Заголовок не може бути довшим за 200 символів."
+msgstr "Заголовок не може бути довшим за 200 символів."
+
+#: src/features/news/components/RichTextEditor.tsx
+msgid "Закреслений"
+msgstr "Закреслений"
+
+#: src/features/news/components/ArticleBody.tsx
 #: src/shared/ui/Dialog.tsx
 msgid "Закрити"
 msgstr "Закрити"
@@ -532,6 +675,15 @@ msgstr "Закрити"
 msgid "Закрити меню"
 msgstr "Закрити меню"
 
+#: src/features/news/pages/NewsEditorPage.tsx
+msgid "Закріпити зверху"
+msgstr "Закріпити зверху"
+
+#: src/features/news/pages/NewsManagePage.tsx
+#: src/features/news/pages/NewsPage.tsx
+msgid "Закріплено"
+msgstr "Закріплено"
+
 #: src/features/documents/pages/DocumentEditorPage.tsx
 msgid "Замінити файл"
 msgstr "Замінити файл"
@@ -539,6 +691,10 @@ msgstr "Замінити файл"
 #: src/features/auth/pages/LoginPage.tsx
 msgid "Запам'ятати мене на цьому пристрої"
 msgstr "Запам'ятати мене на цьому пристрої"
+
+#: src/features/news/components/RichTextEditor.tsx
+msgid "Застосувати"
+msgstr "Застосувати"
 
 #: src/features/auth/pages/SetupAuthenticatorPage.tsx
 msgid "Захистіть вхід"
@@ -556,6 +712,11 @@ msgstr "Зачекайте своєї черги"
 msgctxt "document-kind"
 msgid "Заява"
 msgstr "Заява"
+
+#: src/features/news/components/Discussion.tsx
+#: src/features/news/pages/NewsEditorPage.tsx
+msgid "Зберегти"
+msgstr "Зберегти"
 
 #: src/features/documents/pages/DocumentEditorPage.tsx
 msgid "Зберегти зміни"
@@ -582,10 +743,18 @@ msgstr "Зберегти чернетку"
 msgid "Збережіть резервні коди в надійному місці. Вони знадобляться, якщо ви втратите доступ до телефону. Кожен код діє один раз."
 msgstr "Збережіть резервні коди в надійному місці. Вони знадобляться, якщо ви втратите доступ до телефону. Кожен код діє один раз."
 
+#: src/features/news/components/RichTextEditor.tsx
+msgid "Звичайний текст"
+msgstr "Звичайний текст"
+
 #: src/shared/i18n/display.ts
 msgctxt "document-kind"
 msgid "Звіт"
 msgstr "Звіт"
+
+#: src/features/news/components/Discussion.tsx
+msgid "Згорнути гілку"
+msgstr "Згорнути гілку"
 
 #: src/app/layout/AppShell.tsx
 msgid "Згорнути меню"
@@ -595,6 +764,10 @@ msgstr "Згорнути меню"
 msgid "Зміна пароля"
 msgstr "Зміна пароля"
 
+#: src/features/news/pages/NewsManagePage.tsx
+msgid "Змінено"
+msgstr "Змінено"
+
 #: src/features/documents/pages/DocumentEditorPage.tsx
 msgid "Зміни збережено"
 msgstr "Зміни збережено"
@@ -602,6 +775,10 @@ msgstr "Зміни збережено"
 #: src/features/documents/pages/DocumentEditorPage.tsx
 msgid "Зміни збережено, документ надіслано на підписання"
 msgstr "Зміни збережено, документ надіслано на підписання"
+
+#: src/features/news/components/Discussion.tsx
+msgid "Змінити"
+msgstr "Змінити"
 
 #: src/shared/ui/ThemeToggle.tsx
 msgid "Змінити тему"
@@ -614,6 +791,10 @@ msgstr "Змініть файл, реквізити або маршрут і з�
 #: src/features/documents/pages/DocumentEditorPage.tsx
 msgid "Знайти працівника"
 msgstr "Знайти працівника"
+
+#: src/features/news/pages/NewsEditorPage.tsx
+msgid "Зображення не може бути більшим за 15 МБ."
+msgstr "Зображення не може бути більшим за 15 МБ."
 
 #: src/shared/signing/KeyPanel.tsx
 msgid "Зчитати ключ"
@@ -644,9 +825,27 @@ msgstr "Кабінет організаційних<0/>документів"
 msgid "Кабінет<0/>організаційних документів"
 msgstr "Кабінет<0/>організаційних документів"
 
+#: src/features/news/pages/NewsPage.tsx
+msgid "Категорії"
+msgstr "Категорії"
+
+#: src/features/news/pages/NewsEditorPage.tsx
+msgid "Категорія"
+msgstr "Категорія"
+
 #: src/features/documents/pages/DocumentPage.tsx
 msgid "Кваліфіковані електронні підписи, накладені на документ"
 msgstr "Кваліфіковані електронні підписи, накладені на документ"
+
+#: src/features/news/pages/NewsEditorPage.tsx
+#: src/features/news/pages/NewsManagePage.tsx
+#: src/features/news/pages/NewsPage.tsx
+msgid "Керування"
+msgstr "Керування"
+
+#: src/features/news/pages/NewsManagePage.tsx
+msgid "Керування новинами"
+msgstr "Керування новинами"
 
 #: src/shared/signing/SigningWizard.tsx
 msgid "Ключ зчитується лише у вашому браузері; пароль не передається на сервер."
@@ -663,6 +862,10 @@ msgstr "Ключ і підпис"
 #: src/features/signing/components/SigningInfo.tsx
 msgid "Ключі"
 msgstr "Ключі"
+
+#: src/features/news/components/RichTextEditor.tsx
+msgid "Код"
+msgstr "Код"
 
 #: src/app/layout/AppShell.tsx
 #: src/features/auth/components/AuthLayout.tsx
@@ -690,6 +893,30 @@ msgstr "Код підтвердження"
 #: src/features/auth/pages/PhotoPage.tsx
 msgid "Колеги бачать ваше фото в документах, новинах і структурі. Без фото кабінетом користуватися не можна."
 msgstr "Колеги бачать ваше фото в документах, новинах і структурі. Без фото кабінетом користуватися не можна."
+
+#: src/features/news/components/Discussion.tsx
+msgid "Коментар видалено."
+msgstr "Коментар видалено."
+
+#: src/features/news/components/Discussion.tsx
+msgid "Коментар: {authorName}"
+msgstr "Коментар: {authorName}"
+
+#: src/features/news/components/Discussion.tsx
+msgid "Коментарі"
+msgstr "Коментарі"
+
+#: src/features/news/components/Discussion.tsx
+msgid "Коментарі до цієї новини вимкнено."
+msgstr "Коментарі до цієї новини вимкнено."
+
+#: src/features/news/pages/NewsPage.tsx
+msgid "Коментарів"
+msgstr "Коментарів"
+
+#: src/features/news/components/Discussion.tsx
+msgid "Коментарів ще немає. Будьте першими!"
+msgstr "Коментарів ще немає. Будьте першими!"
 
 #: src/shared/signing/formats.ts
 msgid "контейнер з 1 файлом"
@@ -734,10 +961,26 @@ msgstr "Крок 1 з 2"
 msgid "Крок 2 з 2"
 msgstr "Крок 2 з 2"
 
+#: src/features/news/components/RichTextEditor.tsx
+msgid "Курсив (Ctrl+I)"
+msgstr "Курсив (Ctrl+I)"
+
 #: src/shared/i18n/display.ts
 msgctxt "document-kind"
 msgid "Лист"
 msgstr "Лист"
+
+#: src/shared/i18n/display.ts
+msgid "Любов"
+msgstr "Любов"
+
+#: src/features/news/components/RichTextEditor.tsx
+msgid "Малий заголовок"
+msgstr "Малий заголовок"
+
+#: src/features/news/components/RichTextEditor.tsx
+msgid "Маркований список"
+msgstr "Маркований список"
 
 #: src/features/documents/pages/DocumentEditorPage.tsx
 #: src/features/documents/pages/DocumentPage.tsx
@@ -759,6 +1002,10 @@ msgstr "Мій профіль"
 #: src/features/auth/components/LanguageSwitch.tsx
 msgid "Мова інтерфейсу"
 msgstr "Мова інтерфейсу"
+
+#: src/features/news/pages/ArticlePage.tsx
+msgid "Можливо, її було видалено або знято з публікації."
+msgstr "Можливо, її було видалено або знято з публікації."
 
 #: src/app/pages/NotFoundPage.tsx
 msgid "Можливо, посилання застаріло або сторінку перенесено."
@@ -813,6 +1060,10 @@ msgstr "Надавачі"
 msgid "Надіслано на підпис"
 msgstr "Надіслано на підпис"
 
+#: src/features/news/components/Discussion.tsx
+msgid "Надіслати"
+msgstr "Надіслати"
+
 #: src/features/documents/pages/DocumentPage.tsx
 msgid "Надіслати документ на підписання?"
 msgstr "Надіслати документ на підписання?"
@@ -833,6 +1084,10 @@ msgstr "Назва або реєстраційний номер"
 msgid "Назва не може бути довшою за 300 символів."
 msgstr "Назва не може бути довшою за 300 символів."
 
+#: src/features/news/components/Discussion.tsx
+msgid "Найкращі"
+msgstr "Найкращі"
+
 #: src/shared/i18n/display.ts
 msgctxt "document-kind"
 msgid "Наказ"
@@ -842,6 +1097,14 @@ msgstr "Наказ"
 msgid "Накладіть кваліфікований електронний підпис на будь-який файл. Підпис створюється у вашому браузері — файл і ключ нікуди не передаються."
 msgstr "Накладіть кваліфікований електронний підпис на будь-який файл. Підпис створюється у вашому браузері — файл і ключ нікуди не передаються."
 
+#: src/features/news/components/Discussion.tsx
+msgid "Напишіть коментар…"
+msgstr "Напишіть коментар…"
+
+#: src/features/news/pages/NewsEditorPage.tsx
+msgid "Напишіть текст новини."
+msgstr "Напишіть текст новини."
+
 #: src/features/documents/pages/DocumentEditorPage.tsx
 msgid "Наприклад: Про затвердження графіка відпусток"
 msgstr "Наприклад: Про затвердження графіка відпусток"
@@ -850,11 +1113,17 @@ msgstr "Наприклад: Про затвердження графіка ві�
 msgid "Наступна сторінка"
 msgstr "Наступна сторінка"
 
+#: src/features/news/components/ArticleBody.tsx
+msgid "Наступне фото"
+msgstr "Наступне фото"
+
 #: src/app/layout/UserMenu.tsx
 msgid "Не вдалося вийти. Спробуйте ще раз."
 msgstr "Не вдалося вийти. Спробуйте ще раз."
 
 #: src/features/documents/pages/DocumentPage.tsx
+#: src/features/news/components/Discussion.tsx
+#: src/features/news/pages/NewsEditorPage.tsx
 msgid "Не вдалося виконати дію. Спробуйте ще раз."
 msgstr "Не вдалося виконати дію. Спробуйте ще раз."
 
@@ -871,6 +1140,15 @@ msgstr "Не вдалося завантажити бібліотеку підп
 msgid "Не вдалося завантажити документи."
 msgstr "Не вдалося завантажити документи."
 
+#: src/features/news/components/Discussion.tsx
+msgid "Не вдалося завантажити коментарі."
+msgstr "Не вдалося завантажити коментарі."
+
+#: src/features/news/pages/NewsManagePage.tsx
+#: src/features/news/pages/NewsPage.tsx
+msgid "Не вдалося завантажити новини."
+msgstr "Не вдалося завантажити новини."
+
 #: src/shared/signing/SigningWizard.tsx
 msgid "Не вдалося завантажити останню підписану версію документа."
 msgstr "Не вдалося завантажити останню підписану версію документа."
@@ -879,6 +1157,10 @@ msgstr "Не вдалося завантажити останню підписа
 msgid "Не вдалося завантажити файл документа."
 msgstr "Не вдалося завантажити файл документа."
 
+#: src/features/news/components/RichTextEditor.tsx
+msgid "Не вдалося завантажити фото."
+msgstr "Не вдалося завантажити фото."
+
 #: src/features/documents/pages/DocumentEditorPage.tsx
 msgid "Не вдалося зберегти документ. Спробуйте ще раз."
 msgstr "Не вдалося зберегти документ. Спробуйте ще раз."
@@ -886,6 +1168,10 @@ msgstr "Не вдалося зберегти документ. Спробуйт�
 #: src/shared/signing/SigningWizard.tsx
 msgid "Не вдалося зберегти підпис."
 msgstr "Не вдалося зберегти підпис."
+
+#: src/features/news/pages/NewsEditorPage.tsx
+msgid "Не вдалося зберегти публікацію. Спробуйте ще раз."
+msgstr "Не вдалося зберегти публікацію. Спробуйте ще раз."
 
 #: src/features/auth/pages/PhotoPage.tsx
 msgid "Не вдалося зберегти фото. Спробуйте ще раз."
@@ -931,6 +1217,10 @@ msgstr "Не використовуйте на спільних комп'юте�
 msgid "Не всі кроки завершено."
 msgstr "Не всі кроки завершено."
 
+#: src/shared/i18n/display.ts
+msgid "Не подобається"
+msgstr "Не подобається"
+
 #: src/shared/signing/client.ts
 msgid "Невідома помилка бібліотеки підпису."
 msgstr "Невідома помилка бібліотеки підпису."
@@ -959,6 +1249,16 @@ msgstr "Неправильний пароль або пошкоджений фа
 msgid "Нижче"
 msgstr "Нижче"
 
+#: src/features/news/pages/NewsEditorPage.tsx
+msgid "Нова"
+msgstr "Нова"
+
+#: src/features/news/pages/NewsEditorPage.tsx
+#: src/features/news/pages/NewsManagePage.tsx
+#: src/features/news/pages/NewsPage.tsx
+msgid "Нова публікація"
+msgstr "Нова публікація"
+
 #: src/features/auth/pages/PhotoPage.tsx
 msgid "Нове фото замінить поточне всюди в кабінеті."
 msgstr "Нове фото замінить поточне всюди в кабінеті."
@@ -968,6 +1268,10 @@ msgstr "Нове фото замінить поточне всюди в кабі
 #: src/features/home/HomePage.tsx
 msgid "Новий документ"
 msgstr "Новий документ"
+
+#: src/features/news/components/Discussion.tsx
+msgid "Новий коментар"
+msgstr "Новий коментар"
 
 #: src/features/auth/pages/ChangePasswordPage.tsx
 #: src/features/auth/pages/SetupAuthenticatorPage.tsx
@@ -979,27 +1283,63 @@ msgstr "Новий пароль"
 msgid "Новий файл · {0}"
 msgstr "Новий файл · {0}"
 
+#: src/features/news/pages/NewsPage.tsx
+msgid "Новин не знайдено"
+msgstr "Новин не знайдено"
+
 #: src/features/home/HomePage.tsx
 msgid "Новин поки немає"
 msgstr "Новин поки немає"
 
+#: src/features/news/pages/ArticlePage.tsx
+msgid "Новина"
+msgstr "Новина"
+
 #: src/app/layout/navigation.ts
 #: src/features/home/HomePage.tsx
+#: src/features/news/pages/ArticlePage.tsx
+#: src/features/news/pages/NewsEditorPage.tsx
+#: src/features/news/pages/NewsManagePage.tsx
+#: src/features/news/pages/NewsPage.tsx
 #: src/shared/i18n/display.ts
 msgid "Новини"
 msgstr "Новини"
+
+#: src/features/news/pages/NewsPage.tsx
+msgid "Новини, оголошення та події організації."
+msgstr "Новини, оголошення та події організації."
+
+#: src/features/news/pages/NewsEditorPage.tsx
+msgid "Новину бачать усі працівники."
+msgstr "Новину бачать усі працівники."
+
+#: src/features/news/pages/ArticlePage.tsx
+msgid "Новину не знайдено"
+msgstr "Новину не знайдено"
 
 #: src/features/home/HomePage.tsx
 msgid "Нових документів на підпис немає."
 msgstr "Нових документів на підпис немає."
 
+#: src/features/news/components/Discussion.tsx
+msgid "Нові"
+msgstr "Нові"
+
 #: src/features/documents/pages/DocumentsPage.tsx
 msgid "Номер"
 msgstr "Номер"
 
+#: src/features/news/components/RichTextEditor.tsx
+msgid "Нумерований список"
+msgstr "Нумерований список"
+
 #: src/shared/ui/PhotoPicker.tsx
 msgid "Оберіть або перетягніть фото"
 msgstr "Оберіть або перетягніть фото"
+
+#: src/features/news/pages/NewsEditorPage.tsx
+msgid "Оберіть зображення"
+msgstr "Оберіть зображення"
 
 #: src/features/documents/pages/DocumentEditorPage.tsx
 msgid "Оберіть підрозділ"
@@ -1024,6 +1364,14 @@ msgstr "Оберіть файл ключа."
 #: src/features/auth/pages/PhotoPage.tsx
 msgid "Оберіть фото."
 msgstr "Оберіть фото."
+
+#: src/features/news/pages/NewsEditorPage.tsx
+msgid "Обкладинка"
+msgstr "Обкладинка"
+
+#: src/shared/i18n/display.ts
+msgid "Обурює"
+msgstr "Обурює"
 
 #: src/shared/i18n/display.ts
 msgid "Оголошення"
@@ -1057,6 +1405,17 @@ msgstr "Опис"
 msgid "Опис не може бути довшим за 4000 символів."
 msgstr "Опис не може бути довшим за 4000 символів."
 
+#: src/shared/i18n/display.ts
+msgid "Оплески"
+msgstr "Оплески"
+
+#: src/features/news/pages/NewsEditorPage.tsx
+#: src/features/news/pages/NewsManagePage.tsx
+msgid "Опубліковано"
+msgstr "Опубліковано"
+
+#: src/features/news/pages/NewsEditorPage.tsx
+#: src/features/news/pages/NewsManagePage.tsx
 #: src/shared/signing/KeyPanel.tsx
 msgid "Організація"
 msgstr "Організація"
@@ -1149,6 +1508,19 @@ msgstr "Перевірте файл і натисніть «Підписати»
 msgid "Перевіряємо, що файл не змінювався після реєстрації."
 msgstr "Перевіряємо, що файл не змінювався після реєстрації."
 
+#: src/features/news/components/ArticleBody.tsx
+msgid "Перегляд фото"
+msgstr "Перегляд фото"
+
+#: src/features/news/pages/ArticlePage.tsx
+#: src/features/news/pages/NewsPage.tsx
+msgid "Переглядів"
+msgstr "Переглядів"
+
+#: src/features/news/pages/NewsEditorPage.tsx
+msgid "Переглянути"
+msgstr "Переглянути"
+
 #: src/app/layout/AppShell.tsx
 msgid "Перейти до змісту"
 msgstr "Перейти до змісту"
@@ -1177,9 +1549,17 @@ msgstr "Перетягніть файли або натисніть, щоб об
 msgid "Перетягніть фото та змініть масштаб, щоб обличчя було в колі."
 msgstr "Перетягніть фото та змініть масштаб, щоб обличчя було в колі."
 
+#: src/features/news/components/RichTextEditor.tsx
+msgid "Підзаголовок"
+msgstr "Підзаголовок"
+
 #: src/features/auth/pages/SetupAuthenticatorPage.tsx
 msgid "Підключення автентифікатора"
 msgstr "Підключення автентифікатора"
+
+#: src/features/news/components/RichTextEditor.tsx
+msgid "Підкреслений (Ctrl+U)"
+msgstr "Підкреслений (Ctrl+U)"
 
 #: src/shared/signing/SigningWizard.tsx
 msgid "Підпис додається до попередніх"
@@ -1300,10 +1680,26 @@ msgstr "Після входу згенеруйте нові резервні к�
 msgid "Після зміни пароля всі інші сесії буде завершено."
 msgstr "Після зміни пароля всі інші сесії буде завершено."
 
+#: src/features/news/components/RichTextEditor.tsx
+msgid "По лівому краю"
+msgstr "По лівому краю"
+
+#: src/features/news/components/RichTextEditor.tsx
+msgid "По правому краю"
+msgstr "По правому краю"
+
+#: src/features/news/components/RichTextEditor.tsx
+msgid "По центру"
+msgstr "По центру"
+
 #: src/features/auth/pages/ChangePasswordPage.tsx
 #: src/features/auth/pages/PhotoPage.tsx
 msgid "Повернутися"
 msgstr "Повернутися"
+
+#: src/features/news/components/RichTextEditor.tsx
+msgid "Повторити (Ctrl+Shift+Z)"
+msgstr "Повторити (Ctrl+Shift+Z)"
 
 #: src/features/auth/pages/ChangePasswordPage.tsx
 msgid "Повторіть новий пароль"
@@ -1316,6 +1712,10 @@ msgstr "Повторіть пароль"
 #: src/shared/i18n/display.ts
 msgid "Подія"
 msgstr "Подія"
+
+#: src/shared/i18n/display.ts
+msgid "Подобається"
+msgstr "Подобається"
 
 #: src/features/signing/components/VerifyPanel.tsx
 msgid "Позначка часу"
@@ -1338,6 +1738,10 @@ msgctxt "document-kind"
 msgid "Положення / інструкція"
 msgstr "Положення / інструкція"
 
+#: src/features/news/components/ArticleBody.tsx
+msgid "Попереднє фото"
+msgstr "Попереднє фото"
+
 #: src/shared/ui/PhotoPicker.tsx
 msgid "Попередній перегляд фото"
 msgstr "Попередній перегляд фото"
@@ -1345,6 +1749,10 @@ msgstr "Попередній перегляд фото"
 #: src/shared/ui/Pagination.tsx
 msgid "Попередня сторінка"
 msgstr "Попередня сторінка"
+
+#: src/features/news/components/Discussion.tsx
+msgid "Порядок коментарів"
+msgstr "Порядок коментарів"
 
 #: src/features/documents/pages/DocumentEditorPage.tsx
 #: src/features/documents/pages/DocumentPage.tsx
@@ -1355,9 +1763,17 @@ msgstr "Порядок підписання"
 msgid "Посада"
 msgstr "Посада"
 
+#: src/features/news/components/RichTextEditor.tsx
+msgid "Посилання"
+msgstr "Посилання"
+
 #: src/shared/i18n/display.ts
 msgid "Послідовно"
 msgstr "Послідовно"
+
+#: src/features/news/components/ReactionBar.tsx
+msgid "Поставити реакцію"
+msgstr "Поставити реакцію"
 
 #: src/features/signing/components/SigningInfo.tsx
 msgid "Поточна версія бібліотеки підтримує лише файлові ключі. Токени (Алмаз-1К, Кристал-1), хмарні ключі та «Дія.Підпис» потребують окремих компонентів надавачів — підключіть їх, коли вони знадобляться вашій організації."
@@ -1380,9 +1796,25 @@ msgstr "потребує агента ІІТ"
 msgid "потребує сервісу надавача"
 msgstr "потребує сервісу надавача"
 
+#: src/features/news/pages/NewsEditorPage.tsx
+msgid "Почніть писати новину…"
+msgstr "Почніть писати новину…"
+
+#: src/features/news/pages/NewsPage.tsx
+msgid "Пошук у новинах"
+msgstr "Пошук у новинах"
+
 #: src/features/documents/pages/DocumentEditorPage.tsx
 msgid "Прибрати"
 msgstr "Прибрати"
+
+#: src/features/news/pages/NewsEditorPage.tsx
+msgid "Прибрати обкладинку"
+msgstr "Прибрати обкладинку"
+
+#: src/features/news/components/RichTextEditor.tsx
+msgid "Прибрати посилання"
+msgstr "Прибрати посилання"
 
 #: src/features/documents/pages/DocumentPage.tsx
 msgid "Причина"
@@ -1404,6 +1836,10 @@ msgstr "Прізвище, ім'я або e-mail"
 msgid "Продовжити"
 msgstr "Продовжити"
 
+#: src/features/news/components/Discussion.tsx
+msgid "Продовжити гілку ({replyCount}) →"
+msgstr "Продовжити гілку ({replyCount}) →"
+
 #: src/shared/i18n/display.ts
 msgid "Проєкти та досягнення"
 msgstr "Проєкти та досягнення"
@@ -1417,11 +1853,44 @@ msgstr "Протокол"
 msgid "Профіль"
 msgstr "Профіль"
 
+#: src/features/news/pages/NewsManagePage.tsx
+msgid "Публікацій ще немає"
+msgstr "Публікацій ще немає"
+
+#: src/features/news/pages/NewsEditorPage.tsx
+msgid "Публікацію видалено"
+msgstr "Публікацію видалено"
+
+#: src/features/news/pages/NewsEditorPage.tsx
+msgid "Публікацію збережено"
+msgstr "Публікацію збережено"
+
+#: src/features/news/pages/NewsEditorPage.tsx
+msgid "Публікація"
+msgstr "Публікація"
+
 #: src/shared/signing/formats.ts
 msgid "Разом з даними"
 msgstr "Разом з даними"
 
+#: src/features/news/pages/NewsEditorPage.tsx
+msgid "Реакції доступні завжди."
+msgstr "Реакції доступні завжди."
+
+#: src/features/news/components/Discussion.tsx
+msgid "Реакції та коментарі з'являться після публікації."
+msgstr "Реакції та коментарі з'являться після публікації."
+
+#: src/features/news/pages/NewsPage.tsx
+msgid "Реакцій"
+msgstr "Реакцій"
+
+#: src/features/news/components/ReactionBar.tsx
+msgid "Реакція"
+msgstr "Реакція"
+
 #: src/features/documents/pages/DocumentEditorPage.tsx
+#: src/features/news/pages/NewsEditorPage.tsx
 msgid "Редагування"
 msgstr "Редагування"
 
@@ -1429,9 +1898,19 @@ msgstr "Редагування"
 msgid "Редагування документа"
 msgstr "Редагування документа"
 
+#: src/features/news/pages/NewsEditorPage.tsx
+msgid "Редагування публікації"
+msgstr "Редагування публікації"
+
 #: src/features/documents/pages/DocumentPage.tsx
+#: src/features/news/pages/ArticlePage.tsx
+#: src/features/news/pages/NewsManagePage.tsx
 msgid "Редагувати"
 msgstr "Редагувати"
+
+#: src/features/news/pages/NewsEditorPage.tsx
+msgid "Редагувати новину можуть фахівці з комунікацій цієї організації."
+msgstr "Редагувати новину можуть фахівці з комунікацій цієї організації."
 
 #: src/features/documents/pages/DocumentsPage.tsx
 msgid "Реєстр документів, маршрути погодження та підписання."
@@ -1477,6 +1956,10 @@ msgstr "Розгорнути меню"
 msgid "Розділи документів"
 msgstr "Розділи документів"
 
+#: src/features/news/components/RichTextEditor.tsx
+msgid "Розділювач"
+msgstr "Розділювач"
+
 #: src/features/documents/pages/DocumentEditorPage.tsx
 msgid "Розмір файлу не може перевищувати 25 МБ."
 msgstr "Розмір файлу не може перевищувати 25 МБ."
@@ -1485,6 +1968,10 @@ msgstr "Розмір файлу не може перевищувати 25 МБ."
 msgctxt "document-kind"
 msgid "Розпорядження"
 msgstr "Розпорядження"
+
+#: src/features/news/components/RichTextEditor.tsx
+msgid "Рядок"
+msgstr "Рядок"
 
 #: src/features/documents/pages/DocumentPage.tsx
 msgid "сертифікат №"
@@ -1508,9 +1995,15 @@ msgstr "Скасовано."
 
 #: src/features/documents/pages/DocumentEditorPage.tsx
 #: src/features/documents/pages/DocumentPage.tsx
+#: src/features/news/components/Discussion.tsx
+#: src/features/news/components/RichTextEditor.tsx
 #: src/shared/ui/ConfirmHost.tsx
 msgid "Скасувати"
 msgstr "Скасувати"
+
+#: src/features/news/components/RichTextEditor.tsx
+msgid "Скасувати (Ctrl+Z)"
+msgstr "Скасувати (Ctrl+Z)"
 
 #: src/shared/ui/CopyButton.tsx
 msgid "Скопійовано"
@@ -1525,6 +2018,10 @@ msgctxt "document-kind"
 msgid "Службова записка"
 msgstr "Службова записка"
 
+#: src/shared/i18n/display.ts
+msgid "Смішно"
+msgstr "Смішно"
+
 #: src/shared/ui/DataGrid.tsx
 msgid "Сортувати"
 msgstr "Сортувати"
@@ -1537,11 +2034,20 @@ msgstr "Спочатку зчитайте ключ."
 msgid "Спробуйте змінити параметри пошуку або фільтри."
 msgstr "Спробуйте змінити параметри пошуку або фільтри."
 
+#: src/features/news/pages/NewsPage.tsx
+msgid "Спробуйте іншу категорію або пошуковий запит."
+msgstr "Спробуйте іншу категорію або пошуковий запит."
+
 #: src/app/pages/RouteError.tsx
 msgid "Сталася помилка"
 msgstr "Сталася помилка"
 
+#: src/features/news/components/Discussion.tsx
+msgid "Старі"
+msgstr "Старі"
+
 #: src/features/documents/pages/DocumentsPage.tsx
+#: src/features/news/pages/NewsManagePage.tsx
 msgid "Статус"
 msgstr "Статус"
 
@@ -1561,6 +2067,10 @@ msgstr "Створити й надіслати на підпис"
 #: src/features/auth/pages/SetupAuthenticatorPage.tsx
 msgid "Створіть власний пароль"
 msgstr "Створіть власний пароль"
+
+#: src/features/news/components/RichTextEditor.tsx
+msgid "Стовпець"
+msgstr "Стовпець"
 
 #: src/shared/ui/Pagination.tsx
 msgid "Сторінки"
@@ -1582,9 +2092,37 @@ msgstr "Строк дії сертифіката ключа закінчився
 msgid "Структура"
 msgstr "Структура"
 
+#: src/shared/i18n/display.ts
+msgid "Сумнівно"
+msgstr "Сумнівно"
+
+#: src/shared/i18n/display.ts
+msgid "Сумно"
+msgstr "Сумно"
+
 #: src/shared/ui/PasswordInput.tsx
 msgid "Сховати пароль"
 msgstr "Сховати пароль"
+
+#: src/features/news/components/RichTextEditor.tsx
+msgid "Таблиця"
+msgstr "Таблиця"
+
+#: src/features/news/components/RichTextEditor.tsx
+msgid "Таблиця:"
+msgstr "Таблиця:"
+
+#: src/features/news/pages/NewsEditorPage.tsx
+msgid "Текст"
+msgstr "Текст"
+
+#: src/features/news/components/Discussion.tsx
+msgid "Текст коментаря"
+msgstr "Текст коментаря"
+
+#: src/features/news/pages/NewsEditorPage.tsx
+msgid "Текст новини"
+msgstr "Текст новини"
 
 #: src/shared/ui/ThemeToggle.tsx
 msgid "Тема"
@@ -1610,6 +2148,10 @@ msgstr "у будь-якому порядку"
 msgid "У вас немає доступу до цього розділу"
 msgstr "У вас немає доступу до цього розділу"
 
+#: src/features/news/components/Discussion.tsx
+msgid "у відповідь {parentName}"
+msgstr "у відповідь {parentName}"
+
 #: src/shared/signing/client.ts
 msgid "У файлі не знайдено підписів."
 msgstr "У файлі не знайдено підписів."
@@ -1617,6 +2159,14 @@ msgstr "У файлі не знайдено підписів."
 #: src/shared/signing/client.ts
 msgid "У цьому PDF немає підписів. Якщо файл завантажено з картки документа, візьміть підписаний PDF у розділі «Підписи», а не оригінал документа."
 msgstr "У цьому PDF немає підписів. Якщо файл завантажено з картки документа, візьміть підписаний PDF у розділі «Підписи», а не оригінал документа."
+
+#: src/features/news/pages/NewsManagePage.tsx
+msgid "Увесь кабінет"
+msgstr "Увесь кабінет"
+
+#: src/features/news/pages/NewsEditorPage.tsx
+msgid "Увесь кабінет (усі організації)"
+msgstr "Увесь кабінет (усі організації)"
 
 #: src/features/auth/pages/LoginPage.tsx
 msgid "Увійдіть за обліковим записом, виданим адміністратором вашої організації."
@@ -1632,6 +2182,7 @@ msgid "Усе підписано"
 msgstr "Усе підписано"
 
 #: src/features/home/HomePage.tsx
+#: src/features/news/pages/NewsPage.tsx
 msgid "Усі"
 msgstr "Усі"
 
@@ -1642,6 +2193,10 @@ msgstr "Усі види"
 #: src/features/documents/pages/DocumentsPage.tsx
 msgid "Усі доступні"
 msgstr "Усі доступні"
+
+#: src/features/news/pages/ArticlePage.tsx
+msgid "Усі новини"
+msgstr "Усі новини"
 
 #: src/features/documents/pages/DocumentsPage.tsx
 msgid "Усі статуси"
@@ -1715,6 +2270,14 @@ msgstr "Формат підпису"
 msgid "Формати"
 msgstr "Формати"
 
+#: src/features/news/components/RichTextEditor.tsx
+msgid "Форматування тексту"
+msgstr "Форматування тексту"
+
+#: src/features/news/components/RichTextEditor.tsx
+msgid "Фото в тексті"
+msgstr "Фото в тексті"
+
 #: src/features/auth/pages/PhotoPage.tsx
 msgid "Фото збережено."
 msgstr "Фото збережено."
@@ -1739,6 +2302,10 @@ msgstr "Це оригінал без підписів. Підписані фай
 msgid "Цей тип файлу не підтримується."
 msgstr "Цей тип файлу не підтримується."
 
+#: src/features/news/components/RichTextEditor.tsx
+msgid "Цитата"
+msgstr "Цитата"
+
 #: src/shared/signing/SigningWizard.tsx
 msgid "Цілісність підтверджено"
 msgstr "Цілісність підтверджено"
@@ -1755,9 +2322,15 @@ msgstr "Час підпису (вказаний у документі)"
 msgid "Частину підписів буде анульовано"
 msgstr "Частину підписів буде анульовано"
 
+#: src/features/news/pages/ArticlePage.tsx
+#: src/features/news/pages/NewsManagePage.tsx
 #: src/shared/i18n/display.ts
 msgid "Чернетка"
 msgstr "Чернетка"
+
+#: src/features/news/pages/NewsManagePage.tsx
+msgid "Чернетки та опубліковані матеріали організацій, новинами яких ви керуєте."
+msgstr "Чернетки та опубліковані матеріали організацій, новинами яких ви керуєте."
 
 #: src/features/documents/pages/DocumentEditorPage.tsx
 msgid "Чернетку збережено"
@@ -1766,6 +2339,10 @@ msgstr "Чернетку збережено"
 #: src/app/layout/AppShell.tsx
 msgid "Швидка навігація"
 msgstr "Швидка навігація"
+
+#: src/features/news/components/Discussion.tsx
+msgid "Ще відповідей: {hidden}"
+msgstr "Ще відповідей: {hidden}"
 
 #: src/features/signing/components/SigningInfo.tsx
 msgid "Що підтримується"

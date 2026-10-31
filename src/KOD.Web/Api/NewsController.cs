@@ -1,6 +1,7 @@
 using KOD.Application.Common.Files;
 using KOD.Application.Common.Paging;
 using KOD.Application.Features.News;
+using KOD.Application.Features.Organization;
 using KOD.Domain.Access;
 using KOD.Web.Api.Contracts;
 using KOD.Web.Security;
@@ -35,6 +36,33 @@ public sealed class NewsController(INewsService news) : ApiControllerBase
     [HttpGet("{slug}")]
     public async Task<ActionResult<NewsArticleDto>> Get(string slug, CancellationToken cancellationToken)
         => FromResult(await news.GetBySlugAsync(slug, cancellationToken));
+
+    /// <summary>
+    /// Gets an article for editing (drafts included) by its identifier.
+    /// </summary>
+    /// <param name="id">The article identifier.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The article.</returns>
+    [HttpGet("{id:guid}")]
+    [RequirePermission(Permissions.News.Manage)]
+    public async Task<ActionResult<NewsArticleDto>> GetById(Guid id, CancellationToken cancellationToken)
+        => FromResult(await news.GetAsync(id, cancellationToken));
+
+    /// <summary>
+    /// Gets the organizations the user publishes news for; <c>cabinetWide</c> tells whether news for the whole cabinet
+    /// (no organization) are allowed too.
+    /// </summary>
+    /// <param name="organizations">The organization service.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The organizations.</returns>
+    [HttpGet("organizations")]
+    [RequirePermission(Permissions.News.Manage)]
+    public async Task<ActionResult<NewsOrganizationsResponse>> Organizations([FromServices] IOrganizationService organizations, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(organizations);
+        var options = await organizations.GetOptionsAsync(Permissions.News.Manage, cancellationToken);
+        return new NewsOrganizationsResponse([.. options.Where(static unit => unit.IsOrganization)], User.HasPermission(Permissions.Administration.AllOrganizations));
+    }
 
     /// <summary>
     /// Creates an article.

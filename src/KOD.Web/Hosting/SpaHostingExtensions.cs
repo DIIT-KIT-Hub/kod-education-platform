@@ -14,7 +14,7 @@ internal static partial class SpaHostingExtensions
     /// <summary>
     /// The Blazor sections already moved to the client.
     /// </summary>
-    private static readonly string[] MovedSections = ["/documents", "/signing"];
+    private static readonly string[] MovedSections = ["/documents", "/signing", "/news"];
 
     /// <param name="app">The web application.</param>
     extension(WebApplication app)

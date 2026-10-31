@@ -4,7 +4,7 @@
  *  - Closes the mobile drawer after navigating.
  *  - Shows toasts passed through the `toast` query parameter and removes it from the address bar.
  *  - Mounts the user manual behaviors on the page that contains [data-help].
- *  - Mounts the crop preview of profile photo forms and the image viewer of news articles.
+ *  - Mounts the crop preview of profile photo forms.
  *  - Shows menu item tooltips while the desktop sidebar is collapsed to an icon rail.
  *  - Shows a progress bar and dims the page while the next page loads (links and form submissions).
  */
@@ -67,20 +67,6 @@ async function mountPhotoForms() {
         form.setAttribute("data-photo-mounted", "true");
         mountPhotoCropper(/** @type {HTMLFormElement} */ (form));
     });
-}
-
-/**
- * Lazily loads the image viewer of article pages (images and galleries in the text open full size).
- */
-async function mountArticleImages() {
-    const article = document.querySelector(".prose[data-article-body]:not([data-lightbox-mounted])");
-    if (!article || !article.querySelector("img")) {
-        return;
-    }
-
-    article.setAttribute("data-lightbox-mounted", "true");
-    const { mountLightbox } = await import("./lightbox.js");
-    mountLightbox(/** @type {HTMLElement} */ (article));
 }
 
 /**
@@ -202,7 +188,6 @@ function onPageReady() {
     showQueryToast();
     mountHelpPage().catch((error) => console.error("Manual behaviors failed to load", error));
     mountPhotoForms().catch((error) => console.error("Photo cropper failed to load", error));
-    mountArticleImages().catch((error) => console.error("Image viewer failed to load", error));
 }
 
 /**

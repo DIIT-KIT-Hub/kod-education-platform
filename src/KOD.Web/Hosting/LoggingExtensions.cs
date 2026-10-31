@@ -1,4 +1,5 @@
 using System.Globalization;
+using KOD.Web.Realtime;
 using NpgsqlTypes;
 using Serilog;
 using Serilog.Events;
@@ -99,6 +100,13 @@ internal static class LoggingExtensions
         if (exception is not null || context.Response.StatusCode >= StatusCodes.Status500InternalServerError)
         {
             return LogEventLevel.Error;
+        }
+
+        // Real-time connections (Blazor circuits, the client hub) stay open as long as their page: not slowness.
+        if (context.Request.Path.StartsWithSegments("/_blazor", StringComparison.OrdinalIgnoreCase)
+            || context.Request.Path.StartsWithSegments(LiveHub.Route, StringComparison.OrdinalIgnoreCase))
+        {
+            return LogEventLevel.Debug;
         }
 
         if (elapsed > 3000)

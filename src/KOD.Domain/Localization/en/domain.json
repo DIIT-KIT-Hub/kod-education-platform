@@ -102,5 +102,6 @@
   "Поки ви підписували, документ підписав інший підписант. Підпишіть останню версію ще раз.": "Another signer signed the document while you were signing. Sign the latest version again.",
   "Некоректне зображення.": "Invalid image.",
   "Коментар": "Comment",
-  "Коментар видалено.": "The comment was deleted."
+  "Коментар видалено.": "The comment was deleted.",
+  "Гілка обговорення надто глибока: відповідайте вище.": "The discussion branch is too deep: reply higher up."
 }

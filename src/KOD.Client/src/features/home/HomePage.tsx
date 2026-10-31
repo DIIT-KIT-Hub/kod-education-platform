@@ -133,7 +133,7 @@ export function HomePage() {
                                 title={t`Новини`}
                                 subtitle={t`Останні оголошення`}
                                 actions={
-                                    <ButtonLink href="/news" variant="ghost" size="sm" iconEnd={ArrowRight}>
+                                    <ButtonLink to="/news" variant="ghost" size="sm" iconEnd={ArrowRight}>
                                         {t`Усі`}
                                     </ButtonLink>
                                 }
@@ -145,7 +145,7 @@ export function HomePage() {
                                         {summary.data.latestNews.map((article) => (
                                             <ListItem
                                                 key={article.id}
-                                                href={`/news/${article.slug}`}
+                                                to={`/news/${article.slug}`}
                                                 title={article.title}
                                                 meta={`${t(newsCategoryNames[article.category])} · ${formatDate(article.publishedAt)}`}
                                                 end={article.isPinned ? <Icon icon={Pin} size="sm" /> : undefined}

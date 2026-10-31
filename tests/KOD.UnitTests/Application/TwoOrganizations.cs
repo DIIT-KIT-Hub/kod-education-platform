@@ -146,7 +146,7 @@ internal sealed class TwoOrganizations : IDisposable
             new UserService(Db, currentUser, new FakeIdentity(Db), new PermissionResolver(Db), scope, new FakeSpreadsheet(this), audit, TimeProvider.System),
             new OrganizationService(Db, currentUser, scope, audit),
             new NewsService(Db, currentUser, scope, new FakeMarkdown(), new RichTextSanitizer(), media, audit, TimeProvider.System),
-            new NewsDiscussionService(Db, currentUser, scope, new NewsDiscussionEvents(), audit, TimeProvider.System),
+            new NewsDiscussionService(Db, currentUser, scope, new SilentDiscussionEvents(), audit, TimeProvider.System),
             new MediaService(currentUser, media));
     }
 

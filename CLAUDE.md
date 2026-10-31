@@ -126,19 +126,28 @@ Dependencies point inward: Web → Infrastructure → Application → Domain. Ce
 - **Profile photo is mandatory**: claim `kod:photo` (claims factory) → `AccountSetupMiddleware` (temporary password
   first, then `/account/photo`; API gets 403). The photo form posts to `POST /account/photo` (plain multipart form,
   crop fractions from `js/photo-cropper.js`) and re-issues the JWT cookies (`RefreshSignInAsync`). New user DTOs carry `PhotoId`.
-- **News body** is HTML from the Tiptap editor (`RichTextEditor` component + `js/rich-text.js`; the Tiptap bundle is
-  `wwwroot/lib/tiptap/tiptap.js`, rebuilt from `tools/rich-text` with `npm ci && npm run build`). The server sanitizes it
-  (`IRichTextSanitizer`, allow-list; images must be `/media/…`). Older articles keep `NewsBodyFormat.Markdown` until edited.
-  `NewsService.SyncImagesAsync` attaches the images an article uses and removes the dropped ones. Galleries are
-  `<div data-type="gallery">` of thumbnails with `data-full`; `js/lightbox.js` opens them.
-- **Discussion**: `NewsDiscussionPanel` is an interactive island on the static article page; reactions (one per reader
-  and target) and one-level comments via `INewsDiscussionService`; `INewsDiscussionEvents` (in-process) refreshes open
-  pages — replace it with a message bus implementation when running several servers.
+- **News body** is HTML from the Tiptap editor (`features/news/components/RichTextEditor.tsx`, `@tiptap/react`; images
+  are uploaded at once through `POST /api/v1/media`). The server sanitizes it (`IRichTextSanitizer`, allow-list; images
+  must be `/media/…`) and the client inserts only that HTML (`ArticleBody`). Older articles keep
+  `NewsBodyFormat.Markdown` until edited. `NewsService.SyncImagesAsync` attaches the images an article uses and removes
+  the dropped ones. Galleries are `<div data-type="gallery">` of thumbnails with `data-full`; `ArticleBody` opens them
+  in a full-screen viewer.
+- **Discussion** (Reddit-like): a comment answers the article or any comment; `NewsComment` keeps `ParentId`, `RootId`
+  (the top-level comment of its thread) and `Depth` (max 50), so `GET /api/v1/news/{id}/discussion?page&pageSize&sort`
+  loads one page of threads with their whole branches in two queries and builds the tree in memory (`ReplyTo` names the
+  author answered, `ReplyCount` counts the branch). A deleted comment stays a placeholder while replies remain and goes
+  away with the last one; nobody can answer it. The client draws branches with fold lines, shows 5 replies then "more",
+  opens branches deeper than 6 on their own, pages threads (`?comments=`) and sorts them (Best / Newest / Oldest).
+- **Real time: SignalR** (`Realtime/LiveHub` at `/api/v1/live`, `[Authorize]`, own-origin connections only). One
+  connection per client (`shared/realtime/live.ts`, `useLiveGroup`); a page joins groups (`news:{id}` now, chats later)
+  and gets signals only — data still comes from the REST API, and every change goes through REST (antiforgery, audit).
+  `INewsDiscussionEvents.Publish` → `LiveNewsDiscussionEvents` → the article group. With several servers add a SignalR
+  backplane (Redis). Groups are joined again after a reconnect; sign-out and 401 stop the connection.
 
 ## React client (`src/KOD.Client`, migration from Blazor)
 
 The frontend moves from Blazor to a React SPA; at the end the MVC/Blazor part disappears and KOD.Web is a Web API plus
-the static SPA. Phases: 1 sign-in + shell + home (done), 2 documents and signing (done), 3 news (Tiptap, live discussion),
+the static SPA. Phases: 1 sign-in + shell + home (done), 2 documents and signing (done), 3 news (done),
 4 structure and profile, 5 administration, 6 manual, 7 remove Blazor and move the SPA from `/app` to `/`. Until a
 module is moved, the menu links to its Blazor page with a plain `href` (full page load); moved pages use `to`. A moved
 section loses its Blazor pages and its old addresses redirect to `/app/...` (`MovedSections` in `SpaHostingExtensions`),
@@ -307,6 +316,8 @@ Use `[LoggerMessage]` partial methods for new log statements.
   use at least one of its classes (`global.root` on the root element keeps the global styles).
 - **CSP and Vite**: `script-src 'self'` and `font-src 'self'` forbid `data:` URLs, so `build.assetsInlineLimit` is 0
   (Vite would inline small fonts). `img-src` allows `data:` (the authenticator QR code is an `<img>` with an SVG data URL).
+- **Record contracts**: validation attributes go on the primary constructor parameters (`[Required] string Body`), never
+  `[property: Required]` — MVC throws (500) for the latter. `ApiContractTests` checks every contract.
 - **API JSON**: enums are serialized as names and numbers strictly as numbers, for controllers and the OpenAPI document
   alike (`ConfigureJson` in `WebServiceCollectionExtensions`); otherwise the generated types say `number | string`.
   A computed form property needs `[BindNever]` or it shows up in the OpenAPI request body.

@@ -1,0 +1,74 @@
+.lightbox {
+    width: 100vw;
+    height: 100dvh;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: rgb(0 0 0 / 0.92);
+    color: #fff;
+}
+
+.lightbox::backdrop {
+    background: rgb(0 0 0 / 0.6);
+}
+
+.lightbox[open] {
+    display: grid;
+    place-items: center;
+    animation: var(--ds-anim-fade-in);
+}
+
+.image {
+    max-width: calc(100vw - 2rem);
+    max-height: calc(100dvh - 6rem);
+    object-fit: contain;
+    border-radius: var(--ds-radius-md);
+    touch-action: pan-y;
+    user-select: none;
+}
+
+.button {
+    position: fixed;
+    display: grid;
+    place-items: center;
+    width: 3rem;
+    height: 3rem;
+    border: 0;
+    border-radius: 50%;
+    background: rgb(255 255 255 / 0.12);
+    color: #fff;
+    cursor: pointer;
+    transition: background var(--ds-duration-fast);
+}
+
+.button:hover {
+    background: rgb(255 255 255 / 0.25);
+}
+
+.close {
+    top: 1rem;
+    right: 1rem;
+}
+
+.previous {
+    left: 1rem;
+    top: 50%;
+    translate: 0 -50%;
+}
+
+.next {
+    right: 1rem;
+    top: 50%;
+    translate: 0 -50%;
+}
+
+.counter {
+    position: fixed;
+    bottom: 1.25rem;
+    left: 50%;
+    translate: -50% 0;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}

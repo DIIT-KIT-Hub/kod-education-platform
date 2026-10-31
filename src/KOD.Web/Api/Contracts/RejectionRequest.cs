@@ -7,4 +7,4 @@ namespace KOD.Web.Api.Contracts;
 /// Body of <c>POST /api/v1/documents/{id}/rejections</c>.
 /// </summary>
 /// <param name="Reason">The reason of the rejection.</param>
-public sealed record RejectionRequest([property: Required][property: MaxLength(DocumentSigner.CommentMaxLength)] string Reason);
+public sealed record RejectionRequest([Required][MaxLength(DocumentSigner.CommentMaxLength)] string Reason);

@@ -9,5 +9,5 @@ namespace KOD.Web.Api.Contracts;
 /// <param name="Body">The plain text.</param>
 /// <param name="ParentId">The comment to reply to (ignored when editing).</param>
 public sealed record CommentRequest(
-    [property: Required][property: MaxLength(NewsComment.BodyMaxLength)] string Body,
+    [Required][MaxLength(NewsComment.BodyMaxLength)] string Body,
     Guid? ParentId = null);

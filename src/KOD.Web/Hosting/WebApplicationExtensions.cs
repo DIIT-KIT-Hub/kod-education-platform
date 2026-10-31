@@ -4,6 +4,7 @@ using KOD.Web.Components;
 using KOD.Web.Identity;
 using KOD.Web.Localization;
 using KOD.Web.Media;
+using KOD.Web.Realtime;
 using KOD.Web.Security;
 using KOD.Web.Signing;
 using Scalar.AspNetCore;
@@ -70,6 +71,7 @@ internal static class WebApplicationExtensions
 
             app.MapStaticAssets().AllowAnonymous();
             app.MapControllers();
+            app.MapHub<LiveHub>(LiveHub.Route);
             app.MapEuSignProxy();
             app.MapTrustList();
             app.MapAccountEndpoints();

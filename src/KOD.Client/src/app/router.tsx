@@ -113,6 +113,46 @@ export const router = createBrowserRouter(
                                     ],
                                 },
                                 {
+                                    path: "news",
+                                    loader: requirePermission(Permissions.newsView),
+                                    children: [
+                                        {
+                                            index: true,
+                                            lazy: async () => ({ Component: (await import("@/features/news/pages/NewsPage")).NewsPage }),
+                                        },
+                                        {
+                                            path: "manage",
+                                            loader: requirePermission(Permissions.newsManage),
+                                            children: [
+                                                {
+                                                    index: true,
+                                                    lazy: async () => ({
+                                                        Component: (await import("@/features/news/pages/NewsManagePage")).NewsManagePage,
+                                                    }),
+                                                },
+                                                {
+                                                    path: "new",
+                                                    lazy: async () => ({
+                                                        Component: (await import("@/features/news/pages/NewsEditorPage")).NewsEditorPage,
+                                                    }),
+                                                },
+                                                {
+                                                    path: ":id",
+                                                    lazy: async () => ({
+                                                        Component: (await import("@/features/news/pages/NewsEditorPage")).NewsEditorPage,
+                                                    }),
+                                                },
+                                            ],
+                                        },
+                                        {
+                                            path: ":slug",
+                                            lazy: async () => ({
+                                                Component: (await import("@/features/news/pages/ArticlePage")).ArticlePage,
+                                            }),
+                                        },
+                                    ],
+                                },
+                                {
                                     path: "signing",
                                     loader: requirePermission(Permissions.signingUse),
                                     children: [

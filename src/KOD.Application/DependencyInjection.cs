@@ -35,7 +35,6 @@ public static class DependencyInjection
             services.AddScoped<IDocumentService, DocumentService>();
             services.AddScoped<INewsService, NewsService>();
             services.AddScoped<INewsDiscussionService, NewsDiscussionService>();
-            services.AddSingleton<INewsDiscussionEvents, NewsDiscussionEvents>();
             services.AddScoped<MediaLibrary>();
             services.AddScoped<IMediaService, MediaService>();
             services.AddScoped<IOrganizationService, OrganizationService>();

@@ -29,7 +29,7 @@ internal sealed class NewsDiscussionService(
     TimeProvider timeProvider) : INewsDiscussionService
 {
     /// <inheritdoc />
-    public async Task<Result<NewsDiscussion>> GetAsync(Guid articleId, int limit, CancellationToken cancellationToken)
+    public async Task<Result<NewsDiscussion>> GetAsync(Guid articleId, int page, int pageSize, CommentSort sort, CancellationToken cancellationToken)
     {
         var access = await AccessAsync(articleId, cancellationToken);
         if (access is null)
@@ -38,28 +38,33 @@ internal sealed class NewsDiscussionService(
         }
 
         var me = currentUser.Id;
-        limit = Math.Clamp(limit, 1, 500);
+        pageSize = Math.Clamp(pageSize, 1, INewsDiscussionService.MaxPageSize);
+        page = Math.Max(1, page);
 
-        // Deleted top-level comments stay only as placeholders of their replies.
-        var topLevel = await Rows(db.NewsComments
-                .Where(c => c.ArticleId == articleId && c.ParentId == null)
-                .Where(c => !c.IsDeleted || db.NewsComments.Any(r => r.ParentId == c.Id && !r.IsDeleted))
-                .OrderByDescending(static c => c.CreatedAt)
-                .Take(limit + 1))
-            .ToListAsync(cancellationToken);
-        var hasMore = topLevel.Count > limit;
-        if (hasMore)
+        // A deleted top-level comment stays only as a placeholder of a branch that still has replies.
+        var threads = db.NewsComments
+            .Where(c => c.ArticleId == articleId && c.ParentId == null)
+            .Where(c => !c.IsDeleted || db.NewsComments.Any(r => r.RootId == c.Id && r.Id != c.Id && !r.IsDeleted));
+        var threadCount = await threads.CountAsync(cancellationToken);
+        var ordered = sort switch
         {
-            topLevel.RemoveAt(limit);
-        }
+            CommentSort.Oldest => threads.OrderBy(static c => c.CreatedAt),
+            CommentSort.Newest => threads.OrderByDescending(static c => c.CreatedAt),
+            _ => threads
+                .OrderByDescending(c => db.NewsReactions.Count(r => r.CommentId == c.Id)
+                    + db.NewsComments.Count(r => r.RootId == c.Id && r.Id != c.Id && !r.IsDeleted))
+                .ThenByDescending(static c => c.CreatedAt),
+        };
+        var roots = await Rows(ordered.Skip((page - 1) * pageSize).Take(pageSize)).ToListAsync(cancellationToken);
 
-        var parentIds = topLevel.ConvertAll(static c => c.Id);
+        // Every branch of the page in one query: the replies know the top-level comment of their thread.
+        var rootIds = roots.ConvertAll(static c => c.Id);
         var replies = await Rows(db.NewsComments
-                .Where(c => c.ParentId != null && parentIds.Contains(c.ParentId.Value) && !c.IsDeleted)
+                .Where(c => c.ArticleId == articleId && c.ParentId != null && rootIds.Contains(c.RootId))
                 .OrderBy(static c => c.CreatedAt))
             .ToListAsync(cancellationToken);
 
-        var commentIds = parentIds.Concat(replies.Select(static r => r.Id)).ToList();
+        var commentIds = rootIds.Concat(replies.Select(static r => r.Id)).ToList();
         var counts = await db.NewsReactions
             .Where(r => r.ArticleId == articleId && (r.CommentId == null || commentIds.Contains(r.CommentId.Value)))
             .GroupBy(static r => new { r.CommentId, r.Kind })
@@ -76,23 +81,43 @@ internal sealed class NewsDiscussionService(
             counts.Where(c => c.CommentId == target).Select(static c => new ReactionCount(c.Kind, c.Count)),
             mine.GetValueOrDefault(target ?? Guid.Empty));
 
-        NewsCommentDto ToDto(CommentRow row, IReadOnlyList<NewsCommentDto> children) => new(
-            row.Id,
-            row.ParentId,
-            new UserRef(row.AuthorId, FullName(row), row.PhotoId),
-            row.IsDeleted ? string.Empty : row.Body,
-            row.CreatedAt,
-            row.EditedAt,
-            row.IsDeleted,
-            SummaryOf(row.Id),
-            !row.IsDeleted && row.AuthorId == me,
-            !row.IsDeleted && (row.AuthorId == me || access.CanModerate),
-            children);
+        var children = replies.ToLookup(static r => r.ParentId);
+        var authors = roots.Concat(replies).ToDictionary(static r => r.Id, static r => new UserRef(r.AuthorId, FullName(r), r.PhotoId));
 
-        var threads = topLevel.ConvertAll(c => ToDto(c, [.. replies.Where(r => r.ParentId == c.Id).Select(r => ToDto(r, []))]));
+        // Builds a branch; a deleted comment is kept only while replies under it remain.
+        NewsCommentDto? Build(CommentRow row)
+        {
+            var branch = children[row.Id].Select(Build).OfType<NewsCommentDto>().ToList();
+            if (row.IsDeleted && branch.Count == 0)
+            {
+                return null;
+            }
+
+            return new NewsCommentDto(
+                row.Id,
+                row.ParentId,
+                row.ParentId is { } parent ? authors.GetValueOrDefault(parent) : null,
+                row.Depth,
+                authors[row.Id],
+                row.IsDeleted ? string.Empty : row.Body,
+                row.CreatedAt,
+                row.EditedAt,
+                row.IsDeleted,
+                SummaryOf(row.Id),
+                !row.IsDeleted && row.AuthorId == me,
+                !row.IsDeleted && (row.AuthorId == me || access.CanModerate),
+                branch.Sum(static reply => reply.ReplyCount + (reply.IsDeleted ? 0 : 1)),
+                branch);
+        }
+
+        var comments = roots.Select(Build).OfType<NewsCommentDto>().ToList();
         var commentCount = await db.NewsComments.CountAsync(c => c.ArticleId == articleId && !c.IsDeleted, cancellationToken);
-        return new NewsDiscussion(SummaryOf(null), threads, commentCount, hasMore, access.CanReact, access.CanComment);
+        return new NewsDiscussion(SummaryOf(null), comments, commentCount, threadCount, page, pageSize, sort, access.CanReact, access.CanComment);
     }
+
+    /// <inheritdoc />
+    public async Task<bool> CanReadAsync(Guid articleId, CancellationToken cancellationToken)
+        => await AccessAsync(articleId, cancellationToken) is not null;
 
     /// <inheritdoc />
     public async Task<Result<ReactionSummary>> ReactAsync(Guid articleId, Guid? commentId, ReactionKind kind, CancellationToken cancellationToken)
@@ -164,25 +189,19 @@ internal sealed class NewsDiscussionService(
             return Error.Validation(Texts.T("Коментарі до цієї новини вимкнено."));
         }
 
-        Guid? threadId = null;
+        NewsComment? parent = null;
         if (parentId is { } replyTo)
         {
-            var parent = await db.NewsComments.AsNoTracking()
-                .Where(c => c.Id == replyTo && c.ArticleId == articleId)
-                .Select(static c => new { c.Id, c.ParentId })
-                .FirstOrDefaultAsync(cancellationToken);
+            parent = await db.NewsComments.AsNoTracking().FirstOrDefaultAsync(c => c.Id == replyTo && c.ArticleId == articleId, cancellationToken);
             if (parent is null)
             {
                 return Error.NotFound(Texts.T("Коментар не знайдено."));
             }
-
-            // One level of replies: a reply to a reply joins the thread of the top-level comment.
-            threadId = parent.ParentId ?? parent.Id;
         }
 
         return await DomainErrors.GuardAsync<Guid>(async () =>
         {
-            var comment = new NewsComment(articleId, me, threadId, body);
+            var comment = new NewsComment(articleId, me, parent, body);
             db.NewsComments.Add(comment);
             await db.SaveChangesAsync(cancellationToken);
             events.Publish(articleId);
@@ -247,6 +266,22 @@ internal sealed class NewsDiscussionService(
         }
 
         await db.SaveChangesAsync(cancellationToken);
+
+        // A deleted comment kept only for this reply goes too once its branch is empty, up the thread.
+        var parentId = comment.ParentId;
+        while (parentId is { } id)
+        {
+            var parent = await db.NewsComments.FirstOrDefaultAsync(c => c.Id == id, cancellationToken);
+            if (parent is null || !parent.IsDeleted || await db.NewsComments.AnyAsync(c => c.ParentId == id, cancellationToken))
+            {
+                break;
+            }
+
+            parentId = parent.ParentId;
+            db.NewsComments.Remove(parent);
+            await db.SaveChangesAsync(cancellationToken);
+        }
+
         events.Publish(comment.ArticleId);
         return Result.Success();
     }
@@ -260,6 +295,7 @@ internal sealed class NewsDiscussionService(
         .Select(static c => new CommentRow(
             c.Id,
             c.ParentId,
+            c.Depth,
             c.AuthorId,
             c.Author!.LastName,
             c.Author.FirstName,
@@ -320,6 +356,7 @@ internal sealed class NewsDiscussionService(
     /// </summary>
     /// <param name="Id">The identifier.</param>
     /// <param name="ParentId">The parent comment.</param>
+    /// <param name="Depth">The nesting level.</param>
     /// <param name="AuthorId">The author.</param>
     /// <param name="LastName">The author's last name.</param>
     /// <param name="FirstName">The author's first name.</param>
@@ -332,6 +369,7 @@ internal sealed class NewsDiscussionService(
     private sealed record CommentRow(
         Guid Id,
         Guid? ParentId,
+        int Depth,
         Guid AuthorId,
         string LastName,
         string FirstName,

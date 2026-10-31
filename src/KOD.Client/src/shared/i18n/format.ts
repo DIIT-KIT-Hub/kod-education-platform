@@ -82,3 +82,23 @@ export function formatFileSize(bytes: number): string {
 
     return `${new Intl.NumberFormat(locale(), { maximumFractionDigits: unit === 0 ? 0 : 1 }).format(value)} ${units[unit]}`;
 }
+
+/**
+ * Formats a recent moment relative to now («щойно», «5 хв тому», «2 год тому»); older ones as a date and time.
+ * @param moment The ISO moment.
+ * @param now The current time.
+ * @returns The text.
+ */
+export function formatAgo(moment: string, now: Date = new Date()): string {
+    const minutes = Math.floor((now.getTime() - new Date(moment).getTime()) / 60_000);
+    if (minutes >= 24 * 60) {
+        return formatDateTime(moment);
+    }
+
+    const relative = new Intl.RelativeTimeFormat(locale(), { numeric: "auto", style: "short" });
+    return minutes < 1
+        ? relative.format(0, "second")
+        : minutes < 60
+          ? relative.format(-minutes, "minute")
+          : relative.format(-Math.floor(minutes / 60), "hour");
+}

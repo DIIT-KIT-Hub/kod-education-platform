@@ -16,15 +16,22 @@ namespace KOD.Web.Api;
 public sealed class NewsDiscussionController(INewsDiscussionService discussion) : ApiControllerBase
 {
     /// <summary>
-    /// Gets the reactions and the newest comments of an article.
+    /// Gets the reactions to an article and one page of its comment threads, each with its whole branch of replies.
     /// </summary>
     /// <param name="articleId">The article.</param>
-    /// <param name="limit">How many top-level comments to return (1–500).</param>
+    /// <param name="page">The 1-based page of threads.</param>
+    /// <param name="pageSize">The number of threads per page (1–50).</param>
+    /// <param name="sort">The order of the threads.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The discussion.</returns>
     [HttpGet("discussion")]
-    public async Task<ActionResult<NewsDiscussion>> Get(Guid articleId, [FromQuery] int limit = INewsDiscussionService.PageSize, CancellationToken cancellationToken = default)
-        => FromResult(await discussion.GetAsync(articleId, limit, cancellationToken));
+    public async Task<ActionResult<NewsDiscussion>> Get(
+        Guid articleId,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = INewsDiscussionService.PageSize,
+        [FromQuery] CommentSort sort = CommentSort.Best,
+        CancellationToken cancellationToken = default)
+        => FromResult(await discussion.GetAsync(articleId, page, pageSize, sort, cancellationToken));
 
     /// <summary>
     /// Sets the current user's reaction to the article; the same reaction again removes it.

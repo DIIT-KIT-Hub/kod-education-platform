@@ -17,9 +17,9 @@ namespace KOD.Web.Api.Contracts;
 /// <param name="OrganizationId">The organization of the article; omitted for news of the whole cabinet.</param>
 /// <param name="AllowComments">Whether readers may comment (default: yes).</param>
 public sealed record NewsRequest(
-    [property: Required][property: MaxLength(NewsArticle.TitleMaxLength)] string Title,
-    [property: Required][property: MaxLength(NewsArticle.SummaryMaxLength)] string Summary,
-    [property: Required][property: MaxLength(NewsArticle.BodyMaxLength)] string Body,
+    [Required][MaxLength(NewsArticle.TitleMaxLength)] string Title,
+    [Required][MaxLength(NewsArticle.SummaryMaxLength)] string Summary,
+    [Required][MaxLength(NewsArticle.BodyMaxLength)] string Body,
     NewsCategory Category,
     bool IsPinned,
     bool Publish,

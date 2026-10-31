@@ -3,10 +3,12 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.RateLimiting;
 using KOD.Application.Abstractions;
+using KOD.Application.Features.News.Discussion;
 using KOD.Domain.Localization;
 using KOD.Infrastructure.Identity.Tokens;
 using KOD.Web.Identity;
 using KOD.Web.Localization;
+using KOD.Web.Realtime;
 using KOD.Web.Security;
 using KOD.Web.Signing;
 using Microsoft.AspNetCore.Authentication;
@@ -43,6 +45,8 @@ internal static class WebServiceCollectionExtensions
             services.AddProblemDetails();
             services.AddExceptionHandler<ApiExceptionHandler>();
             services.AddOpenApi();
+            services.AddSignalR();
+            services.AddSingleton<INewsDiscussionEvents, LiveNewsDiscussionEvents>();
 
             services.AddJwtAuthentication();
             services.AddPermissionAuthorization();
