@@ -1992,6 +1992,88 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/organization-units/list": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Lists the units for management: search, type and organization filters, sorting and paging. */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Gets the unit type filter. */
+                    TypeId?: string;
+                    /** @description Gets the organization filter: the organization and all its units. */
+                    OrganizationId?: string;
+                    Page?: number;
+                    PageSize?: number;
+                    Search?: string;
+                    SortBy?: string;
+                    Descending?: boolean;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description A page of units. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PagedResultOfUnitListItem"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/organization-units/options": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Lists the units whose structure the user manages, in tree order (parents for new units, organization filters). */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description The units. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["UnitOption"][];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/organization-units/{id}": {
         parameters: {
             query?: never;
@@ -2764,6 +2846,92 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/user-imports/roles": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Lists the role codes the import file may use. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description The roles. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["RoleOption"][];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/user-imports/credentials": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Builds the file of the temporary passwords an applied import has just returned (they are not stored, so the
+         *     browser sends them back once to get a spreadsheet).
+         */
+        post: {
+            parameters: {
+                query?: {
+                    /** @description The file format. */
+                    format?: components["schemas"]["SpreadsheetFormat"];
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            /** @description The credentials. */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["CredentialsFileRequest"];
+                    "text/json": components["schemas"]["CredentialsFileRequest"];
+                    "application/*+json": components["schemas"]["CredentialsFileRequest"];
+                };
+            };
+            responses: {
+                /** @description The file. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                        "application/octet-stream": unknown;
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/user-imports": {
         parameters: {
             query?: never;
@@ -2838,6 +3006,84 @@ export interface paths {
                     content: {
                         "application/json": unknown;
                         "application/octet-stream": unknown;
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/users/units": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Lists the units of the user filters (organizations the user sees) or of the position editor (organizations the
+         *     user manages), in tree order.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Whether the units are for assigning positions. */
+                    manage?: boolean;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description The units. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["UnitOption"][];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/users/roles": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Lists the roles for the filters and the position editor. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description The roles. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["RoleOption"][];
                     };
                 };
             };
@@ -3253,6 +3499,11 @@ export interface components {
          * @enum {unknown}
          */
         CommentSort: "Best" | "Newest" | "Oldest";
+        /** @description Body of `POST /api/v1/user-imports/credentials`: the temporary passwords of an applied import. */
+        CredentialsFileRequest: {
+            /** @description The credentials. */
+            credentials: components["schemas"]["UserCredentials"][];
+        };
         /** @description The signed-in user as the access token describes them. */
         CurrentUserResponse: {
             /**
@@ -4034,6 +4285,45 @@ export interface components {
             lastItemIndex?: number;
         };
         /** @description A single page of items with the information needed to render pagination. */
+        PagedResultOfUnitListItem: {
+            /** @description The items of the current page. */
+            items: components["schemas"]["UnitListItem"][];
+            /**
+             * Format: int32
+             * @description The 1-based page number.
+             */
+            page: number;
+            /**
+             * Format: int32
+             * @description The page size.
+             */
+            pageSize: number;
+            /**
+             * Format: int32
+             * @description The total number of items matching the query.
+             */
+            totalCount: number;
+            /**
+             * Format: int32
+             * @description Gets the total number of pages (at least one).
+             */
+            totalPages?: number;
+            /** @description Gets a value indicating whether a previous page exists. */
+            hasPrevious?: boolean;
+            /** @description Gets a value indicating whether a next page exists. */
+            hasNext?: boolean;
+            /**
+             * Format: int32
+             * @description Gets the 1-based index of the first item on the page (0 when empty).
+             */
+            firstItemIndex?: number;
+            /**
+             * Format: int32
+             * @description Gets the 1-based index of the last item on the page.
+             */
+            lastItemIndex?: number;
+        };
+        /** @description A single page of items with the information needed to render pagination. */
         PagedResultOfUnitStaffItem: {
             /** @description The items of the current page. */
             items: components["schemas"]["UnitStaffItem"][];
@@ -4325,6 +4615,18 @@ export interface components {
              */
             userCount: number;
         };
+        /** @description A role option for select inputs. */
+        RoleOption: {
+            /**
+             * Format: uuid
+             * @description The identifier.
+             */
+            id: string;
+            /** @description The code. */
+            code: string;
+            /** @description The name. */
+            name: string;
+        };
         /** @description Creates or updates a role. */
         SaveRoleCommand: {
             /** @description The code (ignored when updating). */
@@ -4516,6 +4818,29 @@ export interface components {
             staffCount: number;
             /** @description Whether the current user may edit the unit and add units under it (it is in their organizations). */
             canManage: boolean;
+        };
+        /** @description A row of the unit management grid. */
+        UnitListItem: {
+            /**
+             * Format: uuid
+             * @description The identifier.
+             */
+            id: string;
+            /** @description The code. */
+            code: string;
+            /** @description The name. */
+            name: string;
+            /** @description The type. */
+            type: components["schemas"]["UnitTypeRef"];
+            /** @description The parent unit name. */
+            parentName: null | string;
+            /** @description Whether the unit is active. */
+            isActive: boolean;
+            /**
+             * Format: int32
+             * @description The number of positions.
+             */
+            staffCount: number;
         };
         /** @description An organization unit option for hierarchical select lists. */
         UnitOption: {
@@ -4849,6 +5174,7 @@ export type ChangePasswordRequest = components['schemas']['ChangePasswordRequest
 export type CodeRequest = components['schemas']['CodeRequest'];
 export type CommentRequest = components['schemas']['CommentRequest'];
 export type CommentSort = components['schemas']['CommentSort'];
+export type CredentialsFileRequest = components['schemas']['CredentialsFileRequest'];
 export type CurrentUserResponse = components['schemas']['CurrentUserResponse'];
 export type DashboardSummary = components['schemas']['DashboardSummary'];
 export type DocumentActions = components['schemas']['DocumentActions'];
@@ -4884,6 +5210,7 @@ export type PagedResultOfAuditEntryDto = components['schemas']['PagedResultOfAud
 export type PagedResultOfDocumentListItem = components['schemas']['PagedResultOfDocumentListItem'];
 export type PagedResultOfNewsListItem = components['schemas']['PagedResultOfNewsListItem'];
 export type PagedResultOfRoleListItem = components['schemas']['PagedResultOfRoleListItem'];
+export type PagedResultOfUnitListItem = components['schemas']['PagedResultOfUnitListItem'];
 export type PagedResultOfUnitStaffItem = components['schemas']['PagedResultOfUnitStaffItem'];
 export type PagedResultOfUserListItem = components['schemas']['PagedResultOfUserListItem'];
 export type PendingSignInResponse = components['schemas']['PendingSignInResponse'];
@@ -4900,6 +5227,7 @@ export type RecoveryCodesResponse = components['schemas']['RecoveryCodesResponse
 export type RejectionRequest = components['schemas']['RejectionRequest'];
 export type RoleDetails = components['schemas']['RoleDetails'];
 export type RoleListItem = components['schemas']['RoleListItem'];
+export type RoleOption = components['schemas']['RoleOption'];
 export type SaveRoleCommand = components['schemas']['SaveRoleCommand'];
 export type SaveUnitCommand = components['schemas']['SaveUnitCommand'];
 export type SaveUnitTypeCommand = components['schemas']['SaveUnitTypeCommand'];
@@ -4913,6 +5241,7 @@ export type SigningSession = components['schemas']['SigningSession'];
 export type SpreadsheetFormat = components['schemas']['SpreadsheetFormat'];
 export type StepUpRequest = components['schemas']['StepUpRequest'];
 export type UnitDetails = components['schemas']['UnitDetails'];
+export type UnitListItem = components['schemas']['UnitListItem'];
 export type UnitOption = components['schemas']['UnitOption'];
 export type UnitRef = components['schemas']['UnitRef'];
 export type UnitStaffItem = components['schemas']['UnitStaffItem'];

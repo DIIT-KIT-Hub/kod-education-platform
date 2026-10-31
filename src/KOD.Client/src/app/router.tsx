@@ -3,6 +3,7 @@ import { authContextQuery, Permissions } from "@/shared/session/session";
 import { Spinner } from "@/shared/ui/Spinner";
 import { basename, requireAnonymous, requirePasswordSet, requirePermission, requireReadyUser, requireUser } from "./guards";
 import { AppShell } from "./layout/AppShell";
+import { adminPermissions } from "./layout/navigation";
 import { NotFoundPage } from "./pages/NotFoundPage";
 import { RouteError } from "./pages/RouteError";
 import { queryClient } from "./queryClient";
@@ -202,6 +203,106 @@ export const router = createBrowserRouter(
                                             lazy: async () => ({
                                                 Component: (await import("@/features/profile/pages/SecurityPage")).SecurityPage,
                                             }),
+                                        },
+                                    ],
+                                },
+                                {
+                                    path: "admin",
+                                    children: [
+                                        {
+                                            index: true,
+                                            loader: requirePermission(...adminPermissions),
+                                            lazy: async () => ({ Component: (await import("@/features/admin/pages/AdminPage")).AdminPage }),
+                                        },
+                                        {
+                                            path: "users",
+                                            loader: requirePermission(Permissions.usersView),
+                                            lazy: async () => ({ Component: (await import("@/features/admin/pages/UsersPage")).UsersPage }),
+                                        },
+                                        {
+                                            path: "users/new",
+                                            loader: requirePermission(Permissions.usersManage),
+                                            lazy: async () => ({
+                                                Component: (await import("@/features/admin/pages/UserEditorPage")).UserEditorPage,
+                                            }),
+                                        },
+                                        {
+                                            path: "users/import",
+                                            loader: requirePermission(Permissions.usersImport, Permissions.usersExport),
+                                            lazy: async () => ({
+                                                Component: (await import("@/features/admin/pages/UsersImportPage")).UsersImportPage,
+                                            }),
+                                        },
+                                        {
+                                            path: "users/:id",
+                                            loader: requirePermission(Permissions.usersView),
+                                            lazy: async () => ({
+                                                Component: (await import("@/features/admin/pages/UserEditorPage")).UserEditorPage,
+                                            }),
+                                        },
+                                        {
+                                            path: "roles",
+                                            loader: requirePermission(Permissions.rolesManage),
+                                            lazy: async () => ({ Component: (await import("@/features/admin/pages/RolesPage")).RolesPage }),
+                                        },
+                                        {
+                                            path: "roles/new",
+                                            loader: requirePermission(Permissions.rolesManage),
+                                            lazy: async () => ({
+                                                Component: (await import("@/features/admin/pages/RoleEditorPage")).RoleEditorPage,
+                                            }),
+                                        },
+                                        {
+                                            path: "roles/:id",
+                                            loader: requirePermission(Permissions.rolesManage),
+                                            lazy: async () => ({
+                                                Component: (await import("@/features/admin/pages/RoleEditorPage")).RoleEditorPage,
+                                            }),
+                                        },
+                                        {
+                                            path: "units",
+                                            loader: requirePermission(Permissions.structureManage),
+                                            lazy: async () => ({ Component: (await import("@/features/admin/pages/UnitsPage")).UnitsPage }),
+                                        },
+                                        {
+                                            path: "units/new",
+                                            loader: requirePermission(Permissions.structureManage),
+                                            lazy: async () => ({
+                                                Component: (await import("@/features/admin/pages/UnitEditorPage")).UnitEditorPage,
+                                            }),
+                                        },
+                                        {
+                                            path: "units/:id",
+                                            loader: requirePermission(Permissions.structureManage),
+                                            lazy: async () => ({
+                                                Component: (await import("@/features/admin/pages/UnitEditorPage")).UnitEditorPage,
+                                            }),
+                                        },
+                                        {
+                                            path: "unit-types",
+                                            loader: requirePermission(Permissions.structureManage),
+                                            lazy: async () => ({
+                                                Component: (await import("@/features/admin/pages/UnitTypesPage")).UnitTypesPage,
+                                            }),
+                                        },
+                                        {
+                                            path: "unit-types/new",
+                                            loader: requirePermission(Permissions.structureManage),
+                                            lazy: async () => ({
+                                                Component: (await import("@/features/admin/pages/UnitTypeEditorPage")).UnitTypeEditorPage,
+                                            }),
+                                        },
+                                        {
+                                            path: "unit-types/:id",
+                                            loader: requirePermission(Permissions.structureManage),
+                                            lazy: async () => ({
+                                                Component: (await import("@/features/admin/pages/UnitTypeEditorPage")).UnitTypeEditorPage,
+                                            }),
+                                        },
+                                        {
+                                            path: "audit",
+                                            loader: requirePermission(Permissions.auditView),
+                                            lazy: async () => ({ Component: (await import("@/features/admin/pages/AuditPage")).AuditPage }),
                                         },
                                     ],
                                 },

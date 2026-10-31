@@ -94,14 +94,14 @@ export async function requireAnonymous(): Promise<null> {
 }
 
 /**
- * A page that needs a permission: without it the route shows "access restricted" (403).
- * @param permission The permission code.
+ * A page that needs one of the permissions: without them the route shows "access restricted" (403).
+ * @param permissions The permission codes (any of them is enough).
  * @returns The loader.
  */
-export function requirePermission(permission: string) {
+export function requirePermission(...permissions: string[]) {
     return async (): Promise<null> => {
         const { user } = await queryClient.ensureQueryData(authContextQuery);
-        if (!user || !hasPermission(user, permission)) {
+        if (!user || !permissions.some((permission) => hasPermission(user, permission))) {
             throw data(null, { status: 403 });
         }
 

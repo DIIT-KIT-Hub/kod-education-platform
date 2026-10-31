@@ -1,6 +1,8 @@
 using KOD.Application.Common.Files;
+using KOD.Application.Features.Roles;
 using KOD.Application.Features.Users;
 using KOD.Domain.Access;
+using KOD.Web.Api.Contracts;
 using KOD.Web.Security;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,10 +12,36 @@ namespace KOD.Web.Api;
 /// User imports from XLSX/CSV files. Each POST creates an import (or validates it when <c>dryRun=true</c>).
 /// </summary>
 /// <param name="users">The user service.</param>
+/// <param name="roles">The role service.</param>
 [Route("api/v1/user-imports")]
 [RequirePermission(Permissions.Users.Import)]
-public sealed class UserImportsController(IUserService users) : ApiControllerBase
+public sealed class UserImportsController(IUserService users, IRoleService roles) : ApiControllerBase
 {
+    /// <summary>
+    /// Lists the role codes the import file may use.
+    /// </summary>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The roles.</returns>
+    [HttpGet("roles")]
+    public async Task<ActionResult<IReadOnlyList<RoleOption>>> Roles(CancellationToken cancellationToken)
+        => Ok(await roles.GetOptionsAsync(cancellationToken));
+
+    /// <summary>
+    /// Builds the file of the temporary passwords an applied import has just returned (they are not stored, so the
+    /// browser sends them back once to get a spreadsheet).
+    /// </summary>
+    /// <param name="request">The credentials.</param>
+    /// <param name="format">The file format.</param>
+    /// <returns>The file.</returns>
+    [HttpPost("credentials")]
+    [Produces("application/octet-stream")]
+    public ActionResult Credentials(CredentialsFileRequest request, [FromQuery] SpreadsheetFormat format = SpreadsheetFormat.Xlsx)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+        var file = users.BuildCredentialsFile(request.Credentials, format);
+        return File(file.Content, file.ContentType, file.FileName);
+    }
+
     /// <summary>
     /// Imports users. Nothing is saved when any row is invalid.
     /// </summary>

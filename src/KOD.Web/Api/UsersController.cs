@@ -1,4 +1,7 @@
+using KOD.Application.Common.Models;
 using KOD.Application.Common.Paging;
+using KOD.Application.Features.Organization;
+using KOD.Application.Features.Roles;
 using KOD.Application.Features.Users;
 using KOD.Domain.Access;
 using KOD.Web.Api.Contracts;
@@ -11,10 +14,32 @@ namespace KOD.Web.Api;
 /// User accounts. Accounts are created by administrators only (no self-registration).
 /// </summary>
 /// <param name="users">The user service.</param>
+/// <param name="organization">The organization service.</param>
+/// <param name="roles">The role service.</param>
 [Route("api/v1/users")]
 [RequirePermission(Permissions.Users.View)]
-public sealed class UsersController(IUserService users) : ApiControllerBase
+public sealed class UsersController(IUserService users, IOrganizationService organization, IRoleService roles) : ApiControllerBase
 {
+    /// <summary>
+    /// Lists the units of the user filters (organizations the user sees) or of the position editor (organizations the
+    /// user manages), in tree order.
+    /// </summary>
+    /// <param name="manage">Whether the units are for assigning positions.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The units.</returns>
+    [HttpGet("units")]
+    public async Task<ActionResult<IReadOnlyList<UnitOption>>> Units([FromQuery] bool manage, CancellationToken cancellationToken)
+        => Ok(await organization.GetOptionsAsync(manage ? Permissions.Users.Manage : Permissions.Users.View, cancellationToken));
+
+    /// <summary>
+    /// Lists the roles for the filters and the position editor.
+    /// </summary>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The roles.</returns>
+    [HttpGet("roles")]
+    public async Task<ActionResult<IReadOnlyList<RoleOption>>> Roles(CancellationToken cancellationToken)
+        => Ok(await roles.GetOptionsAsync(cancellationToken));
+
     /// <summary>
     /// Lists user accounts.
     /// </summary>

@@ -190,25 +190,6 @@ function onPageReady() {
     mountPhotoForms().catch((error) => console.error("Photo cropper failed to load", error));
 }
 
-/**
- * Saves a .NET stream (DotNetStreamReference from an interactive component) as a file.
- * @param {string} fileName The file name.
- * @param {string} contentType The MIME type.
- * @param {{arrayBuffer: () => Promise<ArrayBuffer>}} streamReference The stream reference.
- * @returns {Promise<void>} Resolves when the download started.
- */
-window.kodDownloadStream = async (fileName, contentType, streamReference) => {
-    const buffer = await streamReference.arrayBuffer();
-    const url = URL.createObjectURL(new Blob([buffer], { type: contentType }));
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = fileName;
-    document.body.append(link);
-    link.click();
-    link.remove();
-    window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
-};
-
 wireRailTooltips();
 wireNavigationProgress();
 onPageReady();

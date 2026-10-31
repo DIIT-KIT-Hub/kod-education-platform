@@ -9,7 +9,7 @@ const timeZone = "Europe/Kyiv";
  * The formatting locale of the interface language.
  * @returns The BCP 47 tag.
  */
-function locale(): string {
+export function formattingLocale(): string {
     return i18n.locale === "en" ? "en-GB" : "uk-UA";
 }
 
@@ -24,7 +24,7 @@ export function formatDate(moment: string | null | undefined): string {
     }
 
     // Ukrainian dates end with the year abbreviation ("р."); the cabinet writes them without it.
-    return new Intl.DateTimeFormat(locale(), { timeZone, day: "numeric", month: "long", year: "numeric" })
+    return new Intl.DateTimeFormat(formattingLocale(), { timeZone, day: "numeric", month: "long", year: "numeric" })
         .formatToParts(new Date(moment))
         .filter((part) => part.type !== "literal" || !part.value.includes("р."))
         .map((part) => part.value)
@@ -45,7 +45,7 @@ export function formatDateTime(moment: string | null | undefined): string {
         i18n.locale === "en"
             ? { timeZone, day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit", hourCycle: "h23" }
             : { timeZone, day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit", hourCycle: "h23" };
-    return new Intl.DateTimeFormat(locale(), options).format(new Date(moment));
+    return new Intl.DateTimeFormat(formattingLocale(), options).format(new Date(moment));
 }
 
 /**
@@ -54,7 +54,7 @@ export function formatDateTime(moment: string | null | undefined): string {
  * @returns The text.
  */
 export function formatNumber(value: number): string {
-    return new Intl.NumberFormat(locale()).format(value);
+    return new Intl.NumberFormat(formattingLocale()).format(value);
 }
 
 /**
@@ -80,7 +80,7 @@ export function formatFileSize(bytes: number): string {
         unit++;
     }
 
-    return `${new Intl.NumberFormat(locale(), { maximumFractionDigits: unit === 0 ? 0 : 1 }).format(value)} ${units[unit]}`;
+    return `${new Intl.NumberFormat(formattingLocale(), { maximumFractionDigits: unit === 0 ? 0 : 1 }).format(value)} ${units[unit]}`;
 }
 
 /**
@@ -95,7 +95,7 @@ export function formatAgo(moment: string, now: Date = new Date()): string {
         return formatDateTime(moment);
     }
 
-    const relative = new Intl.RelativeTimeFormat(locale(), { numeric: "auto", style: "short" });
+    const relative = new Intl.RelativeTimeFormat(formattingLocale(), { numeric: "auto", style: "short" });
     return minutes < 1
         ? relative.format(0, "second")
         : minutes < 60

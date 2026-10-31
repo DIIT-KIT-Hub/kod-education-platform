@@ -22,6 +22,19 @@ export interface NavigationItem {
 }
 
 /**
+ * The permissions that open the administration (any of them).
+ */
+export const adminPermissions: readonly string[] = [
+    Permissions.usersView,
+    Permissions.usersImport,
+    Permissions.usersExport,
+    Permissions.rolesManage,
+    Permissions.structureManage,
+    Permissions.newsManage,
+    Permissions.auditView,
+];
+
+/**
  * The main menu in its order.
  */
 const items: readonly NavigationItem[] = [
@@ -30,19 +43,7 @@ const items: readonly NavigationItem[] = [
     { to: "/signing", text: msg`Підписання`, icon: Signature, permissions: [Permissions.signingUse], tabBar: true },
     { to: "/news", text: msg`Новини`, icon: Newspaper, permissions: [Permissions.newsView], tabBar: true },
     { to: "/structure", text: msg`Структура`, icon: Network, permissions: [Permissions.structureView], tabBar: false },
-    {
-        href: "/admin",
-        text: msg`Адміністрування`,
-        icon: Shield,
-        permissions: [
-            Permissions.usersView,
-            Permissions.rolesManage,
-            Permissions.structureManage,
-            Permissions.newsManage,
-            Permissions.auditView,
-        ],
-        tabBar: false,
-    },
+    { to: "/admin", text: msg`Адміністрування`, icon: Shield, permissions: adminPermissions, tabBar: false },
     { to: "/profile", text: msg`Профіль`, icon: User, permissions: [], tabBar: true },
     { href: "/help", text: msg`Довідка`, icon: BookOpen, permissions: [], tabBar: false },
 ];

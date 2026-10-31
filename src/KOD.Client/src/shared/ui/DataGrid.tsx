@@ -57,6 +57,8 @@ export interface DataGridProps<T> {
     readonly emptyTitle: string;
     /** The text of the empty state. */
     readonly emptyText?: string;
+    /** Shows the pagination (off for short lists loaded at once). */
+    readonly paged?: boolean;
 }
 
 /**
@@ -65,7 +67,7 @@ export interface DataGridProps<T> {
  * @param props The props.
  * @returns The grid.
  */
-export function DataGrid<T>({ columns, result, rowKey, caption, emptyIcon, emptyTitle, emptyText }: DataGridProps<T>) {
+export function DataGrid<T>({ columns, result, rowKey, caption, emptyIcon, emptyTitle, emptyText, paged = true }: DataGridProps<T>) {
     const { t } = useLingui();
     const [params] = useSearchParams();
     const sortBy = params.get("sortBy");
@@ -149,7 +151,7 @@ export function DataGrid<T>({ columns, result, rowKey, caption, emptyIcon, empty
                     </tbody>
                 </table>
             </div>
-            <Pagination page={result.page} pageSize={result.pageSize} totalCount={result.totalCount} />
+            {paged && <Pagination page={result.page} pageSize={result.pageSize} totalCount={result.totalCount} />}
         </>
     );
 }

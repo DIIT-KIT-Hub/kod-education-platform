@@ -107,8 +107,7 @@ Dependencies point inward: Web → Infrastructure → Application → Domain. Ce
 ### Rendering model
 
 - Pages are **static SSR + enhanced navigation**; list pages use `[StreamRendering]` with a skeleton first.
-- Complex forms are `@rendermode InteractiveServer` (document editor, user/role/unit/unit-type/news editors, import).
-  Interactive circuits keep the culture of the request that started them.
+- The remaining Blazor pages (home, sign-in, manual, errors) are static; every interactive form has moved to React.
 - Global behaviors are plain JS with event delegation on `document` (they survive enhanced navigation):
   `wwwroot/js/kod-ds.js` (dialogs, confirm, toasts, autosubmit, theme, sidebar, button ink, password toggle, OTP cells),
   `kod-pickers.js` (custom select drop-down and date picker calendar), `app.js` (ES module: page entrance, navigation
@@ -148,7 +147,7 @@ Dependencies point inward: Web → Infrastructure → Application → Domain. Ce
 
 The frontend moves from Blazor to a React SPA; at the end the MVC/Blazor part disappears and KOD.Web is a Web API plus
 the static SPA. Phases: 1 sign-in + shell + home (done), 2 documents and signing (done), 3 news (done),
-4 structure and profile (done), 5 administration, 6 manual, 7 remove Blazor and move the SPA from `/app` to `/`. Until a
+4 structure and profile (done), 5 administration (done), 6 manual, 7 remove Blazor and move the SPA from `/app` to `/`. Until a
 module is moved, the menu links to its Blazor page with a plain `href` (full page load); moved pages use `to`. A moved
 section loses its Blazor pages and its old addresses redirect to `/app/...` (`MovedSections` in `SpaHostingExtensions`),
 so links in the remaining Blazor pages and the manual keep working.
@@ -184,6 +183,12 @@ so links in the remaining Blazor pages and the manual keep working.
   translated; `<Field>` gives the control its id / `aria-describedby` / `aria-invalid` through a render prop.
 - **Pages** set the document title with `<DocumentTitle>` or `<PageHeader>` (React hoists `<title>`).
 - Global UI services are module stores read with `useSyncExternalStore`: `toast(text)`, `await confirm({...})`.
+- List pages keep search, filters, sorting and paging in the address (`DataGrid` sorts by `sortBy`/`descending`,
+  `Pagination` by `page`/`pageSize`; `useListParams` in `features/admin`). `DatePicker` (`shared/ui`) takes and
+  returns `yyyy-MM-dd`, accepts typed dates in the day-month-year order and opens a calendar popover.
+- `requirePermission(a, b, …)` lets a route through with any of the permissions (`adminPermissions` for `/admin`).
+- Temporary passwords (new account, reset, import) are shown once and never put into the history state; the file of
+  an import's passwords is built by `POST /api/v1/user-imports/credentials` from the report the browser holds.
 - Unit type icons are stored as Lucide names (`UnitType.Icons` on the server); the client maps them to components in
   `shared/lib/unitTypeIcons.ts` — add a new icon in both places. Module names: `moduleNames` in `shared/i18n/display.ts`.
 - After a language change, queries other than the auth context are invalidated: some data comes translated by the
@@ -302,9 +307,6 @@ Use `[LoggerMessage]` partial methods for new log statements.
   header depends on loaded data are not streamed; streamed pages render `PageHeader` in the first chunk.
 - **`enhancedload` also fires for every streaming update** (skeleton → data), even on a full page load. One-time
   effects of a navigation (the page entrance in `app.js`) run only after `enhancednavigationstart`.
-- **Interactive pages are prerendered, then rendered again by the circuit.** Data loaded in `OnInitialized/OnParametersSet`
-  goes into public `[PersistentState]` properties and is loaded only when missing, or the form blinks back to the
-  skeleton (and a "New …" heading) when the circuit starts. Keep this for new interactive editors.
 - **Font preloads use the plain `fonts/…` paths** that `kod-ds.css` references, not `@Assets[…]` (a fingerprinted URL
   is a different resource: the font downloads twice and the first paint uses the fallback font).
 - **`replaceChildren(…, null)`** prints "null"; filter optional children first.

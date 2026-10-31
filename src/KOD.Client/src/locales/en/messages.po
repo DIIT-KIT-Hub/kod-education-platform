@@ -7,6 +7,14 @@ msgstr ""
 "X-Generator: @lingui/cli\n"
 "Language: en\n"
 
+#: src/features/admin/pages/UnitEditorPage.tsx
+msgid "— немає (організація верхнього рівня) —"
+msgstr "— none (top-level organization) —"
+
+#: src/features/admin/pages/UnitEditorPage.tsx
+msgid "— оберіть тип —"
+msgstr "— select a type —"
+
 #: src/features/signing/components/SigningInfo.tsx
 msgid "«Дія», ДПС, ПриватБанк, monobank, Вчасно, DepositSign та інші з переліку ЦЗО"
 msgstr "Diia, State Tax Service, PrivatBank, monobank, Vchasno, DepositSign and others from the Central Certification Authority list"
@@ -55,6 +63,23 @@ msgstr "*.xml · one or more files"
 msgid "1–2 речення для картки новини."
 msgstr "1–2 sentences for the news card."
 
+#: src/features/admin/pages/UsersImportPage.tsx
+msgid "1. Оберіть файл"
+msgstr "1. Choose a file"
+
+#: src/features/admin/pages/UsersImportPage.tsx
+msgid "2. Імпорт виконано"
+msgstr "2. Import completed"
+
+#: src/features/admin/pages/UsersImportPage.tsx
+msgid "2. Результат перевірки"
+msgstr "2. Validation result"
+
+#: src/features/admin/pages/UserEditorPage.tsx
+msgid "2FA не налаштовано"
+msgstr "2FA not set up"
+
+#: src/features/admin/pages/UserEditorPage.tsx
 #: src/features/profile/pages/ProfilePage.tsx
 msgid "2FA увімкнено"
 msgstr "2FA enabled"
@@ -125,6 +150,18 @@ msgstr "The file's SHA-256 matches the one registered in the system."
 msgid "Автентифікатор підключено"
 msgstr "Authenticator connected"
 
+#: src/features/admin/pages/UserEditorPage.tsx
+msgid "Автентифікатор скинуто."
+msgstr "Authenticator reset."
+
+#: src/features/admin/pages/UsersPage.tsx
+msgid "Автентифікатор ще не прив'язано"
+msgstr "No authenticator linked yet"
+
+#: src/shared/i18n/display.ts
+msgid "Автентифікація"
+msgstr "Authentication"
+
 #: src/features/documents/pages/DocumentPage.tsx
 #: src/features/documents/pages/DocumentsPage.tsx
 #: src/features/news/pages/NewsManagePage.tsx
@@ -140,6 +177,17 @@ msgid "Автор публікації"
 msgstr "Author of the post"
 
 #: src/app/layout/navigation.ts
+#: src/features/admin/pages/AdminPage.tsx
+#: src/features/admin/pages/AuditPage.tsx
+#: src/features/admin/pages/RoleEditorPage.tsx
+#: src/features/admin/pages/RolesPage.tsx
+#: src/features/admin/pages/UnitEditorPage.tsx
+#: src/features/admin/pages/UnitsPage.tsx
+#: src/features/admin/pages/UnitTypeEditorPage.tsx
+#: src/features/admin/pages/UnitTypesPage.tsx
+#: src/features/admin/pages/UserEditorPage.tsx
+#: src/features/admin/pages/UsersImportPage.tsx
+#: src/features/admin/pages/UsersPage.tsx
 #: src/shared/i18n/display.ts
 msgid "Адміністрування"
 msgstr "Administration"
@@ -152,6 +200,17 @@ msgstr "Link address"
 msgctxt "document-kind"
 msgid "Акт"
 msgstr "Act"
+
+#: src/features/admin/pages/UnitEditorPage.tsx
+#: src/features/admin/pages/UnitsPage.tsx
+#: src/features/admin/pages/UserEditorPage.tsx
+#: src/features/admin/pages/UsersPage.tsx
+msgid "Активний"
+msgstr "Active"
+
+#: src/shared/i18n/display.ts
+msgid "Активні"
+msgstr "Active"
 
 #: src/features/news/pages/NewsEditorPage.tsx
 msgid "Анонс"
@@ -169,15 +228,52 @@ msgstr "Hardware tokens and cloud keys"
 msgid "Аудит"
 msgstr "Audit"
 
+#: src/features/admin/pages/UnitEditorPage.tsx
+msgid "Батьківський підрозділ"
+msgstr "Parent unit"
+
+#: src/features/admin/pages/UsersPage.tsx
+msgid "Без 2FA"
+msgstr "No 2FA"
+
+#: src/features/admin/pages/UnitEditorPage.tsx
+msgid "Без батьківського підрозділу — окрема організація верхнього рівня."
+msgstr "Without a parent unit, it becomes a separate top-level organization."
+
+#: src/features/admin/pages/UserEditorPage.tsx
+msgid "Без посади користувач не матиме доступу до модулів."
+msgstr "Without a position, the user won't have access to any modules."
+
+#: src/features/admin/pages/UserEditorPage.tsx
+msgid "Без фото"
+msgstr "No photo"
+
 #: src/features/profile/components/ProfileTabs.tsx
 #: src/features/profile/pages/SecurityPage.tsx
 #: src/features/signing/components/SigningInfo.tsx
 msgid "Безпека"
 msgstr "Security"
 
+#: src/features/admin/pages/UserEditorPage.tsx
+msgid "Безпека облікового запису"
+msgstr "Account security"
+
 #: src/shared/signing/client.ts
 msgid "Бібліотеку підпису не запущено."
 msgstr "The signing library isn't running."
+
+#: src/shared/i18n/display.ts
+msgctxt "audit"
+msgid "Блокування після спроб входу"
+msgstr "Locked out after failed sign-ins"
+
+#: src/features/admin/pages/UsersImportPage.tsx
+msgid "Буде оновлено"
+msgstr "To be updated"
+
+#: src/features/admin/pages/UsersImportPage.tsx
+msgid "Буде створено"
+msgstr "To be created"
 
 #: src/features/documents/pages/DocumentPage.tsx
 msgid "В архів"
@@ -219,6 +315,10 @@ msgstr "Version after this signature"
 msgid "Ви увійшли з тимчасовим паролем. Задайте власний пароль, щоб продовжити роботу."
 msgstr "You signed in with a temporary password. Set your own password to continue."
 
+#: src/features/admin/pages/UsersImportPage.tsx
+msgid "Вивантажує всіх користувачів у форматі, сумісному з імпортом (без паролів)."
+msgstr "Exports all users in an import-compatible format (without passwords)."
+
 #: src/features/documents/pages/DocumentPage.tsx
 msgid "Вид"
 msgstr "Type"
@@ -228,6 +328,28 @@ msgstr "Type"
 msgid "Вид документа"
 msgstr "Document type"
 
+#: src/shared/i18n/display.ts
+msgctxt "audit"
+msgid "Видалення коментаря"
+msgstr "Comment deleted"
+
+#: src/shared/i18n/display.ts
+msgctxt "audit"
+msgid "Видалення новини"
+msgstr "News article deleted"
+
+#: src/shared/i18n/display.ts
+msgctxt "audit"
+msgid "Видалення ролі"
+msgstr "Role deleted"
+
+#: src/shared/i18n/display.ts
+msgctxt "audit"
+msgid "Видалення типу підрозділу"
+msgstr "Unit type deleted"
+
+#: src/features/admin/pages/RoleEditorPage.tsx
+#: src/features/admin/pages/UnitTypeEditorPage.tsx
 #: src/features/documents/pages/DocumentPage.tsx
 #: src/features/news/components/Discussion.tsx
 #: src/features/news/pages/NewsEditorPage.tsx
@@ -246,9 +368,33 @@ msgstr "Delete the comment?"
 msgid "Видалити публікацію остаточно?"
 msgstr "Delete this post permanently?"
 
+#: src/features/admin/pages/RoleEditorPage.tsx
+msgid "Видалити роль"
+msgstr "Delete role"
+
+#: src/features/admin/pages/RoleEditorPage.tsx
+msgid "Видалити роль?"
+msgstr "Delete this role?"
+
 #: src/features/news/components/RichTextEditor.tsx
 msgid "Видалити таблицю"
 msgstr "Delete table"
+
+#: src/features/admin/pages/UnitTypeEditorPage.tsx
+msgid "Видалити тип"
+msgstr "Delete type"
+
+#: src/features/admin/pages/UnitTypeEditorPage.tsx
+msgid "Видалити тип підрозділу?"
+msgstr "Delete this unit type?"
+
+#: src/features/admin/pages/UserEditorPage.tsx
+msgid "Видати новий тимчасовий пароль? Поточний пароль перестане діяти, а сесії буде завершено."
+msgstr "Issue a new temporary password? The current password will stop working and all sessions will be signed out."
+
+#: src/features/admin/pages/UserEditorPage.tsx
+msgid "Видати тимчасовий пароль"
+msgstr "Issue temporary password"
 
 #: src/shared/signing/KeyPanel.tsx
 msgid "Визначити автоматично"
@@ -283,6 +429,15 @@ msgstr "The official IIT “CA User” library (EUSignCP-JS) is used."
 msgid "Виправте його та надішліть на підпис повторно. Підписи, накладені на поточний файл, збережуться — ці підписанти не підписуватимуть знову, якщо ви не заміните файл і не приберете їх із маршруту."
 msgstr "Fix it and send it for signing again. Signatures on the current file are kept — those signers won't sign again unless you replace the file or remove them from the route."
 
+#: src/features/admin/pages/UsersImportPage.tsx
+msgid "Виправте файл і перевірте його ще раз — імпорт можливий лише без помилок."
+msgstr "Fix the file and validate it again — import is possible only when there are no errors."
+
+#: src/shared/i18n/display.ts
+msgctxt "audit"
+msgid "Вихід із системи"
+msgstr "Signed out"
+
 #: src/features/documents/pages/DocumentEditorPage.tsx
 msgid "Вище"
 msgstr "Move up"
@@ -303,6 +458,7 @@ msgstr "Withdraw the document to drafts?"
 msgid "Відкрийте застосунок-автентифікатор і введіть 6-значний код для облікового запису КОД."
 msgstr "Open your authenticator app and enter the 6-digit code for your KOD account."
 
+#: src/features/admin/pages/UsersPage.tsx
 #: src/features/documents/pages/DocumentsPage.tsx
 msgid "Відкрити"
 msgstr "Open"
@@ -310,6 +466,11 @@ msgstr "Open"
 #: src/features/documents/pages/DocumentPage.tsx
 msgid "Відмова в підписанні"
 msgstr "Decline to sign"
+
+#: src/shared/i18n/display.ts
+msgctxt "audit"
+msgid "Відмова в підписанні"
+msgstr "Signing declined"
 
 #: src/shared/i18n/display.ts
 msgid "Відмовив(-ла)"
@@ -355,6 +516,7 @@ msgstr "Congratulations"
 msgid "Вкажіть анонс."
 msgstr "Enter a summary."
 
+#: src/features/admin/pages/UserEditorPage.tsx
 #: src/features/auth/pages/LoginPage.tsx
 msgid "Вкажіть електронну пошту."
 msgstr "Enter your email."
@@ -363,9 +525,31 @@ msgstr "Enter your email."
 msgid "Вкажіть заголовок."
 msgstr "Enter a title."
 
+#: src/features/admin/pages/UserEditorPage.tsx
+msgid "Вкажіть ім'я."
+msgstr "Enter the first name."
+
+#: src/features/admin/pages/RoleEditorPage.tsx
+msgid "Вкажіть код ролі."
+msgstr "Enter the role code."
+
+#: src/features/admin/pages/UnitEditorPage.tsx
+#: src/features/admin/pages/UnitTypeEditorPage.tsx
+msgid "Вкажіть код."
+msgstr "Enter the code."
+
 #: src/features/documents/pages/DocumentEditorPage.tsx
 msgid "Вкажіть назву документа."
 msgstr "Enter the document title."
+
+#: src/features/admin/pages/RoleEditorPage.tsx
+msgid "Вкажіть назву ролі."
+msgstr "Enter the role name."
+
+#: src/features/admin/pages/UnitEditorPage.tsx
+#: src/features/admin/pages/UnitTypeEditorPage.tsx
+msgid "Вкажіть назву."
+msgstr "Enter the name."
 
 #: src/features/auth/pages/ChangePasswordPage.tsx
 #: src/features/auth/pages/SetupAuthenticatorPage.tsx
@@ -384,9 +568,22 @@ msgstr "Enter your current password."
 msgid "Вкажіть причину відмови."
 msgstr "Enter the reason for declining."
 
+#: src/features/admin/pages/UserEditorPage.tsx
+msgid "Вкажіть прізвище."
+msgstr "Enter the last name."
+
+#: src/features/admin/pages/UnitEditorPage.tsx
+#: src/features/admin/pages/UnitTypeEditorPage.tsx
+msgid "Вкажіть число."
+msgstr "Enter a number."
+
 #: src/features/structure/pages/UnitPage.tsx
 msgid "Вкладені підрозділи"
 msgstr "Nested units"
+
+#: src/features/admin/pages/RolesPage.tsx
+msgid "Власна"
+msgstr "Custom"
 
 #: src/shared/i18n/display.ts
 msgid "Вражає"
@@ -420,9 +617,22 @@ msgstr "Sign in with a recovery code"
 msgid "Вхід тимчасово заблоковано"
 msgstr "Sign-in temporarily locked"
 
+#: src/shared/i18n/display.ts
+msgctxt "audit"
+msgid "Вхід у систему"
+msgstr "Signed in"
+
+#: src/features/admin/pages/AuditPage.tsx
+msgid "Входи в систему, зміни прав і облікових записів, дії з документами."
+msgstr "Sign-ins, permission and account changes, document actions."
+
 #: src/features/profile/pages/SecurityPage.tsx
 msgid "Входи на інших пристроях завершено"
 msgstr "Sign-ins on other devices have ended"
+
+#: src/features/admin/pages/AdminPage.tsx
+msgid "Входи, зміни прав, підписання документів."
+msgstr "Sign-ins, permission changes, document signing."
 
 #: src/features/news/components/RichTextEditor.tsx
 msgid "Галерея фото"
@@ -449,6 +659,18 @@ msgstr "data inside the signature"
 msgid "Двофакторна автентифікація"
 msgstr "Two-factor authentication"
 
+#: src/features/admin/pages/UnitsPage.tsx
+msgid "Дерево"
+msgstr "Tree"
+
+#: src/features/admin/pages/UserEditorPage.tsx
+msgid "діє зараз"
+msgstr "currently in effect"
+
+#: src/features/admin/pages/RolesPage.tsx
+#: src/features/admin/pages/UnitsPage.tsx
+#: src/features/admin/pages/UnitTypesPage.tsx
+#: src/features/admin/pages/UsersPage.tsx
 #: src/features/documents/pages/DocumentsPage.tsx
 #: src/features/news/pages/NewsManagePage.tsx
 msgid "Дії"
@@ -466,9 +688,17 @@ msgstr "For signing in without your phone. Each code works once."
 msgid "Для кожного облікового запису обов'язкова двофакторна автентифікація. Прив'яжіть застосунок-автентифікатор — це займе хвилину."
 msgstr "Two-factor authentication is required for every account. Link an authenticator app — it takes a minute."
 
+#: src/features/admin/pages/UserEditorPage.tsx
+msgid "Для кожної посади оберіть підрозділ і роль."
+msgstr "Select a unit and a role for each position."
+
 #: src/shared/signing/SigningWizard.tsx
 msgid "До 25 МБ кожен. Для XAdES та ASiC-E можна обрати кілька файлів; для PAdES — PDF."
 msgstr "Up to 25 MB each. XAdES and ASiC-E accept multiple files; PAdES requires a PDF."
+
+#: src/features/admin/pages/UsersImportPage.tsx
+msgid "До 5 МБ, до 10 000 рядків. Наявні облікові записи оновлюються за e-mail. Посади — лише в підрозділах організацій, якими ви керуєте."
+msgstr "Up to 5 MB and 10,000 rows. Existing accounts are matched and updated by email. Positions only in units of organizations you manage."
 
 #: src/features/news/components/Discussion.tsx
 msgid "До всіх коментарів"
@@ -525,6 +755,10 @@ msgctxt "document-kind"
 msgid "Договір"
 msgstr "Contract"
 
+#: src/features/admin/pages/UnitEditorPage.tsx
+msgid "Додайте його"
+msgstr "Add it"
+
 #: src/features/documents/pages/DocumentEditorPage.tsx
 msgid "Додайте підписантів у потрібному порядку."
 msgstr "Add signers in the required order."
@@ -533,13 +767,26 @@ msgstr "Add signers in the required order."
 msgid "Додайте фото профілю"
 msgstr "Add a profile photo"
 
+#: src/features/admin/pages/UsersPage.tsx
+msgid "Додати"
+msgstr "Add"
+
 #: src/features/structure/pages/UnitPage.tsx
 msgid "Додати підрозділ"
 msgstr "Add unit"
 
+#: src/features/admin/pages/UserEditorPage.tsx
+msgid "Додати посаду"
+msgstr "Add position"
+
 #: src/shared/signing/KeyPanel.tsx
 msgid "Додати сертифікати вручну (якщо надавач не підтримує автоматичне завантаження)"
 msgstr "Add certificates manually (if the provider doesn't support automatic download)"
+
+#: src/features/admin/pages/RoleEditorPage.tsx
+#: src/features/admin/pages/RolesPage.tsx
+msgid "Дозволи"
+msgstr "Permissions"
 
 #: src/features/news/pages/NewsEditorPage.tsx
 msgid "Дозволити коментарі"
@@ -555,9 +802,24 @@ msgstr "Document"
 msgid "Документ без підписантів можна зберегти лише як чернетку."
 msgstr "A document without signers can only be saved as a draft."
 
+#: src/shared/i18n/display.ts
+msgctxt "audit"
+msgid "Документ в архіві"
+msgstr "Document archived"
+
 #: src/features/documents/pages/DocumentPage.tsx
 msgid "Документ видалено"
 msgstr "Document deleted"
+
+#: src/shared/i18n/display.ts
+msgctxt "audit"
+msgid "Документ видалено"
+msgstr "Document deleted"
+
+#: src/shared/i18n/display.ts
+msgctxt "audit"
+msgid "Документ відкликано"
+msgstr "Document withdrawn"
 
 #: src/features/documents/pages/DocumentEditorPage.tsx
 #: src/features/documents/pages/DocumentPage.tsx
@@ -567,6 +829,16 @@ msgstr "Document rejected"
 #: src/features/documents/pages/DocumentPage.tsx
 msgid "Документ з усіма підписами"
 msgstr "Document with all signatures"
+
+#: src/shared/i18n/display.ts
+msgctxt "audit"
+msgid "Документ змінено"
+msgstr "Document updated"
+
+#: src/shared/i18n/display.ts
+msgctxt "audit"
+msgid "Документ на підписання"
+msgstr "Document sent for signing"
 
 #: src/features/documents/pages/DocumentPage.tsx
 msgid "Документ надіслано на підписання"
@@ -598,6 +870,11 @@ msgstr "Document moved to the archive"
 msgid "Документ підписано"
 msgstr "Document signed"
 
+#: src/shared/i18n/display.ts
+msgctxt "audit"
+msgid "Документ підписано"
+msgstr "Document signed"
+
 #: src/features/documents/pages/DocumentPage.tsx
 msgid "Документ повернуто в чернетки"
 msgstr "Document returned to drafts"
@@ -615,6 +892,7 @@ msgstr "The document already has {0} signature(s). Your signature will be added 
 #: src/features/documents/pages/DocumentEditorPage.tsx
 #: src/features/documents/pages/DocumentPage.tsx
 #: src/features/documents/pages/DocumentsPage.tsx
+#: src/shared/i18n/display.ts
 msgid "Документи"
 msgstr "Documents"
 
@@ -650,10 +928,23 @@ msgstr "Available modules"
 msgid "Дочекайтеся, поки завантажаться фото."
 msgstr "Wait until the photos are uploaded."
 
+#: src/features/admin/pages/UsersImportPage.tsx
+msgid "Експорт"
+msgstr "Export"
+
+#: src/shared/i18n/display.ts
+msgctxt "audit"
+msgid "Експорт користувачів"
+msgstr "Users exported"
+
 #: src/features/auth/pages/LoginPage.tsx
 #: src/features/profile/pages/ProfilePage.tsx
 msgid "Електронна пошта"
 msgstr "Email"
+
+#: src/features/admin/pages/UserEditorPage.tsx
+msgid "Електронна пошта (логін)"
+msgstr "Email (login)"
 
 #: src/features/auth/components/AuthLayout.tsx
 msgid "Електронний документообіг для будь-якої організації: структура, маршрути погодження та кваліфікований електронний підпис."
@@ -671,13 +962,47 @@ msgstr "EDRPOU code"
 msgid "Жирний (Ctrl+B)"
 msgstr "Bold (Ctrl+B)"
 
+#: src/features/admin/pages/AdminPage.tsx
+#: src/features/admin/pages/AuditPage.tsx
+msgid "Журнал аудиту"
+msgstr "Audit log"
+
 #: src/shared/i18n/display.ts
 msgid "з даними (внутрішній)"
 msgstr "with the data (enveloped)"
 
+#: src/features/admin/pages/AuditPage.tsx
+msgid "З дати"
+msgstr "From date"
+
+#: src/features/admin/pages/UserEditorPage.tsx
+msgid "За ролями"
+msgstr "By roles"
+
 #: src/features/auth/pages/LockoutPage.tsx
 msgid "Забагато спроб"
 msgstr "Too many attempts"
+
+#: src/shared/i18n/display.ts
+msgid "Заблоковані"
+msgstr "Blocked"
+
+#: src/features/admin/pages/UserEditorPage.tsx
+#: src/features/admin/pages/UsersPage.tsx
+msgid "Заблоковано"
+msgstr "Blocked"
+
+#: src/features/admin/pages/UserEditorPage.tsx
+msgid "Заблокувати"
+msgstr "Block"
+
+#: src/features/admin/pages/UserEditorPage.tsx
+msgid "Заблокувати обліковий запис? Усі сесії буде завершено."
+msgstr "Block this account? All sessions will be signed out."
+
+#: src/features/admin/pages/UserEditorPage.tsx
+msgid "Заборонити"
+msgstr "Deny"
 
 #: src/shared/ui/Progress.tsx
 #: src/shared/ui/Spinner.tsx
@@ -704,9 +1029,22 @@ msgstr "Download {fileName}"
 msgid "Завантажте файл, вкажіть реквізити та сформуйте маршрут підписання."
 msgstr "Upload a file, fill in the details and build the signing route."
 
+#: src/shared/i18n/display.ts
+msgctxt "audit"
+msgid "Завершення сесій"
+msgstr "Sessions ended"
+
 #: src/features/documents/pages/DocumentPage.tsx
 msgid "Завершено"
 msgstr "Completed"
+
+#: src/features/admin/pages/UserEditorPage.tsx
+msgid "Завершити всі сесії"
+msgstr "Sign out all sessions"
+
+#: src/features/admin/pages/UserEditorPage.tsx
+msgid "Завершити всі сесії користувача?"
+msgstr "Sign out all of this user's sessions?"
 
 #: src/features/news/pages/NewsEditorPage.tsx
 msgid "Заголовки, списки, цитати, таблиці, посилання, фото в тексті та галереї. Фото можна вставити з буфера обміну або перетягнути; вони стискаються до 10–100 КБ."
@@ -781,12 +1119,16 @@ msgctxt "document-kind"
 msgid "Заява"
 msgstr "Application"
 
+#: src/features/admin/pages/RoleEditorPage.tsx
+#: src/features/admin/pages/UnitEditorPage.tsx
+#: src/features/admin/pages/UnitTypeEditorPage.tsx
 #: src/features/news/components/Discussion.tsx
 #: src/features/news/pages/NewsEditorPage.tsx
 #: src/features/profile/pages/ProfilePage.tsx
 msgid "Зберегти"
 msgstr "Save"
 
+#: src/features/admin/pages/UserEditorPage.tsx
 #: src/features/documents/pages/DocumentEditorPage.tsx
 msgid "Зберегти зміни"
 msgstr "Save changes"
@@ -837,13 +1179,48 @@ msgstr "Collapse the thread"
 msgid "Згорнути меню"
 msgstr "Collapse menu"
 
+#: src/shared/i18n/display.ts
+msgctxt "audit"
+msgid "Зміна новини"
+msgstr "News article changed"
+
 #: src/features/auth/pages/ChangePasswordPage.tsx
 msgid "Зміна пароля"
 msgstr "Change password"
 
+#: src/shared/i18n/display.ts
+msgctxt "audit"
+msgid "Зміна пароля"
+msgstr "Password changed"
+
+#: src/shared/i18n/display.ts
+msgctxt "audit"
+msgid "Зміна ролі"
+msgstr "Role changed"
+
+#: src/shared/i18n/display.ts
+msgctxt "audit"
+msgid "Зміна статусу користувача"
+msgstr "User status changed"
+
+#: src/shared/i18n/display.ts
+msgctxt "audit"
+msgid "Зміна структури"
+msgstr "Structure changed"
+
+#: src/shared/i18n/display.ts
+msgctxt "audit"
+msgid "Зміна типу підрозділу"
+msgstr "Unit type changed"
+
 #: src/features/news/pages/NewsManagePage.tsx
 msgid "Змінено"
 msgstr "Modified"
+
+#: src/shared/i18n/display.ts
+msgctxt "audit"
+msgid "Змінено користувача"
+msgstr "User updated"
 
 #: src/features/documents/pages/DocumentEditorPage.tsx
 msgid "Зміни збережено"
@@ -852,6 +1229,10 @@ msgstr "Changes saved"
 #: src/features/documents/pages/DocumentEditorPage.tsx
 msgid "Зміни збережено, документ надіслано на підписання"
 msgstr "Changes saved, document sent for signing"
+
+#: src/features/admin/pages/UserEditorPage.tsx
+msgid "Зміни збережено."
+msgstr "Changes saved."
 
 #: src/features/profile/pages/SecurityPage.tsx
 msgid "Змінили телефон? Попросіть адміністратора скинути автентифікатор — під час наступного входу ви прив'яжете новий."
@@ -877,6 +1258,11 @@ msgstr "Change photo"
 msgid "Змініть файл, реквізити або маршрут і збережіть документ або надішліть його на підпис."
 msgstr "Change the file, details or route, then save the document or send it for signing."
 
+#. placeholder {0}: report.errors.length
+#: src/features/admin/pages/UsersImportPage.tsx
+msgid "Знайдено помилок: {0}"
+msgstr "Errors found: {0}"
+
 #: src/features/documents/pages/DocumentEditorPage.tsx
 msgid "Знайти працівника"
 msgstr "Find an employee"
@@ -888,6 +1274,40 @@ msgstr "The image cannot be larger than 15 MB."
 #: src/shared/signing/KeyPanel.tsx
 msgid "Зчитати ключ"
 msgstr "Read key"
+
+#: src/features/admin/pages/UnitTypeEditorPage.tsx
+msgid "Іконка"
+msgstr "Icon"
+
+#: src/features/admin/pages/UserEditorPage.tsx
+msgid "Ім'я"
+msgstr "First name"
+
+#: src/features/admin/pages/UsersPage.tsx
+msgid "Імпорт"
+msgstr "Import"
+
+#: src/features/admin/pages/AdminPage.tsx
+#: src/features/admin/pages/UsersImportPage.tsx
+msgid "Імпорт і експорт"
+msgstr "Import and export"
+
+#: src/features/admin/pages/UsersImportPage.tsx
+msgid "Імпорт і експорт користувачів"
+msgstr "User import and export"
+
+#: src/shared/i18n/display.ts
+msgctxt "audit"
+msgid "Імпорт користувачів"
+msgstr "Users imported"
+
+#: src/features/admin/pages/UsersImportPage.tsx
+msgid "Імпортувати"
+msgstr "Import"
+
+#: src/features/admin/pages/UserEditorPage.tsx
+msgid "Індивідуальні дозволи"
+msgstr "Individual permissions"
 
 #: src/features/signing/pages/SigningPages.tsx
 msgid "Інструменти підпису"
@@ -922,10 +1342,19 @@ msgstr "Organizational<0/>Documents Cabinet"
 msgid "Кабінет<0/>організаційних документів"
 msgstr "Organizational<0/>Documents Cabinet"
 
+#: src/features/admin/pages/UnitTypeEditorPage.tsx
+msgid "Каталог типів спільний для всіх організацій кабінету, тому змінювати його може лише адміністратор усіх організацій."
+msgstr "The type catalog is shared by all organizations in the cabinet, so only the administrator of all organizations can change it."
+
+#: src/features/admin/pages/UnitTypesPage.tsx
+msgid "Каталог типів спільний для всіх організацій кабінету, тому змінювати його може лише адміністратор усіх організацій. Ви можете використовувати ці типи для підрозділів своїх організацій."
+msgstr "The type catalog is shared by all organizations in the cabinet, so only the administrator of all organizations can change it. You can use these types for the units of your organizations."
+
 #: src/features/news/pages/NewsPage.tsx
 msgid "Категорії"
 msgstr "Categories"
 
+#: src/features/admin/pages/AuditPage.tsx
 #: src/features/news/pages/NewsEditorPage.tsx
 msgid "Категорія"
 msgstr "Category"
@@ -933,6 +1362,14 @@ msgstr "Category"
 #: src/features/documents/pages/DocumentPage.tsx
 msgid "Кваліфіковані електронні підписи, накладені на документ"
 msgstr "Qualified electronic signatures applied to the document"
+
+#: src/features/admin/pages/RolesPage.tsx
+msgid "Керівна"
+msgstr "Leadership"
+
+#: src/features/admin/pages/RoleEditorPage.tsx
+msgid "Керівна посада"
+msgstr "Leadership position"
 
 #: src/features/structure/pages/UnitPage.tsx
 msgid "Керівник"
@@ -968,6 +1405,12 @@ msgstr "Key and signature"
 msgid "Ключі"
 msgstr "Keys"
 
+#: src/features/admin/pages/RoleEditorPage.tsx
+#: src/features/admin/pages/RolesPage.tsx
+#: src/features/admin/pages/UnitEditorPage.tsx
+#: src/features/admin/pages/UnitsPage.tsx
+#: src/features/admin/pages/UnitTypeEditorPage.tsx
+#: src/features/admin/pages/UnitTypesPage.tsx
 #: src/features/news/components/RichTextEditor.tsx
 msgid "Код"
 msgstr "Code"
@@ -1002,6 +1445,10 @@ msgstr "The code has 6 digits."
 #: src/features/auth/pages/TwoFactorPage.tsx
 msgid "Код підтвердження"
 msgstr "Verification code"
+
+#: src/features/admin/pages/UsersImportPage.tsx
+msgid "Коди ролей"
+msgstr "Role codes"
 
 #: src/features/profile/pages/SecurityPage.tsx
 msgid "кодів залишилось"
@@ -1059,9 +1506,36 @@ msgstr "The file checksum doesn't match the registered one. Signing is not allow
 msgid "Копіювати"
 msgstr "Copy"
 
+#: src/features/admin/pages/AuditPage.tsx
+#: src/features/admin/pages/UsersPage.tsx
+msgid "Користувач"
+msgstr "User"
+
+#: src/features/admin/pages/UserEditorPage.tsx
+msgid "Користувач також обіймає посади в організаціях, якими ви не керуєте. Ви можете змінювати лише його посади у своїх організаціях; особисті дані, e-mail, статус і безпеку облікового запису змінює адміністратор, що керує всіма його організаціями."
+msgstr "This user also holds positions in organizations you don't manage. You can change only their positions in your organizations; personal data, email, status and account security are managed by an administrator who manages all of their organizations."
+
+#: src/features/admin/pages/AuditPage.tsx
+msgid "Користувач, деталі або IP"
+msgstr "User, details or IP"
+
+#: src/features/admin/pages/AdminPage.tsx
+#: src/features/admin/pages/RolesPage.tsx
+#: src/features/admin/pages/UserEditorPage.tsx
+#: src/features/admin/pages/UsersImportPage.tsx
+#: src/features/admin/pages/UsersPage.tsx
 #: src/shared/i18n/display.ts
 msgid "Користувачі"
 msgstr "Users"
+
+#: src/features/admin/pages/UsersPage.tsx
+msgid "Користувачів не знайдено"
+msgstr "No users found"
+
+#. placeholder {0}: existing.userCount
+#: src/features/admin/pages/RoleEditorPage.tsx
+msgid "Користувачів: {0}"
+msgstr "Users: {0}"
 
 #: src/features/documents/pages/DocumentEditorPage.tsx
 msgid "Короткий зміст або коментар для підписантів."
@@ -1090,10 +1564,40 @@ msgstr "Step 2 of 2"
 msgid "Курсив (Ctrl+I)"
 msgstr "Italic (Ctrl+I)"
 
+#: src/features/admin/pages/UnitTypeEditorPage.tsx
+msgid "Латиниця, цифри, «-», «_»."
+msgstr "Latin letters, digits, “-”, “_”."
+
+#: src/features/admin/pages/UnitEditorPage.tsx
+msgid "Латиниця, цифри, «-», «_». Унікальний серед усіх організацій; використовується в імпорті."
+msgstr "Latin letters, digits, “-”, “_”. Unique across all organizations; used in imports."
+
+#: src/features/admin/pages/RoleEditorPage.tsx
+msgid "Латиниця, цифри, «-». Використовується в імпорті."
+msgstr "Latin letters, digits, “-”. Used in imports."
+
 #: src/shared/i18n/display.ts
 msgctxt "document-kind"
 msgid "Лист"
 msgstr "Letter"
+
+#: src/features/admin/pages/UnitEditorPage.tsx
+#: src/features/admin/pages/UnitTypeEditorPage.tsx
+msgid "Лише латинські літери, цифри, «-» та «_»."
+msgstr "Only Latin letters, digits, “-” and “_”."
+
+#: src/features/admin/pages/RoleEditorPage.tsx
+msgid "Лише малі латинські літери, цифри та «-»."
+msgstr "Only lowercase Latin letters, digits and “-”."
+
+#: src/features/admin/pages/UnitEditorPage.tsx
+msgid "Лише підрозділи організацій, структурою яких ви керуєте."
+msgstr "Only units of organizations whose structure you manage."
+
+#. placeholder {0}: credentials.email
+#: src/features/admin/pages/UserEditorPage.tsx
+msgid "Логін: {0}"
+msgstr "Login: {0}"
 
 #: src/shared/i18n/display.ts
 msgid "Любов"
@@ -1111,6 +1615,14 @@ msgstr "Bulleted list"
 #: src/features/documents/pages/DocumentPage.tsx
 msgid "Маршрут підписання"
 msgstr "Signing route"
+
+#: src/features/admin/pages/AdminPage.tsx
+msgid "Масове додавання користувачів з XLSX/CSV та вивантаження."
+msgstr "Bulk-add users from XLSX/CSV and export them."
+
+#: src/features/admin/pages/UsersImportPage.tsx
+msgid "Масове створення та оновлення облікових записів із файлів XLSX або CSV."
+msgstr "Create and update accounts in bulk from XLSX or CSV files."
 
 #: src/shared/ui/PhotoPicker.tsx
 msgid "Масштаб"
@@ -1167,6 +1679,10 @@ msgstr "Send for signing"
 msgid "На сторінці"
 msgstr "Per page"
 
+#: src/features/admin/pages/AdminPage.tsx
+msgid "Набори дозволів для посад і модулів."
+msgstr "Permission sets for positions and modules."
+
 #: src/shared/ui/PageHeader.tsx
 msgid "Навігаційний ланцюжок"
 msgstr "Breadcrumbs"
@@ -1187,6 +1703,14 @@ msgstr "Trust service provider"
 msgid "Надавачі"
 msgstr "Providers"
 
+#: src/features/admin/pages/UserEditorPage.tsx
+msgid "Надати"
+msgstr "Grant"
+
+#: src/features/admin/pages/UserEditorPage.tsx
+msgid "Надати або заборонити окремі дозволи поверх ролей посад."
+msgstr "Grant or deny specific permissions on top of position roles."
+
 #: src/features/documents/pages/DocumentPage.tsx
 msgid "Надіслано на підпис"
 msgstr "Sent for signing"
@@ -1203,9 +1727,20 @@ msgstr "Send the document for signing?"
 msgid "Назад"
 msgstr "Back"
 
+#: src/features/admin/pages/RoleEditorPage.tsx
+#: src/features/admin/pages/UnitsPage.tsx
+#: src/features/admin/pages/UnitTypeEditorPage.tsx
 #: src/features/documents/pages/DocumentEditorPage.tsx
 msgid "Назва"
 msgstr "Title"
+
+#: src/features/admin/pages/UnitsPage.tsx
+msgid "Назва або код"
+msgstr "Name or code"
+
+#: src/features/admin/pages/RolesPage.tsx
+msgid "Назва або код ролі"
+msgstr "Role name or code"
 
 #: src/features/documents/pages/DocumentsPage.tsx
 msgid "Назва або реєстраційний номер"
@@ -1215,9 +1750,21 @@ msgstr "Title or registration number"
 msgid "Назва не може бути довшою за 300 символів."
 msgstr "The title cannot be longer than 300 characters."
 
+#: src/features/admin/pages/UserEditorPage.tsx
+msgid "Назва посади"
+msgstr "Position title"
+
 #: src/features/structure/pages/StructurePage.tsx
 msgid "Назва, абревіатура або код підрозділу"
 msgstr "Unit name, abbreviation or code"
+
+#: src/features/admin/pages/UnitTypesPage.tsx
+msgid "Назви рівнів структури у словнику вашої організації: департамент, управління, відділ, сектор, філія…"
+msgstr "Names of structure levels in your organization's vocabulary: department, directorate, division, section, branch…"
+
+#: src/features/admin/pages/AdminPage.tsx
+msgid "Назви рівнів структури: організація, департамент, відділ, сектор…"
+msgstr "Names of structure levels: organization, department, division, section…"
 
 #: src/features/news/components/Discussion.tsx
 msgid "Найкращі"
@@ -1232,6 +1779,14 @@ msgstr "Order"
 msgid "Накладіть кваліфікований електронний підпис на будь-який файл. Підпис створюється у вашому браузері — файл і ключ нікуди не передаються."
 msgstr "Apply a qualified electronic signature to any file. The signature is created in your browser — the file and key are never sent anywhere."
 
+#: src/features/admin/pages/RoleEditorPage.tsx
+msgid "Налаштування"
+msgstr "Settings"
+
+#: src/features/admin/pages/RolesPage.tsx
+msgid "Налаштувати"
+msgstr "Configure"
+
 #: src/features/news/components/Discussion.tsx
 msgid "Напишіть коментар…"
 msgstr "Write a comment…"
@@ -1239,6 +1794,10 @@ msgstr "Write a comment…"
 #: src/features/news/pages/NewsEditorPage.tsx
 msgid "Напишіть текст новини."
 msgstr "Write the text of the post."
+
+#: src/features/admin/pages/UserEditorPage.tsx
+msgid "напр. доцент"
+msgstr "e.g. associate professor"
 
 #: src/features/documents/pages/DocumentEditorPage.tsx
 msgid "Наприклад: Про затвердження графіка відпусток"
@@ -1252,10 +1811,21 @@ msgstr "Next page"
 msgid "Наступне фото"
 msgstr "Next photo"
 
+#: src/shared/ui/DatePicker.tsx
+msgid "Наступний місяць"
+msgstr "Next month"
+
+#: src/shared/ui/DatePicker.tsx
+msgid "Наступний рік"
+msgstr "Next year"
+
 #: src/app/layout/UserMenu.tsx
 msgid "Не вдалося вийти. Спробуйте ще раз."
 msgstr "Could not sign out. Try again."
 
+#: src/features/admin/pages/RoleEditorPage.tsx
+#: src/features/admin/pages/UnitTypeEditorPage.tsx
+#: src/features/admin/pages/UserEditorPage.tsx
 #: src/features/documents/pages/DocumentPage.tsx
 #: src/features/news/components/Discussion.tsx
 #: src/features/news/pages/NewsEditorPage.tsx
@@ -1276,22 +1846,39 @@ msgstr "Couldn't load the signing library."
 msgid "Не вдалося завантажити документи."
 msgstr "Could not load the documents."
 
+#: src/features/admin/pages/AuditPage.tsx
+msgid "Не вдалося завантажити журнал."
+msgstr "Could not load the log."
+
 #: src/features/news/components/Discussion.tsx
 msgid "Не вдалося завантажити коментарі."
 msgstr "Could not load the comments."
+
+#: src/features/admin/pages/UsersPage.tsx
+msgid "Не вдалося завантажити користувачів."
+msgstr "Could not load the users."
 
 #: src/features/news/pages/NewsManagePage.tsx
 #: src/features/news/pages/NewsPage.tsx
 msgid "Не вдалося завантажити новини."
 msgstr "Could not load the news."
 
+#: src/features/admin/pages/UserEditorPage.tsx
+msgid "Не вдалося завантажити обліковий запис."
+msgstr "Could not load the account."
+
 #: src/shared/signing/SigningWizard.tsx
 msgid "Не вдалося завантажити останню підписану версію документа."
 msgstr "Could not download the latest signed version of the document."
 
+#: src/features/admin/pages/UnitEditorPage.tsx
 #: src/features/structure/pages/UnitPage.tsx
 msgid "Не вдалося завантажити підрозділ."
 msgstr "Could not load the unit."
+
+#: src/features/admin/pages/UnitsPage.tsx
+msgid "Не вдалося завантажити підрозділи."
+msgstr "Could not load the units."
 
 #: src/features/structure/pages/UnitPage.tsx
 msgid "Не вдалося завантажити працівників."
@@ -1302,13 +1889,33 @@ msgstr "Could not load the staff."
 msgid "Не вдалося завантажити профіль."
 msgstr "Could not load the profile."
 
+#: src/features/admin/pages/RolesPage.tsx
+msgid "Не вдалося завантажити ролі."
+msgstr "Could not load the roles."
+
+#: src/features/admin/pages/RoleEditorPage.tsx
+msgid "Не вдалося завантажити роль."
+msgstr "Could not load the role."
+
 #: src/features/structure/pages/StructurePage.tsx
 msgid "Не вдалося завантажити структуру."
 msgstr "Could not load the structure."
 
+#: src/features/admin/pages/UnitTypeEditorPage.tsx
+msgid "Не вдалося завантажити тип підрозділу."
+msgstr "Could not load the unit type."
+
+#: src/features/admin/pages/UnitTypesPage.tsx
+msgid "Не вдалося завантажити типи підрозділів."
+msgstr "Could not load the unit types."
+
 #: src/shared/signing/SigningWizard.tsx
 msgid "Не вдалося завантажити файл документа."
 msgstr "Couldn't download the document file."
+
+#: src/features/admin/pages/UsersImportPage.tsx
+msgid "Не вдалося завантажити файл."
+msgstr "Could not download the file."
 
 #: src/features/news/components/RichTextEditor.tsx
 msgid "Не вдалося завантажити фото."
@@ -1322,13 +1929,25 @@ msgstr "Could not save the document. Try again."
 msgid "Не вдалося зберегти підпис."
 msgstr "Couldn't save the signature."
 
+#: src/features/admin/pages/UnitEditorPage.tsx
+msgid "Не вдалося зберегти підрозділ. Спробуйте ще раз."
+msgstr "Could not save the unit. Try again."
+
 #: src/features/news/pages/NewsEditorPage.tsx
 msgid "Не вдалося зберегти публікацію. Спробуйте ще раз."
 msgstr "Could not save the post. Try again."
 
+#: src/features/admin/pages/RoleEditorPage.tsx
+msgid "Не вдалося зберегти роль. Спробуйте ще раз."
+msgstr "Could not save the role. Try again."
+
 #: src/features/profile/pages/ProfilePage.tsx
 msgid "Не вдалося зберегти телефон. Спробуйте ще раз."
 msgstr "Could not save the phone number. Try again."
+
+#: src/features/admin/pages/UnitTypeEditorPage.tsx
+msgid "Не вдалося зберегти тип підрозділу. Спробуйте ще раз."
+msgstr "Could not save the unit type. Try again."
 
 #: src/features/auth/pages/PhotoPage.tsx
 msgid "Не вдалося зберегти фото. Спробуйте ще раз."
@@ -1354,6 +1973,10 @@ msgstr "Could not change the language."
 #: src/shared/signing/client.ts
 msgid "Не вдалося знайти сертифікат ключа. Оберіть надавача вручну або додайте файли сертифікатів."
 msgstr "Couldn't find the key certificate. Choose the provider manually or add certificate files."
+
+#: src/features/admin/pages/UsersImportPage.tsx
+msgid "Не вдалося обробити файл. Спробуйте ще раз."
+msgstr "Could not process the file. Try again."
 
 #: src/shared/signing/client.ts
 msgid "Не вдалося отримати позначку часу. Спробуйте рівень підпису B-B або повторіть пізніше."
@@ -1387,9 +2010,19 @@ msgstr "Not set up"
 msgid "Не подобається"
 msgstr "Dislike"
 
+#: src/features/admin/pages/UnitsPage.tsx
 #: src/features/structure/pages/UnitPage.tsx
 msgid "Неактивний"
 msgstr "Inactive"
+
+#: src/features/admin/pages/UnitEditorPage.tsx
+msgid "Неактивні підрозділи зберігаються для історії документів."
+msgstr "Inactive units are kept for the document history."
+
+#: src/shared/i18n/display.ts
+msgctxt "audit"
+msgid "Невдала спроба входу"
+msgstr "Failed sign-in attempt"
 
 #: src/shared/signing/client.ts
 msgid "Невідома помилка бібліотеки підпису."
@@ -1403,6 +2036,10 @@ msgstr "Unknown signature format."
 msgid "Некоректна адреса електронної пошти."
 msgstr "Invalid email address."
 
+#: src/features/admin/pages/UserEditorPage.tsx
+msgid "Некоректна адреса."
+msgstr "Invalid address."
+
 #: src/features/profile/pages/ProfilePage.tsx
 msgid "Некоректний номер телефону."
 msgstr "Invalid phone number."
@@ -1415,6 +2052,10 @@ msgstr "No access to your phone? <0>Sign in with a recovery code</0>."
 msgid "Немає зв'язку з сервером надавача (ЦСК). Перевірте з'єднання та спробуйте ще раз."
 msgstr "Can't reach the provider's (CA) server. Check your connection and try again."
 
+#: src/features/admin/pages/UnitEditorPage.tsx
+msgid "Немає потрібного типу?"
+msgstr "Missing the type you need?"
+
 #: src/shared/signing/client.ts
 msgid "Неправильний пароль або пошкоджений файл ключа."
 msgstr "Wrong password or damaged key file."
@@ -1423,10 +2064,13 @@ msgstr "Wrong password or damaged key file."
 msgid "Нижче"
 msgstr "Move down"
 
+#: src/features/admin/pages/RoleEditorPage.tsx
 #: src/features/news/pages/NewsEditorPage.tsx
 msgid "Нова"
 msgstr "New"
 
+#: src/features/admin/pages/UnitEditorPage.tsx
+#: src/features/admin/pages/UnitsPage.tsx
 #: src/features/structure/pages/StructurePage.tsx
 msgid "Нова організація"
 msgstr "New organization"
@@ -1437,9 +2081,25 @@ msgstr "New organization"
 msgid "Нова публікація"
 msgstr "New post"
 
+#: src/features/admin/pages/RoleEditorPage.tsx
+#: src/features/admin/pages/RolesPage.tsx
+msgid "Нова роль"
+msgstr "New role"
+
 #: src/features/auth/pages/PhotoPage.tsx
 msgid "Нове фото замінить поточне всюди в кабінеті."
 msgstr "The new photo replaces the current one everywhere in the cabinet."
+
+#: src/shared/i18n/display.ts
+msgctxt "audit"
+msgid "Нове фото профілю"
+msgstr "New profile photo"
+
+#: src/features/admin/pages/UnitEditorPage.tsx
+#: src/features/admin/pages/UnitTypeEditorPage.tsx
+#: src/features/admin/pages/UserEditorPage.tsx
+msgid "Новий"
+msgstr "New"
 
 #: src/features/documents/pages/DocumentEditorPage.tsx
 #: src/features/documents/pages/DocumentsPage.tsx
@@ -1451,10 +2111,27 @@ msgstr "New document"
 msgid "Новий коментар"
 msgstr "New comment"
 
+#: src/features/admin/pages/UserEditorPage.tsx
+msgid "Новий користувач"
+msgstr "New user"
+
 #: src/features/auth/pages/ChangePasswordPage.tsx
 #: src/features/auth/pages/SetupAuthenticatorPage.tsx
 msgid "Новий пароль"
 msgstr "New password"
+
+#: src/features/admin/pages/UnitEditorPage.tsx
+#: src/features/admin/pages/UnitsPage.tsx
+msgid "Новий підрозділ"
+msgstr "New unit"
+
+#: src/features/admin/pages/UnitTypesPage.tsx
+msgid "Новий тип"
+msgstr "New type"
+
+#: src/features/admin/pages/UnitTypeEditorPage.tsx
+msgid "Новий тип підрозділу"
+msgstr "New unit type"
 
 #. placeholder {0}: formatFileSize(file.size)
 #: src/features/documents/pages/DocumentEditorPage.tsx
@@ -1474,6 +2151,7 @@ msgid "Новина"
 msgstr "Article"
 
 #: src/app/layout/navigation.ts
+#: src/features/admin/pages/AdminPage.tsx
 #: src/features/home/HomePage.tsx
 #: src/features/news/pages/ArticlePage.tsx
 #: src/features/news/pages/NewsEditorPage.tsx
@@ -1511,6 +2189,11 @@ msgstr "New codes"
 msgid "Нові коди — збережіть їх зараз, вони більше не відображатимуться:"
 msgstr "New codes — save them now, they will not be shown again:"
 
+#: src/shared/i18n/display.ts
+msgctxt "audit"
+msgid "Нові резервні коди"
+msgstr "New recovery codes"
+
 #: src/features/documents/pages/DocumentsPage.tsx
 msgid "Номер"
 msgstr "Number"
@@ -1523,6 +2206,10 @@ msgstr "Numbered list"
 msgid "Оберіть або перетягніть фото"
 msgstr "Choose or drop a photo"
 
+#: src/shared/ui/DatePicker.tsx
+msgid "Оберіть дату"
+msgstr "Choose a date"
+
 #: src/features/news/pages/NewsEditorPage.tsx
 msgid "Оберіть зображення"
 msgstr "Choose an image"
@@ -1534,6 +2221,10 @@ msgstr "Select a unit"
 #: src/features/documents/pages/DocumentEditorPage.tsx
 msgid "Оберіть підрозділ."
 msgstr "Select a unit."
+
+#: src/features/admin/pages/UnitEditorPage.tsx
+msgid "Оберіть тип."
+msgstr "Select a type."
 
 #: src/features/documents/pages/DocumentEditorPage.tsx
 msgid "Оберіть файл документа."
@@ -1551,9 +2242,53 @@ msgstr "Choose a key file."
 msgid "Оберіть фото."
 msgstr "Choose a photo."
 
+#: src/features/admin/pages/UserEditorPage.tsx
+msgid "Оберіть…"
+msgstr "Select…"
+
 #: src/features/news/pages/NewsEditorPage.tsx
 msgid "Обкладинка"
 msgstr "Cover image"
+
+#: src/features/admin/pages/UserEditorPage.tsx
+msgid "Обліковий запис"
+msgstr "Account"
+
+#: src/features/admin/pages/UserEditorPage.tsx
+msgid "Обліковий запис заблоковано."
+msgstr "Account blocked."
+
+#: src/features/admin/pages/UserEditorPage.tsx
+msgid "Обліковий запис кількох організацій"
+msgstr "Account in several organizations"
+
+#: src/features/admin/pages/UserEditorPage.tsx
+msgid "Обліковий запис розблоковано."
+msgstr "Account unblocked."
+
+#: src/features/admin/pages/UserEditorPage.tsx
+msgid "Обліковий запис створено."
+msgstr "Account created."
+
+#: src/features/admin/pages/UserEditorPage.tsx
+msgid "Обліковий запис створюється з тимчасовим паролем; під час першого входу користувач змінить його та прив'яже автентифікатор."
+msgstr "The account is created with a temporary password; at first sign-in the user changes it and links an authenticator app."
+
+#: src/features/admin/pages/UsersPage.tsx
+msgid "Облікові записи працівників і зовнішніх користувачів ваших організацій. Самостійна реєстрація вимкнена."
+msgstr "Accounts of employees and external users of your organizations. Self-registration is disabled."
+
+#: src/features/admin/pages/UsersPage.tsx
+msgid "Облікові записи працівників і зовнішніх користувачів усіх організацій кабінету. Самостійна реєстрація вимкнена."
+msgstr "Accounts of employees and external users of all organizations in the cabinet. Self-registration is disabled."
+
+#: src/features/admin/pages/AdminPage.tsx
+msgid "Облікові записи, посади, блокування, скидання пароля та 2FA."
+msgstr "Accounts, positions, blocking, password and 2FA resets."
+
+#: src/features/admin/pages/AdminPage.tsx
+msgid "Облікові записи, ролі, організації та їхня структура, журнал подій."
+msgstr "Accounts, roles, organizations and their structure, event log."
 
 #: src/shared/i18n/display.ts
 msgid "Обурює"
@@ -1583,6 +2318,12 @@ msgstr "separate from the data (detached)"
 msgid "Оновити"
 msgstr "Reload"
 
+#: src/features/admin/pages/UsersImportPage.tsx
+msgid "Оновлено"
+msgstr "Updated"
+
+#: src/features/admin/pages/RoleEditorPage.tsx
+#: src/features/admin/pages/UnitTypeEditorPage.tsx
 #: src/features/documents/pages/DocumentEditorPage.tsx
 msgid "Опис"
 msgstr "Description"
@@ -1600,24 +2341,55 @@ msgstr "Applause"
 msgid "Опубліковано"
 msgstr "Published"
 
+#: src/features/admin/pages/UnitEditorPage.tsx
+msgid "Організації верхнього рівня створює лише адміністратор усіх організацій. Ви можете додавати підрозділи й дочірні організації у своїх організаціях."
+msgstr "Only the administrator of all organizations can create top-level organizations. You can add units and subsidiary organizations within your organizations."
+
+#: src/features/admin/pages/AdminPage.tsx
+msgid "Організації та їхні підрозділи: департаменти, відділи, філії."
+msgstr "Organizations and their units: departments, divisions, branches."
+
+#: src/features/admin/pages/UnitsPage.tsx
+msgid "Організації та підрозділи"
+msgstr "Organizations and units"
+
 #: src/features/structure/pages/StructurePage.tsx
 msgid "Організації, їхні підрозділи та працівники."
 msgstr "Organizations, their units and staff."
 
+#: src/features/admin/pages/UnitsPage.tsx
+msgid "Організації, структурою яких ви керуєте, та їхні підрозділи."
+msgstr "Organizations whose structure you manage, and their units."
+
+#: src/features/admin/pages/UnitEditorPage.tsx
+msgid "організація"
+msgstr "organization"
+
+#: src/features/admin/pages/UnitsPage.tsx
+#: src/features/admin/pages/UnitTypesPage.tsx
 #: src/features/news/pages/NewsEditorPage.tsx
 #: src/features/news/pages/NewsManagePage.tsx
 #: src/shared/signing/KeyPanel.tsx
 msgid "Організація"
 msgstr "Organization"
 
+#: src/features/admin/pages/UnitsPage.tsx
+msgid "Організація верхнього рівня"
+msgstr "Top-level organization"
+
 #. placeholder {0}: unit.organization.name
 #: src/features/structure/pages/UnitPage.tsx
 msgid "Організація: {0}"
 msgstr "Organization: {0}"
 
+#: src/features/admin/pages/UserEditorPage.tsx
 #: src/features/profile/pages/ProfilePage.tsx
 msgid "Основна"
 msgstr "Primary"
+
+#: src/features/admin/pages/UserEditorPage.tsx
+msgid "Особисті дані"
+msgstr "Personal data"
 
 #: src/features/profile/pages/ProfilePage.tsx
 msgid "Особисті дані, посади та доступні можливості."
@@ -1626,6 +2398,11 @@ msgstr "Personal data, positions and available features."
 #: src/features/home/HomePage.tsx
 msgid "Останні оголошення"
 msgstr "Latest announcements"
+
+#: src/features/admin/pages/UserEditorPage.tsx
+#: src/features/admin/pages/UsersPage.tsx
+msgid "Останній вхід"
+msgstr "Last sign-in"
 
 #. placeholder {0}: formatDateTime(profile.lastSignInAt)
 #: src/features/profile/pages/ProfilePage.tsx
@@ -1639,6 +2416,10 @@ msgstr "The latest signed version of the document does not match the system's re
 #: src/shared/signing/client.ts
 msgid "Остання підписана версія містить інший документ. Підписання зупинено."
 msgstr "The latest signed version contains a different document. Signing stopped."
+
+#: src/shared/ui/DatePicker.tsx
+msgid "Очистити"
+msgstr "Clear"
 
 #: src/shared/i18n/display.ts
 msgid "Очікується підпис"
@@ -1656,6 +2437,14 @@ msgstr "Parallel"
 #: src/shared/signing/SigningWizard.tsx
 msgid "Параметри"
 msgstr "Parameters"
+
+#: src/features/admin/pages/UsersImportPage.tsx
+msgid "Паролі (CSV)"
+msgstr "Passwords (CSV)"
+
+#: src/features/admin/pages/UsersImportPage.tsx
+msgid "Паролі (XLSX)"
+msgstr "Passwords (XLSX)"
 
 #: src/features/auth/pages/ChangePasswordPage.tsx
 #: src/features/auth/pages/SetupAuthenticatorPage.tsx
@@ -1697,6 +2486,11 @@ msgstr "Password, two-factor authentication, recovery codes and sign-ins on othe
 msgid "Перевірити"
 msgstr "Verify"
 
+#: src/features/admin/pages/UsersImportPage.tsx
+msgctxt "import"
+msgid "Перевірити"
+msgstr "Validate"
+
 #: src/features/documents/pages/DocumentPage.tsx
 msgid "Перевірити будь-який підпис можна на сторінці <0>«Перевірка підпису»</0>."
 msgstr "You can verify any signature on the <0>Signature verification</0> page."
@@ -1730,9 +2524,15 @@ msgstr "Photo viewer"
 msgid "Переглядів"
 msgstr "Views"
 
+#: src/features/admin/pages/UnitEditorPage.tsx
+#: src/features/admin/pages/UnitTypesPage.tsx
 #: src/features/news/pages/NewsEditorPage.tsx
 msgid "Переглянути"
 msgstr "View"
+
+#: src/features/admin/pages/UserEditorPage.tsx
+msgid "Передайте його користувачу захищеним каналом. Під час першого входу пароль потрібно змінити."
+msgstr "Give it to the user over a secure channel. The password must be changed at first sign-in."
 
 #: src/app/layout/AppShell.tsx
 msgid "Перейти до змісту"
@@ -1750,6 +2550,10 @@ msgstr "Move the document to the archive?"
 msgid "Перетягніть підписаний файл (і за потреби оригінал)"
 msgstr "Drag the signed file here (and the original, if needed)"
 
+#: src/features/admin/pages/UsersImportPage.tsx
+msgid "Перетягніть файл XLSX або CSV"
+msgstr "Drop an XLSX or CSV file here"
+
 #: src/features/documents/pages/DocumentEditorPage.tsx
 msgid "Перетягніть файл або натисніть, щоб обрати"
 msgstr "Drag a file here or click to choose"
@@ -1762,6 +2566,10 @@ msgstr "Drag files here or click to choose"
 msgid "Перетягніть фото та змініть масштаб, щоб обличчя було в колі."
 msgstr "Drag and zoom the photo so the face is inside the circle."
 
+#: src/features/admin/pages/UsersPage.tsx
+msgid "ПІБ або e-mail"
+msgstr "Full name or email"
+
 #: src/features/profile/pages/ProfilePage.tsx
 msgid "ПІБ та посади змінює відділ кадрів."
 msgstr "Your name and positions are changed by the HR department."
@@ -1773,6 +2581,11 @@ msgstr "Subheading"
 #: src/features/auth/pages/SetupAuthenticatorPage.tsx
 msgid "Підключення автентифікатора"
 msgstr "Authenticator setup"
+
+#: src/shared/i18n/display.ts
+msgctxt "audit"
+msgid "Підключено автентифікатор"
+msgstr "Authenticator enrolled"
 
 #: src/features/news/components/RichTextEditor.tsx
 msgid "Підкреслений (Ctrl+U)"
@@ -1816,6 +2629,7 @@ msgid "Підписання документа"
 msgstr "Sign the document"
 
 #: src/features/signing/pages/SigningPages.tsx
+#: src/shared/i18n/display.ts
 #: src/shared/signing/SigningWizard.tsx
 msgid "Підписання файлів"
 msgstr "File signing"
@@ -1827,6 +2641,11 @@ msgstr "Signed"
 #: src/features/home/HomePage.tsx
 msgid "Підписано мною цього місяця"
 msgstr "Signed by me this month"
+
+#: src/shared/i18n/display.ts
+msgctxt "audit"
+msgid "Підписано файли"
+msgstr "Files signed"
 
 #: src/features/documents/pages/DocumentPage.tsx
 msgid "Підписантів не додано"
@@ -1872,19 +2691,48 @@ msgstr "Signatures of the signers you removed from the route ({toRemove}) will b
 msgid "Підписів ще немає"
 msgstr "No signatures yet"
 
+#: src/features/admin/pages/UnitTypesPage.tsx
+#: src/features/admin/pages/UserEditorPage.tsx
+#: src/features/admin/pages/UsersPage.tsx
 #: src/features/documents/pages/DocumentEditorPage.tsx
 #: src/features/documents/pages/DocumentPage.tsx
 #: src/features/structure/pages/UnitPage.tsx
 msgid "Підрозділ"
 msgstr "Unit"
 
+#: src/features/admin/pages/UnitEditorPage.tsx
+msgid "Підрозділ збережено"
+msgstr "Unit saved"
+
+#: src/features/admin/pages/UnitEditorPage.tsx
+msgid "Підрозділ належить організації, структурою якої ви не керуєте, тому його можна лише переглянути."
+msgstr "This unit belongs to an organization whose structure you don't manage, so you can only view it."
+
 #: src/features/structure/pages/UnitPage.tsx
 msgid "Підрозділ не знайдено"
 msgstr "Unit not found"
 
+#: src/features/admin/pages/UnitsPage.tsx
+msgid "Підрозділи"
+msgstr "Units"
+
+#: src/features/admin/pages/UnitTypeEditorPage.tsx
+msgid "Підрозділи цього типу можуть стояти на верхньому рівні структури й обмежують дозвіл «Документи організації». Підходить для компанії, установи, навчального чи медичного закладу, фонду, дочірнього підприємства."
+msgstr "Units of this type can sit at the top level of the structure and scope the “Organization documents” permission. Suitable for a company, institution, school, hospital, foundation or subsidiary."
+
+#: src/features/admin/pages/UnitTypesPage.tsx
+msgid "Підрозділів"
+msgstr "Units"
+
+#: src/features/admin/pages/UnitsPage.tsx
 #: src/features/structure/pages/StructurePage.tsx
 msgid "Підрозділів не знайдено"
 msgstr "No units found"
+
+#. placeholder {0}: existing.unitCount
+#: src/features/admin/pages/UnitTypeEditorPage.tsx
+msgid "Підрозділів: {0}"
+msgstr "Units: {0}"
 
 #: src/features/auth/pages/TwoFactorPage.tsx
 msgid "Підтвердження входу"
@@ -1906,6 +2754,14 @@ msgstr "After signing in, generate new recovery codes in your profile."
 msgid "Після зміни пароля всі інші сесії буде завершено."
 msgstr "Changing your password will sign out all your other sessions."
 
+#: src/features/admin/pages/UserEditorPage.tsx
+msgid "По батькові"
+msgstr "Middle name"
+
+#: src/features/admin/pages/AuditPage.tsx
+msgid "По дату"
+msgstr "To date"
+
 #: src/features/news/components/RichTextEditor.tsx
 msgid "По лівому краю"
 msgstr "Align left"
@@ -1923,6 +2779,10 @@ msgstr "Align center"
 msgid "Повернутися"
 msgstr "Go back"
 
+#: src/features/admin/pages/UnitEditorPage.tsx
+msgid "Повна назва"
+msgstr "Full name"
+
 #: src/features/news/components/RichTextEditor.tsx
 msgid "Повторити (Ctrl+Shift+Z)"
 msgstr "Redo (Ctrl+Shift+Z)"
@@ -1935,6 +2795,11 @@ msgstr "Confirm new password"
 msgid "Повторіть пароль"
 msgstr "Confirm password"
 
+#: src/features/admin/pages/AuditPage.tsx
+msgid "Подій не знайдено"
+msgstr "No events found"
+
+#: src/features/admin/pages/AuditPage.tsx
 #: src/shared/i18n/display.ts
 msgid "Подія"
 msgstr "Event"
@@ -1946,6 +2811,10 @@ msgstr "Like"
 #: src/features/signing/components/VerifyPanel.tsx
 msgid "Позначка часу"
 msgstr "Timestamp"
+
+#: src/features/admin/pages/RoleEditorPage.tsx
+msgid "Позначте дозволи, які надає роль."
+msgstr "Select the permissions this role grants."
 
 #: src/shared/ui/PasswordInput.tsx
 msgid "Показати пароль"
@@ -1964,17 +2833,45 @@ msgctxt "document-kind"
 msgid "Положення / інструкція"
 msgstr "Regulation / instruction"
 
+#: src/features/admin/pages/UsersImportPage.tsx
+msgid "Помилка"
+msgstr "Error"
+
+#: src/features/admin/pages/UsersImportPage.tsx
+msgid "Помилки імпорту"
+msgstr "Import errors"
+
+#: src/features/admin/pages/UsersImportPage.tsx
+msgid "Помилок не знайдено"
+msgstr "No errors found"
+
+#: src/features/admin/pages/UsersImportPage.tsx
+msgid "Помилок не знайдено. Натисніть «Імпортувати», щоб зберегти зміни."
+msgstr "No errors found. Click “Import” to save the changes."
+
 #: src/features/news/components/ArticleBody.tsx
 msgid "Попереднє фото"
 msgstr "Previous photo"
+
+#: src/shared/ui/DatePicker.tsx
+msgid "Попередній місяць"
+msgstr "Previous month"
 
 #: src/shared/ui/PhotoPicker.tsx
 msgid "Попередній перегляд фото"
 msgstr "Photo preview"
 
+#: src/shared/ui/DatePicker.tsx
+msgid "Попередній рік"
+msgstr "Previous year"
+
 #: src/shared/ui/Pagination.tsx
 msgid "Попередня сторінка"
 msgstr "Previous page"
+
+#: src/features/admin/pages/UnitEditorPage.tsx
+msgid "Порядок відображення"
+msgstr "Display order"
 
 #: src/features/news/components/Discussion.tsx
 msgid "Порядок коментарів"
@@ -1985,11 +2882,25 @@ msgstr "Comment order"
 msgid "Порядок підписання"
 msgstr "Signing order"
 
+#: src/features/admin/pages/UnitTypeEditorPage.tsx
+msgid "Порядок у списках"
+msgstr "Order in lists"
+
+#: src/features/admin/pages/UserEditorPage.tsx
+msgid "Посад не призначено"
+msgstr "No positions assigned"
+
+#: src/features/admin/pages/UsersPage.tsx
 #: src/features/structure/pages/UnitPage.tsx
 #: src/shared/signing/KeyPanel.tsx
 msgid "Посада"
 msgstr "Position"
 
+#: src/features/admin/pages/UserEditorPage.tsx
+msgid "Посада в іншій організації. Змінює адміністратор цієї організації."
+msgstr "A position in another organization. Its administrator changes it."
+
+#: src/features/admin/pages/UserEditorPage.tsx
 #: src/features/profile/pages/ProfilePage.tsx
 msgid "Посади"
 msgstr "Positions"
@@ -2055,9 +2966,14 @@ msgstr "Staff"
 msgid "Працівники підрозділу"
 msgstr "Unit staff"
 
+#: src/features/admin/pages/UnitsPage.tsx
 #: src/features/structure/components/UnitTree.tsx
 msgid "Працівників"
 msgstr "Staff"
+
+#: src/features/admin/pages/RoleEditorPage.tsx
+msgid "Працівників із цією роллю показано першими у складі підрозділу з позначкою «Керівник»."
+msgstr "Employees with this role are listed first among the unit's staff, marked “Head”."
 
 #: src/features/structure/pages/UnitPage.tsx
 msgid "Працівників не знайдено"
@@ -2076,6 +2992,10 @@ msgstr "Remove"
 msgid "Прибрати обкладинку"
 msgstr "Remove cover image"
 
+#: src/features/admin/pages/UserEditorPage.tsx
+msgid "Прибрати посаду"
+msgstr "Remove position"
+
 #: src/features/news/components/RichTextEditor.tsx
 msgid "Прибрати посилання"
 msgstr "Remove link"
@@ -2091,6 +3011,10 @@ msgstr "The reason cannot be longer than 1000 characters."
 #: src/features/documents/pages/DocumentPage.tsx
 msgid "Причину вказано в маршруті підписання. Натисніть «Редагувати», щоб виправити файл, реквізити чи маршрут, або «На підписання», щоб надіслати документ повторно без змін. Ті, хто вже підписав поточний файл, не підписуватимуть його знову."
 msgstr "The reason is shown in the signing route. Click “Edit” to fix the file, details or route, or “Send for signing” to resend the document unchanged. Those who have already signed the current file won't need to sign it again."
+
+#: src/features/admin/pages/UserEditorPage.tsx
+msgid "Прізвище"
+msgstr "Last name"
 
 #: src/features/documents/pages/DocumentEditorPage.tsx
 msgid "Прізвище, ім'я або e-mail"
@@ -2117,6 +3041,10 @@ msgstr "Minutes"
 #: src/features/profile/components/ProfileTabs.tsx
 msgid "Профіль"
 msgstr "Profile"
+
+#: src/features/admin/pages/AdminPage.tsx
+msgid "Публікації та оголошення."
+msgstr "Posts and announcements."
 
 #: src/features/news/pages/NewsManagePage.tsx
 msgid "Публікацій ще немає"
@@ -2158,6 +3086,8 @@ msgstr "React"
 msgid "Регулярно змінюйте пароль і не використовуйте його в інших сервісах."
 msgstr "Change your password regularly and do not use it for other services."
 
+#: src/features/admin/pages/UnitEditorPage.tsx
+#: src/features/admin/pages/UnitTypeEditorPage.tsx
 #: src/features/documents/pages/DocumentEditorPage.tsx
 #: src/features/news/pages/NewsEditorPage.tsx
 msgid "Редагування"
@@ -2171,6 +3101,8 @@ msgstr "Edit document"
 msgid "Редагування публікації"
 msgstr "Edit post"
 
+#: src/features/admin/pages/UnitsPage.tsx
+#: src/features/admin/pages/UnitTypesPage.tsx
 #: src/features/documents/pages/DocumentPage.tsx
 #: src/features/news/pages/ArticlePage.tsx
 #: src/features/news/pages/NewsManagePage.tsx
@@ -2206,6 +3138,7 @@ msgstr "Recovery codes"
 msgid "Реквізити"
 msgstr "Details"
 
+#: src/features/admin/pages/UnitTypesPage.tsx
 #: src/shared/signing/SigningWizard.tsx
 msgid "Рівень"
 msgstr "Level"
@@ -2221,6 +3154,14 @@ msgstr "Levels"
 #: src/shared/signing/KeyPanel.tsx
 msgid "РНОКПП"
 msgstr "Taxpayer ID"
+
+#: src/features/admin/pages/UserEditorPage.tsx
+msgid "Розблокувати"
+msgstr "Unblock"
+
+#: src/features/admin/pages/UserEditorPage.tsx
+msgid "Розблокувати обліковий запис?"
+msgstr "Unblock this account?"
 
 #: src/app/layout/AppShell.tsx
 msgid "Розгорнути меню"
@@ -2247,11 +3188,58 @@ msgctxt "document-kind"
 msgid "Розпорядження"
 msgstr "Directive"
 
+#: src/features/admin/pages/RolesPage.tsx
+msgid "Ролей не знайдено"
+msgstr "No roles found"
+
+#: src/features/admin/pages/RoleEditorPage.tsx
+#: src/features/admin/pages/RolesPage.tsx
+#: src/shared/i18n/display.ts
+msgid "Ролі"
+msgstr "Roles"
+
+#: src/features/admin/pages/AdminPage.tsx
+#: src/features/admin/pages/RolesPage.tsx
+msgid "Ролі та дозволи"
+msgstr "Roles and permissions"
+
+#: src/features/admin/pages/RoleEditorPage.tsx
+#: src/features/admin/pages/RolesPage.tsx
+#: src/features/admin/pages/UserEditorPage.tsx
+#: src/features/admin/pages/UsersPage.tsx
+msgid "Роль"
+msgstr "Role"
+
+#: src/features/admin/pages/RolesPage.tsx
+msgid "Роль — набір дозволів для посади. Користувач отримує дозволи всіх своїх посад."
+msgstr "A role is a set of permissions for a position. A user gets the permissions of all their positions."
+
 #. placeholder {0}: position.roleName
 #: src/features/profile/pages/ProfilePage.tsx
 msgid "роль «{0}»"
 msgstr "role “{0}”"
 
+#: src/features/admin/pages/RoleEditorPage.tsx
+msgid "Роль видалено"
+msgstr "Role deleted"
+
+#: src/features/admin/pages/RoleEditorPage.tsx
+msgid "Роль збережено"
+msgstr "Role saved"
+
+#: src/features/admin/pages/UserEditorPage.tsx
+msgid "Роль посади визначає дозволи; підрозділ — область доступу до документів і організацію, у якій діють адміністративні дозволи ролі."
+msgstr "A position's role defines its permissions; its unit defines the scope of document access and the organization where the role's administrative permissions apply."
+
+#: src/features/admin/pages/UsersImportPage.tsx
+msgid "Рядки з однаковою електронною поштою — це кілька посад одного користувача."
+msgstr "Rows with the same email are multiple positions of one user."
+
+#: src/features/admin/pages/UsersImportPage.tsx
+msgid "Рядків у файлі"
+msgstr "Rows in file"
+
+#: src/features/admin/pages/UsersImportPage.tsx
 #: src/features/news/components/RichTextEditor.tsx
 msgid "Рядок"
 msgstr "Row"
@@ -2272,6 +3260,18 @@ msgstr "The key certificate was reported invalid by OCSP."
 msgid "Сертифікат ключа скасовано (у списку відкликаних)."
 msgstr "The key certificate has been revoked (it is on the revocation list)."
 
+#: src/features/admin/pages/UserEditorPage.tsx
+msgid "Сесії завершено."
+msgstr "Sessions signed out."
+
+#: src/features/admin/pages/RolesPage.tsx
+msgid "Системна"
+msgstr "System"
+
+#: src/features/admin/pages/RoleEditorPage.tsx
+msgid "Системний адміністратор завжди має всі дозволи."
+msgstr "The system administrator always has all permissions."
+
 #: src/shared/signing/client.ts
 msgid "Скасовано."
 msgstr "Cancelled."
@@ -2288,10 +3288,29 @@ msgstr "Cancel"
 msgid "Скасувати (Ctrl+Z)"
 msgstr "Undo (Ctrl+Z)"
 
+#: src/shared/i18n/display.ts
+msgctxt "audit"
+msgid "Скидання пароля"
+msgstr "Password reset"
+
+#: src/features/admin/pages/UserEditorPage.tsx
+msgid "Скинути автентифікатор"
+msgstr "Reset authenticator"
+
+#: src/features/admin/pages/UserEditorPage.tsx
+msgid "Скинути автентифікатор? Під час наступного входу користувач прив'яже новий."
+msgstr "Reset the authenticator? The user will link a new one at their next sign-in."
+
+#: src/shared/i18n/display.ts
+msgctxt "audit"
+msgid "Скинуто автентифікатор"
+msgstr "Authenticator reset"
+
 #: src/shared/ui/CopyButton.tsx
 msgid "Скопійовано"
 msgstr "Copied"
 
+#: src/features/admin/pages/UserEditorPage.tsx
 #: src/features/profile/pages/SecurityPage.tsx
 msgid "Скопіювати"
 msgstr "Copy"
@@ -2299,6 +3318,10 @@ msgstr "Copy"
 #: src/features/auth/pages/SetupAuthenticatorPage.tsx
 msgid "Скопіювати коди"
 msgstr "Copy codes"
+
+#: src/features/admin/pages/UnitEditorPage.tsx
+msgid "Скорочена назва"
+msgstr "Short name"
 
 #: src/shared/i18n/display.ts
 msgctxt "document-kind"
@@ -2337,6 +3360,8 @@ msgstr "Something went wrong"
 msgid "Старі"
 msgstr "Oldest"
 
+#: src/features/admin/pages/UnitsPage.tsx
+#: src/features/admin/pages/UsersPage.tsx
 #: src/features/documents/pages/DocumentsPage.tsx
 #: src/features/news/pages/NewsManagePage.tsx
 msgid "Статус"
@@ -2346,22 +3371,51 @@ msgstr "Status"
 msgid "Створені мною"
 msgstr "Created by me"
 
+#: src/features/admin/pages/UserEditorPage.tsx
+#: src/features/admin/pages/UsersImportPage.tsx
 #: src/features/documents/pages/DocumentPage.tsx
 #: src/features/documents/pages/DocumentsPage.tsx
 msgid "Створено"
 msgstr "Created"
 
+#: src/shared/i18n/display.ts
+msgctxt "audit"
+msgid "Створено документ"
+msgstr "Document created"
+
+#: src/shared/i18n/display.ts
+msgctxt "audit"
+msgid "Створено користувача"
+msgstr "User created"
+
+#. placeholder {0}: report.credentials.length
+#: src/features/admin/pages/UsersImportPage.tsx
+msgid "Створено облікових записів: {0}. Завантажте тимчасові паролі — вони показуються лише зараз."
+msgstr "Accounts created: {0}. Download the temporary passwords — they are shown only now."
+
 #: src/features/documents/pages/DocumentEditorPage.tsx
 msgid "Створити й надіслати на підпис"
 msgstr "Create and send for signing"
+
+#: src/features/admin/pages/UserEditorPage.tsx
+msgid "Створити обліковий запис"
+msgstr "Create account"
 
 #: src/features/auth/pages/SetupAuthenticatorPage.tsx
 msgid "Створіть власний пароль"
 msgstr "Create your own password"
 
+#: src/features/admin/pages/UnitTypesPage.tsx
+msgid "Створіть хоча б один тип, позначений як організація."
+msgstr "Create at least one type marked as an organization."
+
 #: src/features/news/components/RichTextEditor.tsx
 msgid "Стовпець"
 msgstr "Column"
+
+#: src/features/admin/pages/UsersImportPage.tsx
+msgid "Стовпці: {importColumns}."
+msgstr "Columns: {importColumns}."
 
 #: src/shared/ui/Pagination.tsx
 msgid "Сторінки"
@@ -2380,6 +3434,11 @@ msgid "Строк дії сертифіката ключа закінчився 
 msgstr "The key certificate has expired or is not yet valid."
 
 #: src/app/layout/navigation.ts
+#: src/features/admin/pages/AdminPage.tsx
+#: src/features/admin/pages/UnitEditorPage.tsx
+#: src/features/admin/pages/UnitsPage.tsx
+#: src/features/admin/pages/UnitTypeEditorPage.tsx
+#: src/features/admin/pages/UnitTypesPage.tsx
 #: src/features/structure/pages/StructurePage.tsx
 #: src/features/structure/pages/UnitPage.tsx
 #: src/shared/i18n/display.ts
@@ -2402,6 +3461,10 @@ msgstr "Sad"
 msgid "Сховати пароль"
 msgstr "Hide password"
 
+#: src/shared/ui/DatePicker.tsx
+msgid "Сьогодні"
+msgstr "Today"
+
 #: src/features/news/components/RichTextEditor.tsx
 msgid "Таблиця"
 msgstr "Table"
@@ -2422,6 +3485,7 @@ msgstr "Comment text"
 msgid "Текст новини"
 msgstr "Post text"
 
+#: src/features/admin/pages/UserEditorPage.tsx
 #: src/features/profile/pages/ProfilePage.tsx
 #: src/features/structure/pages/UnitPage.tsx
 msgid "Телефон"
@@ -2435,17 +3499,69 @@ msgstr "Phone number saved."
 msgid "Тема"
 msgstr "Theme"
 
+#: src/features/admin/pages/UserEditorPage.tsx
+msgid "Тимчасовий пароль"
+msgstr "Temporary password"
+
+#: src/features/admin/pages/UserEditorPage.tsx
+msgid "Тимчасовий пароль видано."
+msgstr "Temporary password issued."
+
 #: src/features/auth/pages/SetupAuthenticatorPage.tsx
 msgid "Тимчасовий пароль від адміністратора діє лише для першого входу. Придумайте власний — після цього підключимо автентифікатор."
 msgstr "The temporary password from your administrator works only for the first sign-in. Choose your own password, then we'll set up your authenticator."
+
+#. placeholder {0}: credentials.email
+#: src/features/admin/pages/UserEditorPage.tsx
+msgid "Тимчасовий пароль для {0} (показується один раз):"
+msgstr "Temporary password for {0} (shown only once):"
+
+#. placeholder {0}: credentials.temporaryPassword
+#: src/features/admin/pages/UserEditorPage.tsx
+msgid "Тимчасовий пароль: {0}"
+msgstr "Temporary password: {0}"
+
+#: src/features/admin/pages/UsersPage.tsx
+msgid "Тимчасово заблоковано"
+msgstr "Temporarily locked"
+
+#: src/features/admin/pages/RolesPage.tsx
+#: src/features/admin/pages/UnitEditorPage.tsx
+#: src/features/admin/pages/UnitsPage.tsx
+#: src/features/admin/pages/UnitTypesPage.tsx
+msgid "Тип"
+msgstr "Type"
 
 #: src/shared/signing/KeyPanel.tsx
 msgid "Тип ключа"
 msgstr "Key type"
 
+#: src/features/admin/pages/UnitTypeEditorPage.tsx
+msgid "Тип можна видалити, коли жоден підрозділ його не має."
+msgstr "A type can be deleted once no unit uses it."
+
 #: src/shared/signing/SigningWizard.tsx
 msgid "Тип підпису"
 msgstr "Signature type"
+
+#: src/features/admin/pages/UnitTypeEditorPage.tsx
+msgid "Тип підрозділу видалено"
+msgstr "Unit type deleted"
+
+#: src/features/admin/pages/UnitTypeEditorPage.tsx
+msgid "Тип підрозділу збережено"
+msgstr "Unit type saved"
+
+#: src/features/admin/pages/AdminPage.tsx
+#: src/features/admin/pages/UnitsPage.tsx
+#: src/features/admin/pages/UnitTypeEditorPage.tsx
+#: src/features/admin/pages/UnitTypesPage.tsx
+msgid "Типи підрозділів"
+msgstr "Unit types"
+
+#: src/features/admin/pages/UnitTypesPage.tsx
+msgid "Типів ще немає"
+msgstr "No types yet"
 
 #: src/features/documents/pages/DocumentEditorPage.tsx
 msgid "у будь-якому порядку"
@@ -2514,9 +3630,34 @@ msgstr "All my permissions ({0})"
 msgid "Усі новини"
 msgstr "All news"
 
+#: src/features/admin/pages/UnitsPage.tsx
+msgid "Усі організації"
+msgstr "All organizations"
+
+#: src/features/admin/pages/UnitsPage.tsx
+msgid "Усі організації кабінету та їхні підрозділи."
+msgstr "All organizations in the cabinet and their units."
+
+#: src/features/admin/pages/UsersPage.tsx
+msgid "Усі підрозділи"
+msgstr "All units"
+
+#: src/features/admin/pages/AuditPage.tsx
+msgid "Усі події"
+msgstr "All events"
+
+#: src/features/admin/pages/UsersPage.tsx
+msgid "Усі ролі"
+msgstr "All roles"
+
 #: src/features/documents/pages/DocumentsPage.tsx
+#: src/shared/i18n/display.ts
 msgid "Усі статуси"
 msgstr "All statuses"
+
+#: src/features/admin/pages/UnitsPage.tsx
+msgid "Усі типи"
+msgstr "All types"
 
 #: src/features/documents/pages/DocumentEditorPage.tsx
 msgid "Файл"
@@ -2529,6 +3670,10 @@ msgstr "Document file"
 #: src/shared/signing/SigningWizard.tsx
 msgid "Файл завеликий для підписання у браузері (понад 25 МБ)."
 msgstr "The file is too large to sign in the browser (over 25 MB)."
+
+#: src/features/admin/pages/UsersImportPage.tsx
+msgid "Файл імпорту не може бути більшим за 5 МБ."
+msgstr "The import file cannot be larger than 5 MB."
 
 #: src/shared/signing/SigningWizard.tsx
 msgid "Файл підписано"
@@ -2610,6 +3755,10 @@ msgstr "Cloud / Diia.Signature"
 msgid "Це зовнішній підпис: додайте також файл, який було підписано."
 msgstr "This is a detached signature: also add the file that was signed."
 
+#: src/features/admin/pages/UnitTypeEditorPage.tsx
+msgid "Це організація"
+msgstr "This is an organization"
+
 #: src/features/documents/pages/DocumentPage.tsx
 msgid "Це оригінал без підписів. Підписані файли завантажуйте в розділі «Підписи»."
 msgstr "This is the original without signatures. Download the signed files in the “Signatures” section."
@@ -2625,6 +3774,10 @@ msgstr "Quote"
 #: src/shared/signing/SigningWizard.tsx
 msgid "Цілісність підтверджено"
 msgstr "Integrity confirmed"
+
+#: src/features/admin/pages/AuditPage.tsx
+msgid "Час"
+msgstr "Time"
 
 #: src/features/signing/components/VerifyPanel.tsx
 msgid "Час підпису"
@@ -2652,6 +3805,10 @@ msgstr "Drafts and published posts of the organizations whose news you manage."
 msgid "Чернетку збережено"
 msgstr "Draft saved"
 
+#: src/features/admin/pages/UsersImportPage.tsx
+msgid "Шаблон"
+msgstr "Template"
+
 #: src/app/layout/AppShell.tsx
 msgid "Швидка навігація"
 msgstr "Quick navigation"
@@ -2671,6 +3828,10 @@ msgstr "At least 12 characters: uppercase and lowercase Latin letters and digits
 #: src/features/documents/pages/DocumentsPage.tsx
 msgid "Я в маршруті"
 msgstr "I'm in the route"
+
+#: src/features/admin/pages/UnitTypeEditorPage.tsx
+msgid "Як рівень називається у вашій організації: «Департамент», «Кафедра», «Відділення», «Цех»…"
+msgstr "What the level is called in your organization: “Department”, “Faculty”, “Ward”, “Workshop”…"
 
 #: src/features/auth/pages/LoginPage.tsx
 msgid "Якщо ви не маєте облікового запису або забули пароль — зверніться до відділу кадрів чи системного адміністратора."

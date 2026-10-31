@@ -1,0 +1,266 @@
+.toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--ds-space-3);
+    align-items: center;
+    margin-bottom: var(--ds-space-4);
+}
+.toolbar > * {
+    flex: 0 1 auto;
+}
+.toolbar > :first-child {
+    flex: 1 1 16rem;
+}
+
+.filter {
+    width: 14rem;
+    max-width: 100%;
+}
+
+/* Hub ------------------------------------------------------------------------------------------------------------ */
+
+.sections {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr));
+    gap: var(--ds-space-4);
+}
+
+.section {
+    display: grid;
+    gap: var(--ds-space-3);
+    align-content: start;
+    padding: var(--ds-space-6);
+    border-radius: var(--ds-radius-lg);
+    background: var(--ds-color-surface);
+    border: 1px solid var(--ds-color-border);
+    color: inherit;
+    text-decoration: none;
+    transition:
+        transform var(--ds-duration-base) var(--ds-ease-out),
+        box-shadow var(--ds-duration-base) var(--ds-ease-out),
+        border-color var(--ds-duration-base);
+}
+.section:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--ds-shadow-md);
+    border-color: var(--ds-color-border-strong);
+}
+.section:active {
+    transform: translateY(-1px) scale(0.995);
+}
+
+.sectionTop {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: var(--ds-color-text-muted);
+}
+
+.sectionTitle {
+    font-size: var(--ds-fs-lg);
+    font-weight: 750;
+    letter-spacing: -0.01em;
+}
+
+.tile {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: var(--ds-radius-sm);
+    background: var(--ds-color-surface-3);
+    color: var(--ds-color-text);
+}
+
+/* Forms ---------------------------------------------------------------------------------------------------------- */
+
+.formGrid {
+    display: grid;
+    gap: var(--ds-space-4);
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+@media (min-width: 768px) {
+    .formGrid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+.full {
+    grid-column: 1 / -1;
+}
+
+.fieldset {
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+.mono {
+    font-family: var(--ds-font-mono);
+}
+
+/* Permissions ---------------------------------------------------------------------------------------------------- */
+
+.modules {
+    display: grid;
+    gap: var(--ds-space-6);
+}
+
+.module {
+    display: grid;
+    gap: var(--ds-space-3);
+}
+
+.moduleTitle {
+    display: flex;
+    align-items: center;
+    gap: var(--ds-space-2);
+    font-weight: 750;
+}
+
+.moduleItems {
+    display: grid;
+    gap: var(--ds-space-3);
+}
+@media (min-width: 768px) {
+    .moduleItems {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+/* Positions ------------------------------------------------------------------------------------------------------ */
+
+.positions {
+    display: grid;
+    gap: var(--ds-space-3);
+}
+
+.position {
+    display: grid;
+    gap: var(--ds-space-3);
+    padding: var(--ds-space-4);
+    border-radius: var(--ds-radius-md);
+    background: var(--ds-color-surface-2);
+    animation: var(--ds-anim-scale-in);
+}
+@media (min-width: 1024px) {
+    .position {
+        grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1fr) auto auto;
+        align-items: end;
+    }
+}
+
+/* A position in an organization the administrator does not manage: shown, but not editable. */
+.foreign {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--ds-space-3);
+    padding: var(--ds-space-4);
+    border: 1px dashed var(--ds-color-border);
+    border-radius: var(--ds-radius-md);
+}
+
+.primaryCheck {
+    padding-bottom: var(--ds-space-3);
+}
+
+/* Icon picker ---------------------------------------------------------------------------------------------------- */
+
+.icons {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(3rem, 1fr));
+    gap: var(--ds-space-2);
+}
+
+.icon {
+    position: relative;
+    display: grid;
+    place-items: center;
+    aspect-ratio: 1;
+    border: 1px solid var(--ds-color-border);
+    border-radius: var(--ds-radius-md);
+    cursor: pointer;
+    transition:
+        background-color var(--ds-duration-fast) var(--ds-ease-out),
+        border-color var(--ds-duration-fast) var(--ds-ease-out),
+        color var(--ds-duration-fast) var(--ds-ease-out);
+}
+.icon:hover {
+    border-color: var(--ds-color-border-strong);
+    background: var(--ds-color-surface-2);
+}
+.icon input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+.icon:has(input:checked) {
+    background: var(--ds-color-inverse);
+    border-color: var(--ds-color-inverse);
+    color: var(--ds-color-on-inverse);
+}
+.icon:has(input:focus-visible) {
+    outline: 2px solid var(--ds-color-focus);
+    outline-offset: 2px;
+}
+.icon:has(input:disabled) {
+    cursor: default;
+}
+
+/* Secrets -------------------------------------------------------------------------------------------------------- */
+
+.secret {
+    display: grid;
+    gap: var(--ds-space-3);
+    padding: var(--ds-space-5);
+    border: 2px dashed var(--ds-color-text);
+    border-radius: var(--ds-radius-lg);
+    animation: var(--ds-anim-scale-in);
+}
+
+.secretValue {
+    font-family: var(--ds-font-mono);
+    font-size: var(--ds-fs-xl);
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    overflow-wrap: anywhere;
+}
+
+/* Details -------------------------------------------------------------------------------------------------------- */
+
+.details summary {
+    width: fit-content;
+    cursor: pointer;
+    font-size: var(--ds-fs-sm);
+    font-weight: 650;
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+}
+.details[open] > summary {
+    margin-bottom: var(--ds-space-3);
+}
+
+.codes {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: var(--ds-space-2) var(--ds-space-4);
+    margin: 0;
+    font-size: var(--ds-fs-sm);
+}
+.codes > div {
+    display: contents;
+}
+.codes dt {
+    font-family: var(--ds-font-mono);
+    font-weight: 700;
+}
+.codes dd {
+    margin: 0;
+    color: var(--ds-color-text-muted);
+}

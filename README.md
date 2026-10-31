@@ -185,11 +185,11 @@ tests/
 | 2 | Документи (реєстр, картка, редактор), підписання документа, підписання й перевірка файлів | готово |
 | 3 | Новини (Tiptap), обговорення гілками як у Reddit зі сторінками й живим оновленням через SignalR | готово |
 | 4 | Структура (дерево з пошуком, сторінка підрозділу з працівниками), профіль (посади, модулі й дозволи, телефон, мова) і безпека (резервні коди, вихід на інших пристроях) | готово |
-| 5 | Адміністрування | |
+| 5 | Адміністрування: користувачі (посади, індивідуальні дозволи, безпека), імпорт і експорт, ролі, структура й типи підрозділів, журнал аудиту з календарем | готово |
 | 6 | Довідка | |
 | 7 | Видалення Blazor, перенесення клієнта з `/app` на `/` | |
 
-Поки модуль не перенесено, меню клієнта веде на його сторінку Blazor; старі адреси перенесених розділів (`/documents…`, `/signing…`, `/news…`, `/structure…`, `/profile…`) перенаправляються на `/app/…`. Обидві частини працюють з тими самими JWT-cookie, тож вхід спільний.
+Поки модуль не перенесено, меню клієнта веде на його сторінку Blazor; старі адреси перенесених розділів (`/documents…`, `/signing…`, `/news…`, `/structure…`, `/profile…`, `/admin…`) перенаправляються на `/app/…`. Обидві частини працюють з тими самими JWT-cookie, тож вхід спільний.
 
 - **Роздача**: і в Development, і в Production клієнт віддає ASP.NET Core. У Development — з `src/KOD.Client/dist` (`Spa:Root` у `appsettings.Development.json`), під час `dotnet publish` клієнт збирається й копіюється в `wwwroot/app`. Файли з хешем у назві (`/app/assets`) кешуються назавжди, `index.html` — ні; невідомі адреси під `/app` отримують `index.html`.
 - **Компоненти** написано власноруч без UI-бібліотек — це перенесена дизайн-система: ті самі токени, теми, ефект «чорнила» на кнопках, комірки коду 2FA, кадрування фото тощо.
@@ -218,11 +218,11 @@ tests/
 | `/news`, `/news/{slug}`, `/news/{id}`, `/news/{id}/cover`, `/news/organizations` | `GET`, `POST`, `PUT`, `DELETE` |
 | `/news/{id}/discussion?page&pageSize&sort=Best/Newest/Oldest` · `/news/{id}/comments` · `/news/{id}/reactions/{kind}` | `GET` (сторінка гілок із відповідями) · `POST`, `PUT`, `DELETE` · `POST` |
 | `/live` | SignalR-хаб: сигнали про зміни (група обговорення новини; згодом — чати), дані — лише через REST |
-| `/organization-units`, `/organization-units/{id}`, `/organization-units/{id}/staff` | `GET`, `POST`, `PUT` |
+| `/organization-units`, `/organization-units/{id}`, `/organization-units/{id}/staff` · `/organization-units/list`, `/organization-units/options` | `GET`, `POST`, `PUT` · `GET` (список для керування з фільтрами; підрозділи, структурою яких керує користувач) |
 | `/unit-types`, `/unit-types/{id}` | `GET`, `POST`, `PUT`, `DELETE` |
-| `/users`, `/users/{id}` | `GET`, `POST`, `PUT` |
+| `/users`, `/users/{id}` · `/users/units?manage=`, `/users/roles` | `GET`, `POST`, `PUT` · `GET` (підрозділи й ролі для фільтрів і посад) |
 | `/users/{id}/status` · `/users/{id}/password-resets` · `/users/{id}/authenticator` · `/users/{id}/sessions` | `PUT` · `POST` · `DELETE` · `DELETE` |
-| `/user-imports` (`?dryRun=true`), `/user-imports/template` | `POST`, `GET` |
+| `/user-imports` (`?dryRun=true`), `/user-imports/template`, `/user-imports/roles`, `/user-imports/credentials?format=` | `POST`, `GET`, `GET`, `POST` (файл тимчасових паролів щойно виконаного імпорту) |
 | `/user-exports?format=Xlsx\|Csv` | `GET` |
 | `/roles`, `/roles/{id}`, `/permissions` | `GET`, `POST`, `PUT`, `DELETE` |
 | `/profile`, `/profile/photo`, `/profile/recovery-codes`, `/profile/sign-out-everywhere` | `GET`, `PATCH`, `PUT`, `POST` (нові резервні коди з кодом автентифікатора; вихід на всіх інших пристроях) |

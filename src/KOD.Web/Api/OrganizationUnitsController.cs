@@ -1,3 +1,4 @@
+using KOD.Application.Common.Models;
 using KOD.Application.Common.Paging;
 using KOD.Application.Features.Organization;
 using KOD.Domain.Access;
@@ -23,6 +24,27 @@ public sealed class OrganizationUnitsController(IOrganizationService organizatio
     [HttpGet]
     public async Task<ActionResult<IReadOnlyList<UnitTreeNode>>> Tree([FromQuery] bool includeInactive, CancellationToken cancellationToken)
         => FromResult(await organization.GetTreeAsync(includeInactive, cancellationToken));
+
+    /// <summary>
+    /// Lists the units for management: search, type and organization filters, sorting and paging.
+    /// </summary>
+    /// <param name="query">The filters and paging.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A page of units.</returns>
+    [HttpGet("list")]
+    [RequirePermission(Permissions.Structure.Manage)]
+    public async Task<ActionResult<PagedResult<UnitListItem>>> List([FromQuery] UnitQuery query, CancellationToken cancellationToken)
+        => FromResult(await organization.ListAsync(query, cancellationToken));
+
+    /// <summary>
+    /// Lists the units whose structure the user manages, in tree order (parents for new units, organization filters).
+    /// </summary>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The units.</returns>
+    [HttpGet("options")]
+    [RequirePermission(Permissions.Structure.Manage)]
+    public async Task<ActionResult<IReadOnlyList<UnitOption>>> Options(CancellationToken cancellationToken)
+        => Ok(await organization.GetOptionsAsync(Permissions.Structure.Manage, cancellationToken));
 
     /// <summary>
     /// Gets a unit.

@@ -38,11 +38,11 @@ export function StructurePage() {
                 actions={
                     canManage && (
                         <>
-                            <ButtonLink href="/admin/units" variant="secondary" icon={Settings}>
+                            <ButtonLink to="/admin/units" variant="secondary" icon={Settings}>
                                 {t`Керувати структурою`}
                             </ButtonLink>
                             {canCreateOrganization && (
-                                <ButtonLink href="/admin/units/new?top=true" icon={Plus}>
+                                <ButtonLink to="/admin/units/new?top=true" icon={Plus}>
                                     {t`Нова організація`}
                                 </ButtonLink>
                             )}

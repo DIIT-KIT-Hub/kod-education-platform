@@ -1,30 +1,17 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useLingui } from "@lingui/react/macro";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-    Briefcase,
-    Camera,
-    Check,
-    FileText,
-    History,
-    Network,
-    Newspaper,
-    Save,
-    Shield,
-    ShieldCheck,
-    Signature,
-    Users,
-    type LucideIcon,
-} from "lucide-react";
+import { Briefcase, Camera, Check, Save, ShieldCheck } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link } from "react-router";
 import { z } from "zod";
 import { describeError } from "@/shared/api/problem";
-import type { AppModule, ProfileDto } from "@/shared/api/schema";
+import type { ProfileDto } from "@/shared/api/schema";
 import { moduleNames } from "@/shared/i18n/display";
 import { formatDateTime } from "@/shared/i18n/format";
 import { localeNames, locales, type Locale } from "@/shared/i18n/i18n";
+import { moduleIcons } from "@/shared/lib/moduleIcons";
 import { reloadAuthContext } from "@/shared/session/session";
 import layout from "@/shared/styles/layout.module.css";
 import { Alert } from "@/shared/ui/Alert";
@@ -44,17 +31,6 @@ import { toast } from "@/shared/ui/Toast";
 import { profileApi, profileKeys, profileQuery } from "../api";
 import { ProfileTabs } from "../components/ProfileTabs";
 import styles from "./profile.module.css";
-
-/** The icons of the modules. */
-const moduleIcons: Record<AppModule, LucideIcon> = {
-    Documents: FileText,
-    Signing: Signature,
-    News: Newspaper,
-    Structure: Network,
-    Users: Users,
-    Administration: Shield,
-    Audit: History,
-};
 
 /**
  * The profile overview: personal data, positions, modules and permissions, contacts and the interface language.

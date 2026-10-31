@@ -77,10 +77,10 @@ function UnitView({ unit }: { readonly unit: UnitDetails }) {
                 actions={
                     canManage && (
                         <>
-                            <ButtonLink href={`/admin/units/new?parent=${unit.id}`} variant="secondary" icon={Plus}>
+                            <ButtonLink to={`/admin/units/new?parent=${unit.id}`} variant="secondary" icon={Plus}>
                                 {t`Додати підрозділ`}
                             </ButtonLink>
-                            <ButtonLink href={`/admin/units/${unit.id}`} variant="secondary" icon={Pencil}>
+                            <ButtonLink to={`/admin/units/${unit.id}`} variant="secondary" icon={Pencil}>
                                 {t`Редагувати`}
                             </ButtonLink>
                         </>

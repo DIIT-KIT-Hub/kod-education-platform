@@ -1,0 +1,229 @@
+.picker {
+    position: relative;
+    min-width: 0;
+}
+
+.input {
+    composes: input from "./TextInput.module.css";
+    padding-right: 3rem;
+    font-variant-numeric: tabular-nums;
+}
+
+.compact .input {
+    min-height: var(--ds-control-height-sm);
+    padding-right: 2.5rem;
+    border-radius: var(--ds-radius-sm);
+    font-size: var(--ds-fs-sm);
+}
+
+.input[data-rejected] {
+    border-color: var(--ds-color-danger);
+    animation: shake 0.35s var(--ds-ease-out);
+}
+
+@keyframes shake {
+    20%,
+    60% {
+        transform: translateX(-4px);
+    }
+    40%,
+    80% {
+        transform: translateX(4px);
+    }
+}
+
+.toggle {
+    composes: ink from "../styles/ink.module.css";
+    position: absolute;
+    top: 50%;
+    right: 0.4rem;
+    display: grid;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--ds-color-text-muted);
+    cursor: pointer;
+    transform: translateY(-50%);
+}
+.compact .toggle {
+    width: 1.85rem;
+    height: 1.85rem;
+}
+.picker[data-open] .toggle {
+    color: var(--ds-color-on-inverse);
+}
+.picker[data-open] .toggle::before {
+    clip-path: circle(160% at var(--_x, 50%) var(--_y, 50%));
+}
+.toggle:focus-visible {
+    outline: 2px solid var(--ds-color-focus);
+    outline-offset: 1px;
+}
+
+/* Calendar --------------------------------------------------------------------------------------------------------- */
+
+.calendar {
+    position: fixed;
+    inset: auto;
+    width: 19.5rem;
+    max-width: calc(100vw - 1rem);
+    margin: 0;
+    padding: var(--ds-space-3);
+    border: 1px solid var(--ds-color-border);
+    border-radius: var(--ds-radius-md);
+    background: var(--ds-color-surface);
+    color: var(--ds-color-text);
+    box-shadow: var(--ds-shadow-lg);
+    transform-origin: top center;
+    animation: open var(--ds-duration-base) var(--ds-ease-out) both;
+}
+.calendar[data-placement="top"] {
+    transform-origin: bottom center;
+}
+
+@keyframes open {
+    from {
+        opacity: 0;
+        transform: translate3d(0, -6px, 0) scale(0.97);
+    }
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    gap: var(--ds-space-1);
+    margin-bottom: var(--ds-space-2);
+}
+
+.title {
+    flex: 1 1 auto;
+    text-align: center;
+    font-weight: 750;
+}
+
+.nav {
+    composes: ink from "../styles/ink.module.css";
+    display: grid;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--ds-color-text-muted);
+    font: inherit;
+    cursor: pointer;
+}
+.nav:focus-visible {
+    outline: 2px solid var(--ds-color-focus);
+    outline-offset: 1px;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 2px;
+}
+/* The month grid slides in from the side it comes from. */
+.grid[data-direction="next"] {
+    animation: forward var(--ds-duration-base) var(--ds-ease-out) both;
+}
+.grid[data-direction="prev"] {
+    animation: back var(--ds-duration-base) var(--ds-ease-out) both;
+}
+
+@keyframes forward {
+    from {
+        opacity: 0;
+        transform: translate3d(1.5rem, 0, 0);
+    }
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+@keyframes back {
+    from {
+        opacity: 0;
+        transform: translate3d(-1.5rem, 0, 0);
+    }
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+.weekday {
+    padding: 0.25rem 0 0.375rem;
+    font-size: var(--ds-fs-xs);
+    font-weight: 700;
+    text-align: center;
+    text-transform: capitalize;
+    color: var(--ds-color-text-muted);
+}
+
+.day {
+    display: grid;
+    place-items: center;
+    aspect-ratio: 1;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    font-size: var(--ds-fs-sm);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    cursor: pointer;
+    transition:
+        background-color var(--ds-duration-base) var(--ds-ease-out),
+        color var(--ds-duration-base) var(--ds-ease-out),
+        transform var(--ds-duration-fast) var(--ds-ease-out);
+}
+.day:hover {
+    background: var(--ds-color-surface-3);
+}
+.day:active {
+    transform: scale(0.92);
+}
+.day[data-outside] {
+    color: var(--ds-color-text-subtle);
+}
+.day[data-today] {
+    box-shadow: inset 0 0 0 1.5px var(--ds-color-text);
+}
+.day[aria-selected="true"] {
+    background: var(--ds-color-inverse);
+    color: var(--ds-color-on-inverse);
+    font-weight: 800;
+    animation: var(--ds-anim-pop);
+}
+.day:disabled {
+    opacity: 0.3;
+    cursor: default;
+    background: transparent;
+}
+.day:focus-visible {
+    outline: 2px solid var(--ds-color-focus);
+    outline-offset: 1px;
+}
+
+.footer {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--ds-space-2);
+    margin-top: var(--ds-space-2);
+    padding-top: var(--ds-space-2);
+    border-top: 1px solid var(--ds-color-border);
+}

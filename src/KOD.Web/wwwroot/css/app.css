@@ -606,62 +606,6 @@ html[data-navigating] .app-page { filter: opacity(0.55); transition: filter var(
     animation: ds-pop var(--ds-duration-slow) var(--ds-ease-spring) both;
 }
 
-/* Admin -------------------------------------------------------------------- */
-/* Icon picker of the unit type editor. */
-.icon-picker { display: grid; grid-template-columns: repeat(auto-fill, minmax(3rem, 1fr)); gap: var(--ds-space-2); }
-.icon-picker__option {
-    position: relative;
-    display: grid;
-    place-items: center;
-    aspect-ratio: 1;
-    border: 1px solid var(--ds-color-border);
-    border-radius: var(--ds-radius-md);
-    cursor: pointer;
-    transition: background var(--ds-duration-fast) var(--ds-ease-out), border-color var(--ds-duration-fast) var(--ds-ease-out);
-}
-.icon-picker__option:hover { border-color: var(--ds-color-border-strong); background: var(--ds-color-surface-2); }
-.icon-picker__option input { position: absolute; opacity: 0; pointer-events: none; }
-.icon-picker__option:has(input:checked) { background: var(--ds-color-primary); border-color: var(--ds-color-primary); color: var(--ds-color-on-primary); }
-.icon-picker__option:has(input:focus-visible) { outline: 2px solid var(--ds-color-focus); outline-offset: 2px; }
-
-.perm-matrix { display: grid; gap: var(--ds-space-5); }
-.perm-module { display: grid; gap: var(--ds-space-3); }
-.perm-module__title { display: flex; align-items: center; gap: var(--ds-space-2); font-weight: 750; }
-.perm-module__items { display: grid; gap: var(--ds-space-3); }
-
-@media (min-width: 768px) {
-    .perm-module__items { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-}
-
-.position-row {
-    display: grid;
-    gap: var(--ds-space-3);
-    padding: var(--ds-space-4);
-    border-radius: var(--ds-radius-md);
-    background: var(--ds-color-surface-2);
-    animation: ds-scale-in var(--ds-duration-base) var(--ds-ease-out) both;
-}
-
-@media (min-width: 1024px) {
-    .position-row { grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1fr) auto auto; align-items: end; }
-    .position-row--readonly { grid-template-columns: minmax(0, 1fr) auto; }
-}
-
-/* A position in an organization the administrator does not manage: shown, but not editable. */
-.position-row--readonly { background: transparent; border: 1px dashed var(--ds-color-border); }
-.position-row--readonly .ds-input { display: flex; align-items: center; height: auto; min-height: 2.75rem; color: var(--ds-color-text-muted); }
-
-.secret-box {
-    display: grid;
-    gap: var(--ds-space-3);
-    padding: var(--ds-space-5);
-    border-radius: var(--ds-radius-lg);
-    border: 2px dashed var(--ds-color-text);
-    animation: ds-scale-in var(--ds-duration-base) var(--ds-ease-out) both;
-}
-
-.secret-box__value { font-family: var(--ds-font-mono); font-size: var(--ds-fs-xl); font-weight: 700; letter-spacing: 0.06em; overflow-wrap: anywhere; }
-
 @keyframes auth-hero-settle {
     from { transform: scale(1.08); opacity: 0; }
     to { transform: none; opacity: 1; }
