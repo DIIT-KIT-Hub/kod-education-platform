@@ -4,33 +4,17 @@ namespace KOD.Web.Security;
 
 /// <summary>
 /// Makes signed-in users finish their account before using the cabinet, one step at a time: first replace a temporary
-/// password, then upload a profile photo. Pages redirect to the step; the REST API answers 403.
+/// password, then upload a profile photo. The REST API answers 403 until then; the client application leads the user
+/// through the same steps (its pages, images and scripts stay available).
 /// </summary>
 /// <param name="next">The next middleware.</param>
 internal sealed class AccountSetupMiddleware(RequestDelegate next)
 {
     /// <summary>
-    /// The page where the password is changed.
+    /// API paths that stay available during the setup: authentication (context, password, language, sign-out) and the
+    /// photo upload.
     /// </summary>
-    public const string ChangePasswordPath = "/account/change-password";
-
-    /// <summary>
-    /// The page where the profile photo is uploaded.
-    /// </summary>
-    public const string PhotoPath = "/account/photo";
-
-    /// <summary>
-    /// Paths that stay available during the setup: the steps themselves, signing out, the language switch, assets
-    /// and images (the photo preview), error pages, and the single-page application with its authentication API (it
-    /// guides the user through the same steps itself).
-    /// </summary>
-    private static readonly PathString[] AllowedPaths =
-    [
-        new(ChangePasswordPath), new(PhotoPath), new("/api/v1/profile/photo"), new("/account/logout"), new("/account/language"), new("/_framework"), new("/_blazor"),
-        new("/app"), new("/api/v1/auth"),
-        new("/css"), new("/js"), new("/fonts"), new("/icons"), new("/img"), new("/lib"), new("/media"), new("/favicon.svg"),
-        new("/error"), new("/not-found"),
-    ];
+    private static readonly PathString[] AllowedPaths = [new("/api/v1/auth"), new("/api/v1/profile/photo")];
 
     /// <summary>
     /// Processes the request.
@@ -40,9 +24,9 @@ internal sealed class AccountSetupMiddleware(RequestDelegate next)
     public Task InvokeAsync(HttpContext context)
     {
         ArgumentNullException.ThrowIfNull(context);
-
         var user = context.User;
         if (user.Identity?.IsAuthenticated != true
+            || !context.Request.Path.StartsWithSegments("/api", StringComparison.OrdinalIgnoreCase)
             || Array.Exists(AllowedPaths, p => context.Request.Path.StartsWithSegments(p, StringComparison.OrdinalIgnoreCase)))
         {
             return next(context);
@@ -50,29 +34,21 @@ internal sealed class AccountSetupMiddleware(RequestDelegate next)
 
         if (user.MustChangePassword)
         {
-            return Divert(context, ChangePasswordPath, Texts.T("Потрібно змінити тимчасовий пароль."));
+            return Refuse(context, Texts.T("Потрібно змінити тимчасовий пароль."));
         }
 
-        return user.PhotoId is null ? Divert(context, PhotoPath, Texts.T("Додайте фото профілю, щоб користуватися кабінетом.")) : next(context);
+        return user.PhotoId is null ? Refuse(context, Texts.T("Додайте фото профілю, щоб користуватися кабінетом.")) : next(context);
     }
 
     /// <summary>
-    /// Sends the request to a setup step.
+    /// Answers an API request with 403 and the step to finish.
     /// </summary>
     /// <param name="context">The HTTP context.</param>
-    /// <param name="step">The page of the step.</param>
-    /// <param name="message">The reason for API clients.</param>
-    /// <returns>A task that completes when the response is produced.</returns>
-    private static Task Divert(HttpContext context, string step, string message)
+    /// <param name="message">The step to finish.</param>
+    /// <returns>A task that completes when the response is written.</returns>
+    private static Task Refuse(HttpContext context, string message)
     {
-        if (context.Request.Path.StartsWithSegments("/api", StringComparison.OrdinalIgnoreCase))
-        {
-            context.Response.StatusCode = StatusCodes.Status403Forbidden;
-            return context.Response.WriteAsJsonAsync(new { title = message });
-        }
-
-        var returnUrl = context.Request.Path + context.Request.QueryString;
-        context.Response.Redirect($"{step}?returnUrl={Uri.EscapeDataString(returnUrl)}");
-        return Task.CompletedTask;
+        context.Response.StatusCode = StatusCodes.Status403Forbidden;
+        return context.Response.WriteAsJsonAsync(new { title = message });
     }
 }

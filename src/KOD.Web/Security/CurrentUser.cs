@@ -6,11 +6,10 @@ using KOD.Infrastructure.Identity;
 namespace KOD.Web.Security;
 
 /// <summary>
-/// Resolves the current user from the HTTP request or, inside interactive components, from the circuit.
+/// Resolves the current user from the HTTP request.
 /// </summary>
 /// <param name="httpContextAccessor">The HTTP context accessor.</param>
-/// <param name="circuitUser">The circuit user accessor.</param>
-internal sealed class CurrentUser(IHttpContextAccessor httpContextAccessor, CircuitUserAccessor circuitUser) : ICurrentUser
+internal sealed class CurrentUser(IHttpContextAccessor httpContextAccessor) : ICurrentUser
 {
     /// <summary>
     /// The cached permission set.
@@ -53,9 +52,9 @@ internal sealed class CurrentUser(IHttpContextAccessor httpContextAccessor, Circ
     }
 
     /// <summary>
-    /// Gets the principal of the request or circuit.
+    /// Gets the principal of the request.
     /// </summary>
-    private ClaimsPrincipal? Principal => circuitUser.User ?? httpContextAccessor.HttpContext?.User;
+    private ClaimsPrincipal? Principal => httpContextAccessor.HttpContext?.User;
 
     /// <inheritdoc />
     public bool Has(string permission) => Permissions.Contains(permission);

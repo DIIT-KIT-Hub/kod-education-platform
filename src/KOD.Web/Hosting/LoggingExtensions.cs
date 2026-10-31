@@ -68,7 +68,7 @@ internal static class LoggingExtensions
     extension(WebApplication app)
     {
         /// <summary>
-        /// Logs one line per HTTP request. Static files and the Blazor connection are logged at the Debug level, so the
+        /// Logs one line per HTTP request. Static files and the real-time connection are logged at the Debug level, so the
         /// Information log shows pages and API calls; slow requests are warnings and failures errors.
         /// </summary>
         /// <returns>The web application.</returns>
@@ -102,9 +102,8 @@ internal static class LoggingExtensions
             return LogEventLevel.Error;
         }
 
-        // Real-time connections (Blazor circuits, the client hub) stay open as long as their page: not slowness.
-        if (context.Request.Path.StartsWithSegments("/_blazor", StringComparison.OrdinalIgnoreCase)
-            || context.Request.Path.StartsWithSegments(LiveHub.Route, StringComparison.OrdinalIgnoreCase))
+        // The real-time connection (the client hub) stays open as long as its page: not slowness.
+        if (context.Request.Path.StartsWithSegments(LiveHub.Route, StringComparison.OrdinalIgnoreCase))
         {
             return LogEventLevel.Debug;
         }
@@ -118,13 +117,11 @@ internal static class LoggingExtensions
     }
 
     /// <summary>
-    /// Determines whether a request is for a static asset or the Blazor circuit rather than a page or the API.
+    /// Determines whether a request is for a static asset or an image rather than a page or the API.
     /// </summary>
     /// <param name="path">The request path.</param>
-    /// <returns><see langword="true"/> for static files and framework requests.</returns>
+    /// <returns><see langword="true"/> for static files and images.</returns>
     private static bool IsInfrastructure(PathString path)
-        => path.StartsWithSegments("/_framework", StringComparison.OrdinalIgnoreCase)
-            || path.StartsWithSegments("/_blazor", StringComparison.OrdinalIgnoreCase)
-            || path.StartsWithSegments("/media", StringComparison.OrdinalIgnoreCase)
+        => path.StartsWithSegments("/media", StringComparison.OrdinalIgnoreCase)
             || Path.HasExtension(path.Value);
 }

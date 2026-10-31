@@ -11,13 +11,8 @@ internal sealed class SpaOptions
     public const string SectionName = "Spa";
 
     /// <summary>
-    /// The URL path of the application. While the Blazor pages are being replaced it lives under <c>/app</c>.
-    /// </summary>
-    public const string BasePath = "/app";
-
-    /// <summary>
     /// Gets or sets the folder with the built application, relative to the content root: the published copy in
     /// production, the output of <c>pnpm dev</c> / <c>pnpm build</c> (<c>../KOD.Client/dist</c>) in development.
     /// </summary>
-    public string Root { get; set; } = "wwwroot/app";
+    public string Root { get; set; } = "ClientApp";
 }

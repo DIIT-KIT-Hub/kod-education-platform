@@ -18,14 +18,14 @@ public sealed partial class LocalizationTests
     {
         Texts.Register(typeof(KOD.Application.DependencyInjection).Assembly);
         Texts.Register(typeof(KOD.Infrastructure.DependencyInjection).Assembly);
-        Texts.Register(typeof(KOD.Web.Components.App).Assembly);
+        Texts.Register(typeof(KOD.Web.Api.ApiControllerBase).Assembly);
     }
 
     [Fact]
     public void Every_translated_server_text_has_an_english_translation()
     {
         var missing = new SortedSet<string>(StringComparer.Ordinal);
-        foreach (var file in SourceFiles("*.cs").Concat(SourceFiles("*.razor")))
+        foreach (var file in SourceFiles("*.cs"))
         {
             var source = File.ReadAllText(file);
             var texts = TranslatedLiteral().Matches(source)
@@ -48,26 +48,6 @@ public sealed partial class LocalizationTests
                 }
             }
         }
-
-        Assert.True(missing.Count == 0, "No English translation for:\n" + string.Join('\n', missing));
-    }
-
-    [Fact]
-    public void Every_translated_client_text_has_an_english_translation()
-    {
-        var web = Path.Combine(RepositoryRoot(), "src", "KOD.Web", "wwwroot", "js");
-        var catalog = Directory.EnumerateFiles(Path.Combine(web, "i18n"), "en*.js")
-            .SelectMany(static f => ClientCatalogKey().Matches(File.ReadAllText(f)))
-            .Select(static m => Unescape(m.Groups["text"].Value))
-            .ToHashSet(StringComparer.Ordinal);
-
-        var missing = Directory.EnumerateFiles(web, "*.js", SearchOption.AllDirectories)
-            .Where(static f => !f.Contains($"{Path.DirectorySeparatorChar}i18n{Path.DirectorySeparatorChar}", StringComparison.Ordinal))
-            .SelectMany(static f => ClientTranslatedLiteral().Matches(File.ReadAllText(f)).Select(m => $"{Path.GetFileName(f)}: {Unescape(m.Groups["text"].Value)}"))
-            .Where(entry => !catalog.Contains(entry[(entry.IndexOf(": ", StringComparison.Ordinal) + 2)..]))
-            .Distinct(StringComparer.Ordinal)
-            .Order(StringComparer.Ordinal)
-            .ToList();
 
         Assert.True(missing.Count == 0, "No English translation for:\n" + string.Join('\n', missing));
     }
@@ -128,7 +108,7 @@ public sealed partial class LocalizationTests
                 && !f.Contains($"{Path.DirectorySeparatorChar}Migrations{Path.DirectorySeparatorChar}", StringComparison.Ordinal));
 
     /// <summary>
-    /// Resolves the escapes of a C# or JavaScript string literal.
+    /// Resolves the escapes of a C# string literal.
     /// </summary>
     /// <param name="literal">The literal content.</param>
     /// <returns>The text.</returns>
@@ -147,7 +127,7 @@ public sealed partial class LocalizationTests
     private static partial Regex ContextualLiteral();
 
     /// <summary>
-    /// <c>ErrorMessage = "…"</c> of data annotations (translated by <c>ValidationError</c> when shown).
+    /// <c>ErrorMessage = "…"</c> of data annotations (translated when shown).
     /// </summary>
     [GeneratedRegex("""\bErrorMessage\s*=\s*"(?<text>(?:[^"\\]|\\.)*)"(?=\s*[,)\]])""")]
     private static partial Regex ValidationMessageLiteral();
@@ -157,16 +137,4 @@ public sealed partial class LocalizationTests
     /// </summary>
     [GeneratedRegex("""(?:\bGuard\.(?:Optional)?Text\(|\bText\(value, )[^;]*?,\s*"(?<text>[^"]+)"\)""")]
     private static partial Regex GuardFieldLiteral();
-
-    /// <summary>
-    /// <c>t("…")</c> / <c>kodDs.t("…")</c> in the scripts.
-    /// </summary>
-    [GeneratedRegex("""\bt\(\s*"(?<text>(?:[^"\\]|\\.)*)"\s*[,)]""")]
-    private static partial Regex ClientTranslatedLiteral();
-
-    /// <summary>
-    /// A key of a client-side catalog: <c>"…": "…"</c>.
-    /// </summary>
-    [GeneratedRegex("""^\s*"(?<text>(?:[^"\\]|\\.)*)"\s*:""", RegexOptions.Multiline)]
-    private static partial Regex ClientCatalogKey();
 }

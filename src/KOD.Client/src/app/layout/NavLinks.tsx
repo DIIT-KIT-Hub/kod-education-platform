@@ -39,7 +39,7 @@ export function NavLinks({ items, linkClassName, activeClassName, limit, onNavig
             </>
         );
         const hint = onHint ? (event: MouseEvent<HTMLElement> | FocusEvent<HTMLElement>) => onHint(event, text) : undefined;
-        return item.to ? (
+        return (
             <NavLink
                 key={text}
                 to={item.to}
@@ -51,10 +51,6 @@ export function NavLinks({ items, linkClassName, activeClassName, limit, onNavig
             >
                 {content}
             </NavLink>
-        ) : (
-            <a key={text} href={item.href} className={linkClassName} onClick={onNavigate} onMouseEnter={hint} onFocus={hint}>
-                {content}
-            </a>
         );
     });
 }

@@ -1,8 +1,5 @@
 using KOD.Domain.Localization;
 using KOD.Infrastructure.Persistence.Seeding;
-using KOD.Web.Components;
-using KOD.Web.Identity;
-using KOD.Web.Localization;
 using KOD.Web.Media;
 using KOD.Web.Realtime;
 using KOD.Web.Security;
@@ -39,23 +36,14 @@ internal static class WebApplicationExtensions
             app.UseForwardedHeaders();
             app.UseRequestLogging();
 
-            if (app.Environment.IsDevelopment())
+            // Failures answer with problem details (RFC 9457); the pages are the static client.
+            app.UseExceptionHandler();
+            if (!app.Environment.IsDevelopment())
             {
-                // HTML pages keep the developer exception page; the API still answers with problem details.
-                app.UseWhen(
-                    static context => context.Request.Path.StartsWithSegments("/api", StringComparison.OrdinalIgnoreCase),
-                    static branch => branch.UseExceptionHandler());
-            }
-            else
-            {
-                app.UseExceptionHandler("/error", createScopeForErrors: true);
                 app.UseHsts();
             }
 
             app.UseMiddleware<SecurityHeadersMiddleware>();
-            app.UseWhen(
-                static context => !context.Request.Path.StartsWithSegments("/api", StringComparison.OrdinalIgnoreCase),
-                static branch => branch.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true));
             app.UseHttpsRedirection();
             app.UseSpaFiles();
 
@@ -67,18 +55,13 @@ internal static class WebApplicationExtensions
             app.UseAuthorization();
             app.UseRateLimiter();
             app.UseMiddleware<AccountSetupMiddleware>();
-            app.UseAntiforgery();
 
             app.MapStaticAssets().AllowAnonymous();
             app.MapControllers();
             app.MapHub<LiveHub>(LiveHub.Route);
             app.MapEuSignProxy();
             app.MapTrustList();
-            app.MapAccountEndpoints();
             app.MapMediaEndpoints();
-            app.MapLanguageEndpoint();
-            app.MapRazorComponents<App>()
-                .AddInteractiveServerRenderMode();
             app.MapSpaFallback();
 
             if (app.Environment.IsDevelopment())

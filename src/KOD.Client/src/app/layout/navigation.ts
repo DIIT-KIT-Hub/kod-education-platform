@@ -7,10 +7,8 @@ import { hasPermission, Permissions, type CurrentUser } from "@/shared/session/s
  * An entry of the main menu.
  */
 export interface NavigationItem {
-    /** The application route; entries not moved to the application yet have `href` instead. */
-    readonly to?: string;
-    /** A page outside the application (full page load). */
-    readonly href?: string;
+    /** The application route. */
+    readonly to: string;
     /** The name. */
     readonly text: MessageDescriptor;
     /** The icon. */

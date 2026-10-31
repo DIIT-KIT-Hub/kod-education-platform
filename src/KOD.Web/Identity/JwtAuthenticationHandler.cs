@@ -15,8 +15,8 @@ namespace KOD.Web.Identity;
 /// <summary>
 /// Authenticates the cabinet with JWT access tokens and rotating refresh tokens, both kept in <c>__Host-</c> cookies that
 /// are <c>HttpOnly</c>, <c>Secure</c> and <c>SameSite=Lax</c> (scripts cannot read them, per the IETF "OAuth 2.0 for
-/// Browser-Based Applications"), so server-rendered pages, enhanced navigation, the REST API and Blazor circuits all carry
-/// them without any script.
+/// Browser-Based Applications"), so the REST API, file downloads and the SignalR hub all carry them without any script.
+/// Unauthenticated requests get 401 and forbidden ones 403: the client application handles sign-in itself.
 /// <list type="bullet">
 /// <item>A valid access token (5 minutes) authenticates the request by its signature alone — no database.</item>
 /// <item>When it has expired, the refresh token is rotated (RFC 9700 §4.14.2): the user is read again, so a blocked
@@ -148,11 +148,18 @@ internal sealed partial class JwtAuthenticationHandler(
 
     /// <inheritdoc />
     protected override Task HandleChallengeAsync(AuthenticationProperties properties)
-        => RedirectOrStatus(properties, Options.LoginPath, StatusCodes.Status401Unauthorized);
+    {
+        // The pages are the client application: every protected address is an API or a resource, so no redirects.
+        Response.StatusCode = StatusCodes.Status401Unauthorized;
+        return Task.CompletedTask;
+    }
 
     /// <inheritdoc />
     protected override Task HandleForbiddenAsync(AuthenticationProperties properties)
-        => RedirectOrStatus(properties, Options.AccessDeniedPath, StatusCodes.Status403Forbidden);
+    {
+        Response.StatusCode = StatusCodes.Status403Forbidden;
+        return Task.CompletedTask;
+    }
 
     /// <summary>
     /// Builds the attributes of the token cookies.
@@ -253,25 +260,5 @@ internal sealed partial class JwtAuthenticationHandler(
 
         Response.Cookies.Delete(JwtDefaults.AccessTokenCookie, CookieOptions(null));
         Response.Cookies.Delete(JwtDefaults.RefreshTokenCookie, CookieOptions(null));
-    }
-
-    /// <summary>
-    /// Redirects page requests and answers API requests with a status code.
-    /// </summary>
-    /// <param name="properties">The authentication properties.</param>
-    /// <param name="page">The page to redirect to.</param>
-    /// <param name="status">The status code for API requests.</param>
-    /// <returns>A completed task.</returns>
-    private Task RedirectOrStatus(AuthenticationProperties properties, PathString page, int status)
-    {
-        if (Request.Path.StartsWithSegments(Options.ApiPath, StringComparison.OrdinalIgnoreCase))
-        {
-            Response.StatusCode = status;
-            return Task.CompletedTask;
-        }
-
-        var returnUrl = properties.RedirectUri ?? OriginalPathBase + OriginalPath + Request.QueryString;
-        Response.Redirect(BuildRedirectUri(page + QueryString.Create(Options.ReturnUrlParameter, returnUrl)));
-        return Task.CompletedTask;
     }
 }

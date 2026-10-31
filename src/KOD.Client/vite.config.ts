@@ -6,10 +6,10 @@ import { defineConfig } from "vitest/config";
 
 /**
  * The application is served by KOD.Web from the same origin as the API, in development too (`pnpm dev` rebuilds into
- * `dist`, which KOD.Web serves). While the Blazor pages are being replaced it lives under /app/.
+ * `dist`, which KOD.Web serves at the root of the site).
  */
 export default defineConfig(({ mode }) => ({
-    base: "/app/",
+    base: "/",
     resolve: {
         alias: { "@": fileURLToPath(new URL("./src", import.meta.url)) },
     },

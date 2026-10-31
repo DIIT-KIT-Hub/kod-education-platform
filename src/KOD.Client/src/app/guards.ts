@@ -3,19 +3,13 @@ import { authContextQuery, hasPermission } from "@/shared/session/session";
 import { queryClient } from "./queryClient";
 
 /**
- * The base path of the application (`/app`); router paths are relative to it.
- */
-export const basename = import.meta.env.BASE_URL.replace(/\/$/, "");
-
-/**
- * The address of the requested page relative to the application, for `returnUrl`.
+ * The address of the requested page, for `returnUrl`.
  * @param request The navigation request.
  * @returns The path with the query string.
  */
 function requestedPath(request: Request): string {
     const url = new URL(request.url);
-    const path = url.pathname.startsWith(basename) ? url.pathname.slice(basename.length) || "/" : url.pathname;
-    return path + url.search;
+    return url.pathname + url.search;
 }
 
 /**

@@ -13,15 +13,13 @@ using KOD.Web.Security;
 using KOD.Web.Signing;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.AspNetCore.Components.Server.Circuits;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 
 namespace KOD.Web.Hosting;
 
 /// <summary>
-/// Registers the presentation layer: Blazor, REST API, JWT authentication, authorization and security services.
+/// Registers the presentation layer: REST API, SignalR, JWT authentication, authorization and security services.
 /// </summary>
 internal static class WebServiceCollectionExtensions
 {
@@ -35,7 +33,6 @@ internal static class WebServiceCollectionExtensions
         /// <returns>The service collection.</returns>
         public IServiceCollection AddWebServices(IConfiguration configuration)
         {
-            services.AddRazorComponents().AddInteractiveServerComponents();
             services.AddControllers(static options => options.Filters.Add<KOD.Web.Api.ApiAntiforgeryFilter>())
                 .AddJsonOptions(static options => ConfigureJson(options.JsonSerializerOptions));
 
@@ -61,11 +58,8 @@ internal static class WebServiceCollectionExtensions
                 options.Cookie.SameSite = SameSiteMode.Strict;
             });
 
-            services.AddScoped<CircuitUserAccessor>();
             services.AddScoped<CurrentUser>();
             services.AddScoped<ICurrentUser>(static sp => sp.GetRequiredService<CurrentUser>());
-            services.AddScoped<CircuitHandler, UserCircuitHandler>();
-            services.AddScoped<IdentityRedirectManager>();
 
             services.Configure<SpaOptions>(configuration.GetSection(SpaOptions.SectionName));
             services.Configure<SigningOptions>(configuration.GetSection(SigningOptions.SectionName));
@@ -106,9 +100,6 @@ internal static class WebServiceCollectionExtensions
         /// <returns>The service collection.</returns>
         private IServiceCollection AddJwtAuthentication()
         {
-            services.AddCascadingAuthenticationState();
-            services.AddScoped<AuthenticationStateProvider, IdentityRevalidatingAuthenticationStateProvider>();
-
             services.AddAuthentication(JwtDefaults.AuthenticationScheme)
                 .AddScheme<JwtAuthenticationOptions, JwtAuthenticationHandler>(JwtDefaults.AuthenticationScheme, static _ => { })
                 .AddScheme<AuthenticationSchemeOptions, TwoFactorJwtHandler>(IdentityConstants.TwoFactorUserIdScheme, static _ => { });
@@ -172,10 +163,9 @@ internal static class WebServiceCollectionExtensions
                 {
                     var client = context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
 
-                    // Forms that verify passwords or codes: sign-in pages, the authentication API and the profile security actions.
+                    // Requests that verify passwords or codes: the authentication API and the profile security actions.
                     if (HttpMethods.IsPost(context.Request.Method)
-                        && (context.Request.Path.StartsWithSegments("/account", StringComparison.OrdinalIgnoreCase)
-                            || context.Request.Path.StartsWithSegments("/api/v1/auth", StringComparison.OrdinalIgnoreCase)
+                        && (context.Request.Path.StartsWithSegments("/api/v1/auth", StringComparison.OrdinalIgnoreCase)
                             || context.Request.Path.StartsWithSegments("/api/v1/profile", StringComparison.OrdinalIgnoreCase)))
                     {
                         return RateLimitPartition.GetFixedWindowLimiter($"account:{client}", static _ => new FixedWindowRateLimiterOptions

@@ -3,7 +3,6 @@
   <PropertyGroup>
     <RootNamespace>KOD.Web</RootNamespace>
     <UserSecretsId>kod-web-3b8f9c52-6a41-4e0b-9d7e-2f5c1a7e8d10</UserSecretsId>
-    <BlazorDisableThrowNavigationException>true</BlazorDisableThrowNavigationException>
   </PropertyGroup>
 
   <ItemGroup>
@@ -32,7 +31,7 @@
     <InternalsVisibleTo Include="KOD.UnitTests" />
   </ItemGroup>
 
-  <!-- Publishing builds the single-page application (src/KOD.Client, pnpm) and ships it as wwwroot/app.
+  <!-- Publishing builds the single-page application (src/KOD.Client, pnpm) and ships it as ClientApp (served at /).
        Skip with -p:SkipClientBuild=true when the client was built separately. -->
   <PropertyGroup>
     <ClientRoot>$(MSBuildProjectDirectory)\..\KOD.Client</ClientRoot>
@@ -46,7 +45,7 @@
   <Target Name="PublishClient" AfterTargets="ComputeResolvedFilesToPublishList">
     <ItemGroup>
       <ClientDist Include="$(ClientRoot)\dist\**" Exclude="$(ClientRoot)\dist\**\*.map" />
-      <ResolvedFileToPublish Include="@(ClientDist)" RelativePath="wwwroot\app\%(RecursiveDir)%(Filename)%(Extension)" CopyToPublishDirectory="PreserveNewest" ExcludeFromSingleFile="true" />
+      <ResolvedFileToPublish Include="@(ClientDist)" RelativePath="ClientApp\%(RecursiveDir)%(Filename)%(Extension)" CopyToPublishDirectory="PreserveNewest" ExcludeFromSingleFile="true" />
     </ItemGroup>
   </Target>
 
