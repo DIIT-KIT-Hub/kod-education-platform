@@ -112,7 +112,7 @@ Dependencies point inward: Web → Infrastructure → Application → Domain. Ce
 - Global behaviors are plain JS with event delegation on `document` (they survive enhanced navigation):
   `wwwroot/js/kod-ds.js` (dialogs, confirm, toasts, autosubmit, theme, sidebar, button ink, password toggle, OTP cells),
   `kod-pickers.js` (custom select drop-down and date picker calendar), `app.js` (ES module: page entrance, navigation
-  progress bar, lazy signing UI / manual), `kod-wizard.js`, `help.js`, `signing/*`.
+  progress bar, lazy manual), `help.js`.
 - Strict CSP: no inline scripts, no `eval`. New scripts are static files referenced through `DesignTokens` / `@Assets[...]`.
 
 ### Images, news editor, discussion
@@ -138,9 +138,11 @@ Dependencies point inward: Web → Infrastructure → Application → Domain. Ce
 ## React client (`src/KOD.Client`, migration from Blazor)
 
 The frontend moves from Blazor to a React SPA; at the end the MVC/Blazor part disappears and KOD.Web is a Web API plus
-the static SPA. Phases: 1 sign-in + shell + home (done), 2 documents and signing, 3 news (Tiptap, live discussion),
+the static SPA. Phases: 1 sign-in + shell + home (done), 2 documents and signing (done), 3 news (Tiptap, live discussion),
 4 structure and profile, 5 administration, 6 manual, 7 remove Blazor and move the SPA from `/app` to `/`. Until a
-module is moved, the menu links to its Blazor page with a plain `href` (full page load); moved pages use `to`.
+module is moved, the menu links to its Blazor page with a plain `href` (full page load); moved pages use `to`. A moved
+section loses its Blazor pages and its old addresses redirect to `/app/...` (`MovedSections` in `SpaHostingExtensions`),
+so links in the remaining Blazor pages and the manual keep working.
 
 - **Stack** (latest versions; the user allowed the newest npm releases, the two-week rule is for NuGet): React 19 +
   React Compiler (`@rolldown/plugin-babel` + `reactCompilerPreset`), Vite 8, TypeScript 6 (strict,
@@ -173,6 +175,11 @@ module is moved, the menu links to its Blazor page with a plain `href` (full pag
   translated; `<Field>` gives the control its id / `aria-describedby` / `aria-invalid` through a render prop.
 - **Pages** set the document title with `<DocumentTitle>` or `<PageHeader>` (React hoists `<title>`).
 - Global UI services are module stores read with `useSyncExternalStore`: `toast(text)`, `await confirm({...})`.
+- **Signing** (`shared/signing`): `SigningClient` (typed worker client; worker messages are Ukrainian and translated
+  through a table in `client.ts`), `SigningWizard` (document or local files), `KeyPanel`, format rules in `formats.ts`.
+  The worker (`eusign.worker.js`, plain JS) is bundled by Vite (`new Worker(new URL(...))`); the IIT library stays in
+  `KOD.Web/wwwroot/lib/eusign` (16 MB, served compressed by `MapStaticAssets`; the trust list fallback lives there too).
+  Keep the order: key read only on the last step, released after signing / going back / closing / leaving.
 
 ## Conventions
 
@@ -221,7 +228,7 @@ module is moved, the menu links to its Blazor page with a plain `href` (full pag
 ## Security invariants (do not break)
 
 - The private key and its password never leave the browser: they go only to the Web Worker
-  (`wwwroot/js/signing/eusign.worker.js`, IIT EUSignCP-JS). The server receives the finished signature + certificate data,
+  (`src/KOD.Client/src/shared/signing/eusign.worker.js`, IIT EUSignCP-JS). The server receives the finished signature + certificate data,
   public OCSP/TSP/CMP messages through `/api/v1/eusign/proxy` (host allowlist; only hosts are logged), and for the file
   signing tool only file names and parameters (`POST /api/v1/signing/journal` → audit `signing.files-signed`).
 - Before signing a document the browser checks the file's SHA-256 against the registered one.

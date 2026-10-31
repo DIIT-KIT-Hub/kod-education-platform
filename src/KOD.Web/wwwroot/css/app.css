@@ -917,116 +917,7 @@ html[data-navigating] .app-page { filter: opacity(0.55); transition: filter var(
 .photo-upload__zoom { display: flex; align-items: center; gap: var(--ds-space-2); width: min(16rem, 70vw); color: var(--ds-color-text-muted); }
 .photo-upload__zoom input { flex: 1; accent-color: var(--ds-color-text); }
 
-/* Documents ---------------------------------------------------------------- */
-.doc-file {
-    display: flex;
-    align-items: center;
-    gap: var(--ds-space-4);
-    padding: var(--ds-space-4);
-    border-radius: var(--ds-radius-md);
-    background: var(--ds-color-surface-2);
-    min-width: 0;
-}
-
-/* The signed file that holds every signature: outlined, so it reads as the main download once the document is signed. */
-.doc-file--signed { background: var(--ds-color-surface); border: 1.5px solid var(--ds-color-text); }
-
-.doc-file__icon {
-    display: grid;
-    place-items: center;
-    flex: none;
-    width: 3rem;
-    height: 3rem;
-    border-radius: var(--ds-radius-sm);
-    background: var(--ds-color-inverse);
-    color: var(--ds-color-on-inverse);
-}
-
-.doc-file__name { font-weight: 700; overflow-wrap: anywhere; }
-
-.signers-picker__results {
-    display: grid;
-    gap: 0.25rem;
-    margin: 0;
-    padding: var(--ds-space-2);
-    list-style: none;
-    border-radius: var(--ds-radius-md);
-    border: 1px solid var(--ds-color-border);
-    background: var(--ds-color-surface);
-    box-shadow: var(--ds-shadow-md);
-    animation: ds-fade-up var(--ds-duration-base) var(--ds-ease-out) both;
-}
-
-.signers-picker__results button {
-    width: 100%;
-    display: grid;
-    gap: 0.1rem;
-    padding: var(--ds-space-2) var(--ds-space-3);
-    border: 0;
-    border-radius: var(--ds-radius-sm);
-    background: transparent;
-    text-align: left;
-    cursor: pointer;
-}
-
-.signers-picker__results button:hover { background: var(--ds-color-surface-3); }
-
-.route-list { display: grid; gap: var(--ds-space-2); margin: 0; padding: 0; list-style: none; }
-
-.route-list__item {
-    display: flex;
-    align-items: center;
-    gap: var(--ds-space-3);
-    padding: var(--ds-space-3);
-    border-radius: var(--ds-radius-md);
-    background: var(--ds-color-surface-2);
-    animation: ds-scale-in var(--ds-duration-base) var(--ds-ease-out) both;
-}
-
-.route-list__order {
-    display: grid;
-    place-items: center;
-    flex: none;
-    width: 2rem;
-    height: 2rem;
-    border-radius: 50%;
-    background: var(--ds-color-inverse);
-    color: var(--ds-color-on-inverse);
-    font-weight: 800;
-    font-size: var(--ds-fs-sm);
-}
-
-/* Signing ------------------------------------------------------------------ */
-.sign-panel { display: grid; gap: var(--ds-space-6); }
-
-/* What is about to be signed, shown above the key on the last wizard step. */
-.sign-summary {
-    padding: var(--ds-space-4) var(--ds-space-5);
-    border: 1px solid var(--ds-color-border);
-    border-radius: var(--ds-radius-md);
-    background: var(--ds-color-surface-2);
-}
-
-.sign-owner {
-    display: grid;
-    gap: var(--ds-space-3);
-    padding: var(--ds-space-4) var(--ds-space-5);
-    border-radius: var(--ds-radius-md);
-    background: var(--ds-color-inverse);
-    color: var(--ds-color-on-inverse);
-    animation: ds-scale-in var(--ds-duration-base) var(--ds-ease-out) both;
-}
-
-.sign-owner .ds-dl dt { color: inherit; opacity: 0.65; }
-
-.sign-result {
-    display: grid;
-    justify-items: center;
-    gap: var(--ds-space-3);
-    padding: var(--ds-space-8) var(--ds-space-5);
-    text-align: center;
-}
-
+/* Result of a finished step (authenticator enrollment). */
 .sign-result__icon {
     display: grid;
     place-items: center;
@@ -1037,12 +928,6 @@ html[data-navigating] .app-page { filter: opacity(0.55); transition: filter var(
     color: var(--ds-color-on-inverse);
     animation: ds-pop var(--ds-duration-slow) var(--ds-ease-spring) both;
 }
-
-.sign-result__actions { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--ds-space-3); }
-
-.sign-files { display: grid; gap: var(--ds-space-2); margin: 0; padding: 0; list-style: none; }
-.sign-files:empty { display: none; }
-.sign-files .doc-file__name { flex: 1 1 auto; }
 
 /* Admin -------------------------------------------------------------------- */
 /* Icon picker of the unit type editor. */

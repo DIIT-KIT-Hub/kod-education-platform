@@ -7,6 +7,58 @@ msgstr ""
 "X-Generator: @lingui/cli\n"
 "Language: en\n"
 
+#: src/features/signing/components/SigningInfo.tsx
+msgid "«Дія», ДПС, ПриватБанк, monobank, Вчасно, DepositSign та інші з переліку ЦЗО"
+msgstr "Diia, State Tax Service, PrivatBank, monobank, Vchasno, DepositSign and others from the Central Certification Authority list"
+
+#: src/shared/ui/Pagination.tsx
+msgid "{firstText}–{lastText} з {totalText}"
+msgstr "{firstText}–{lastText} of {totalText}"
+
+#: src/features/signing/components/VerifyPanel.tsx
+msgid "{format} · {container} · підписів: {count}"
+msgstr "{format} · {container} · signatures: {count}"
+
+#: src/shared/signing/formats.ts
+msgid "*.p7s · будь-який файл"
+msgstr "*.p7s · any file"
+
+#: src/features/signing/components/VerifyPanel.tsx
+msgid "*.p7s, *.pdf, *.xml, *.asics, *.asice. Для зовнішнього підпису додайте також підписаний файл."
+msgstr "*.p7s, *.pdf, *.xml, *.asics, *.asice. For a detached signature, also add the signed file."
+
+#: src/shared/signing/formats.ts
+msgid "*.xml · один або кілька файлів"
+msgstr "*.xml · one or more files"
+
+#: src/shared/signing/formats.ts
+msgid "B-B — базовий"
+msgstr "B-B — basic"
+
+#: src/features/signing/components/SigningInfo.tsx
+msgid "B-B (базовий), B-T (з позначкою часу), B-LT (з даними перевірки), B-LTA (архівний)"
+msgstr "B-B (basic), B-T (with timestamp), B-LT (with validation data), B-LTA (archival)"
+
+#: src/shared/signing/formats.ts
+msgid "B-LT — з даними для довготривалої перевірки"
+msgstr "B-LT — with long-term validation data"
+
+#: src/shared/signing/SigningWizard.tsx
+msgid "B-LT містить усе для перевірки через роки (рекомендовано)."
+msgstr "B-LT contains everything needed to verify the signature years later (recommended)."
+
+#: src/shared/signing/formats.ts
+msgid "B-LTA — архівний"
+msgstr "B-LTA — archival"
+
+#: src/shared/signing/formats.ts
+msgid "B-T — з позначкою часу"
+msgstr "B-T — with timestamp"
+
+#: src/features/signing/components/SigningInfo.tsx
+msgid "CAdES (зовнішній і внутрішній), XAdES, PAdES (PDF), ASiC-S, ASiC-E"
+msgstr "CAdES (detached and enveloped), XAdES, PAdES (PDF), ASiC-S, ASiC-E"
+
 #: src/shared/ui/PhotoPicker.tsx
 msgid "JPEG, PNG, WebP, AVIF або GIF до 15 МБ. Фото буде стиснуто, метадані (зокрема геолокацію) видалено."
 msgstr "JPEG, PNG, WebP, AVIF or GIF up to 15 MB. The photo is compressed and its metadata (including location) removed."
@@ -16,13 +68,35 @@ msgstr "JPEG, PNG, WebP, AVIF or GIF up to 15 MB. The photo is compressed and it
 msgid "№ {0}"
 msgstr "No. {0}"
 
+#: src/features/documents/pages/DocumentEditorPage.tsx
+#: src/features/documents/pages/DocumentPage.tsx
+msgid "№ {number}"
+msgstr "No. {number}"
+
+#: src/features/documents/pages/DocumentEditorPage.tsx
+msgid "PDF, DOCX, XLSX, ODT та інші · до 25 МБ. Для PAdES оберіть PDF."
+msgstr "PDF, DOCX, XLSX, ODT and more · up to 25 MB. Choose a PDF for PAdES."
+
 #: src/features/auth/pages/SetupAuthenticatorPage.tsx
 msgid "QR-код для автентифікатора"
 msgstr "QR code for the authenticator"
 
+#: src/shared/signing/SigningWizard.tsx
+msgid "SHA-256 файлу збігається з зареєстрованим у системі."
+msgstr "The file's SHA-256 matches the one registered in the system."
+
 #: src/features/auth/pages/SetupAuthenticatorPage.tsx
 msgid "Автентифікатор підключено"
 msgstr "Authenticator connected"
+
+#: src/features/documents/pages/DocumentPage.tsx
+#: src/features/documents/pages/DocumentsPage.tsx
+msgid "Автор"
+msgstr "Author"
+
+#: src/features/documents/pages/DocumentPage.tsx
+msgid "Автор побачить причину й зможе виправити документ."
+msgstr "The author will see the reason and can fix the document."
 
 #: src/app/layout/navigation.ts
 msgid "Адміністрування"
@@ -33,21 +107,70 @@ msgctxt "document-kind"
 msgid "Акт"
 msgstr "Act"
 
+#: src/features/signing/components/SigningInfo.tsx
+msgid "Апаратні та хмарні ключі"
+msgstr "Hardware tokens and cloud keys"
+
+#: src/features/signing/components/SigningInfo.tsx
+msgid "Безпека"
+msgstr "Security"
+
+#: src/shared/signing/client.ts
+msgid "Бібліотеку підпису не запущено."
+msgstr "The signing library isn't running."
+
+#: src/features/documents/pages/DocumentPage.tsx
+msgid "В архів"
+msgstr "Archive"
+
 #: src/shared/i18n/display.ts
 msgid "В архіві"
 msgstr "Archived"
+
+#: src/features/documents/pages/DocumentsPage.tsx
+msgid "Ваш підпис"
+msgstr "Your signature"
 
 #: src/features/auth/pages/SetupAuthenticatorPage.tsx
 msgid "Введіть 6-значний код, який показує застосунок."
 msgstr "Enter the 6-digit code shown in the app."
 
+#: src/shared/signing/KeyPanel.tsx
+msgid "Введіть пароль."
+msgstr "Enter the password."
+
 #: src/features/auth/pages/RecoveryPage.tsx
 msgid "Введіть резервний код."
 msgstr "Enter a recovery code."
 
+#: src/features/documents/pages/DocumentPage.tsx
+msgid "Версія після цього підпису"
+msgstr "Version after this signature"
+
 #: src/features/auth/pages/ChangePasswordPage.tsx
 msgid "Ви увійшли з тимчасовим паролем. Задайте власний пароль, щоб продовжити роботу."
 msgstr "You signed in with a temporary password. Set your own password to continue."
+
+#: src/features/documents/pages/DocumentPage.tsx
+msgid "Вид"
+msgstr "Type"
+
+#: src/features/documents/pages/DocumentEditorPage.tsx
+#: src/features/documents/pages/DocumentsPage.tsx
+msgid "Вид документа"
+msgstr "Document type"
+
+#: src/features/documents/pages/DocumentPage.tsx
+msgid "Видалити"
+msgstr "Delete"
+
+#: src/features/documents/pages/DocumentPage.tsx
+msgid "Видалити документ остаточно?"
+msgstr "Delete the document permanently?"
+
+#: src/shared/signing/KeyPanel.tsx
+msgid "Визначити автоматично"
+msgstr "Detect automatically"
 
 #: src/app/layout/UserMenu.tsx
 #: src/features/auth/pages/PhotoPage.tsx
@@ -62,13 +185,57 @@ msgstr "Sign out of the cabinet?"
 msgid "Використайте один із резервних кодів, отриманих під час підключення автентифікатора. Кожен код діє лише один раз."
 msgstr "Use one of the recovery codes you received when you set up your authenticator. Each code works only once."
 
+#: src/features/signing/components/SigningInfo.tsx
+msgid "Використовується офіційна бібліотека ІІТ «Користувач ЦСК» (EUSignCP-JS)."
+msgstr "The official IIT “CA User” library (EUSignCP-JS) is used."
+
+#: src/features/documents/pages/DocumentEditorPage.tsx
+msgid "Виправте його та надішліть на підпис повторно. Підписи, накладені на поточний файл, збережуться — ці підписанти не підписуватимуть знову, якщо ви не заміните файл і не приберете їх із маршруту."
+msgstr "Fix it and send it for signing again. Signatures on the current file are kept — those signers won't sign again unless you replace the file or remove them from the route."
+
+#: src/features/documents/pages/DocumentEditorPage.tsx
+msgid "Вище"
+msgstr "Move up"
+
 #: src/features/auth/pages/SetupAuthenticatorPage.tsx
 msgid "Від 12 символів: великі й малі літери та цифри. Паролі з відомих витоків не приймаються."
 msgstr "At least 12 characters: uppercase and lowercase letters and digits. Passwords found in known data breaches aren't accepted."
 
+#: src/features/documents/pages/DocumentPage.tsx
+msgid "Відкликати"
+msgstr "Withdraw"
+
+#: src/features/documents/pages/DocumentPage.tsx
+msgid "Відкликати документ у чернетки?"
+msgstr "Withdraw the document to drafts?"
+
 #: src/features/auth/pages/TwoFactorPage.tsx
 msgid "Відкрийте застосунок-автентифікатор і введіть 6-значний код для облікового запису КОД."
 msgstr "Open your authenticator app and enter the 6-digit code for your KOD account."
+
+#: src/features/documents/pages/DocumentsPage.tsx
+msgid "Відкрити"
+msgstr "Open"
+
+#: src/features/documents/pages/DocumentPage.tsx
+msgid "Відмова в підписанні"
+msgstr "Decline to sign"
+
+#: src/shared/i18n/display.ts
+msgid "Відмовив(-ла)"
+msgstr "Declined"
+
+#: src/features/documents/pages/DocumentPage.tsx
+msgid "Відмовити"
+msgstr "Decline"
+
+#: src/features/documents/pages/DocumentPage.tsx
+msgid "Відмову зафіксовано"
+msgstr "Decline recorded"
+
+#: src/features/documents/pages/DocumentPage.tsx
+msgid "Відомості"
+msgstr "Details"
 
 #: src/features/auth/pages/SetupAuthenticatorPage.tsx
 msgid "Відскануйте QR-код або введіть ключ вручну:"
@@ -82,6 +249,10 @@ msgstr "Rejected"
 msgid "Вкажіть електронну пошту."
 msgstr "Enter your email."
 
+#: src/features/documents/pages/DocumentEditorPage.tsx
+msgid "Вкажіть назву документа."
+msgstr "Enter the document title."
+
 #: src/features/auth/pages/ChangePasswordPage.tsx
 #: src/features/auth/pages/SetupAuthenticatorPage.tsx
 msgid "Вкажіть новий пароль."
@@ -94,6 +265,10 @@ msgstr "Enter your password."
 #: src/features/auth/pages/ChangePasswordPage.tsx
 msgid "Вкажіть поточний пароль."
 msgstr "Enter your current password."
+
+#: src/features/documents/pages/DocumentPage.tsx
+msgid "Вкажіть причину відмови."
+msgstr "Enter the reason for declining."
 
 #: src/features/auth/pages/SetupAuthenticatorPage.tsx
 msgid "Встановіть <0>Google Authenticator</0>, <1>Microsoft Authenticator</1> або інший TOTP-застосунок."
@@ -132,9 +307,41 @@ msgstr "Home"
 msgid "Головне меню"
 msgstr "Main menu"
 
+#: src/shared/ui/Wizard.tsx
+msgid "Далі"
+msgstr "Next"
+
+#: src/shared/signing/formats.ts
+msgid "дані всередині підпису"
+msgstr "data inside the signature"
+
+#: src/features/documents/pages/DocumentsPage.tsx
+msgid "Дії"
+msgstr "Actions"
+
+#: src/shared/signing/KeyPanel.tsx
+msgid "Дійсний до"
+msgstr "Valid until"
+
 #: src/features/auth/pages/SetupAuthenticatorPage.tsx
 msgid "Для кожного облікового запису обов'язкова двофакторна автентифікація. Прив'яжіть застосунок-автентифікатор — це займе хвилину."
 msgstr "Two-factor authentication is required for every account. Link an authenticator app — it takes a minute."
+
+#: src/shared/signing/SigningWizard.tsx
+msgid "До 25 МБ кожен. Для XAdES та ASiC-E можна обрати кілька файлів; для PAdES — PDF."
+msgstr "Up to 25 MB each. XAdES and ASiC-E accept multiple files; PAdES requires a PDF."
+
+#: src/features/documents/pages/DocumentEditorPage.tsx
+msgid "До документа"
+msgstr "Back to document"
+
+#: src/features/documents/pages/DocumentPage.tsx
+msgid "До реєстру"
+msgstr "Back to registry"
+
+#: src/features/signing/components/SigningInfo.tsx
+msgid "До серверів надавачів передаються лише публічні запити: перевірка статусу сертифіката та позначка часу."
+msgstr "Only public requests are sent to provider servers: certificate status checks and timestamps."
 
 #: src/features/auth/pages/LockoutPage.tsx
 #: src/features/auth/pages/SetupAuthenticatorPage.tsx
@@ -171,11 +378,88 @@ msgctxt "document-kind"
 msgid "Договір"
 msgstr "Contract"
 
+#: src/features/documents/pages/DocumentEditorPage.tsx
+msgid "Додайте підписантів у потрібному порядку."
+msgstr "Add signers in the required order."
+
 #: src/features/auth/pages/PhotoPage.tsx
 msgid "Додайте фото профілю"
 msgstr "Add a profile photo"
 
+#: src/shared/signing/KeyPanel.tsx
+msgid "Додати сертифікати вручну (якщо надавач не підтримує автоматичне завантаження)"
+msgstr "Add certificates manually (if the provider doesn't support automatic download)"
+
+#: src/features/documents/pages/DocumentPage.tsx
+#: src/features/documents/pages/DocumentsPage.tsx
+#: src/shared/signing/SigningWizard.tsx
+msgid "Документ"
+msgstr "Document"
+
+#: src/features/documents/pages/DocumentEditorPage.tsx
+msgid "Документ без підписантів можна зберегти лише як чернетку."
+msgstr "A document without signers can only be saved as a draft."
+
+#: src/features/documents/pages/DocumentPage.tsx
+msgid "Документ видалено"
+msgstr "Document deleted"
+
+#: src/features/documents/pages/DocumentEditorPage.tsx
+#: src/features/documents/pages/DocumentPage.tsx
+msgid "Документ відхилено"
+msgstr "Document rejected"
+
+#: src/features/documents/pages/DocumentPage.tsx
+msgid "Документ з усіма підписами"
+msgstr "Document with all signatures"
+
+#: src/features/documents/pages/DocumentPage.tsx
+msgid "Документ надіслано на підписання"
+msgstr "Document sent for signing"
+
+#: src/features/documents/pages/DocumentPage.tsx
+msgid "Документ не знайдено"
+msgstr "Document not found"
+
+#: src/features/documents/pages/DocumentEditorPage.tsx
+#: src/features/documents/pages/DocumentPage.tsx
+msgid "Документ не існує або у вас немає до нього доступу."
+msgstr "The document does not exist or you don't have access to it."
+
+#: src/features/documents/pages/DocumentEditorPage.tsx
+msgid "Документ не можна змінити"
+msgstr "The document cannot be changed"
+
+#: src/features/documents/pages/DocumentPage.tsx
+msgid "Документ очікує вашого підпису"
+msgstr "The document is awaiting your signature"
+
+#: src/features/documents/pages/DocumentPage.tsx
+msgid "Документ переміщено в архів"
+msgstr "Document moved to the archive"
+
+#: src/features/documents/pages/DocumentPage.tsx
+#: src/shared/signing/SigningWizard.tsx
+msgid "Документ підписано"
+msgstr "Document signed"
+
+#: src/features/documents/pages/DocumentPage.tsx
+msgid "Документ повернуто в чернетки"
+msgstr "Document returned to drafts"
+
+#: src/features/documents/pages/DocumentEditorPage.tsx
+msgid "Документ створено й надіслано на підпис"
+msgstr "Document created and sent for signing"
+
+#. placeholder {0}: data.signatures
+#: src/shared/signing/SigningWizard.tsx
+msgid "Документ уже має підписів: {0}. Ваш підпис буде додано до того самого файлу, тож у ньому будуть усі підписи."
+msgstr "The document already has {0} signature(s). Your signature will be added to the same file, so it will hold every signature."
+
 #: src/app/layout/navigation.ts
+#: src/features/documents/pages/DocumentEditorPage.tsx
+#: src/features/documents/pages/DocumentPage.tsx
+#: src/features/documents/pages/DocumentsPage.tsx
 msgid "Документи"
 msgstr "Documents"
 
@@ -187,6 +471,18 @@ msgstr "Documents where it's your turn"
 msgid "Документи, які очікують на ваш підпис, новини організації та швидкий доступ до сервісів — в одному місці."
 msgstr "Documents awaiting your signature, organization news and quick access to services — all in one place."
 
+#: src/features/documents/pages/DocumentsPage.tsx
+msgid "Документів не знайдено"
+msgstr "No documents found"
+
+#: src/features/documents/pages/DocumentsPage.tsx
+msgid "Документів, що очікують вашого підпису, немає."
+msgstr "No documents are awaiting your signature."
+
+#: src/app/pages/RouteError.tsx
+msgid "Доступ обмежено"
+msgstr "Access restricted"
+
 #: src/features/auth/pages/LoginPage.tsx
 msgid "Електронна пошта"
 msgstr "Email"
@@ -195,13 +491,38 @@ msgstr "Email"
 msgid "Електронний документообіг для будь-якої організації: структура, маршрути погодження та кваліфікований електронний підпис."
 msgstr "Electronic document management for any organization: structure, approval routes and qualified electronic signatures."
 
+#: src/shared/signing/KeyPanel.tsx
+msgid "ЄДРПОУ"
+msgstr "EDRPOU code"
+
+#: src/shared/i18n/display.ts
+msgid "з даними (внутрішній)"
+msgstr "with the data (enveloped)"
+
 #: src/features/auth/pages/LockoutPage.tsx
 msgid "Забагато спроб"
 msgstr "Too many attempts"
 
+#: src/shared/ui/Progress.tsx
 #: src/shared/ui/Spinner.tsx
 msgid "Завантаження"
 msgstr "Loading"
+
+#: src/features/documents/pages/DocumentPage.tsx
+msgid "Завантажити"
+msgstr "Download"
+
+#: src/shared/signing/SigningWizard.tsx
+msgid "Завантажити {fileName}"
+msgstr "Download {fileName}"
+
+#: src/features/documents/pages/DocumentEditorPage.tsx
+msgid "Завантажте файл, вкажіть реквізити та сформуйте маршрут підписання."
+msgstr "Upload a file, fill in the details and build the signing route."
+
+#: src/features/documents/pages/DocumentPage.tsx
+msgid "Завершено"
+msgstr "Completed"
 
 #: src/shared/ui/Dialog.tsx
 msgid "Закрити"
@@ -211,6 +532,10 @@ msgstr "Close"
 msgid "Закрити меню"
 msgstr "Close menu"
 
+#: src/features/documents/pages/DocumentEditorPage.tsx
+msgid "Замінити файл"
+msgstr "Replace file"
+
 #: src/features/auth/pages/LoginPage.tsx
 msgid "Запам'ятати мене на цьому пристрої"
 msgstr "Remember me on this device"
@@ -219,10 +544,26 @@ msgstr "Remember me on this device"
 msgid "Захистіть вхід"
 msgstr "Secure your sign-in"
 
+#: src/shared/signing/KeyPanel.tsx
+msgid "Захищений носій"
+msgstr "Hardware token"
+
+#: src/shared/signing/SigningWizard.tsx
+msgid "Зачекайте своєї черги"
+msgstr "Waiting for your turn"
+
 #: src/shared/i18n/display.ts
 msgctxt "document-kind"
 msgid "Заява"
 msgstr "Application"
+
+#: src/features/documents/pages/DocumentEditorPage.tsx
+msgid "Зберегти зміни"
+msgstr "Save changes"
+
+#: src/features/documents/pages/DocumentEditorPage.tsx
+msgid "Зберегти й надіслати на підпис"
+msgstr "Save and send for signing"
 
 #: src/features/auth/pages/ChangePasswordPage.tsx
 #: src/features/auth/pages/SetupAuthenticatorPage.tsx
@@ -232,6 +573,10 @@ msgstr "Save password"
 #: src/features/auth/pages/PhotoPage.tsx
 msgid "Зберегти фото"
 msgstr "Save photo"
+
+#: src/features/documents/pages/DocumentEditorPage.tsx
+msgid "Зберегти чернетку"
+msgstr "Save draft"
 
 #: src/features/auth/pages/SetupAuthenticatorPage.tsx
 msgid "Збережіть резервні коди в надійному місці. Вони знадобляться, якщо ви втратите доступ до телефону. Кожен код діє один раз."
@@ -250,14 +595,42 @@ msgstr "Collapse menu"
 msgid "Зміна пароля"
 msgstr "Change password"
 
+#: src/features/documents/pages/DocumentEditorPage.tsx
+msgid "Зміни збережено"
+msgstr "Changes saved"
+
+#: src/features/documents/pages/DocumentEditorPage.tsx
+msgid "Зміни збережено, документ надіслано на підписання"
+msgstr "Changes saved, document sent for signing"
+
 #: src/shared/ui/ThemeToggle.tsx
 msgid "Змінити тему"
 msgstr "Change theme"
+
+#: src/features/documents/pages/DocumentEditorPage.tsx
+msgid "Змініть файл, реквізити або маршрут і збережіть документ або надішліть його на підпис."
+msgstr "Change the file, details or route, then save the document or send it for signing."
+
+#: src/features/documents/pages/DocumentEditorPage.tsx
+msgid "Знайти працівника"
+msgstr "Find an employee"
+
+#: src/shared/signing/KeyPanel.tsx
+msgid "Зчитати ключ"
+msgstr "Read key"
+
+#: src/features/signing/pages/SigningPages.tsx
+msgid "Інструменти підпису"
+msgstr "Signature tools"
 
 #: src/shared/i18n/display.ts
 msgctxt "document-kind"
 msgid "Інший документ"
 msgstr "Other document"
+
+#: src/shared/signing/KeyPanel.tsx
+msgid "Інший ключ"
+msgstr "Another key"
 
 #: src/shared/ui/Brand.tsx
 msgid "К"
@@ -270,6 +643,26 @@ msgstr "Organizational<0/>Documents Cabinet"
 #: src/features/auth/components/AuthLayout.tsx
 msgid "Кабінет<0/>організаційних документів"
 msgstr "Organizational<0/>Documents Cabinet"
+
+#: src/features/documents/pages/DocumentPage.tsx
+msgid "Кваліфіковані електронні підписи, накладені на документ"
+msgstr "Qualified electronic signatures applied to the document"
+
+#: src/shared/signing/SigningWizard.tsx
+msgid "Ключ зчитується лише у вашому браузері; пароль не передається на сервер."
+msgstr "The key is read only in your browser; the password is not sent to the server."
+
+#: src/features/signing/components/SigningInfo.tsx
+msgid "Ключ і пароль обробляються лише у вашому браузері (Web Worker) і ніколи не надсилаються на сервер."
+msgstr "Your key and password are processed only in your browser (Web Worker) and are never sent to the server."
+
+#: src/shared/signing/SigningWizard.tsx
+msgid "Ключ і підпис"
+msgstr "Key and signature"
+
+#: src/features/signing/components/SigningInfo.tsx
+msgid "Ключі"
+msgstr "Keys"
 
 #: src/app/layout/AppShell.tsx
 #: src/features/auth/components/AuthLayout.tsx
@@ -298,9 +691,40 @@ msgstr "Verification code"
 msgid "Колеги бачать ваше фото в документах, новинах і структурі. Без фото кабінетом користуватися не можна."
 msgstr "Colleagues see your photo in documents, news and the structure. The cabinet cannot be used without a photo."
 
+#: src/shared/signing/formats.ts
+msgid "контейнер з 1 файлом"
+msgstr "container with 1 file"
+
+#: src/shared/signing/formats.ts
+msgid "контейнер з кількох файлів"
+msgstr "container with multiple files"
+
+#: src/shared/signing/SigningWizard.tsx
+msgid "Контрольна сума останньої підписаної версії не збігається з зареєстрованою. Підписання заборонено."
+msgstr "The checksum of the latest signed version does not match the registered one. Signing is not allowed."
+
+#: src/shared/signing/SigningWizard.tsx
+msgid "Контрольна сума файлу не збігається з зареєстрованою. Підписання заборонено."
+msgstr "The file checksum doesn't match the registered one. Signing is not allowed."
+
 #: src/features/auth/pages/SetupAuthenticatorPage.tsx
 msgid "Копіювати"
 msgstr "Copy"
+
+#: src/features/documents/pages/DocumentEditorPage.tsx
+msgid "Короткий зміст або коментар для підписантів."
+msgstr "A short summary or a comment for the signers."
+
+#. placeholder {0}: index + 1
+#. placeholder {1}: steps.length
+#. placeholder {2}: steps[index]?.title ?? ""
+#: src/shared/ui/Wizard.tsx
+msgid "Крок {0} з {1}: {2}"
+msgstr "Step {0} of {1}: {2}"
+
+#: src/shared/ui/Wizard.tsx
+msgid "Крок {counterNumber} з {counterTotal} · {counterTitle}"
+msgstr "Step {counterNumber} of {counterTotal} · {counterTitle}"
 
 #: src/features/auth/pages/SetupAuthenticatorPage.tsx
 msgid "Крок 1 з 2"
@@ -314,6 +738,11 @@ msgstr "Step 2 of 2"
 msgctxt "document-kind"
 msgid "Лист"
 msgstr "Letter"
+
+#: src/features/documents/pages/DocumentEditorPage.tsx
+#: src/features/documents/pages/DocumentPage.tsx
+msgid "Маршрут підписання"
+msgstr "Signing route"
 
 #: src/shared/ui/PhotoPicker.tsx
 msgid "Масштаб"
@@ -344,12 +773,21 @@ msgid "Мої чернетки"
 msgstr "My drafts"
 
 #: src/app/pages/NotFoundPage.tsx
+#: src/app/pages/RouteError.tsx
 msgid "На головну"
 msgstr "Go to home page"
 
 #: src/shared/i18n/display.ts
 msgid "На підписанні"
 msgstr "In signing"
+
+#: src/features/documents/pages/DocumentPage.tsx
+msgid "На підписання"
+msgstr "Send for signing"
+
+#: src/shared/ui/Pagination.tsx
+msgid "На сторінці"
+msgstr "Per page"
 
 #: src/shared/ui/PageHeader.tsx
 msgid "Навігаційний ланцюжок"
@@ -359,14 +797,95 @@ msgstr "Breadcrumbs"
 msgid "Навчання та розвиток"
 msgstr "Training and development"
 
+#: src/shared/signing/KeyPanel.tsx
+msgid "Надавач"
+msgstr "Provider"
+
+#: src/shared/signing/KeyPanel.tsx
+msgid "Надавач електронних довірчих послуг"
+msgstr "Trust service provider"
+
+#: src/features/signing/components/SigningInfo.tsx
+msgid "Надавачі"
+msgstr "Providers"
+
+#: src/features/documents/pages/DocumentPage.tsx
+msgid "Надіслано на підпис"
+msgstr "Sent for signing"
+
+#: src/features/documents/pages/DocumentPage.tsx
+msgid "Надіслати документ на підписання?"
+msgstr "Send the document for signing?"
+
+#: src/shared/ui/Wizard.tsx
+msgid "Назад"
+msgstr "Back"
+
+#: src/features/documents/pages/DocumentEditorPage.tsx
+msgid "Назва"
+msgstr "Title"
+
+#: src/features/documents/pages/DocumentsPage.tsx
+msgid "Назва або реєстраційний номер"
+msgstr "Title or registration number"
+
+#: src/features/documents/pages/DocumentEditorPage.tsx
+msgid "Назва не може бути довшою за 300 символів."
+msgstr "The title cannot be longer than 300 characters."
+
 #: src/shared/i18n/display.ts
 msgctxt "document-kind"
 msgid "Наказ"
 msgstr "Order"
 
+#: src/features/signing/pages/SigningPages.tsx
+msgid "Накладіть кваліфікований електронний підпис на будь-який файл. Підпис створюється у вашому браузері — файл і ключ нікуди не передаються."
+msgstr "Apply a qualified electronic signature to any file. The signature is created in your browser — the file and key are never sent anywhere."
+
+#: src/features/documents/pages/DocumentEditorPage.tsx
+msgid "Наприклад: Про затвердження графіка відпусток"
+msgstr "For example: Approval of the vacation schedule"
+
+#: src/shared/ui/Pagination.tsx
+msgid "Наступна сторінка"
+msgstr "Next page"
+
 #: src/app/layout/UserMenu.tsx
 msgid "Не вдалося вийти. Спробуйте ще раз."
 msgstr "Could not sign out. Try again."
+
+#: src/features/documents/pages/DocumentPage.tsx
+msgid "Не вдалося виконати дію. Спробуйте ще раз."
+msgstr "Could not complete the action. Try again."
+
+#: src/shared/signing/client.ts
+msgid "Не вдалося завантажити {0} ({1})."
+msgstr "Couldn't load {0} ({1})."
+
+#: src/shared/signing/client.ts
+#: src/shared/signing/SigningWizard.tsx
+msgid "Не вдалося завантажити бібліотеку підпису."
+msgstr "Couldn't load the signing library."
+
+#: src/features/documents/pages/DocumentsPage.tsx
+msgid "Не вдалося завантажити документи."
+msgstr "Could not load the documents."
+
+#: src/shared/signing/SigningWizard.tsx
+msgid "Не вдалося завантажити останню підписану версію документа."
+msgstr "Could not download the latest signed version of the document."
+
+#: src/shared/signing/SigningWizard.tsx
+msgid "Не вдалося завантажити файл документа."
+msgstr "Couldn't download the document file."
+
+#: src/features/documents/pages/DocumentEditorPage.tsx
+msgid "Не вдалося зберегти документ. Спробуйте ще раз."
+msgstr "Could not save the document. Try again."
+
+#: src/shared/signing/SigningWizard.tsx
+msgid "Не вдалося зберегти підпис."
+msgstr "Couldn't save the signature."
 
 #: src/features/auth/pages/PhotoPage.tsx
 msgid "Не вдалося зберегти фото. Спробуйте ще раз."
@@ -384,6 +903,22 @@ msgstr "Could not reach the server. Try again."
 msgid "Не вдалося змінити мову."
 msgstr "Could not change the language."
 
+#: src/shared/signing/client.ts
+msgid "Не вдалося знайти сертифікат ключа. Оберіть надавача вручну або додайте файли сертифікатів."
+msgstr "Couldn't find the key certificate. Choose the provider manually or add certificate files."
+
+#: src/shared/signing/client.ts
+msgid "Не вдалося отримати позначку часу. Спробуйте рівень підпису B-B або повторіть пізніше."
+msgstr "Couldn't get a timestamp. Try the B-B signature level or try again later."
+
+#: src/shared/signing/client.ts
+msgid "Не вдалося перевірити статус сертифіката (OCSP). Спробуйте пізніше."
+msgstr "Couldn't check the certificate status (OCSP). Try again later."
+
+#: src/shared/signing/SigningWizard.tsx
+msgid "Не вдалося розпочати підписання."
+msgstr "Could not start signing."
+
 #: src/shared/ui/CopyButton.tsx
 msgid "Не вдалося скопіювати"
 msgstr "Could not copy"
@@ -391,6 +926,18 @@ msgstr "Could not copy"
 #: src/features/auth/pages/LoginPage.tsx
 msgid "Не використовуйте на спільних комп'ютерах."
 msgstr "Don't use this on shared computers."
+
+#: src/shared/signing/SigningWizard.tsx
+msgid "Не всі кроки завершено."
+msgstr "Not all steps are complete."
+
+#: src/shared/signing/client.ts
+msgid "Невідома помилка бібліотеки підпису."
+msgstr "Unknown signing library error."
+
+#: src/shared/signing/client.ts
+msgid "Невідомий формат підпису."
+msgstr "Unknown signature format."
 
 #: src/features/auth/pages/LoginPage.tsx
 msgid "Некоректна адреса електронної пошти."
@@ -400,10 +947,24 @@ msgstr "Invalid email address."
 msgid "Немає доступу до телефону? <0>Увійти за резервним кодом</0>."
 msgstr "No access to your phone? <0>Sign in with a recovery code</0>."
 
+#: src/shared/signing/client.ts
+msgid "Немає зв'язку з сервером надавача (ЦСК). Перевірте з'єднання та спробуйте ще раз."
+msgstr "Can't reach the provider's (CA) server. Check your connection and try again."
+
+#: src/shared/signing/client.ts
+msgid "Неправильний пароль або пошкоджений файл ключа."
+msgstr "Wrong password or damaged key file."
+
+#: src/features/documents/pages/DocumentEditorPage.tsx
+msgid "Нижче"
+msgstr "Move down"
+
 #: src/features/auth/pages/PhotoPage.tsx
 msgid "Нове фото замінить поточне всюди в кабінеті."
 msgstr "The new photo replaces the current one everywhere in the cabinet."
 
+#: src/features/documents/pages/DocumentEditorPage.tsx
+#: src/features/documents/pages/DocumentsPage.tsx
 #: src/features/home/HomePage.tsx
 msgid "Новий документ"
 msgstr "New document"
@@ -412,6 +973,11 @@ msgstr "New document"
 #: src/features/auth/pages/SetupAuthenticatorPage.tsx
 msgid "Новий пароль"
 msgstr "New password"
+
+#. placeholder {0}: formatFileSize(file.size)
+#: src/features/documents/pages/DocumentEditorPage.tsx
+msgid "Новий файл · {0}"
+msgstr "New file · {0}"
 
 #: src/features/home/HomePage.tsx
 msgid "Новин поки немає"
@@ -427,9 +993,33 @@ msgstr "News"
 msgid "Нових документів на підпис немає."
 msgstr "No new documents to sign."
 
+#: src/features/documents/pages/DocumentsPage.tsx
+msgid "Номер"
+msgstr "Number"
+
 #: src/shared/ui/PhotoPicker.tsx
 msgid "Оберіть або перетягніть фото"
 msgstr "Choose or drop a photo"
+
+#: src/features/documents/pages/DocumentEditorPage.tsx
+msgid "Оберіть підрозділ"
+msgstr "Select a unit"
+
+#: src/features/documents/pages/DocumentEditorPage.tsx
+msgid "Оберіть підрозділ."
+msgstr "Select a unit."
+
+#: src/features/documents/pages/DocumentEditorPage.tsx
+msgid "Оберіть файл документа."
+msgstr "Choose the document file."
+
+#: src/shared/signing/KeyPanel.tsx
+msgid "Оберіть файл ключа"
+msgstr "Choose a key file"
+
+#: src/shared/signing/KeyPanel.tsx
+msgid "Оберіть файл ключа."
+msgstr "Choose a key file."
 
 #: src/features/auth/pages/PhotoPage.tsx
 msgid "Оберіть фото."
@@ -439,17 +1029,66 @@ msgstr "Choose a photo."
 msgid "Оголошення"
 msgstr "Announcement"
 
+#: src/features/documents/pages/DocumentEditorPage.tsx
+msgid "один за одним"
+msgstr "one after another"
+
+#: src/features/documents/pages/DocumentPage.tsx
+msgid "Один файл, що містить документ і всі накладені підписи."
+msgstr "One file that holds the document and every signature applied to it."
+
+#: src/shared/signing/formats.ts
+msgid "Окремо від даних"
+msgstr "Detached"
+
+#: src/shared/i18n/display.ts
+msgid "окремо від даних (зовнішній)"
+msgstr "separate from the data (detached)"
+
 #: src/app/pages/RouteError.tsx
 msgid "Оновити"
 msgstr "Reload"
+
+#: src/features/documents/pages/DocumentEditorPage.tsx
+msgid "Опис"
+msgstr "Description"
+
+#: src/features/documents/pages/DocumentEditorPage.tsx
+msgid "Опис не може бути довшим за 4000 символів."
+msgstr "The description cannot be longer than 4000 characters."
+
+#: src/shared/signing/KeyPanel.tsx
+msgid "Організація"
+msgstr "Organization"
 
 #: src/features/home/HomePage.tsx
 msgid "Останні оголошення"
 msgstr "Latest announcements"
 
+#: src/shared/signing/client.ts
+msgid "Остання підписана версія документа не збігається з даними системи. Оновіть сторінку й спробуйте ще раз."
+msgstr "The latest signed version of the document does not match the system's records. Refresh the page and try again."
+
+#: src/shared/signing/client.ts
+msgid "Остання підписана версія містить інший документ. Підписання зупинено."
+msgstr "The latest signed version contains a different document. Signing stopped."
+
+#: src/shared/i18n/display.ts
+msgid "Очікується підпис"
+msgstr "Awaiting signature"
+
+#: src/features/documents/pages/DocumentsPage.tsx
 #: src/features/home/HomePage.tsx
 msgid "Очікують мого підпису"
 msgstr "Awaiting my signature"
+
+#: src/shared/i18n/display.ts
+msgid "Паралельно"
+msgstr "Parallel"
+
+#: src/shared/signing/SigningWizard.tsx
+msgid "Параметри"
+msgstr "Parameters"
 
 #: src/features/auth/pages/ChangePasswordPage.tsx
 #: src/features/auth/pages/SetupAuthenticatorPage.tsx
@@ -459,6 +1098,10 @@ msgstr "Passwords don't match."
 #: src/features/auth/pages/LoginPage.tsx
 msgid "Пароль"
 msgstr "Password"
+
+#: src/shared/signing/KeyPanel.tsx
+msgid "Пароль захисту ключа"
+msgstr "Key password"
 
 #: src/features/auth/pages/ChangePasswordPage.tsx
 msgid "Пароль змінено."
@@ -473,6 +1116,39 @@ msgstr "The password must be 12 to 128 characters long."
 msgid "Пароль не може бути довшим за 128 символів."
 msgstr "The password can't be longer than 128 characters."
 
+#: src/shared/signing/KeyPanel.tsx
+msgid "Пароль не передається на сервер."
+msgstr "The password is not sent to the server."
+
+#: src/features/signing/components/VerifyPanel.tsx
+#: src/features/signing/pages/SigningPages.tsx
+msgid "Перевірити"
+msgstr "Verify"
+
+#: src/features/documents/pages/DocumentPage.tsx
+msgid "Перевірити будь-який підпис можна на сторінці <0>«Перевірка підпису»</0>."
+msgstr "You can verify any signature on the <0>Signature verification</0> page."
+
+#: src/features/signing/pages/SigningPages.tsx
+msgid "Перевірка підпису"
+msgstr "Signature verification"
+
+#: src/features/signing/components/VerifyPanel.tsx
+msgid "Перевірку не пройдено"
+msgstr "Verification failed"
+
+#: src/features/signing/pages/SigningPages.tsx
+msgid "Перевірте підписаний файл: хто підписав, ким виданий сертифікат, час підпису та цілісність даних."
+msgstr "Check a signed file: who signed it, who issued the certificate, the signing time and data integrity."
+
+#: src/features/documents/pages/DocumentPage.tsx
+msgid "Перевірте файл і натисніть «Підписати». Ключ і пароль використовуються лише у вашому браузері."
+msgstr "Review the file and click “Sign”. Your key and password are used only in your browser."
+
+#: src/shared/signing/SigningWizard.tsx
+msgid "Перевіряємо, що файл не змінювався після реєстрації."
+msgstr "Checking that the file hasn't changed since registration."
+
 #: src/app/layout/AppShell.tsx
 msgid "Перейти до змісту"
 msgstr "Skip to content"
@@ -480,6 +1156,22 @@ msgstr "Skip to content"
 #: src/features/auth/pages/SetupAuthenticatorPage.tsx
 msgid "Перейти до кабінету"
 msgstr "Go to the cabinet"
+
+#: src/features/documents/pages/DocumentPage.tsx
+msgid "Перемістити документ в архів?"
+msgstr "Move the document to the archive?"
+
+#: src/features/signing/components/VerifyPanel.tsx
+msgid "Перетягніть підписаний файл (і за потреби оригінал)"
+msgstr "Drag the signed file here (and the original, if needed)"
+
+#: src/features/documents/pages/DocumentEditorPage.tsx
+msgid "Перетягніть файл або натисніть, щоб обрати"
+msgstr "Drag a file here or click to choose"
+
+#: src/shared/signing/SigningWizard.tsx
+msgid "Перетягніть файли або натисніть, щоб обрати"
+msgstr "Drag files here or click to choose"
 
 #: src/shared/ui/PhotoPicker.tsx
 msgid "Перетягніть фото та змініть масштаб, щоб обличчя було в колі."
@@ -489,9 +1181,47 @@ msgstr "Drag and zoom the photo so the face is inside the circle."
 msgid "Підключення автентифікатора"
 msgstr "Authenticator setup"
 
+#: src/shared/signing/SigningWizard.tsx
+msgid "Підпис додається до попередніх"
+msgstr "Your signature joins the previous ones"
+
+#: src/shared/signing/SigningWizard.tsx
+msgid "Підпис збережено."
+msgstr "The signature has been saved."
+
+#: src/features/documents/pages/DocumentEditorPage.tsx
+msgid "Підпис збережеться"
+msgstr "Signature kept"
+
+#: src/shared/i18n/display.ts
+msgid "Підписав(-ла)"
+msgstr "Signed"
+
+#: src/shared/signing/formats.ts
+msgid "підписаний PDF"
+msgstr "signed PDF"
+
+#: src/features/documents/pages/DocumentPage.tsx
+msgid "Підписаний PDF"
+msgstr "Signed PDF"
+
+#: src/features/documents/pages/DocumentsPage.tsx
+msgid "Підписані мною"
+msgstr "Signed by me"
+
 #: src/app/layout/navigation.ts
 msgid "Підписання"
 msgstr "Signing"
+
+#: src/features/documents/pages/DocumentPage.tsx
+#: src/shared/signing/SigningWizard.tsx
+msgid "Підписання документа"
+msgstr "Sign the document"
+
+#: src/features/signing/pages/SigningPages.tsx
+#: src/shared/signing/SigningWizard.tsx
+msgid "Підписання файлів"
+msgstr "File signing"
 
 #: src/shared/i18n/display.ts
 msgid "Підписано"
@@ -501,13 +1231,58 @@ msgstr "Signed"
 msgid "Підписано мною цього місяця"
 msgstr "Signed by me this month"
 
+#: src/features/documents/pages/DocumentPage.tsx
+msgid "Підписантів не додано"
+msgstr "No signers added"
+
+#: src/features/documents/pages/DocumentEditorPage.tsx
+msgid "Підписантів ще немає"
+msgstr "No signers yet"
+
+#: src/features/documents/pages/DocumentPage.tsx
+#: src/features/documents/pages/DocumentsPage.tsx
+#: src/features/signing/pages/SigningPages.tsx
+#: src/shared/signing/SigningWizard.tsx
+msgid "Підписати"
+msgstr "Sign"
+
+#: src/shared/signing/SigningWizard.tsx
+msgid "Підписати інші файли"
+msgstr "Sign other files"
+
 #: src/features/home/HomePage.tsx
 msgid "Підписати файл"
 msgstr "Sign a file"
 
+#: src/features/documents/pages/DocumentPage.tsx
+#: src/features/documents/pages/DocumentsPage.tsx
+msgid "Підписи"
+msgstr "Signatures"
+
+#: src/features/signing/components/VerifyPanel.tsx
+msgid "Підписи дійсні"
+msgstr "Signatures are valid"
+
+#: src/features/documents/pages/DocumentEditorPage.tsx
+msgid "Підписи накладено на попередній файл. Після збереження всі {toRemove} підписи буде видалено, а підписанти підписуватимуть новий файл."
+msgstr "The signatures were applied to the previous file. When you save, all {toRemove} signature(s) will be removed and the signers will sign the new file."
+
+#: src/features/documents/pages/DocumentEditorPage.tsx
+msgid "Підписи тих, кого ви прибрали з маршруту ({toRemove}), буде видалено після збереження."
+msgstr "Signatures of the signers you removed from the route ({toRemove}) will be deleted when you save."
+
+#: src/features/documents/pages/DocumentPage.tsx
+msgid "Підписів ще немає"
+msgstr "No signatures yet"
+
+#: src/features/documents/pages/DocumentEditorPage.tsx
+#: src/features/documents/pages/DocumentPage.tsx
+msgid "Підрозділ"
+msgstr "Unit"
+
 #: src/features/auth/pages/TwoFactorPage.tsx
 msgid "Підтвердження входу"
-msgstr "Sign-in verification"
+msgstr "Sign-in confirmation"
 
 #: src/shared/ui/ConfirmHost.tsx
 msgid "Підтвердити"
@@ -542,6 +1317,10 @@ msgstr "Confirm password"
 msgid "Подія"
 msgstr "Event"
 
+#: src/features/signing/components/VerifyPanel.tsx
+msgid "Позначка часу"
+msgstr "Timestamp"
+
 #: src/shared/ui/PasswordInput.tsx
 msgid "Показати пароль"
 msgstr "Show password"
@@ -549,6 +1328,10 @@ msgstr "Show password"
 #: src/features/home/HomePage.tsx
 msgid "Показники"
 msgstr "Key figures"
+
+#: src/shared/signing/SigningWizard.tsx
+msgid "Поки ви підписували, документ підписав інший підписант. Завантажено останню версію — натисніть «Підписати» ще раз."
+msgstr "Another signer signed the document while you were signing. The latest version is loaded — click “Sign” again."
 
 #: src/shared/i18n/display.ts
 msgctxt "document-kind"
@@ -559,9 +1342,63 @@ msgstr "Regulation / instruction"
 msgid "Попередній перегляд фото"
 msgstr "Photo preview"
 
+#: src/shared/ui/Pagination.tsx
+msgid "Попередня сторінка"
+msgstr "Previous page"
+
+#: src/features/documents/pages/DocumentEditorPage.tsx
+#: src/features/documents/pages/DocumentPage.tsx
+msgid "Порядок підписання"
+msgstr "Signing order"
+
+#: src/shared/signing/KeyPanel.tsx
+msgid "Посада"
+msgstr "Position"
+
+#: src/shared/i18n/display.ts
+msgid "Послідовно"
+msgstr "Sequential"
+
+#: src/features/signing/components/SigningInfo.tsx
+msgid "Поточна версія бібліотеки підтримує лише файлові ключі. Токени (Алмаз-1К, Кристал-1), хмарні ключі та «Дія.Підпис» потребують окремих компонентів надавачів — підключіть їх, коли вони знадобляться вашій організації."
+msgstr "The current library version supports file keys only. Hardware tokens (Almaz-1K, Krystal-1), cloud keys and Diia.Signature require separate provider components — connect them when your organization needs them."
+
 #: src/features/auth/pages/ChangePasswordPage.tsx
 msgid "Поточний пароль"
 msgstr "Current password"
+
+#. placeholder {0}: formatFileSize(existing.file.size)
+#: src/features/documents/pages/DocumentEditorPage.tsx
+msgid "Поточний файл · {0}"
+msgstr "Current file · {0}"
+
+#: src/shared/signing/KeyPanel.tsx
+msgid "потребує агента ІІТ"
+msgstr "requires the IIT agent"
+
+#: src/shared/signing/KeyPanel.tsx
+msgid "потребує сервісу надавача"
+msgstr "requires a provider service"
+
+#: src/features/documents/pages/DocumentEditorPage.tsx
+msgid "Прибрати"
+msgstr "Remove"
+
+#: src/features/documents/pages/DocumentPage.tsx
+msgid "Причина"
+msgstr "Reason"
+
+#: src/features/documents/pages/DocumentPage.tsx
+msgid "Причина не може бути довшою за 1000 символів."
+msgstr "The reason cannot be longer than 1000 characters."
+
+#: src/features/documents/pages/DocumentPage.tsx
+msgid "Причину вказано в маршруті підписання. Натисніть «Редагувати», щоб виправити файл, реквізити чи маршрут, або «На підписання», щоб надіслати документ повторно без змін. Ті, хто вже підписав поточний файл, не підписуватимуть його знову."
+msgstr "The reason is shown in the signing route. Click “Edit” to fix the file, details or route, or “Send for signing” to resend the document unchanged. Those who have already signed the current file won't need to sign it again."
+
+#: src/features/documents/pages/DocumentEditorPage.tsx
+msgid "Прізвище, ім'я або e-mail"
+msgstr "Last name, first name or email"
 
 #: src/features/auth/pages/LoginPage.tsx
 msgid "Продовжити"
@@ -580,6 +1417,30 @@ msgstr "Minutes"
 msgid "Профіль"
 msgstr "Profile"
 
+#: src/shared/signing/formats.ts
+msgid "Разом з даними"
+msgstr "Enveloped"
+
+#: src/features/documents/pages/DocumentEditorPage.tsx
+msgid "Редагування"
+msgstr "Editing"
+
+#: src/features/documents/pages/DocumentEditorPage.tsx
+msgid "Редагування документа"
+msgstr "Edit document"
+
+#: src/features/documents/pages/DocumentPage.tsx
+msgid "Редагувати"
+msgstr "Edit"
+
+#: src/features/documents/pages/DocumentsPage.tsx
+msgid "Реєстр документів, маршрути погодження та підписання."
+msgstr "Document registry, approval and signing routes."
+
+#: src/features/documents/pages/DocumentPage.tsx
+msgid "Реєстраційний номер"
+msgstr "Registration number"
+
 #: src/features/auth/pages/RecoveryPage.tsx
 msgid "Резервний код"
 msgstr "Recovery code"
@@ -588,15 +1449,65 @@ msgstr "Recovery code"
 msgid "Резервний код задовгий."
 msgstr "The recovery code is too long."
 
+#: src/features/documents/pages/DocumentEditorPage.tsx
+msgid "Реквізити"
+msgstr "Details"
+
+#: src/shared/signing/SigningWizard.tsx
+msgid "Рівень"
+msgstr "Level"
+
+#: src/shared/signing/SigningWizard.tsx
+msgid "Рівень підпису"
+msgstr "Signature level"
+
+#: src/features/signing/components/SigningInfo.tsx
+msgid "Рівні"
+msgstr "Levels"
+
+#: src/shared/signing/KeyPanel.tsx
+msgid "РНОКПП"
+msgstr "Taxpayer ID"
+
 #: src/app/layout/AppShell.tsx
 msgid "Розгорнути меню"
 msgstr "Expand menu"
+
+#: src/features/documents/pages/DocumentsPage.tsx
+msgid "Розділи документів"
+msgstr "Document sections"
+
+#: src/features/documents/pages/DocumentEditorPage.tsx
+msgid "Розмір файлу не може перевищувати 25 МБ."
+msgstr "The file size cannot exceed 25 MB."
 
 #: src/shared/i18n/display.ts
 msgctxt "document-kind"
 msgid "Розпорядження"
 msgstr "Directive"
 
+#: src/features/documents/pages/DocumentPage.tsx
+msgid "сертифікат №"
+msgstr "certificate No."
+
+#: src/shared/signing/KeyPanel.tsx
+msgid "Сертифікат №"
+msgstr "Certificate No."
+
+#: src/shared/signing/client.ts
+msgid "Сертифікат ключа визнано недійсним за відповіддю OCSP."
+msgstr "The key certificate was reported invalid by OCSP."
+
+#: src/shared/signing/client.ts
+msgid "Сертифікат ключа скасовано (у списку відкликаних)."
+msgstr "The key certificate has been revoked (it is on the revocation list)."
+
+#: src/shared/signing/client.ts
+msgid "Скасовано."
+msgstr "Cancelled."
+
+#: src/features/documents/pages/DocumentEditorPage.tsx
+#: src/features/documents/pages/DocumentPage.tsx
 #: src/shared/ui/ConfirmHost.tsx
 msgid "Скасувати"
 msgstr "Cancel"
@@ -614,13 +1525,46 @@ msgctxt "document-kind"
 msgid "Службова записка"
 msgstr "Memo"
 
+#: src/shared/ui/DataGrid.tsx
+msgid "Сортувати"
+msgstr "Sort"
+
+#: src/shared/signing/client.ts
+msgid "Спочатку зчитайте ключ."
+msgstr "Read the key first."
+
+#: src/features/documents/pages/DocumentsPage.tsx
+msgid "Спробуйте змінити параметри пошуку або фільтри."
+msgstr "Try changing your search or filters."
+
 #: src/app/pages/RouteError.tsx
 msgid "Сталася помилка"
 msgstr "Something went wrong"
 
+#: src/features/documents/pages/DocumentsPage.tsx
+msgid "Статус"
+msgstr "Status"
+
+#: src/features/documents/pages/DocumentsPage.tsx
+msgid "Створені мною"
+msgstr "Created by me"
+
+#: src/features/documents/pages/DocumentPage.tsx
+#: src/features/documents/pages/DocumentsPage.tsx
+msgid "Створено"
+msgstr "Created"
+
+#: src/features/documents/pages/DocumentEditorPage.tsx
+msgid "Створити й надіслати на підпис"
+msgstr "Create and send for signing"
+
 #: src/features/auth/pages/SetupAuthenticatorPage.tsx
 msgid "Створіть власний пароль"
 msgstr "Create your own password"
+
+#: src/shared/ui/Pagination.tsx
+msgid "Сторінки"
+msgstr "Pages"
 
 #: src/app/pages/RouteError.tsx
 msgid "Сторінку не вдалося завантажити. Оновіть сторінку або спробуйте пізніше."
@@ -629,6 +1573,10 @@ msgstr "The page could not be loaded. Reload the page or try again later."
 #: src/app/pages/NotFoundPage.tsx
 msgid "Сторінку не знайдено"
 msgstr "Page not found"
+
+#: src/shared/signing/client.ts
+msgid "Строк дії сертифіката ключа закінчився або ще не настав."
+msgstr "The key certificate has expired or is not yet valid."
 
 #: src/app/layout/navigation.ts
 msgid "Структура"
@@ -645,6 +1593,30 @@ msgstr "Theme"
 #: src/features/auth/pages/SetupAuthenticatorPage.tsx
 msgid "Тимчасовий пароль від адміністратора діє лише для першого входу. Придумайте власний — після цього підключимо автентифікатор."
 msgstr "The temporary password from your administrator works only for the first sign-in. Choose your own password, then we'll set up your authenticator."
+
+#: src/shared/signing/KeyPanel.tsx
+msgid "Тип ключа"
+msgstr "Key type"
+
+#: src/shared/signing/SigningWizard.tsx
+msgid "Тип підпису"
+msgstr "Signature type"
+
+#: src/features/documents/pages/DocumentEditorPage.tsx
+msgid "у будь-якому порядку"
+msgstr "in any order"
+
+#: src/app/pages/RouteError.tsx
+msgid "У вас немає доступу до цього розділу"
+msgstr "You don't have access to this section"
+
+#: src/shared/signing/client.ts
+msgid "У файлі не знайдено підписів."
+msgstr "No signatures found in the file."
+
+#: src/shared/signing/client.ts
+msgid "У цьому PDF немає підписів. Якщо файл завантажено з картки документа, візьміть підписаний PDF у розділі «Підписи», а не оригінал документа."
+msgstr "This PDF has no signatures. If you downloaded it from a document card, take the signed PDF from the “Signatures” section, not the original document."
 
 #: src/features/auth/pages/LoginPage.tsx
 msgid "Увійдіть за обліковим записом, виданим адміністратором вашої організації."
@@ -663,6 +1635,86 @@ msgstr "All signed"
 msgid "Усі"
 msgstr "All"
 
+#: src/features/documents/pages/DocumentsPage.tsx
+msgid "Усі види"
+msgstr "All types"
+
+#: src/features/documents/pages/DocumentsPage.tsx
+msgid "Усі доступні"
+msgstr "All accessible"
+
+#: src/features/documents/pages/DocumentsPage.tsx
+msgid "Усі статуси"
+msgstr "All statuses"
+
+#: src/features/documents/pages/DocumentEditorPage.tsx
+msgid "Файл"
+msgstr "File"
+
+#: src/features/documents/pages/DocumentPage.tsx
+msgid "Файл документа"
+msgstr "Document file"
+
+#: src/shared/signing/SigningWizard.tsx
+msgid "Файл завеликий для підписання у браузері (понад 25 МБ)."
+msgstr "The file is too large to sign in the browser (over 25 MB)."
+
+#: src/shared/signing/SigningWizard.tsx
+msgid "Файл підписано"
+msgstr "File signed"
+
+#: src/features/documents/pages/DocumentPage.tsx
+msgid "Файл підпису"
+msgstr "Signature file"
+
+#: src/shared/signing/formats.ts
+msgid "файл підпису поруч із документом"
+msgstr "signature file next to the document"
+
+#: src/shared/signing/SigningWizard.tsx
+msgid "Файли"
+msgstr "Files"
+
+#: src/shared/signing/SigningWizard.tsx
+msgid "Файли не залишають ваш пристрій."
+msgstr "Files never leave your device."
+
+#: src/shared/signing/SigningWizard.tsx
+msgid "Файли понад 25 МБ не підтримуються."
+msgstr "Files over 25 MB are not supported."
+
+#: src/shared/signing/KeyPanel.tsx
+msgid "Файли сертифікатів"
+msgstr "Certificate files"
+
+#: src/shared/signing/KeyPanel.tsx
+msgid "Файловий ключ"
+msgstr "File key"
+
+#: src/features/signing/components/SigningInfo.tsx
+msgid "Файлові: Key-6.dat, *.pfx / *.p12, *.pk8, *.jks (ПриватБанк), *.zs2 — усіх кваліфікованих надавачів"
+msgstr "File keys: Key-6.dat, *.pfx / *.p12, *.pk8, *.jks (PrivatBank), *.zs2 — from all qualified providers"
+
+#: src/shared/signing/SigningWizard.tsx
+msgid "Формат"
+msgstr "Format"
+
+#: src/shared/signing/SigningWizard.tsx
+msgid "Формат і рівень кваліфікованого електронного підпису."
+msgstr "Format and level of the qualified electronic signature."
+
+#: src/shared/signing/SigningWizard.tsx
+msgid "Формат і тип підпису визначив перший підписант: ваш підпис буде додано до того самого файлу."
+msgstr "The first signer chose the signature format and type: your signature will be added to the same file."
+
+#: src/shared/signing/SigningWizard.tsx
+msgid "Формат підпису"
+msgstr "Signature format"
+
+#: src/features/signing/components/SigningInfo.tsx
+msgid "Формати"
+msgstr "Formats"
+
 #: src/features/auth/pages/PhotoPage.tsx
 msgid "Фото збережено."
 msgstr "Photo saved."
@@ -671,18 +1723,66 @@ msgstr "Photo saved."
 msgid "Фото профілю"
 msgstr "Profile photo"
 
+#: src/shared/signing/KeyPanel.tsx
+msgid "Хмарний / Дія.Підпис"
+msgstr "Cloud / Diia.Signature"
+
+#: src/shared/signing/client.ts
+msgid "Це зовнішній підпис: додайте також файл, який було підписано."
+msgstr "This is a detached signature: also add the file that was signed."
+
+#: src/features/documents/pages/DocumentPage.tsx
+msgid "Це оригінал без підписів. Підписані файли завантажуйте в розділі «Підписи»."
+msgstr "This is the original without signatures. Download the signed files in the “Signatures” section."
+
+#: src/features/documents/pages/DocumentEditorPage.tsx
+msgid "Цей тип файлу не підтримується."
+msgstr "This file type is not supported."
+
+#: src/shared/signing/SigningWizard.tsx
+msgid "Цілісність підтверджено"
+msgstr "Integrity confirmed"
+
+#: src/features/signing/components/VerifyPanel.tsx
+msgid "Час підпису"
+msgstr "Signing time"
+
+#: src/features/signing/components/VerifyPanel.tsx
+msgid "Час підпису (вказаний у документі)"
+msgstr "Signing time (as stated in the document)"
+
+#: src/features/documents/pages/DocumentEditorPage.tsx
+msgid "Частину підписів буде анульовано"
+msgstr "Some signatures will be discarded"
+
 #: src/shared/i18n/display.ts
 msgid "Чернетка"
 msgstr "Draft"
+
+#: src/features/documents/pages/DocumentEditorPage.tsx
+msgid "Чернетку збережено"
+msgstr "Draft saved"
 
 #: src/app/layout/AppShell.tsx
 msgid "Швидка навігація"
 msgstr "Quick navigation"
 
+#: src/features/signing/components/SigningInfo.tsx
+msgid "Що підтримується"
+msgstr "What's supported"
+
 #: src/features/auth/pages/ChangePasswordPage.tsx
 msgid "Щонайменше 12 символів: великі й малі латинські літери та цифри."
 msgstr "At least 12 characters: uppercase and lowercase Latin letters and digits."
 
+#: src/features/documents/pages/DocumentsPage.tsx
+msgid "Я в маршруті"
+msgstr "I'm in the route"
+
 #: src/features/auth/pages/LoginPage.tsx
 msgid "Якщо ви не маєте облікового запису або забули пароль — зверніться до відділу кадрів чи системного адміністратора."
 msgstr "If you don't have an account or forgot your password, contact the HR department or your system administrator."
+
+#: src/app/pages/RouteError.tsx
+msgid "Якщо доступ потрібен для роботи, зверніться до керівника підрозділу або системного адміністратора."
+msgstr "If you need access for your work, contact your unit manager or system administrator."

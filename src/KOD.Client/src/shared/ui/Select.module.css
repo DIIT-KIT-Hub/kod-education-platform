@@ -1,0 +1,139 @@
+.select {
+    composes: input from "./TextInput.module.css";
+    display: flex;
+    align-items: center;
+    gap: var(--ds-space-2);
+    text-align: left;
+    cursor: pointer;
+}
+
+.select:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.select[aria-expanded="true"] {
+    border-color: var(--ds-color-text);
+}
+
+/* Higher specificity than the composed input rule, whatever the order of the CSS chunks. */
+.select.compact {
+    width: auto;
+    min-width: 11rem;
+    border-radius: var(--ds-radius-pill);
+}
+
+.value,
+.placeholder {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.placeholder {
+    color: var(--ds-color-text-subtle);
+}
+
+.chevron {
+    flex: none;
+    color: var(--ds-color-text-muted);
+    transition: transform var(--ds-duration-base) var(--ds-ease-out);
+}
+
+.select[aria-expanded="true"] .chevron {
+    transform: rotate(180deg);
+}
+
+/* The list is a popover in the top layer; its position is set next to the button when it opens. */
+.panel {
+    position: fixed;
+    inset: auto;
+    display: grid;
+    align-content: start;
+    gap: 2px;
+    max-height: min(20rem, var(--_room, 20rem));
+    margin: 0;
+    padding: 0.375rem;
+    border: 1px solid var(--ds-color-border);
+    border-radius: var(--ds-radius-md);
+    background: var(--ds-color-surface);
+    color: var(--ds-color-text);
+    box-shadow: var(--ds-shadow-lg);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    transform-origin: top center;
+    animation: open var(--ds-duration-base) var(--ds-ease-out) both;
+}
+
+.panel[data-placement="top"] {
+    transform-origin: bottom center;
+}
+
+.panel[hidden] {
+    display: none;
+}
+
+@keyframes open {
+    from {
+        opacity: 0;
+        transform: translate3d(0, -6px, 0) scale(0.97);
+    }
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+.option {
+    display: flex;
+    align-items: center;
+    gap: var(--ds-space-3);
+    min-height: 2.5rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: var(--ds-radius-sm);
+    font-size: var(--ds-fs-sm);
+    font-weight: 600;
+    line-height: 1.3;
+    cursor: pointer;
+    user-select: none;
+    transition:
+        background-color var(--ds-duration-fast) var(--ds-ease-out),
+        color var(--ds-duration-fast) var(--ds-ease-out);
+}
+
+.option[data-active] {
+    background: var(--ds-color-surface-3);
+}
+
+.option[aria-selected="true"] {
+    background: var(--ds-color-inverse);
+    color: var(--ds-color-on-inverse);
+    font-weight: 750;
+}
+
+.option[aria-disabled="true"] {
+    opacity: 0.4;
+    cursor: default;
+}
+
+.label {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.check {
+    width: 1rem;
+    height: 1rem;
+    opacity: 0;
+    transform: scale(0.6);
+    transition:
+        opacity var(--ds-duration-fast),
+        transform var(--ds-duration-base) var(--ds-ease-spring);
+}
+
+.option[aria-selected="true"] .check {
+    opacity: 1;
+    transform: none;
+}

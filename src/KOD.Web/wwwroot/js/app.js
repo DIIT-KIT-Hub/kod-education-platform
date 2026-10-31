@@ -3,7 +3,6 @@
  *  - Replays the page entrance animation after Blazor enhanced navigation (not after streaming updates).
  *  - Closes the mobile drawer after navigating.
  *  - Shows toasts passed through the `toast` query parameter and removes it from the address bar.
- *  - Mounts the signing UI on pages that contain [data-signing].
  *  - Mounts the user manual behaviors on the page that contains [data-help].
  *  - Mounts the crop preview of profile photo forms and the image viewer of news articles.
  *  - Shows menu item tooltips while the desktop sidebar is collapsed to an icon rail.
@@ -38,22 +37,6 @@ function showQueryToast() {
     window.kodDs.toast(message);
     url.searchParams.delete("toast");
     window.history.replaceState(window.history.state, "", url.pathname + url.search + url.hash);
-}
-
-/**
- * Lazily loads and mounts the signing UI when the page contains signing containers.
- */
-async function mountSigning() {
-    const containers = document.querySelectorAll("[data-signing]:not([data-signing-mounted])");
-    if (containers.length === 0) {
-        return;
-    }
-
-    const { mountSigningPanel } = await import("./signing/signing-ui.js");
-    containers.forEach((container) => {
-        container.setAttribute("data-signing-mounted", "true");
-        mountSigningPanel(/** @type {HTMLElement} */ (container));
-    });
 }
 
 /**
@@ -217,7 +200,6 @@ function onPageReady() {
     }
 
     showQueryToast();
-    mountSigning().catch((error) => console.error("Signing UI failed to load", error));
     mountHelpPage().catch((error) => console.error("Manual behaviors failed to load", error));
     mountPhotoForms().catch((error) => console.error("Photo cropper failed to load", error));
     mountArticleImages().catch((error) => console.error("Image viewer failed to load", error));

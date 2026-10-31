@@ -1,0 +1,168 @@
+.grid {
+    border-radius: var(--ds-radius-lg);
+    background: var(--ds-color-surface);
+    border: 1px solid var(--ds-color-border);
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    animation: var(--ds-anim-fade-in);
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--ds-fs-sm);
+}
+
+.caption {
+    composes: visuallyHidden from "../styles/layout.module.css";
+}
+
+.table th {
+    padding: var(--ds-space-3) var(--ds-space-4);
+    text-align: left;
+    font-size: var(--ds-fs-xs);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--ds-color-text-muted);
+    background: var(--ds-color-surface-2);
+    border-bottom: 1px solid var(--ds-color-border);
+    white-space: nowrap;
+}
+
+.table th a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    text-decoration: none;
+}
+
+.table th a:hover,
+.table th[aria-sort] {
+    color: var(--ds-color-text);
+}
+
+.table td {
+    padding: var(--ds-space-4);
+    border-bottom: 1px solid var(--ds-color-border);
+    vertical-align: middle;
+}
+
+.table tbody tr {
+    transition: background-color var(--ds-duration-fast);
+}
+
+.table tbody tr:hover {
+    background: var(--ds-color-surface-2);
+}
+
+.table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.table .actions {
+    text-align: right;
+    white-space: nowrap;
+    width: 1%;
+}
+
+.table td[data-primary] {
+    min-width: 15rem;
+}
+
+.numeric {
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.nowrap {
+    white-space: nowrap;
+}
+
+.primary {
+    font-weight: 700;
+    color: var(--ds-color-text);
+    text-decoration: none;
+}
+
+.primary:hover {
+    text-decoration: underline;
+}
+
+.secondary {
+    display: block;
+    color: var(--ds-color-text-muted);
+    font-size: var(--ds-fs-xs);
+    margin-top: 0.15rem;
+}
+
+/* Below the tablet breakpoint every row becomes a card. */
+@media (max-width: 767.98px) {
+    .grid {
+        background: transparent;
+        border: 0;
+        overflow: visible;
+    }
+
+    .table thead {
+        display: none;
+    }
+
+    .table,
+    .table tbody,
+    .table tr,
+    .table td {
+        display: block;
+        width: 100%;
+    }
+
+    .table tbody {
+        display: grid;
+        gap: var(--ds-space-3);
+    }
+
+    .table tr {
+        padding: var(--ds-space-4);
+        border-radius: var(--ds-radius-md);
+        background: var(--ds-color-surface);
+        border: 1px solid var(--ds-color-border);
+        animation: var(--ds-anim-fade-up);
+    }
+
+    .table td {
+        display: flex;
+        justify-content: space-between;
+        gap: var(--ds-space-4);
+        padding: var(--ds-space-2) 0;
+        border: 0;
+        text-align: right;
+    }
+
+    .table td::before {
+        content: attr(data-label);
+        flex: none;
+        max-width: 45%;
+        color: var(--ds-color-text-muted);
+        font-weight: 600;
+        text-align: left;
+    }
+
+    .table td[data-primary] {
+        display: block;
+        min-width: 0;
+        text-align: left;
+        font-size: var(--ds-fs-md);
+        padding-bottom: var(--ds-space-3);
+    }
+
+    .table td[data-primary]::before,
+    .table td.actions::before {
+        content: none;
+    }
+
+    .table td.actions {
+        width: 100%;
+        justify-content: flex-end;
+        padding-top: var(--ds-space-3);
+    }
+}

@@ -20,6 +20,10 @@ export interface DialogProps {
     readonly actions?: ReactNode;
     /** A wider dialog (forms, previews). */
     readonly wide?: boolean;
+    /** A line under the title. */
+    readonly description?: ReactNode;
+    /** Keeps the dialog open while an action runs (Escape, the backdrop and the close button do nothing). */
+    readonly locked?: boolean;
 }
 
 /**
@@ -27,9 +31,18 @@ export interface DialogProps {
  * @param props The props.
  * @returns The dialog.
  */
-export function Dialog({ open, onClose, title, children, actions, wide }: DialogProps) {
+export function Dialog({ open, onClose, title, children, actions, wide, description, locked }: DialogProps) {
     const { t } = useLingui();
     const ref = useRef<HTMLDialogElement>(null);
+
+    /**
+     * Closes the dialog unless it is locked.
+     */
+    function close(): void {
+        if (!locked) {
+            onClose();
+        }
+    }
 
     useEffect(() => {
         const dialog = ref.current;
@@ -50,19 +63,22 @@ export function Dialog({ open, onClose, title, children, actions, wide }: Dialog
             className={[styles.dialog, wide && styles.wide].filter(Boolean).join(" ")}
             onCancel={(event) => {
                 event.preventDefault();
-                onClose();
+                close();
             }}
             onClick={(event) => {
                 // A click on the dialog element itself (not its content) is a click on the backdrop.
                 if (event.target === event.currentTarget) {
-                    onClose();
+                    close();
                 }
             }}
         >
             <div className={styles.inner}>
                 <header className={styles.header}>
-                    <h2 className={styles.title}>{title}</h2>
-                    <Button variant="ghost" size="sm" iconOnly icon={X} onClick={onClose}>
+                    <div className={styles.heading}>
+                        <h2 className={styles.title}>{title}</h2>
+                        {description && <p className={styles.description}>{description}</p>}
+                    </div>
+                    <Button variant="ghost" size="sm" iconOnly icon={X} disabled={locked} onClick={close}>
                         {t`Закрити`}
                     </Button>
                 </header>

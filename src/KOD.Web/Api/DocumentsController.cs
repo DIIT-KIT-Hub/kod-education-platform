@@ -1,4 +1,5 @@
 using KOD.Application.Common.Files;
+using KOD.Application.Common.Models;
 using KOD.Application.Common.Paging;
 using KOD.Application.Common.Results;
 using KOD.Application.Features.Documents;
@@ -38,6 +39,38 @@ public sealed class DocumentsController(IDocumentService documents) : ApiControl
     [HttpGet("{id:guid}")]
     public async Task<ActionResult<DocumentDetails>> Get(Guid id, CancellationToken cancellationToken)
         => FromResult(await documents.GetAsync(id, cancellationToken));
+
+    /// <summary>
+    /// Gets a document as the editor shows it: details, route and the signers whose signatures are on the current file.
+    /// </summary>
+    /// <param name="id">The document identifier.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The edit model; 409 when the document can no longer be changed.</returns>
+    [HttpGet("{id:guid}/edit")]
+    [RequirePermission(Permissions.Documents.Create)]
+    public async Task<ActionResult<DocumentEditModel>> GetForEdit(Guid id, CancellationToken cancellationToken)
+        => FromResult(await documents.GetForEditAsync(id, cancellationToken));
+
+    /// <summary>
+    /// Gets the units the user may register documents in.
+    /// </summary>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The units in tree order.</returns>
+    [HttpGet("author-units")]
+    [RequirePermission(Permissions.Documents.Create)]
+    public async Task<ActionResult<IReadOnlyList<UnitOption>>> AuthorUnits(CancellationToken cancellationToken)
+        => Ok(await documents.GetAuthorUnitsAsync(cancellationToken));
+
+    /// <summary>
+    /// Finds active users to add to a signing route.
+    /// </summary>
+    /// <param name="term">A part of the name or e-mail.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The matching users.</returns>
+    [HttpGet("signers")]
+    [RequirePermission(Permissions.Documents.Create)]
+    public async Task<ActionResult<IReadOnlyList<UserLookupItem>>> Signers([FromQuery] string? term, CancellationToken cancellationToken)
+        => Ok(await documents.SearchSignersAsync(term ?? string.Empty, cancellationToken));
 
     /// <summary>
     /// Creates a document (multipart form with the file).

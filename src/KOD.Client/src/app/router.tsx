@@ -1,7 +1,7 @@
 import { createBrowserRouter } from "react-router";
-import { authContextQuery } from "@/shared/session/session";
+import { authContextQuery, Permissions } from "@/shared/session/session";
 import { Spinner } from "@/shared/ui/Spinner";
-import { basename, requireAnonymous, requirePasswordSet, requireReadyUser, requireUser } from "./guards";
+import { basename, requireAnonymous, requirePasswordSet, requirePermission, requireReadyUser, requireUser } from "./guards";
 import { AppShell } from "./layout/AppShell";
 import { NotFoundPage } from "./pages/NotFoundPage";
 import { RouteError } from "./pages/RouteError";
@@ -72,8 +72,67 @@ export const router = createBrowserRouter(
                     Component: AppShell,
                     loader: requireReadyUser,
                     children: [
-                        { index: true, lazy: async () => ({ Component: (await import("@/features/home/HomePage")).HomePage }) },
-                        { path: "*", Component: NotFoundPage },
+                        {
+                            // Errors and forbidden pages show inside the shell, so the menu stays.
+                            ErrorBoundary: RouteError,
+                            children: [
+                                { index: true, lazy: async () => ({ Component: (await import("@/features/home/HomePage")).HomePage }) },
+                                {
+                                    path: "documents",
+                                    children: [
+                                        {
+                                            index: true,
+                                            loader: requirePermission(Permissions.documentsView),
+                                            lazy: async () => ({
+                                                Component: (await import("@/features/documents/pages/DocumentsPage")).DocumentsPage,
+                                            }),
+                                        },
+                                        {
+                                            path: "new",
+                                            loader: requirePermission(Permissions.documentsCreate),
+                                            lazy: async () => ({
+                                                Component: (await import("@/features/documents/pages/DocumentEditorPage"))
+                                                    .DocumentEditorPage,
+                                            }),
+                                        },
+                                        {
+                                            path: ":id",
+                                            loader: requirePermission(Permissions.documentsView),
+                                            lazy: async () => ({
+                                                Component: (await import("@/features/documents/pages/DocumentPage")).DocumentPage,
+                                            }),
+                                        },
+                                        {
+                                            path: ":id/edit",
+                                            loader: requirePermission(Permissions.documentsCreate),
+                                            lazy: async () => ({
+                                                Component: (await import("@/features/documents/pages/DocumentEditorPage"))
+                                                    .DocumentEditorPage,
+                                            }),
+                                        },
+                                    ],
+                                },
+                                {
+                                    path: "signing",
+                                    loader: requirePermission(Permissions.signingUse),
+                                    children: [
+                                        {
+                                            index: true,
+                                            lazy: async () => ({
+                                                Component: (await import("@/features/signing/pages/SigningPages")).SignFilesPage,
+                                            }),
+                                        },
+                                        {
+                                            path: "verify",
+                                            lazy: async () => ({
+                                                Component: (await import("@/features/signing/pages/SigningPages")).VerifySignaturePage,
+                                            }),
+                                        },
+                                    ],
+                                },
+                                { path: "*", Component: NotFoundPage },
+                            ],
+                        },
                     ],
                 },
             ],

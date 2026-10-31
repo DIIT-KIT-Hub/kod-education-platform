@@ -1,6 +1,6 @@
 import { msg } from "@lingui/core/macro";
 import type { MessageDescriptor } from "@lingui/core";
-import type { DocumentKind, DocumentStatus, NewsCategory } from "@/shared/api/schema";
+import type { DocumentKind, DocumentStatus, NewsCategory, SignaturePackaging, SignerStatus, SigningMode } from "@/shared/api/schema";
 
 /**
  * The names of document kinds (the context separates "Довідка" = Certificate from "Довідка" = Help).
@@ -41,3 +41,33 @@ export const newsCategoryNames: Record<NewsCategory, MessageDescriptor> = {
     Training: msg`Навчання та розвиток`,
     Projects: msg`Проєкти та досягнення`,
 };
+
+/**
+ * The states of a signer on a route.
+ */
+export const signerStatusNames: Record<SignerStatus, MessageDescriptor> = {
+    Pending: msg`Очікується підпис`,
+    Signed: msg`Підписав(-ла)`,
+    Rejected: msg`Відмовив(-ла)`,
+};
+
+/**
+ * The orders of signing.
+ */
+export const signingModeNames: Record<SigningMode, MessageDescriptor> = {
+    Sequential: msg`Послідовно`,
+    Parallel: msg`Паралельно`,
+};
+
+/**
+ * The packagings of a signature.
+ */
+export const packagingNames: Record<SignaturePackaging, MessageDescriptor> = {
+    Detached: msg`окремо від даних (зовнішній)`,
+    Enveloped: msg`з даними (внутрішній)`,
+};
+
+/**
+ * The names of signature formats (not translated).
+ */
+export const formatNames = { CAdES: "CAdES", XAdES: "XAdES", PAdES: "PAdES", AsicS: "ASiC-S", AsicE: "ASiC-E" } as const;

@@ -1,0 +1,23 @@
+.progress {
+    height: 0.5rem;
+    border-radius: var(--ds-radius-pill);
+    background: var(--ds-color-surface-3);
+    overflow: hidden;
+}
+
+.bar {
+    width: 40%;
+    height: 100%;
+    border-radius: inherit;
+    background: var(--ds-color-primary);
+    animation: slide 1.2s var(--ds-ease-in-out) infinite;
+}
+
+@keyframes slide {
+    from {
+        transform: translateX(-100%);
+    }
+    to {
+        transform: translateX(250%);
+    }
+}

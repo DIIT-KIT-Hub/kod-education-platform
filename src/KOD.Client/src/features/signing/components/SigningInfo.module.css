@@ -1,0 +1,16 @@
+.point {
+    display: flex;
+    gap: var(--ds-space-4);
+    align-items: flex-start;
+    padding: var(--ds-space-4) 0;
+    border-bottom: 1px solid var(--ds-color-border);
+}
+
+.point:last-child {
+    border-bottom: 0;
+}
+
+.point > svg {
+    flex: none;
+    margin-top: 0.15em;
+}

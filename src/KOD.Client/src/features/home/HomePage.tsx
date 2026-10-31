@@ -52,12 +52,12 @@ export function HomePage() {
                 >{t`Документи, які очікують на ваш підпис, новини організації та швидкий доступ до сервісів — в одному місці.`}</p>
                 <div className={layout.cluster}>
                     {hasPermission(user, Permissions.documentsCreate) && (
-                        <ButtonLink href="/documents/new" icon={FilePlus}>
+                        <ButtonLink to="/documents/new" icon={FilePlus}>
                             {t`Новий документ`}
                         </ButtonLink>
                     )}
                     {hasPermission(user, Permissions.signingUse) && (
-                        <ButtonLink href="/signing" variant="secondary" icon={Signature}>
+                        <ButtonLink to="/signing" variant="secondary" icon={Signature}>
                             {t`Підписати файл`}
                         </ButtonLink>
                     )}
@@ -74,26 +74,26 @@ export function HomePage() {
                                 label={t`Очікують мого підпису`}
                                 value={formatNumber(summary.data.awaitingMyDecision)}
                                 icon={Signature}
-                                href="/documents?scope=AwaitingMe"
+                                to="/documents?scope=AwaitingMe"
                                 inverse={summary.data.awaitingMyDecision > 0}
                             />
                             <StatCard
                                 label={t`Мої чернетки`}
                                 value={formatNumber(summary.data.myDrafts)}
                                 icon={Pencil}
-                                href="/documents?scope=Authored&status=Draft"
+                                to="/documents?scope=Authored&status=Draft"
                             />
                             <StatCard
                                 label={t`Мої на підписанні`}
                                 value={formatNumber(summary.data.myInSigning)}
                                 icon={Hourglass}
-                                href="/documents?scope=Authored&status=InSigning"
+                                to="/documents?scope=Authored&status=InSigning"
                             />
                             <StatCard
                                 label={t`Підписано мною цього місяця`}
                                 value={formatNumber(summary.data.signedThisMonth)}
                                 icon={BadgeCheck}
-                                href="/documents?scope=SignedByMe"
+                                to="/documents?scope=SignedByMe"
                             />
                         </section>
                     )}
@@ -104,7 +104,7 @@ export function HomePage() {
                                 title={t`Очікують мого підпису`}
                                 subtitle={t`Документи, де зараз ваша черга`}
                                 actions={
-                                    <ButtonLink href="/documents?scope=AwaitingMe" variant="ghost" size="sm" iconEnd={ArrowRight}>
+                                    <ButtonLink to="/documents?scope=AwaitingMe" variant="ghost" size="sm" iconEnd={ArrowRight}>
                                         {t`Усі`}
                                     </ButtonLink>
                                 }
@@ -116,7 +116,7 @@ export function HomePage() {
                                         {summary.data.awaiting.map((document) => (
                                             <ListItem
                                                 key={document.id}
-                                                href={`/documents/${document.id}`}
+                                                to={`/documents/${document.id}`}
                                                 start={<Avatar name={document.authorName} photoId={document.authorPhotoId} />}
                                                 title={document.title}
                                                 meta={`${t`№ ${document.registrationNumber}`} · ${t(documentKindNames[document.kind])} · ${document.authorName}`}

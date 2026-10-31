@@ -75,3 +75,15 @@
         flex: 1 1 100%;
     }
 }
+
+.heading {
+    display: grid;
+    gap: var(--ds-space-1);
+    min-width: 0;
+}
+
+.description {
+    color: var(--ds-color-text-muted);
+    font-size: var(--ds-fs-sm);
+    overflow-wrap: anywhere;
+}

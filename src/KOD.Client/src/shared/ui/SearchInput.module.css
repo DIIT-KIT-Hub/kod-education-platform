@@ -1,0 +1,20 @@
+.search {
+    position: relative;
+    flex: 1 1 16rem;
+    min-width: 0;
+}
+
+.icon {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--ds-color-text-subtle);
+    pointer-events: none;
+}
+
+.input {
+    composes: input from "./TextInput.module.css";
+    padding-left: 2.75rem;
+    border-radius: var(--ds-radius-pill);
+}

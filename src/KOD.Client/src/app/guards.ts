@@ -1,5 +1,5 @@
-import { redirect, type LoaderFunctionArgs } from "react-router";
-import { authContextQuery } from "@/shared/session/session";
+import { data, redirect, type LoaderFunctionArgs } from "react-router";
+import { authContextQuery, hasPermission } from "@/shared/session/session";
 import { queryClient } from "./queryClient";
 
 /**
@@ -91,4 +91,20 @@ export async function requireAnonymous(): Promise<null> {
     }
 
     return null;
+}
+
+/**
+ * A page that needs a permission: without it the route shows "access restricted" (403).
+ * @param permission The permission code.
+ * @returns The loader.
+ */
+export function requirePermission(permission: string) {
+    return async (): Promise<null> => {
+        const { user } = await queryClient.ensureQueryData(authContextQuery);
+        if (!user || !hasPermission(user, permission)) {
+            throw data(null, { status: 403 });
+        }
+
+        return null;
+    };
 }

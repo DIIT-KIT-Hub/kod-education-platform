@@ -906,6 +906,120 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/documents/{id}/edit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Gets a document as the editor shows it: details, route and the signers whose signatures are on the current file. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The document identifier. */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description The edit model; 409 when the document can no longer be changed. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["DocumentEditModel"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/documents/author-units": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Gets the units the user may register documents in. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description The units in tree order. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["UnitOption"][];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/documents/signers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Finds active users to add to a signing route. */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description A part of the name or e-mail. */
+                    term?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description The matching users. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["UserLookupItem"][];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/documents/{id}/status": {
         parameters: {
             query?: never;
@@ -3145,6 +3259,34 @@ export interface components {
              */
             combinedSignatureId: null | string;
         };
+        /** @description The current data of a document opened in the editor. */
+        DocumentEditModel: {
+            /**
+             * Format: uuid
+             * @description The identifier.
+             */
+            id: string;
+            /** @description The registration number. */
+            registrationNumber: string;
+            /** @description The title. */
+            title: string;
+            /** @description The description. */
+            description: null | string;
+            /** @description The kind. */
+            kind: components["schemas"]["DocumentKind"];
+            /** @description The life-cycle state (draft or rejected). */
+            status: components["schemas"]["DocumentStatus"];
+            /** @description The unit (shown even when it is no longer among the author's units). */
+            unit: components["schemas"]["UnitOption"];
+            /** @description The signing order. */
+            signingMode: components["schemas"]["SigningMode"];
+            /** @description The signers in signing order. */
+            signers: components["schemas"]["UserLookupItem"][];
+            /** @description The current file. */
+            file: components["schemas"]["DocumentFileInfo"];
+            /** @description The signers whose signatures on the current file are kept while the file is not replaced. */
+            signedBy: string[];
+        };
         /** @description Public metadata of a document file. The SHA-256 digest lets the browser verify integrity before signing. */
         DocumentFileInfo: {
             /** @description The file name. */
@@ -4235,6 +4377,25 @@ export interface components {
             /** @description Whether the current user may edit the unit and add units under it (it is in their organizations). */
             canManage: boolean;
         };
+        /** @description An organization unit option for hierarchical select lists. */
+        UnitOption: {
+            /**
+             * Format: uuid
+             * @description The unit identifier.
+             */
+            id: string;
+            /** @description The unit name. */
+            name: string;
+            /** @description The unit code. */
+            code: string;
+            /** @description Whether the unit is an organization. */
+            isOrganization: boolean;
+            /**
+             * Format: int32
+             * @description The depth in the tree (0 for a top-level organization).
+             */
+            depth: number;
+        };
         /** @description A lightweight reference to an organization unit. */
         UnitRef: {
             /**
@@ -4464,6 +4625,25 @@ export interface components {
              */
             photoId: null | string;
         };
+        /** @description A user suggestion for pickers (e.g. adding signers). */
+        UserLookupItem: {
+            /**
+             * Format: uuid
+             * @description The user identifier.
+             */
+            id: string;
+            /** @description The full name. */
+            fullName: string;
+            /** @description The e-mail address. */
+            email: string;
+            /** @description The primary position description. */
+            position: null | string;
+            /**
+             * Format: uuid
+             * @description The profile photo, if uploaded.
+             */
+            photoId: null | string;
+        };
         /** @description A position of a user as seen by an administrator. */
         UserPositionDto: {
             /**
@@ -4532,6 +4712,7 @@ export type CurrentUserResponse = components["schemas"]["CurrentUserResponse"];
 export type DashboardSummary = components["schemas"]["DashboardSummary"];
 export type DocumentActions = components["schemas"]["DocumentActions"];
 export type DocumentDetails = components["schemas"]["DocumentDetails"];
+export type DocumentEditModel = components["schemas"]["DocumentEditModel"];
 export type DocumentFileInfo = components["schemas"]["DocumentFileInfo"];
 export type DocumentKind = components["schemas"]["DocumentKind"];
 export type DocumentListItem = components["schemas"]["DocumentListItem"];
@@ -4589,6 +4770,7 @@ export type SigningMode = components["schemas"]["SigningMode"];
 export type SigningSession = components["schemas"]["SigningSession"];
 export type SpreadsheetFormat = components["schemas"]["SpreadsheetFormat"];
 export type UnitDetails = components["schemas"]["UnitDetails"];
+export type UnitOption = components["schemas"]["UnitOption"];
 export type UnitRef = components["schemas"]["UnitRef"];
 export type UnitStaffItem = components["schemas"]["UnitStaffItem"];
 export type UnitTreeNode = components["schemas"]["UnitTreeNode"];
@@ -4598,6 +4780,7 @@ export type UserCredentials = components["schemas"]["UserCredentials"];
 export type UserDetails = components["schemas"]["UserDetails"];
 export type UserImportReport = components["schemas"]["UserImportReport"];
 export type UserListItem = components["schemas"]["UserListItem"];
+export type UserLookupItem = components["schemas"]["UserLookupItem"];
 export type UserPositionDto = components["schemas"]["UserPositionDto"];
 export type UserRef = components["schemas"]["UserRef"];
 export type UserStatusFilter = components["schemas"]["UserStatusFilter"];

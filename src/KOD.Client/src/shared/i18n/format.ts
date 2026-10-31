@@ -65,3 +65,20 @@ export function formatNumber(value: number): string {
 export function kyivHour(moment: Date): number {
     return Number(new Intl.DateTimeFormat("en-GB", { timeZone, hour: "2-digit", hourCycle: "h23" }).format(moment));
 }
+
+/**
+ * Formats a size in bytes («1,4 МБ», «1.4 MB»).
+ * @param bytes The size.
+ * @returns The text.
+ */
+export function formatFileSize(bytes: number): string {
+    const units = i18n.locale === "en" ? ["B", "KB", "MB"] : ["Б", "КБ", "МБ"];
+    let value = bytes;
+    let unit = 0;
+    while (value >= 1024 && unit < units.length - 1) {
+        value /= 1024;
+        unit++;
+    }
+
+    return `${new Intl.NumberFormat(locale(), { maximumFractionDigits: unit === 0 ? 0 : 1 }).format(value)} ${units[unit]}`;
+}

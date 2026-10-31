@@ -1,0 +1,69 @@
+.timeline {
+    display: grid;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.item {
+    position: relative;
+    display: grid;
+    grid-template-columns: 2.5rem 1fr;
+    gap: var(--ds-space-3);
+    padding-bottom: var(--ds-space-5);
+}
+
+.item:not(:last-child)::before {
+    content: "";
+    position: absolute;
+    left: 1.25rem;
+    top: 2.5rem;
+    bottom: 0;
+    width: 2px;
+    transform: translateX(-50%);
+    background: var(--ds-color-border);
+}
+
+.marker {
+    display: grid;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    border: 2px solid var(--ds-color-border-strong);
+    background: var(--ds-color-surface);
+    font-weight: 800;
+    font-size: var(--ds-fs-sm);
+}
+
+.pending {
+    --_state: pending;
+}
+
+.done .marker {
+    background: var(--ds-color-primary);
+    color: var(--ds-color-on-primary);
+    border-color: var(--ds-color-primary);
+    animation: var(--ds-anim-pop);
+}
+
+.done:not(:last-child)::before {
+    background: var(--ds-color-primary);
+}
+
+.current .marker {
+    border-color: var(--ds-color-text);
+    animation: var(--ds-anim-pulse);
+}
+
+.failed .marker {
+    border-color: var(--ds-color-danger);
+    color: var(--ds-color-danger);
+}
+
+.content {
+    display: grid;
+    gap: var(--ds-space-2);
+    padding-top: 0.35rem;
+    min-width: 0;
+}

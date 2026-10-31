@@ -52,6 +52,8 @@ export interface ButtonLinkProps extends CommonProps {
     readonly to?: string;
     /** A URL outside the application (full page load), e.g. a page not yet moved to the application. */
     readonly href?: string;
+    /** Downloads the `href` as a file with this name (an empty string keeps the server name). */
+    readonly download?: string;
 }
 
 /**
@@ -122,7 +124,7 @@ export function Button({
  * @param props The props.
  * @returns The link.
  */
-export function ButtonLink({ to, href, variant, size, block, icon, iconEnd, iconOnly, children, className }: ButtonLinkProps) {
+export function ButtonLink({ to, href, download, variant, size, block, icon, iconEnd, iconOnly, children, className }: ButtonLinkProps) {
     const content = (
         <Content icon={icon} iconEnd={iconEnd} iconOnly={iconOnly}>
             {children}
@@ -134,7 +136,7 @@ export function ButtonLink({ to, href, variant, size, block, icon, iconEnd, icon
             {content}
         </Link>
     ) : (
-        <a href={href} {...props}>
+        <a href={href} download={download} {...props}>
             {content}
         </a>
     );

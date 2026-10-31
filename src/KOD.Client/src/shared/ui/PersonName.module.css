@@ -1,0 +1,23 @@
+.person {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--ds-space-3);
+    min-width: 0;
+    text-align: left;
+}
+
+.text {
+    display: grid;
+    min-width: 0;
+}
+
+.name {
+    font-weight: 650;
+    /* break-word, not anywhere: a table cell keeps the width of the longest word. */
+    overflow-wrap: break-word;
+}
+
+.meta {
+    color: var(--ds-color-text-muted);
+    font-size: var(--ds-fs-xs);
+}

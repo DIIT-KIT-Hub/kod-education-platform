@@ -11,6 +11,11 @@ namespace KOD.Web.Hosting;
 /// </summary>
 internal static partial class SpaHostingExtensions
 {
+    /// <summary>
+    /// The Blazor sections already moved to the client.
+    /// </summary>
+    private static readonly string[] MovedSections = ["/documents", "/signing"];
+
     /// <param name="app">The web application.</param>
     extension(WebApplication app)
     {
@@ -49,6 +54,14 @@ internal static partial class SpaHostingExtensions
                 .AllowAnonymous();
             }
 
+            // Sections moved to the client keep their old addresses working (links in the remaining Blazor pages,
+            // the manual, bookmarks): /documents/… → /app/documents/… with the query string.
+            foreach (var section in MovedSections)
+            {
+                app.MapGet(section, MovedPage).AllowAnonymous().ExcludeFromDescription();
+                app.MapGet($"{section}/{{**path}}", MovedPage).AllowAnonymous().ExcludeFromDescription();
+            }
+
             return app;
         }
 
@@ -79,6 +92,14 @@ internal static partial class SpaHostingExtensions
         => response.Headers.CacheControl = path.StartsWithSegments($"{SpaOptions.BasePath}/assets", StringComparison.OrdinalIgnoreCase)
             ? "public, max-age=31536000, immutable"
             : CacheControlHeaderValue.NoCacheString;
+
+    /// <summary>
+    /// Sends an old address of a moved section to the same address in the client.
+    /// </summary>
+    /// <param name="context">The HTTP context.</param>
+    /// <returns>The redirect.</returns>
+    private static IResult MovedPage(HttpContext context)
+        => Results.LocalRedirect($"{SpaOptions.BasePath}{context.Request.Path}{context.Request.QueryString}");
 
     /// <summary>
     /// Logs a missing application build.

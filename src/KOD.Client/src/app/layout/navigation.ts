@@ -26,8 +26,8 @@ export interface NavigationItem {
  */
 const items: readonly NavigationItem[] = [
     { to: "/", text: msg`Головна`, icon: House, permissions: [], tabBar: true },
-    { href: "/documents", text: msg`Документи`, icon: FileText, permissions: [Permissions.documentsView], tabBar: true },
-    { href: "/signing", text: msg`Підписання`, icon: Signature, permissions: [Permissions.signingUse], tabBar: true },
+    { to: "/documents", text: msg`Документи`, icon: FileText, permissions: [Permissions.documentsView], tabBar: true },
+    { to: "/signing", text: msg`Підписання`, icon: Signature, permissions: [Permissions.signingUse], tabBar: true },
     { href: "/news", text: msg`Новини`, icon: Newspaper, permissions: [Permissions.newsView], tabBar: true },
     { href: "/structure", text: msg`Структура`, icon: Network, permissions: [Permissions.structureView], tabBar: false },
     {

@@ -1,0 +1,41 @@
+.list {
+    display: grid;
+    gap: var(--ds-space-4);
+    margin: 0;
+}
+
+/* Each pair is a row of the shared grid (subgrid), so all values start in the same column. */
+.row {
+    display: grid;
+    gap: var(--ds-space-1);
+}
+
+@media (min-width: 480px) {
+    .list {
+        grid-template-columns: minmax(8rem, max-content) 1fr;
+        gap: var(--ds-space-3) var(--ds-space-6);
+    }
+
+    .row {
+        grid-column: 1 / -1;
+        grid-template-columns: subgrid;
+    }
+}
+
+.row dt {
+    color: var(--ds-color-text-muted);
+    font-weight: 600;
+    font-size: var(--ds-fs-sm);
+}
+
+.row dd {
+    margin: 0;
+    font-weight: 600;
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.inverse .row dt {
+    color: inherit;
+    opacity: 0.65;
+}
