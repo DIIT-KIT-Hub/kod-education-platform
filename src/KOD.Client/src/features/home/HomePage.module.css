@@ -1,0 +1,39 @@
+.hero {
+    position: relative;
+    display: grid;
+    gap: var(--ds-space-5);
+    padding: var(--ds-space-6);
+    border-radius: var(--ds-radius-xl);
+    background: var(--ds-color-inverse);
+    color: var(--ds-color-on-inverse);
+    overflow: hidden;
+    animation: var(--ds-anim-fade-up);
+}
+
+.hero::after {
+    content: "";
+    position: absolute;
+    right: -6rem;
+    top: -6rem;
+    width: 18rem;
+    height: 18rem;
+    border-radius: 50%;
+    border: 1px solid color-mix(in srgb, var(--ds-color-on-inverse) 18%, transparent);
+    box-shadow: 0 0 0 3rem color-mix(in srgb, var(--ds-color-on-inverse) 4%, transparent);
+    pointer-events: none;
+}
+
+.hero h1 {
+    font-size: var(--ds-fs-3xl);
+}
+.lead {
+    opacity: 0.75;
+    font-size: var(--ds-fs-lg);
+    max-width: 50ch;
+}
+
+@media (min-width: 768px) {
+    .hero {
+        padding: var(--ds-space-10);
+    }
+}

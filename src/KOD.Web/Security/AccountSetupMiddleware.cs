@@ -21,11 +21,13 @@ internal sealed class AccountSetupMiddleware(RequestDelegate next)
 
     /// <summary>
     /// Paths that stay available during the setup: the steps themselves, signing out, the language switch, assets
-    /// and images (the photo preview), error pages.
+    /// and images (the photo preview), error pages, and the single-page application with its authentication API (it
+    /// guides the user through the same steps itself).
     /// </summary>
     private static readonly PathString[] AllowedPaths =
     [
         new(ChangePasswordPath), new(PhotoPath), new("/api/v1/profile/photo"), new("/account/logout"), new("/account/language"), new("/_framework"), new("/_blazor"),
+        new("/app"), new("/api/v1/auth"),
         new("/css"), new("/js"), new("/fonts"), new("/icons"), new("/img"), new("/lib"), new("/media"), new("/favicon.svg"),
         new("/error"), new("/not-found"),
     ];

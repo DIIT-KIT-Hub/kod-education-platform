@@ -1,0 +1,3 @@
+# Build output (served by KOD.Web from here in development, copied into wwwroot/app on publish).
+dist/
+*.tsbuildinfo

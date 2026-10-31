@@ -1,0 +1,15 @@
+.spinner {
+    display: inline-block;
+    width: 1.5rem;
+    height: 1.5rem;
+    border: 2.5px solid var(--ds-color-border-strong);
+    border-top-color: var(--ds-color-text);
+    border-radius: 50%;
+    animation: var(--ds-anim-spin);
+}
+
+.block {
+    display: flex;
+    justify-content: center;
+    padding: 4rem;
+}

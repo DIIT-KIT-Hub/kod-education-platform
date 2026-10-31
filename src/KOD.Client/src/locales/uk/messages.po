@@ -1,0 +1,688 @@
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2026-10-31 00:14+0200\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: @lingui/cli\n"
+"Language: uk\n"
+
+#: src/shared/ui/PhotoPicker.tsx
+msgid "JPEG, PNG, WebP, AVIF або GIF до 15 МБ. Фото буде стиснуто, метадані (зокрема геолокацію) видалено."
+msgstr "JPEG, PNG, WebP, AVIF або GIF до 15 МБ. Фото буде стиснуто, метадані (зокрема геолокацію) видалено."
+
+#. placeholder {0}: document.registrationNumber
+#: src/features/home/HomePage.tsx
+msgid "№ {0}"
+msgstr "№ {0}"
+
+#: src/features/auth/pages/SetupAuthenticatorPage.tsx
+msgid "QR-код для автентифікатора"
+msgstr "QR-код для автентифікатора"
+
+#: src/features/auth/pages/SetupAuthenticatorPage.tsx
+msgid "Автентифікатор підключено"
+msgstr "Автентифікатор підключено"
+
+#: src/app/layout/navigation.ts
+msgid "Адміністрування"
+msgstr "Адміністрування"
+
+#: src/shared/i18n/display.ts
+msgctxt "document-kind"
+msgid "Акт"
+msgstr "Акт"
+
+#: src/shared/i18n/display.ts
+msgid "В архіві"
+msgstr "В архіві"
+
+#: src/features/auth/pages/SetupAuthenticatorPage.tsx
+msgid "Введіть 6-значний код, який показує застосунок."
+msgstr "Введіть 6-значний код, який показує застосунок."
+
+#: src/features/auth/pages/RecoveryPage.tsx
+msgid "Введіть резервний код."
+msgstr "Введіть резервний код."
+
+#: src/features/auth/pages/ChangePasswordPage.tsx
+msgid "Ви увійшли з тимчасовим паролем. Задайте власний пароль, щоб продовжити роботу."
+msgstr "Ви увійшли з тимчасовим паролем. Задайте власний пароль, щоб продовжити роботу."
+
+#: src/app/layout/UserMenu.tsx
+#: src/features/auth/pages/PhotoPage.tsx
+msgid "Вийти"
+msgstr "Вийти"
+
+#: src/app/layout/UserMenu.tsx
+msgid "Вийти з кабінету?"
+msgstr "Вийти з кабінету?"
+
+#: src/features/auth/pages/RecoveryPage.tsx
+msgid "Використайте один із резервних кодів, отриманих під час підключення автентифікатора. Кожен код діє лише один раз."
+msgstr "Використайте один із резервних кодів, отриманих під час підключення автентифікатора. Кожен код діє лише один раз."
+
+#: src/features/auth/pages/SetupAuthenticatorPage.tsx
+msgid "Від 12 символів: великі й малі літери та цифри. Паролі з відомих витоків не приймаються."
+msgstr "Від 12 символів: великі й малі літери та цифри. Паролі з відомих витоків не приймаються."
+
+#: src/features/auth/pages/TwoFactorPage.tsx
+msgid "Відкрийте застосунок-автентифікатор і введіть 6-значний код для облікового запису КОД."
+msgstr "Відкрийте застосунок-автентифікатор і введіть 6-значний код для облікового запису КОД."
+
+#: src/features/auth/pages/SetupAuthenticatorPage.tsx
+msgid "Відскануйте QR-код або введіть ключ вручну:"
+msgstr "Відскануйте QR-код або введіть ключ вручну:"
+
+#: src/shared/i18n/display.ts
+msgid "Відхилено"
+msgstr "Відхилено"
+
+#: src/features/auth/pages/LoginPage.tsx
+msgid "Вкажіть електронну пошту."
+msgstr "Вкажіть електронну пошту."
+
+#: src/features/auth/pages/ChangePasswordPage.tsx
+#: src/features/auth/pages/SetupAuthenticatorPage.tsx
+msgid "Вкажіть новий пароль."
+msgstr "Вкажіть новий пароль."
+
+#: src/features/auth/pages/LoginPage.tsx
+msgid "Вкажіть пароль."
+msgstr "Вкажіть пароль."
+
+#: src/features/auth/pages/ChangePasswordPage.tsx
+msgid "Вкажіть поточний пароль."
+msgstr "Вкажіть поточний пароль."
+
+#: src/features/auth/pages/SetupAuthenticatorPage.tsx
+msgid "Встановіть <0>Google Authenticator</0>, <1>Microsoft Authenticator</1> або інший TOTP-застосунок."
+msgstr "Встановіть <0>Google Authenticator</0>, <1>Microsoft Authenticator</1> або інший TOTP-застосунок."
+
+#: src/features/auth/pages/ChangePasswordPage.tsx
+msgid "Встановіть власний пароль"
+msgstr "Встановіть власний пароль"
+
+#: src/features/auth/pages/LoginPage.tsx
+msgid "Вхід"
+msgstr "Вхід"
+
+#: src/features/auth/pages/LoginPage.tsx
+msgid "Вхід до кабінету"
+msgstr "Вхід до кабінету"
+
+#: src/features/auth/pages/LockoutPage.tsx
+msgid "Вхід до облікового запису тимчасово заблоковано на 15 хвилин через кілька невдалих спроб. Спробуйте пізніше або зверніться до адміністратора."
+msgstr "Вхід до облікового запису тимчасово заблоковано на 15 хвилин через кілька невдалих спроб. Спробуйте пізніше або зверніться до адміністратора."
+
+#: src/features/auth/pages/RecoveryPage.tsx
+msgid "Вхід за резервним кодом"
+msgstr "Вхід за резервним кодом"
+
+#: src/features/auth/pages/LockoutPage.tsx
+msgid "Вхід тимчасово заблоковано"
+msgstr "Вхід тимчасово заблоковано"
+
+#: src/app/layout/navigation.ts
+#: src/features/home/HomePage.tsx
+msgid "Головна"
+msgstr "Головна"
+
+#: src/app/layout/AppShell.tsx
+msgid "Головне меню"
+msgstr "Головне меню"
+
+#: src/features/auth/pages/SetupAuthenticatorPage.tsx
+msgid "Для кожного облікового запису обов'язкова двофакторна автентифікація. Прив'яжіть застосунок-автентифікатор — це займе хвилину."
+msgstr "Для кожного облікового запису обов'язкова двофакторна автентифікація. Прив'яжіть застосунок-автентифікатор — це займе хвилину."
+
+#: src/features/auth/pages/LockoutPage.tsx
+#: src/features/auth/pages/SetupAuthenticatorPage.tsx
+msgid "До сторінки входу"
+msgstr "До сторінки входу"
+
+#: src/features/home/HomePage.tsx
+msgid "Доброго вечора,"
+msgstr "Доброго вечора,"
+
+#: src/features/home/HomePage.tsx
+msgid "Доброго дня,"
+msgstr "Доброго дня,"
+
+#: src/features/home/HomePage.tsx
+msgid "Доброго ранку,"
+msgstr "Доброго ранку,"
+
+#: src/features/home/HomePage.tsx
+msgid "Доброї ночі,"
+msgstr "Доброї ночі,"
+
+#: src/app/layout/navigation.ts
+msgid "Довідка"
+msgstr "Довідка"
+
+#: src/shared/i18n/display.ts
+msgctxt "document-kind"
+msgid "Довідка"
+msgstr "Довідка"
+
+#: src/shared/i18n/display.ts
+msgctxt "document-kind"
+msgid "Договір"
+msgstr "Договір"
+
+#: src/features/auth/pages/PhotoPage.tsx
+msgid "Додайте фото профілю"
+msgstr "Додайте фото профілю"
+
+#: src/app/layout/navigation.ts
+msgid "Документи"
+msgstr "Документи"
+
+#: src/features/home/HomePage.tsx
+msgid "Документи, де зараз ваша черга"
+msgstr "Документи, де зараз ваша черга"
+
+#: src/features/home/HomePage.tsx
+msgid "Документи, які очікують на ваш підпис, новини організації та швидкий доступ до сервісів — в одному місці."
+msgstr "Документи, які очікують на ваш підпис, новини організації та швидкий доступ до сервісів — в одному місці."
+
+#: src/features/auth/pages/LoginPage.tsx
+msgid "Електронна пошта"
+msgstr "Електронна пошта"
+
+#: src/features/auth/components/AuthLayout.tsx
+msgid "Електронний документообіг для будь-якої організації: структура, маршрути погодження та кваліфікований електронний підпис."
+msgstr "Електронний документообіг для будь-якої організації: структура, маршрути погодження та кваліфікований електронний підпис."
+
+#: src/features/auth/pages/LockoutPage.tsx
+msgid "Забагато спроб"
+msgstr "Забагато спроб"
+
+#: src/shared/ui/Spinner.tsx
+msgid "Завантаження"
+msgstr "Завантаження"
+
+#: src/shared/ui/Dialog.tsx
+msgid "Закрити"
+msgstr "Закрити"
+
+#: src/app/layout/AppShell.tsx
+msgid "Закрити меню"
+msgstr "Закрити меню"
+
+#: src/features/auth/pages/LoginPage.tsx
+msgid "Запам'ятати мене на цьому пристрої"
+msgstr "Запам'ятати мене на цьому пристрої"
+
+#: src/features/auth/pages/SetupAuthenticatorPage.tsx
+msgid "Захистіть вхід"
+msgstr "Захистіть вхід"
+
+#: src/shared/i18n/display.ts
+msgctxt "document-kind"
+msgid "Заява"
+msgstr "Заява"
+
+#: src/features/auth/pages/ChangePasswordPage.tsx
+#: src/features/auth/pages/SetupAuthenticatorPage.tsx
+msgid "Зберегти пароль"
+msgstr "Зберегти пароль"
+
+#: src/features/auth/pages/PhotoPage.tsx
+msgid "Зберегти фото"
+msgstr "Зберегти фото"
+
+#: src/features/auth/pages/SetupAuthenticatorPage.tsx
+msgid "Збережіть резервні коди в надійному місці. Вони знадобляться, якщо ви втратите доступ до телефону. Кожен код діє один раз."
+msgstr "Збережіть резервні коди в надійному місці. Вони знадобляться, якщо ви втратите доступ до телефону. Кожен код діє один раз."
+
+#: src/shared/i18n/display.ts
+msgctxt "document-kind"
+msgid "Звіт"
+msgstr "Звіт"
+
+#: src/app/layout/AppShell.tsx
+msgid "Згорнути меню"
+msgstr "Згорнути меню"
+
+#: src/features/auth/pages/ChangePasswordPage.tsx
+msgid "Зміна пароля"
+msgstr "Зміна пароля"
+
+#: src/shared/ui/ThemeToggle.tsx
+msgid "Змінити тему"
+msgstr "Змінити тему"
+
+#: src/shared/i18n/display.ts
+msgctxt "document-kind"
+msgid "Інший документ"
+msgstr "Інший документ"
+
+#: src/shared/ui/Brand.tsx
+msgid "К"
+msgstr "К"
+
+#: src/shared/ui/Brand.tsx
+msgid "Кабінет організаційних<0/>документів"
+msgstr "Кабінет організаційних<0/>документів"
+
+#: src/features/auth/components/AuthLayout.tsx
+msgid "Кабінет<0/>організаційних документів"
+msgstr "Кабінет<0/>організаційних документів"
+
+#: src/app/layout/AppShell.tsx
+#: src/features/auth/components/AuthLayout.tsx
+#: src/shared/ui/DocumentTitle.tsx
+msgid "КОД"
+msgstr "КОД"
+
+#: src/features/auth/pages/TwoFactorPage.tsx
+msgid "Код з автентифікатора"
+msgstr "Код з автентифікатора"
+
+#: src/features/auth/pages/SetupAuthenticatorPage.tsx
+msgid "Код з застосунку"
+msgstr "Код з застосунку"
+
+#: src/features/auth/pages/SetupAuthenticatorPage.tsx
+#: src/features/auth/pages/TwoFactorPage.tsx
+msgid "Код містить 6 цифр."
+msgstr "Код містить 6 цифр."
+
+#: src/features/auth/pages/TwoFactorPage.tsx
+msgid "Код підтвердження"
+msgstr "Код підтвердження"
+
+#: src/features/auth/pages/PhotoPage.tsx
+msgid "Колеги бачать ваше фото в документах, новинах і структурі. Без фото кабінетом користуватися не можна."
+msgstr "Колеги бачать ваше фото в документах, новинах і структурі. Без фото кабінетом користуватися не можна."
+
+#: src/features/auth/pages/SetupAuthenticatorPage.tsx
+msgid "Копіювати"
+msgstr "Копіювати"
+
+#: src/features/auth/pages/SetupAuthenticatorPage.tsx
+msgid "Крок 1 з 2"
+msgstr "Крок 1 з 2"
+
+#: src/features/auth/pages/SetupAuthenticatorPage.tsx
+msgid "Крок 2 з 2"
+msgstr "Крок 2 з 2"
+
+#: src/shared/i18n/display.ts
+msgctxt "document-kind"
+msgid "Лист"
+msgstr "Лист"
+
+#: src/shared/ui/PhotoPicker.tsx
+msgid "Масштаб"
+msgstr "Масштаб"
+
+#: src/app/layout/AppShell.tsx
+msgid "Меню"
+msgstr "Меню"
+
+#: src/app/layout/UserMenu.tsx
+msgid "Мій профіль"
+msgstr "Мій профіль"
+
+#: src/features/auth/components/LanguageSwitch.tsx
+msgid "Мова інтерфейсу"
+msgstr "Мова інтерфейсу"
+
+#: src/app/pages/NotFoundPage.tsx
+msgid "Можливо, посилання застаріло або сторінку перенесено."
+msgstr "Можливо, посилання застаріло або сторінку перенесено."
+
+#: src/features/home/HomePage.tsx
+msgid "Мої на підписанні"
+msgstr "Мої на підписанні"
+
+#: src/features/home/HomePage.tsx
+msgid "Мої чернетки"
+msgstr "Мої чернетки"
+
+#: src/app/pages/NotFoundPage.tsx
+msgid "На головну"
+msgstr "На головну"
+
+#: src/shared/i18n/display.ts
+msgid "На підписанні"
+msgstr "На підписанні"
+
+#: src/shared/ui/PageHeader.tsx
+msgid "Навігаційний ланцюжок"
+msgstr "Навігаційний ланцюжок"
+
+#: src/shared/i18n/display.ts
+msgid "Навчання та розвиток"
+msgstr "Навчання та розвиток"
+
+#: src/shared/i18n/display.ts
+msgctxt "document-kind"
+msgid "Наказ"
+msgstr "Наказ"
+
+#: src/app/layout/UserMenu.tsx
+msgid "Не вдалося вийти. Спробуйте ще раз."
+msgstr "Не вдалося вийти. Спробуйте ще раз."
+
+#: src/features/auth/pages/PhotoPage.tsx
+msgid "Не вдалося зберегти фото. Спробуйте ще раз."
+msgstr "Не вдалося зберегти фото. Спробуйте ще раз."
+
+#: src/features/auth/pages/ChangePasswordPage.tsx
+#: src/features/auth/pages/LoginPage.tsx
+#: src/features/auth/pages/RecoveryPage.tsx
+#: src/features/auth/pages/SetupAuthenticatorPage.tsx
+#: src/features/auth/pages/TwoFactorPage.tsx
+msgid "Не вдалося зв'язатися з сервером. Спробуйте ще раз."
+msgstr "Не вдалося зв'язатися з сервером. Спробуйте ще раз."
+
+#: src/features/auth/components/LanguageSwitch.tsx
+msgid "Не вдалося змінити мову."
+msgstr "Не вдалося змінити мову."
+
+#: src/shared/ui/CopyButton.tsx
+msgid "Не вдалося скопіювати"
+msgstr "Не вдалося скопіювати"
+
+#: src/features/auth/pages/LoginPage.tsx
+msgid "Не використовуйте на спільних комп'ютерах."
+msgstr "Не використовуйте на спільних комп'ютерах."
+
+#: src/features/auth/pages/LoginPage.tsx
+msgid "Некоректна адреса електронної пошти."
+msgstr "Некоректна адреса електронної пошти."
+
+#: src/features/auth/pages/TwoFactorPage.tsx
+msgid "Немає доступу до телефону? <0>Увійти за резервним кодом</0>."
+msgstr "Немає доступу до телефону? <0>Увійти за резервним кодом</0>."
+
+#: src/features/auth/pages/PhotoPage.tsx
+msgid "Нове фото замінить поточне всюди в кабінеті."
+msgstr "Нове фото замінить поточне всюди в кабінеті."
+
+#: src/features/home/HomePage.tsx
+msgid "Новий документ"
+msgstr "Новий документ"
+
+#: src/features/auth/pages/ChangePasswordPage.tsx
+#: src/features/auth/pages/SetupAuthenticatorPage.tsx
+msgid "Новий пароль"
+msgstr "Новий пароль"
+
+#: src/features/home/HomePage.tsx
+msgid "Новин поки немає"
+msgstr "Новин поки немає"
+
+#: src/app/layout/navigation.ts
+#: src/features/home/HomePage.tsx
+#: src/shared/i18n/display.ts
+msgid "Новини"
+msgstr "Новини"
+
+#: src/features/home/HomePage.tsx
+msgid "Нових документів на підпис немає."
+msgstr "Нових документів на підпис немає."
+
+#: src/shared/ui/PhotoPicker.tsx
+msgid "Оберіть або перетягніть фото"
+msgstr "Оберіть або перетягніть фото"
+
+#: src/features/auth/pages/PhotoPage.tsx
+msgid "Оберіть фото."
+msgstr "Оберіть фото."
+
+#: src/shared/i18n/display.ts
+msgid "Оголошення"
+msgstr "Оголошення"
+
+#: src/app/pages/RouteError.tsx
+msgid "Оновити"
+msgstr "Оновити"
+
+#: src/features/home/HomePage.tsx
+msgid "Останні оголошення"
+msgstr "Останні оголошення"
+
+#: src/features/home/HomePage.tsx
+msgid "Очікують мого підпису"
+msgstr "Очікують мого підпису"
+
+#: src/features/auth/pages/ChangePasswordPage.tsx
+#: src/features/auth/pages/SetupAuthenticatorPage.tsx
+msgid "Паролі не збігаються."
+msgstr "Паролі не збігаються."
+
+#: src/features/auth/pages/LoginPage.tsx
+msgid "Пароль"
+msgstr "Пароль"
+
+#: src/features/auth/pages/ChangePasswordPage.tsx
+msgid "Пароль змінено."
+msgstr "Пароль змінено."
+
+#: src/features/auth/pages/ChangePasswordPage.tsx
+#: src/features/auth/pages/SetupAuthenticatorPage.tsx
+msgid "Пароль має містити від 12 до 128 символів."
+msgstr "Пароль має містити від 12 до 128 символів."
+
+#: src/features/auth/pages/LoginPage.tsx
+msgid "Пароль не може бути довшим за 128 символів."
+msgstr "Пароль не може бути довшим за 128 символів."
+
+#: src/app/layout/AppShell.tsx
+msgid "Перейти до змісту"
+msgstr "Перейти до змісту"
+
+#: src/features/auth/pages/SetupAuthenticatorPage.tsx
+msgid "Перейти до кабінету"
+msgstr "Перейти до кабінету"
+
+#: src/shared/ui/PhotoPicker.tsx
+msgid "Перетягніть фото та змініть масштаб, щоб обличчя було в колі."
+msgstr "Перетягніть фото та змініть масштаб, щоб обличчя було в колі."
+
+#: src/features/auth/pages/SetupAuthenticatorPage.tsx
+msgid "Підключення автентифікатора"
+msgstr "Підключення автентифікатора"
+
+#: src/app/layout/navigation.ts
+msgid "Підписання"
+msgstr "Підписання"
+
+#: src/shared/i18n/display.ts
+msgid "Підписано"
+msgstr "Підписано"
+
+#: src/features/home/HomePage.tsx
+msgid "Підписано мною цього місяця"
+msgstr "Підписано мною цього місяця"
+
+#: src/features/home/HomePage.tsx
+msgid "Підписати файл"
+msgstr "Підписати файл"
+
+#: src/features/auth/pages/TwoFactorPage.tsx
+msgid "Підтвердження входу"
+msgstr "Підтвердження входу"
+
+#: src/shared/ui/ConfirmHost.tsx
+msgid "Підтвердити"
+msgstr "Підтвердити"
+
+#: src/features/auth/pages/SetupAuthenticatorPage.tsx
+msgid "Підтвердити та увійти"
+msgstr "Підтвердити та увійти"
+
+#: src/features/auth/pages/RecoveryPage.tsx
+msgid "Після входу згенеруйте нові резервні коди у профілі."
+msgstr "Після входу згенеруйте нові резервні коди у профілі."
+
+#: src/features/auth/pages/ChangePasswordPage.tsx
+msgid "Після зміни пароля всі інші сесії буде завершено."
+msgstr "Після зміни пароля всі інші сесії буде завершено."
+
+#: src/features/auth/pages/ChangePasswordPage.tsx
+#: src/features/auth/pages/PhotoPage.tsx
+msgid "Повернутися"
+msgstr "Повернутися"
+
+#: src/features/auth/pages/ChangePasswordPage.tsx
+msgid "Повторіть новий пароль"
+msgstr "Повторіть новий пароль"
+
+#: src/features/auth/pages/SetupAuthenticatorPage.tsx
+msgid "Повторіть пароль"
+msgstr "Повторіть пароль"
+
+#: src/shared/i18n/display.ts
+msgid "Подія"
+msgstr "Подія"
+
+#: src/shared/ui/PasswordInput.tsx
+msgid "Показати пароль"
+msgstr "Показати пароль"
+
+#: src/features/home/HomePage.tsx
+msgid "Показники"
+msgstr "Показники"
+
+#: src/shared/i18n/display.ts
+msgctxt "document-kind"
+msgid "Положення / інструкція"
+msgstr "Положення / інструкція"
+
+#: src/shared/ui/PhotoPicker.tsx
+msgid "Попередній перегляд фото"
+msgstr "Попередній перегляд фото"
+
+#: src/features/auth/pages/ChangePasswordPage.tsx
+msgid "Поточний пароль"
+msgstr "Поточний пароль"
+
+#: src/features/auth/pages/LoginPage.tsx
+msgid "Продовжити"
+msgstr "Продовжити"
+
+#: src/shared/i18n/display.ts
+msgid "Проєкти та досягнення"
+msgstr "Проєкти та досягнення"
+
+#: src/shared/i18n/display.ts
+msgctxt "document-kind"
+msgid "Протокол"
+msgstr "Протокол"
+
+#: src/app/layout/navigation.ts
+msgid "Профіль"
+msgstr "Профіль"
+
+#: src/features/auth/pages/RecoveryPage.tsx
+msgid "Резервний код"
+msgstr "Резервний код"
+
+#: src/features/auth/pages/RecoveryPage.tsx
+msgid "Резервний код задовгий."
+msgstr "Резервний код задовгий."
+
+#: src/app/layout/AppShell.tsx
+msgid "Розгорнути меню"
+msgstr "Розгорнути меню"
+
+#: src/shared/i18n/display.ts
+msgctxt "document-kind"
+msgid "Розпорядження"
+msgstr "Розпорядження"
+
+#: src/shared/ui/ConfirmHost.tsx
+msgid "Скасувати"
+msgstr "Скасувати"
+
+#: src/shared/ui/CopyButton.tsx
+msgid "Скопійовано"
+msgstr "Скопійовано"
+
+#: src/features/auth/pages/SetupAuthenticatorPage.tsx
+msgid "Скопіювати коди"
+msgstr "Скопіювати коди"
+
+#: src/shared/i18n/display.ts
+msgctxt "document-kind"
+msgid "Службова записка"
+msgstr "Службова записка"
+
+#: src/app/pages/RouteError.tsx
+msgid "Сталася помилка"
+msgstr "Сталася помилка"
+
+#: src/features/auth/pages/SetupAuthenticatorPage.tsx
+msgid "Створіть власний пароль"
+msgstr "Створіть власний пароль"
+
+#: src/app/pages/RouteError.tsx
+msgid "Сторінку не вдалося завантажити. Оновіть сторінку або спробуйте пізніше."
+msgstr "Сторінку не вдалося завантажити. Оновіть сторінку або спробуйте пізніше."
+
+#: src/app/pages/NotFoundPage.tsx
+msgid "Сторінку не знайдено"
+msgstr "Сторінку не знайдено"
+
+#: src/app/layout/navigation.ts
+msgid "Структура"
+msgstr "Структура"
+
+#: src/shared/ui/PasswordInput.tsx
+msgid "Сховати пароль"
+msgstr "Сховати пароль"
+
+#: src/shared/ui/ThemeToggle.tsx
+msgid "Тема"
+msgstr "Тема"
+
+#: src/features/auth/pages/SetupAuthenticatorPage.tsx
+msgid "Тимчасовий пароль від адміністратора діє лише для першого входу. Придумайте власний — після цього підключимо автентифікатор."
+msgstr "Тимчасовий пароль від адміністратора діє лише для першого входу. Придумайте власний — після цього підключимо автентифікатор."
+
+#: src/features/auth/pages/LoginPage.tsx
+msgid "Увійдіть за обліковим записом, виданим адміністратором вашої організації."
+msgstr "Увійдіть за обліковим записом, виданим адміністратором вашої організації."
+
+#: src/features/auth/pages/RecoveryPage.tsx
+#: src/features/auth/pages/TwoFactorPage.tsx
+msgid "Увійти"
+msgstr "Увійти"
+
+#: src/features/home/HomePage.tsx
+msgid "Усе підписано"
+msgstr "Усе підписано"
+
+#: src/features/home/HomePage.tsx
+msgid "Усі"
+msgstr "Усі"
+
+#: src/features/auth/pages/PhotoPage.tsx
+msgid "Фото збережено."
+msgstr "Фото збережено."
+
+#: src/features/auth/pages/PhotoPage.tsx
+msgid "Фото профілю"
+msgstr "Фото профілю"
+
+#: src/shared/i18n/display.ts
+msgid "Чернетка"
+msgstr "Чернетка"
+
+#: src/app/layout/AppShell.tsx
+msgid "Швидка навігація"
+msgstr "Швидка навігація"
+
+#: src/features/auth/pages/ChangePasswordPage.tsx
+msgid "Щонайменше 12 символів: великі й малі латинські літери та цифри."
+msgstr "Щонайменше 12 символів: великі й малі латинські літери та цифри."
+
+#: src/features/auth/pages/LoginPage.tsx
+msgid "Якщо ви не маєте облікового запису або забули пароль — зверніться до відділу кадрів чи системного адміністратора."
+msgstr "Якщо ви не маєте облікового запису або забули пароль — зверніться до відділу кадрів чи системного адміністратора."

@@ -1,0 +1,31 @@
+.header {
+    display: grid;
+    gap: var(--ds-space-2);
+}
+.header p {
+    color: var(--ds-color-text-muted);
+}
+.badge {
+    justify-self: start;
+}
+
+.icon {
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: var(--ds-radius-sm);
+    background: var(--ds-color-surface-3);
+    animation: var(--ds-anim-pop);
+}
+
+.bigIcon {
+    display: grid;
+    place-items: center;
+    width: 5rem;
+    height: 5rem;
+    border-radius: 50%;
+    background: var(--ds-color-inverse);
+    color: var(--ds-color-on-inverse);
+    animation: var(--ds-anim-pop);
+}

@@ -1,0 +1,77 @@
+.dialog {
+    --_scroll-inset: 1.75rem;
+    width: min(100% - 2rem, 34rem);
+    max-height: min(100dvh - 2rem, 48rem);
+    padding: 0;
+    border: 0;
+    border-radius: var(--ds-radius-xl);
+    background: var(--ds-color-surface);
+    color: var(--ds-color-text);
+    box-shadow: var(--ds-shadow-lg);
+    overflow: auto;
+}
+
+.wide {
+    width: min(100% - 2rem, 52rem);
+}
+
+.dialog[open] {
+    animation: var(--ds-anim-scale-in);
+}
+.dialog::backdrop {
+    background: var(--ds-color-overlay);
+    backdrop-filter: blur(4px);
+    animation: var(--ds-anim-fade-in);
+}
+
+/* Scrollbar inside the rounded corners. In Chromium, do not set scrollbar-width (it disables these styles). */
+.dialog::-webkit-scrollbar {
+    width: 0.75rem;
+}
+.dialog::-webkit-scrollbar-track {
+    margin-block: var(--_scroll-inset);
+    background: transparent;
+}
+
+.dialog::-webkit-scrollbar-thumb {
+    border: 0.25rem solid transparent;
+    border-radius: var(--ds-radius-pill);
+    background: var(--ds-color-border-strong) padding-box;
+}
+
+.inner {
+    display: grid;
+    gap: var(--ds-space-5);
+    padding: var(--ds-space-6);
+}
+.header {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--ds-space-4);
+    align-items: flex-start;
+}
+.title {
+    font-size: var(--ds-fs-xl);
+}
+.actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--ds-space-3);
+    justify-content: flex-end;
+}
+
+@media (max-width: 479.98px) {
+    .dialog {
+        width: 100%;
+        max-width: none;
+        margin: auto 0 0;
+        border-radius: var(--ds-radius-xl) var(--ds-radius-xl) 0 0;
+    }
+
+    .dialog[open] {
+        animation: var(--ds-anim-slide-up);
+    }
+    .actions > * {
+        flex: 1 1 100%;
+    }
+}

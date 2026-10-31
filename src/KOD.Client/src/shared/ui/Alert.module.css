@@ -1,0 +1,37 @@
+.alert {
+    display: flex;
+    gap: var(--ds-space-3);
+    align-items: flex-start;
+    padding: var(--ds-space-4) var(--ds-space-5);
+    border-radius: var(--ds-radius-md);
+    background: var(--ds-color-surface-3);
+    color: var(--ds-color-text);
+    animation: var(--ds-anim-fade-up-fast);
+}
+
+.alert > svg {
+    margin-top: 0.1em;
+}
+.title {
+    font-weight: 750;
+}
+.body {
+    display: grid;
+    gap: var(--ds-space-1);
+    min-width: 0;
+}
+.neutral {
+    --_tone: neutral;
+}
+.inverse {
+    background: var(--ds-color-inverse);
+    color: var(--ds-color-on-inverse);
+}
+.outline {
+    background: transparent;
+    border: 1.5px solid var(--ds-color-text);
+}
+.danger {
+    background: var(--ds-color-danger-surface);
+    color: var(--ds-color-danger);
+}

@@ -1,0 +1,135 @@
+/*
+ * Layout and text utilities shared by pages: import the module and combine its classes with the page's own module.
+ */
+
+.stack {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ds-space-4);
+    min-width: 0;
+}
+.stackSm {
+    composes: stack;
+    gap: var(--ds-space-2);
+}
+.stackLg {
+    composes: stack;
+    gap: var(--ds-space-6);
+}
+.stackXl {
+    composes: stack;
+    gap: var(--ds-space-8);
+}
+.row {
+    display: flex;
+    gap: var(--ds-space-3);
+    align-items: center;
+    min-width: 0;
+}
+.rowBetween {
+    composes: row;
+    justify-content: space-between;
+}
+.cluster {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--ds-space-2);
+    align-items: center;
+}
+
+.cols {
+    display: grid;
+    gap: var(--ds-space-4);
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--_col-min, 16rem)), 1fr));
+}
+.colsStats {
+    composes: cols;
+    --_col-min: 13rem;
+}
+
+.split {
+    display: grid;
+    gap: var(--ds-space-6);
+    align-items: start;
+}
+
+/* Side-by-side only from desktop widths: below that the sidebar leaves too little room for two columns. */
+@media (min-width: 1280px) {
+    .split {
+        grid-template-columns: minmax(0, 1fr) minmax(20rem, 26rem);
+    }
+}
+
+/* Children fade up one after another. */
+.stagger > * {
+    animation: var(--ds-anim-fade-up);
+}
+.stagger > *:nth-child(2) {
+    animation-delay: 40ms;
+}
+.stagger > *:nth-child(3) {
+    animation-delay: 80ms;
+}
+.stagger > *:nth-child(4) {
+    animation-delay: 120ms;
+}
+.stagger > *:nth-child(5) {
+    animation-delay: 160ms;
+}
+.stagger > *:nth-child(6) {
+    animation-delay: 200ms;
+}
+.stagger > *:nth-child(7) {
+    animation-delay: 240ms;
+}
+.stagger > *:nth-child(8) {
+    animation-delay: 280ms;
+}
+.stagger > *:nth-child(n + 9) {
+    animation-delay: 320ms;
+}
+
+.muted {
+    color: var(--ds-color-text-muted);
+}
+.mono {
+    font-family: var(--ds-font-mono);
+}
+.strong {
+    font-weight: 750;
+}
+.textSm {
+    font-size: var(--ds-fs-sm);
+}
+.textXs {
+    font-size: var(--ds-fs-xs);
+}
+.truncate {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.visuallyHidden {
+    position: absolute !important;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+}
+
+.link {
+    font-weight: 650;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-color: var(--ds-color-border-strong);
+    transition: text-decoration-color var(--ds-duration-fast);
+}
+
+.link:hover {
+    text-decoration-color: currentColor;
+}

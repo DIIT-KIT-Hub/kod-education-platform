@@ -1,0 +1,4 @@
+# pnpm settings of the client (a single package, no workspace members).
+
+# Exact versions in package.json; upgrades are deliberate.
+savePrefix: ""

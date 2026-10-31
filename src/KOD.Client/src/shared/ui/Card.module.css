@@ -1,0 +1,58 @@
+.card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: var(--ds-space-4);
+    padding: var(--ds-space-5);
+    border-radius: var(--ds-radius-lg);
+    background: var(--ds-color-surface);
+    border: 1px solid var(--ds-color-border);
+    min-width: 0;
+    container-type: inline-size;
+}
+
+@media (min-width: 768px) {
+    .card {
+        padding: var(--ds-space-6);
+    }
+}
+
+.default {
+    --_variant: default;
+}
+.flush {
+    padding: 0;
+    overflow: hidden;
+}
+.muted {
+    background: var(--ds-color-surface-2);
+    border-color: transparent;
+}
+.inverse {
+    background: var(--ds-color-inverse);
+    color: var(--ds-color-on-inverse);
+    border-color: transparent;
+}
+
+.header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--ds-space-4);
+    flex-wrap: wrap;
+}
+
+.title {
+    font-size: var(--ds-fs-lg);
+    font-weight: 750;
+    letter-spacing: -0.01em;
+}
+.subtitle {
+    color: var(--ds-color-text-muted);
+    font-size: var(--ds-fs-sm);
+    margin-top: var(--ds-space-1);
+}
+.inverse .subtitle {
+    color: inherit;
+    opacity: 0.7;
+}

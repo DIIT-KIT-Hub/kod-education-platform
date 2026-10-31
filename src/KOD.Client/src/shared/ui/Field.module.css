@@ -1,0 +1,26 @@
+/* align-content: start keeps the control its own height when a neighbour in the form row is taller (e.g. has a hint). */
+.field {
+    display: grid;
+    gap: var(--ds-space-2);
+    min-width: 0;
+    align-content: start;
+}
+.label {
+    font-weight: 700;
+    font-size: var(--ds-fs-sm);
+}
+.required {
+    color: var(--ds-color-danger);
+    margin-left: 0.15em;
+}
+.hint {
+    color: var(--ds-color-text-muted);
+    font-size: var(--ds-fs-sm);
+}
+
+.error {
+    color: var(--ds-color-danger);
+    font-size: var(--ds-fs-sm);
+    font-weight: 600;
+    animation: var(--ds-anim-fade-in);
+}

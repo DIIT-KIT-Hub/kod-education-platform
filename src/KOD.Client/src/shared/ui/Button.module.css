@@ -1,0 +1,173 @@
+/*
+ * Hover floods the button with the contrast colour of the theme and flips the text colour: a circle grows from the point
+ * where the pointer entered (--_x / --_y, see shared/lib/ink.ts; the centre without them) and shrinks back towards the
+ * point where it left. The fill is a ::before layer under the content (the button is an isolated stacking context).
+ * Primary buttons, already in the contrast colour, take a softer shade of it.
+ */
+.button {
+    --_bg: var(--ds-color-primary);
+    --_fg: var(--ds-color-on-primary);
+    --_border: transparent;
+    --_fill: var(--ds-color-primary-hover);
+    --_fill-fg: var(--ds-color-on-primary);
+    --_fill-border: var(--_border);
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--ds-space-2);
+    min-height: var(--ds-control-height);
+    padding: 0 var(--ds-space-6);
+    border: 1.5px solid var(--_border);
+    border-radius: var(--ds-radius-pill);
+    background: var(--_bg);
+    color: var(--_fg);
+    font-weight: 650;
+    font-size: var(--ds-fs-md);
+    line-height: 1;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+    user-select: none;
+    transition:
+        color var(--ds-ink-duration) var(--ds-ink-ease),
+        border-color var(--ds-ink-duration) var(--ds-ink-ease),
+        background-color var(--ds-duration-base) var(--ds-ease-out),
+        transform var(--ds-duration-fast) var(--ds-ease-out),
+        box-shadow var(--ds-duration-base) var(--ds-ease-out);
+}
+
+.button::before {
+    content: "";
+    position: absolute;
+    inset: -2px;
+    z-index: -1;
+    border-radius: inherit;
+    background: var(--_fill);
+    clip-path: circle(0 at var(--_x, 50%) var(--_y, 50%));
+    transition: clip-path var(--ds-ink-duration) var(--ds-ink-ease);
+    pointer-events: none;
+}
+
+.button:hover {
+    color: var(--_fill-fg);
+    border-color: var(--_fill-border);
+    box-shadow: var(--ds-shadow-md);
+}
+.button:hover::before {
+    clip-path: circle(160% at var(--_x, 50%) var(--_y, 50%));
+}
+.button:active {
+    transform: scale(0.97);
+}
+.button:disabled {
+    opacity: 0.45;
+    pointer-events: none;
+    box-shadow: none;
+}
+
+.primary {
+    --_variant: primary;
+}
+
+.secondary {
+    --_bg: var(--ds-color-surface);
+    --_fg: var(--ds-color-text);
+    --_border: var(--ds-color-text);
+    --_fill: var(--ds-color-inverse);
+    --_fill-fg: var(--ds-color-on-inverse);
+    --_fill-border: var(--ds-color-inverse);
+}
+
+.ghost {
+    --_bg: transparent;
+    --_fg: var(--ds-color-text);
+    --_fill: var(--ds-color-inverse);
+    --_fill-fg: var(--ds-color-on-inverse);
+}
+
+.ghost:hover {
+    box-shadow: none;
+}
+
+.danger {
+    --_bg: var(--ds-color-danger);
+    --_fg: #fff;
+    --_fill: color-mix(in srgb, var(--ds-color-danger) 78%, #000);
+    --_fill-fg: #fff;
+}
+
+/* On inverse surfaces (inverse cards and alerts, the home banner) the contrast colour is the surface itself, so the fill
+   takes the opposite colour. Those surfaces set data-inverse. */
+:global([data-inverse]) .button {
+    --_bg: var(--ds-color-on-inverse);
+    --_fg: var(--ds-color-inverse);
+    --_fill: color-mix(in srgb, var(--ds-color-on-inverse) 82%, var(--ds-color-inverse));
+    --_fill-fg: var(--ds-color-inverse);
+}
+
+:global([data-inverse]) :is(.secondary, .ghost) {
+    --_bg: transparent;
+    --_fg: var(--ds-color-on-inverse);
+    --_fill: var(--ds-color-on-inverse);
+    --_fill-fg: var(--ds-color-inverse);
+    --_fill-border: var(--ds-color-on-inverse);
+}
+
+:global([data-inverse]) .secondary {
+    --_border: var(--ds-color-on-inverse);
+}
+
+.md {
+    --_size: md;
+}
+.sm {
+    min-height: var(--ds-control-height-sm);
+    padding: 0 var(--ds-space-4);
+    font-size: var(--ds-fs-sm);
+}
+.lg {
+    min-height: var(--ds-control-height-lg);
+    padding: 0 var(--ds-space-8);
+    font-size: var(--ds-fs-lg);
+}
+.block {
+    display: flex;
+    width: 100%;
+}
+.iconOnly {
+    padding: 0;
+    width: var(--ds-control-height);
+}
+.iconOnly.sm {
+    width: var(--ds-control-height-sm);
+}
+
+.label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+}
+
+.button[data-busy],
+.button[data-busy]:hover {
+    color: transparent;
+    pointer-events: none;
+    opacity: 1;
+}
+
+.button[data-busy]::after {
+    content: "";
+    position: absolute;
+    width: 1.1rem;
+    height: 1.1rem;
+    border: 2px solid var(--_fg);
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: var(--ds-anim-spin);
+}

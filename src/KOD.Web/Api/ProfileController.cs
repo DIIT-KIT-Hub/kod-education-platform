@@ -39,23 +39,26 @@ public sealed class ProfileController(IProfileService profile, UserManager<User>
     }
 
     /// <summary>
-    /// Replaces the profile photo (JPEG, PNG, WebP, AVIF or GIF up to 15 MB; the centre square is used, stored as AVIF).
+    /// Replaces the profile photo (JPEG, PNG, WebP, AVIF or GIF up to 15 MB, stored as AVIF): the chosen square, or the
+    /// centre square when no crop is sent.
     /// </summary>
     /// <param name="file">The photo.</param>
+    /// <param name="crop">The crop square as fractions of the image (optional).</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The identifier of the new photo (its URL is <c>/media/{id}</c>).</returns>
     [HttpPut("photo")]
     [Consumes("multipart/form-data")]
     [RequestSizeLimit(FileRules.MaxImageSize + (64 * 1024))]
-    public async Task<ActionResult<Guid>> SetPhoto(IFormFile file, CancellationToken cancellationToken)
+    public async Task<ActionResult<Guid>> SetPhoto(IFormFile file, [FromForm] PhotoCropForm crop, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(file);
+        ArgumentNullException.ThrowIfNull(crop);
 
         await using var content = file.OpenReadStream();
-        var result = await profile.SetPhotoAsync(new FileUpload(content, file.FileName, file.ContentType, file.Length), crop: null, cancellationToken);
+        var result = await profile.SetPhotoAsync(new FileUpload(content, file.FileName, file.ContentType, file.Length), crop.Crop, cancellationToken);
         if (result.IsSuccess && await userManager.GetUserAsync(User) is { } user)
         {
-            // The sign-in cookie carries the photo: without it the cabinet would keep asking for one.
+            // The access token carries the photo: without a new one the cabinet would keep asking for it.
             await signInManager.RefreshSignInAsync(user);
         }
 

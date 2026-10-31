@@ -1,0 +1,33 @@
+.empty {
+    display: grid;
+    justify-items: center;
+    gap: var(--ds-space-3);
+    padding: var(--ds-space-12) var(--ds-space-5);
+    text-align: center;
+    animation: var(--ds-anim-fade-in);
+}
+
+.icon {
+    display: grid;
+    place-items: center;
+    width: 4.5rem;
+    height: 4.5rem;
+    border-radius: 50%;
+    background: var(--ds-color-surface-3);
+    animation: var(--ds-anim-pop);
+}
+
+.title {
+    font-size: var(--ds-fs-lg);
+    font-weight: 750;
+}
+.text {
+    color: var(--ds-color-text-muted);
+    max-width: 46ch;
+}
+.actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--ds-space-2);
+    align-items: center;
+}

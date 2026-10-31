@@ -1,0 +1,48 @@
+.badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.25rem 0.7rem;
+    border-radius: var(--ds-radius-pill);
+    font-size: var(--ds-fs-xs);
+    font-weight: 700;
+    line-height: 1.3;
+    white-space: nowrap;
+    background: var(--ds-color-surface-3);
+    color: var(--ds-color-text);
+    border: 1px solid transparent;
+}
+
+.icon {
+    width: 0.9rem;
+    height: 0.9rem;
+}
+.neutral {
+    --_tone: neutral;
+}
+.inverse {
+    background: var(--ds-color-inverse);
+    color: var(--ds-color-on-inverse);
+}
+.outline {
+    background: transparent;
+    border-color: var(--ds-color-text);
+}
+.dashed {
+    background: transparent;
+    border: 1px dashed var(--ds-color-text-muted);
+    color: var(--ds-color-text-muted);
+}
+.danger {
+    background: var(--ds-color-danger-surface);
+    color: var(--ds-color-danger);
+}
+
+.dot::before {
+    content: "";
+    width: 0.45rem;
+    height: 0.45rem;
+    border-radius: 50%;
+    background: currentColor;
+    animation: var(--ds-anim-pulse);
+}

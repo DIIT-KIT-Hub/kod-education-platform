@@ -1,0 +1,133 @@
+.shell {
+    min-height: 100dvh;
+    display: grid;
+    background: var(--ds-color-bg);
+}
+
+.hero {
+    display: none;
+}
+
+/* The language and theme switches are the first row, so a tall card (the authenticator setup) never slides under them. */
+.main {
+    display: grid;
+    grid-template-rows: auto 1fr;
+    place-items: center;
+    gap: var(--ds-space-4);
+    padding: var(--ds-space-4) var(--ds-gutter) var(--ds-space-8);
+}
+
+.card {
+    grid-row: 2;
+    width: min(100%, 28rem);
+    display: grid;
+    gap: var(--ds-space-6);
+    animation: var(--ds-anim-fade-up);
+}
+
+.tools {
+    grid-row: 1;
+    justify-self: end;
+    align-self: start;
+    display: flex;
+    gap: var(--ds-space-1);
+    align-items: center;
+}
+.mobileBrand {
+    display: flex;
+    align-items: center;
+    gap: var(--ds-space-3);
+    font-weight: 800;
+    letter-spacing: 0.04em;
+}
+
+@media (min-width: 1024px) {
+    .shell {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    }
+    .mobileBrand {
+        display: none;
+    }
+
+    .hero {
+        position: relative;
+        isolation: isolate;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        gap: var(--ds-space-10);
+        margin: var(--ds-space-4);
+        padding: var(--ds-space-12);
+        border-radius: var(--ds-radius-xl);
+        background: #000;
+        color: #fff;
+        overflow: hidden;
+        animation: var(--ds-anim-fade-in);
+    }
+
+    /* The <picture> wrapper is taken out of the flex flow: brand stays at the top, headline at the bottom. */
+    .hero picture {
+        position: absolute;
+        inset: 0;
+        z-index: -2;
+    }
+
+    /* Photo (AVIF, 800/1200w) covering the panel with a slow "Ken Burns" settle. */
+    .photo {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: 55% 30%;
+        animation: settle 1.6s var(--ds-ease-out) both;
+    }
+
+    /* Darkens the top (brand) and the bottom (headline) so white text stays readable on the bright photo. */
+    .hero::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        background:
+            linear-gradient(to bottom, rgb(0 0 0 / 0.55) 0%, rgb(0 0 0 / 0) 22%),
+            linear-gradient(to top, rgb(0 0 0 / 0.88) 0%, rgb(0 0 0 / 0.55) 30%, rgb(0 0 0 / 0) 58%);
+    }
+
+    .heroBrand {
+        display: flex;
+        align-items: center;
+        gap: var(--ds-space-3);
+        font-size: var(--ds-fs-xl);
+        letter-spacing: 0.06em;
+    }
+    .heroBrand .heroMark {
+        background: #fff;
+        color: #000;
+    }
+    .heroText {
+        display: grid;
+        gap: var(--ds-space-4);
+        max-width: 34rem;
+        animation: var(--ds-anim-fade-up);
+        animation-delay: 0.25s;
+    }
+    .heroText h2 {
+        font-size: var(--ds-fs-4xl);
+        text-shadow: 0 2px 24px rgb(0 0 0 / 0.35);
+    }
+    .heroText p {
+        font-size: var(--ds-fs-lg);
+        color: rgb(255 255 255 / 0.82);
+    }
+}
+
+@keyframes settle {
+    from {
+        transform: scale(1.08);
+        opacity: 0;
+    }
+    to {
+        transform: none;
+        opacity: 1;
+    }
+}

@@ -32,4 +32,22 @@
     <InternalsVisibleTo Include="KOD.UnitTests" />
   </ItemGroup>
 
+  <!-- Publishing builds the single-page application (src/KOD.Client, pnpm) and ships it as wwwroot/app.
+       Skip with -p:SkipClientBuild=true when the client was built separately. -->
+  <PropertyGroup>
+    <ClientRoot>$(MSBuildProjectDirectory)\..\KOD.Client</ClientRoot>
+  </PropertyGroup>
+
+  <Target Name="BuildClient" BeforeTargets="ComputeResolvedFilesToPublishList" Condition="'$(SkipClientBuild)' != 'true'">
+    <Exec Command="pnpm install --frozen-lockfile" WorkingDirectory="$(ClientRoot)" />
+    <Exec Command="pnpm build" WorkingDirectory="$(ClientRoot)" />
+  </Target>
+
+  <Target Name="PublishClient" AfterTargets="ComputeResolvedFilesToPublishList">
+    <ItemGroup>
+      <ClientDist Include="$(ClientRoot)\dist\**" Exclude="$(ClientRoot)\dist\**\*.map" />
+      <ResolvedFileToPublish Include="@(ClientDist)" RelativePath="wwwroot\app\%(RecursiveDir)%(Filename)%(Extension)" CopyToPublishDirectory="PreserveNewest" ExcludeFromSingleFile="true" />
+    </ItemGroup>
+  </Target>
+
 </Project>

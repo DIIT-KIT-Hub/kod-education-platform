@@ -1,0 +1,21 @@
+.mark {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 0.9rem;
+    background: var(--ds-color-inverse);
+    color: var(--ds-color-on-inverse);
+    font-weight: 800;
+    font-size: 1.35rem;
+    letter-spacing: -0.04em;
+    transition: transform var(--ds-duration-base) var(--ds-ease-spring);
+}
+
+.compact {
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 0.75rem;
+    font-size: 1.1rem;
+}

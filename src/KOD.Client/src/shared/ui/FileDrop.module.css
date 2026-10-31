@@ -1,0 +1,44 @@
+.drop {
+    position: relative;
+    display: grid;
+    place-items: center;
+    gap: var(--ds-space-2);
+    padding: var(--ds-space-8) var(--ds-space-5);
+    border: 2px dashed var(--ds-color-border-strong);
+    border-radius: var(--ds-radius-lg);
+    background: var(--ds-color-surface-2);
+    text-align: center;
+    cursor: pointer;
+    transition:
+        border-color var(--ds-duration-fast),
+        background-color var(--ds-duration-fast),
+        transform var(--ds-duration-base) var(--ds-ease-out);
+}
+
+.drop:hover,
+.drop[data-dragover] {
+    border-color: var(--ds-color-text);
+    background: var(--ds-color-surface-3);
+}
+.drop[data-dragover] {
+    transform: scale(1.01);
+}
+.drop:focus-within {
+    border-color: var(--ds-color-text);
+}
+
+.drop input {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.title {
+    font-weight: 750;
+    overflow-wrap: anywhere;
+}
+.hint {
+    color: var(--ds-color-text-muted);
+    font-size: var(--ds-fs-sm);
+}

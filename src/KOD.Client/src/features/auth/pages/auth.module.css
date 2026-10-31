@@ -1,0 +1,89 @@
+/* Shared parts of the sign-in pages. */
+.form {
+    display: grid;
+    gap: var(--ds-space-5);
+}
+.note {
+    color: var(--ds-color-text-muted);
+    font-size: var(--ds-fs-sm);
+}
+.actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--ds-space-2);
+    align-items: center;
+}
+
+.steps {
+    display: grid;
+    gap: var(--ds-space-3);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    counter-reset: step;
+}
+
+.steps > li {
+    display: grid;
+    grid-template-columns: 2rem 1fr;
+    gap: var(--ds-space-3);
+    align-items: start;
+    counter-increment: step;
+}
+
+.steps > li::before {
+    content: counter(step);
+    display: grid;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    background: var(--ds-color-inverse);
+    color: var(--ds-color-on-inverse);
+    font-weight: 800;
+    font-size: var(--ds-fs-sm);
+}
+
+.qr {
+    display: grid;
+    place-items: center;
+    padding: var(--ds-space-4);
+    border-radius: var(--ds-radius-lg);
+    background: #fff;
+    width: fit-content;
+    margin-inline: auto;
+    animation: var(--ds-anim-scale-in);
+}
+
+.qr img {
+    width: 13rem;
+    height: 13rem;
+}
+
+.key {
+    font-family: var(--ds-font-mono);
+    font-size: var(--ds-fs-sm);
+    padding: 0.15em 0.45em;
+    border-radius: 0.4rem;
+    background: var(--ds-color-surface-3);
+    overflow-wrap: anywhere;
+}
+
+.codes {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(8rem, 1fr));
+    gap: var(--ds-space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.codes li {
+    padding: var(--ds-space-3);
+    border-radius: var(--ds-radius-sm);
+    background: var(--ds-color-surface-3);
+    font-family: var(--ds-font-mono);
+    font-weight: 700;
+    text-align: center;
+    letter-spacing: 0.08em;
+}

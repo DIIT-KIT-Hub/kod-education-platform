@@ -1,0 +1,58 @@
+{
+  "name": "kod-client",
+  "version": "1.0.0",
+  "private": true,
+  "description": "KOD single-page application (React + Vite), served by KOD.Web.",
+  "type": "module",
+  "packageManager": "pnpm@12.9.1",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "dev": "vite build --watch --mode development",
+    "build": "tsc -b && vite build",
+    "typecheck": "tsc -b",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "test": "vitest run",
+    "i18n:extract": "lingui extract --clean",
+    "i18n:compile": "lingui compile --strict --typescript",
+    "api:types": "node --use-system-ca ./node_modules/openapi-typescript/bin/cli.js https://localhost:7180/openapi/v1.json --output src/shared/api/schema.d.ts --root-types --root-types-no-schema-prefix"
+  },
+  "dependencies": {
+    "@hookform/resolvers": "6.0.2",
+    "@lingui/core": "6.11.0",
+    "@lingui/react": "6.11.0",
+    "@tanstack/react-query": "5.105.0",
+    "lucide-react": "1.64.0",
+    "openapi-fetch": "0.17.0",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "react-hook-form": "7.91.0",
+    "react-router": "8.5.1",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@babel/core": "8.0.10",
+    "@eslint/js": "10.0.1",
+    "@lingui/cli": "6.11.0",
+    "@lingui/format-po": "6.11.0",
+    "@lingui/vite-plugin": "6.11.0",
+    "@rolldown/plugin-babel": "0.2.4",
+    "@testing-library/react": "16.3.3",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@vitejs/plugin-react": "6.1.2",
+    "babel-plugin-react-compiler": "1.0.0",
+    "eslint": "10.13.0",
+    "eslint-plugin-react-hooks": "7.1.1",
+    "globals": "17.13.0",
+    "happy-dom": "21.0.4",
+    "openapi-typescript": "7.13.0",
+    "prettier": "3.9.10",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.72.1",
+    "vite": "8.3.5",
+    "vitest": "5.0.5"
+  }
+}

@@ -56,6 +56,7 @@ internal static class WebApplicationExtensions
                 static context => !context.Request.Path.StartsWithSegments("/api", StringComparison.OrdinalIgnoreCase),
                 static branch => branch.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true));
             app.UseHttpsRedirection();
+            app.UseSpaFiles();
 
             app.UseRouting();
             app.UseAuthentication();
@@ -76,6 +77,7 @@ internal static class WebApplicationExtensions
             app.MapLanguageEndpoint();
             app.MapRazorComponents<App>()
                 .AddInteractiveServerRenderMode();
+            app.MapSpaFallback();
 
             if (app.Environment.IsDevelopment())
             {

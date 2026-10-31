@@ -1,4 +1,5 @@
 using System.Net;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.RateLimiting;
 using KOD.Application.Abstractions;
@@ -34,7 +35,11 @@ internal static class WebServiceCollectionExtensions
         {
             services.AddRazorComponents().AddInteractiveServerComponents();
             services.AddControllers(static options => options.Filters.Add<KOD.Web.Api.ApiAntiforgeryFilter>())
-                .AddJsonOptions(static options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+                .AddJsonOptions(static options => ConfigureJson(options.JsonSerializerOptions));
+
+            // The OpenAPI document describes types with these options: keep them equal to the controllers' ones, so the
+            // generated client types match the real payloads (enums as names, numbers as numbers).
+            services.ConfigureHttpJsonOptions(static options => ConfigureJson(options.SerializerOptions));
             services.AddProblemDetails();
             services.AddExceptionHandler<ApiExceptionHandler>();
             services.AddOpenApi();
@@ -58,6 +63,7 @@ internal static class WebServiceCollectionExtensions
             services.AddScoped<CircuitHandler, UserCircuitHandler>();
             services.AddScoped<IdentityRedirectManager>();
 
+            services.Configure<SpaOptions>(configuration.GetSection(SpaOptions.SectionName));
             services.Configure<SigningOptions>(configuration.GetSection(SigningOptions.SectionName));
             services.AddHttpClient(EuSignProxyEndpoint.HttpClientName, static (sp, client) =>
                 {
@@ -162,9 +168,10 @@ internal static class WebServiceCollectionExtensions
                 {
                     var client = context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
 
-                    // Forms that verify passwords or codes: sign-in pages and the profile security actions.
+                    // Forms that verify passwords or codes: sign-in pages, the authentication API and the profile security actions.
                     if (HttpMethods.IsPost(context.Request.Method)
                         && (context.Request.Path.StartsWithSegments("/account", StringComparison.OrdinalIgnoreCase)
+                            || context.Request.Path.StartsWithSegments("/api/v1/auth", StringComparison.OrdinalIgnoreCase)
                             || context.Request.Path.StartsWithSegments("/profile", StringComparison.OrdinalIgnoreCase)))
                     {
                         return RateLimitPartition.GetFixedWindowLimiter($"account:{client}", static _ => new FixedWindowRateLimiterOptions
@@ -196,5 +203,15 @@ internal static class WebServiceCollectionExtensions
 
             return services;
         }
+    }
+
+    /// <summary>
+    /// Applies the API JSON conventions: enums as their names, numbers only as JSON numbers.
+    /// </summary>
+    /// <param name="options">The serializer options.</param>
+    private static void ConfigureJson(JsonSerializerOptions options)
+    {
+        options.Converters.Add(new JsonStringEnumConverter());
+        options.NumberHandling = JsonNumberHandling.Strict;
     }
 }

@@ -1,0 +1,34 @@
+.avatar {
+    display: inline-grid;
+    place-items: center;
+    flex: none;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    background: var(--ds-color-inverse);
+    color: var(--ds-color-on-inverse);
+    font-weight: 750;
+    font-size: var(--ds-fs-sm);
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+}
+
+.md {
+    --_size: md;
+}
+.sm {
+    width: 2rem;
+    height: 2rem;
+    font-size: var(--ds-fs-xs);
+}
+.lg {
+    width: 4.5rem;
+    height: 4.5rem;
+    font-size: var(--ds-fs-xl);
+}
+
+/* A photo: the placeholder colour shows only until the image decodes. */
+img.avatar {
+    object-fit: cover;
+    background: var(--ds-color-surface-3);
+}

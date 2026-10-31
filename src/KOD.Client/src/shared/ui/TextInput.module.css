@@ -1,0 +1,35 @@
+.input {
+    width: 100%;
+    min-height: var(--ds-control-height);
+    padding: 0 var(--ds-space-4);
+    border: 1.5px solid var(--ds-color-border-strong);
+    border-radius: var(--ds-radius-md);
+    background: var(--ds-color-surface);
+    color: var(--ds-color-text);
+    transition: border-color var(--ds-duration-base) var(--ds-ease-out);
+}
+
+.input::placeholder {
+    color: var(--ds-color-text-subtle);
+}
+.input:hover {
+    border-color: var(--ds-color-text-muted);
+}
+
+/* Focus is shown by the border alone: no outline and no glow ring. */
+.input:focus,
+.input:focus-visible {
+    outline: none;
+    border-color: var(--ds-color-text);
+    box-shadow: none;
+}
+
+.input[aria-invalid="true"] {
+    border-color: var(--ds-color-danger);
+}
+
+.compact {
+    min-height: var(--ds-control-height-sm);
+    border-radius: var(--ds-radius-sm);
+    font-size: var(--ds-fs-sm);
+}

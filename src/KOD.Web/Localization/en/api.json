@@ -7,5 +7,6 @@
   "Потрібно змінити тимчасовий пароль.": "You need to change your temporary password.",
   "Оберіть фото.": "Choose a photo.",
   "Фото профілю збережено": "Profile photo saved",
-  "Додайте фото профілю, щоб користуватися кабінетом.": "Add a profile photo to use the cabinet."
+  "Додайте фото профілю, щоб користуватися кабінетом.": "Add a profile photo to use the cabinet.",
+  "Час на підтвердження входу минув. Увійдіть знову.": "The time to confirm the sign-in has run out. Sign in again."
 }
