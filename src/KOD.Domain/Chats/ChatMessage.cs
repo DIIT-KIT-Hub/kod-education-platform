@@ -112,6 +112,17 @@ public sealed class ChatMessage : AuditableEntity
     public User? Author { get; private set; }
 
     /// <summary>
+    /// Gets the author of the original message when this one was forwarded from another chat (the first author: a
+    /// forwarded message forwarded again keeps them).
+    /// </summary>
+    public Guid? ForwardedFromId { get; private set; }
+
+    /// <summary>
+    /// Gets the author of the original message of a forwarded one.
+    /// </summary>
+    public User? ForwardedFrom { get; private set; }
+
+    /// <summary>
     /// Gets the identifier the author's browser gave the message (unique per author and chat).
     /// </summary>
     public Guid? ClientId { get; private set; }
@@ -164,8 +175,27 @@ public sealed class ChatMessage : AuditableEntity
             throw new DomainException(Texts.T("Це повідомлення не можна змінити."));
         }
 
+        if (ForwardedFromId is not null)
+        {
+            throw new DomainException(Texts.T("Переслане повідомлення не можна змінити."));
+        }
+
         SetContent(body, text, _attachments.Count > 0);
         EditedAt = moment;
+    }
+
+    /// <summary>
+    /// Marks the message as forwarded: it shows the author of the original message.
+    /// </summary>
+    /// <param name="originalAuthorId">The author of the original message.</param>
+    public void MarkForwarded(Guid originalAuthorId)
+    {
+        if (Kind != ChatMessageKind.Text)
+        {
+            throw new DomainException(Texts.T("Це повідомлення не можна переслати."));
+        }
+
+        ForwardedFromId = originalAuthorId;
     }
 
     /// <summary>

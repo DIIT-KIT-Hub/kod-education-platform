@@ -1103,6 +1103,52 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/chats/{id}/forward": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Forwards messages of another chat (or this one) to this chat. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The chat the messages go to. */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            /** @description The cancellation token. */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["ForwardChatMessagesRequest"];
+                    "text/json": components["schemas"]["ForwardChatMessagesRequest"];
+                    "application/*+json": components["schemas"]["ForwardChatMessagesRequest"];
+                };
+            };
+            responses: {
+                /** @description The new messages. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ChatMessageDto"][];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/chats/{id}/messages/{messageId}/hide": {
         parameters: {
             query?: never;
@@ -4994,6 +5040,7 @@ export interface components {
              * @default false
              */
             isHidden: boolean;
+            forwardedFrom?: null | components["schemas"]["UserRef"];
         };
         /**
          * @description The kind of a chat message.
@@ -5469,6 +5516,16 @@ export interface components {
             lastModified?: null | string;
             entityTag?: null | components["schemas"]["EntityTagHeaderValue"];
             enableRangeProcessing?: boolean;
+        };
+        /** @description Body of `POST /api/v1/chats/{id}/forward`. */
+        ForwardChatMessagesRequest: {
+            /**
+             * Format: uuid
+             * @description The chat of the messages.
+             */
+            sourceChatId: string;
+            /** @description The messages to forward. */
+            messageIds: string[];
         };
         /** Format: binary */
         IFormFile: string;
@@ -7203,6 +7260,7 @@ export type DocumentStatusRequest = components["schemas"]["DocumentStatusRequest
 export type EntityTagHeaderValue = components["schemas"]["EntityTagHeaderValue"];
 export type FileSigningRecord = components["schemas"]["FileSigningRecord"];
 export type FileStreamResult = components["schemas"]["FileStreamResult"];
+export type ForwardChatMessagesRequest = components["schemas"]["ForwardChatMessagesRequest"];
 export type IFormFile = components["schemas"]["IFormFile"];
 export type ImportRowError = components["schemas"]["ImportRowError"];
 export type KeyMediaType = components["schemas"]["KeyMediaType"];

@@ -189,7 +189,7 @@ export const helpChapters: readonly HelpChapter[] = [
             },
             {
                 id: "chats-actions",
-                title: msg({ message: "Реакції, зміна та видалення, прочитання", context: "help" }),
+                title: msg({ message: "Реакції, пересилання, зміна та видалення, прочитання", context: "help" }),
                 permissions: ["chats.use"],
             },
             { id: "chats-groups", title: msg({ message: "Групові чати та учасники", context: "help" }), permissions: ["chats.use"] },

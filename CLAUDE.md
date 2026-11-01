@@ -163,7 +163,9 @@ Dependencies point inward: Web → Infrastructure → Application → Domain. Ce
   (`HideAsync` → `HiddenChatMessage`; the reader gets an empty `IsHidden` placeholder, so numbering keeps no gaps,
   and the client keeps it hidden in `mergeMessages`); `ClearHistoryAsync` sets `ChatMember.ClearedSequence` (older
   messages are not returned, a cleared one-to-one chat leaves the list until a newer message); `DeleteChatAsync`
-  removes a chat for everyone (either person of a one-to-one chat, the owner of a group).
+  removes a chat for everyone (either person of a one-to-one chat, the owner of a group). `ForwardAsync` copies messages
+  into another chat as the user's new messages with `ForwardedFromId` (the first author) and copies their files (a
+  forwarded message cannot be edited); the client picks the chat or a person in `ForwardDialog`.
   `ClientId` (unique per chat and author) makes a resend idempotent; the client shows the message at once as pending
   and offers "send again" with the same id. Bodies are sanitized by `IRichTextSanitizer.SanitizeMessage` (text
   formatting and links only) and `ToText` gives previews. Attachments (`FileRules.ChatFileTypes` allow-list, 10 × 25 MB,

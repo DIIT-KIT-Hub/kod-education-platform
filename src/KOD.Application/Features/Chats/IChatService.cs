@@ -148,6 +148,17 @@ public interface IChatService
     Task<Result<ChatMessageDto>> EditAsync(Guid chatId, Guid messageId, string? body, CancellationToken cancellationToken);
 
     /// <summary>
+    /// Forwards messages of a chat to another chat (or the same one) as new messages of the current user that name the
+    /// original authors; their files are copied, so deleting the originals keeps the copies.
+    /// </summary>
+    /// <param name="chatId">The chat the messages go to.</param>
+    /// <param name="sourceChatId">The chat of the messages.</param>
+    /// <param name="messageIds">The messages, forwarded in their order in the source chat.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The new messages.</returns>
+    Task<Result<IReadOnlyList<ChatMessageDto>>> ForwardAsync(Guid chatId, Guid sourceChatId, IReadOnlyCollection<Guid> messageIds, CancellationToken cancellationToken);
+
+    /// <summary>
     /// Deletes the current user's message for everyone with its files (a placeholder stays).
     /// </summary>
     /// <param name="chatId">The chat.</param>

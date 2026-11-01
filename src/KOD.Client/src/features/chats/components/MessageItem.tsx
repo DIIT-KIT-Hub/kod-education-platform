@@ -1,6 +1,6 @@
 import { useLingui } from "@lingui/react/macro";
 import { useQueryClient } from "@tanstack/react-query";
-import { CircleAlert, FileText, Pencil, RotateCcw, SmilePlus, Trash2 } from "lucide-react";
+import { CircleAlert, FileText, Forward, Pencil, RotateCcw, SmilePlus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { describeError } from "@/shared/api/problem";
 import type { ReactionKind } from "@/shared/api/schema";
@@ -17,6 +17,7 @@ import { discardDraft, sendDraft } from "@/features/chats/send";
 import { Attachments } from "./Attachments";
 import styles from "./chats.module.css";
 import { Composer } from "./Composer";
+import { ForwardDialog } from "./ForwardDialog";
 
 /**
  * Props of {@link MessageItem}.
@@ -43,8 +44,9 @@ export interface MessageItemProps {
 /**
  * One message of a conversation: the author's own on the right, others' on the left with their photo, system notes in
  * the middle. The text is the HTML sanitized by the server. Hovering or focusing shows the actions: a reaction for
- * everyone, editing for the author, and deleting: anyone's message for oneself, an own one also for everyone. A message
- * that could not be sent offers "send again".
+ * everyone, forwarding to another chat, editing for the author (not of a forwarded message), and deleting: anyone's
+ * message for oneself, an own one also for everyone. A forwarded message names its original author. A message that
+ * could not be sent offers "send again".
  * @param props The props.
  * @returns The message.
  */
@@ -52,6 +54,7 @@ export function MessageItem({ message, me, compact, showAuthor, seen, editing, o
     const { t, i18n } = useLingui();
     const queryClient = useQueryClient();
     const [picking, setPicking] = useState(false);
+    const [forwarding, setForwarding] = useState(false);
     const mine = message.author.id === me;
 
     if (message.kind === "System") {
@@ -170,6 +173,12 @@ export function MessageItem({ message, me, compact, showAuthor, seen, editing, o
                             <span className={styles.deleted}>{t`Повідомлення видалено`}</span>
                         ) : (
                             <>
+                                {message.forwardedFrom && (
+                                    <span className={styles.forwarded}>
+                                        <Icon icon={Forward} size="sm" />
+                                        {t`Переслано від ${shortName(message.forwardedFrom.fullName)}`}
+                                    </span>
+                                )}
                                 {message.body && (
                                     // The server sanitized the HTML (text formatting and safe links only).
                                     <div className={styles.text} dangerouslySetInnerHTML={{ __html: message.body }} />
@@ -263,7 +272,18 @@ export function MessageItem({ message, me, compact, showAuthor, seen, editing, o
                             <Icon icon={SmilePlus} size="sm" />
                         </button>
                     )}
-                    {mine && live && (
+                    {live && (
+                        <button
+                            type="button"
+                            className={styles.action}
+                            aria-label={t`Переслати`}
+                            title={t`Переслати`}
+                            onClick={() => setForwarding(true)}
+                        >
+                            <Icon icon={Forward} size="sm" />
+                        </button>
+                    )}
+                    {mine && live && !message.forwardedFrom && (
                         <button
                             type="button"
                             className={styles.action}
@@ -301,6 +321,8 @@ export function MessageItem({ message, me, compact, showAuthor, seen, editing, o
                     )}
                 </div>
             )}
+
+            {forwarding && <ForwardDialog open onClose={() => setForwarding(false)} chatId={message.chatId} messageIds={[message.id]} />}
         </li>
     );
 }

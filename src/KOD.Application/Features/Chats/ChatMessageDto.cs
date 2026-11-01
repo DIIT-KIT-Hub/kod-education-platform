@@ -23,6 +23,7 @@ namespace KOD.Application.Features.Chats;
 /// <param name="Attachments">The files and photos.</param>
 /// <param name="Reactions">The reactions, by emotion.</param>
 /// <param name="IsHidden">Whether the reader deleted the message for themselves (then it carries no content).</param>
+/// <param name="ForwardedFrom">The author of the original message when this one was forwarded.</param>
 public sealed record ChatMessageDto(
     Guid Id,
     Guid ChatId,
@@ -38,4 +39,5 @@ public sealed record ChatMessageDto(
     Guid? ClientId,
     IReadOnlyList<ChatAttachmentDto> Attachments,
     IReadOnlyList<ChatReactionDto> Reactions,
-    bool IsHidden = false);
+    bool IsHidden = false,
+    UserRef? ForwardedFrom = null);

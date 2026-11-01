@@ -49,6 +49,11 @@ internal sealed class ChatService(
     private const int SendAttempts = 5;
 
     /// <summary>
+    /// The largest number of messages forwarded at once.
+    /// </summary>
+    private const int MaxForwarded = 100;
+
+    /// <summary>
     /// The length of the text of a message in the chat list.
     /// </summary>
     private const int PreviewLength = 160;
@@ -568,6 +573,123 @@ internal sealed class ChatService(
     }
 
     /// <inheritdoc />
+    public async Task<Result<IReadOnlyList<ChatMessageDto>>> ForwardAsync(Guid chatId, Guid sourceChatId, IReadOnlyCollection<Guid> messageIds, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(messageIds);
+        if (Me is not { } me)
+        {
+            return NotFound();
+        }
+
+        var ids = messageIds.Distinct().ToList();
+        if (ids.Count == 0 || ids.Count > MaxForwarded)
+        {
+            return Error.Validation(Texts.T("Оберіть від 1 до {0} повідомлень.", MaxForwarded));
+        }
+
+        // Both chats must be the user's; only messages the user still sees can be forwarded.
+        var cleared = await db.ChatMembers
+            .Where(m => m.ChatId == sourceChatId && m.UserId == me)
+            .Select(static m => (long?)m.ClearedSequence)
+            .FirstOrDefaultAsync(cancellationToken);
+        if (cleared is null || !(await MemberIdsAsync(chatId, cancellationToken)).Contains(me))
+        {
+            return NotFound();
+        }
+
+        var originals = await db.ChatMessages
+            .AsNoTracking()
+            .Include(static m => m.Attachments)
+            .Where(m => m.ChatId == sourceChatId
+                && ids.Contains(m.Id)
+                && m.Kind == ChatMessageKind.Text
+                && !m.IsDeleted
+                && m.Sequence > cleared.Value
+                && !db.HiddenChatMessages.Any(h => h.MessageId == m.Id && h.UserId == me))
+            .OrderBy(static m => m.Sequence)
+            .ToListAsync(cancellationToken);
+        if (originals.Count != ids.Count)
+        {
+            return Error.Validation(Texts.T("Деякі з цих повідомлень не можна переслати."));
+        }
+
+        var stored = new List<string>();
+        try
+        {
+            var copies = new List<List<ChatAttachmentCopy>>();
+            foreach (var original in originals)
+            {
+                var copied = new List<ChatAttachmentCopy>();
+                foreach (var attachment in original.Attachments.OrderBy(static a => a.Position))
+                {
+                    var key = await CopyFileAsync(attachment.StorageKey, stored, cancellationToken);
+                    var thumbnail = attachment.ThumbnailKey is { } small ? await CopyFileAsync(small, stored, cancellationToken) : null;
+                    copied.Add(new ChatAttachmentCopy(attachment, key, thumbnail));
+                }
+
+                copies.Add(copied);
+            }
+
+            for (var attempt = 1; ; attempt++)
+            {
+                var chat = await db.Chats.FirstAsync(c => c.Id == chatId, cancellationToken);
+                var member = await db.ChatMembers.FirstOrDefaultAsync(m => m.ChatId == chatId && m.UserId == me, cancellationToken);
+                if (member is null)
+                {
+                    await DeleteFilesAsync(stored, cancellationToken);
+                    return NotFound();
+                }
+
+                var added = new List<ChatMessage>();
+                for (var i = 0; i < originals.Count; i++)
+                {
+                    var original = originals[i];
+                    var attachments = copies[i].ConvertAll(static c => c.ToAttachment());
+                    var message = new ChatMessage(chatId, chat.NextSequence(timeProvider.GetUtcNow()), me, Guid.NewGuid(), original.Body, original.Text, attachments);
+                    message.MarkForwarded(original.ForwardedFromId ?? original.AuthorId);
+                    db.ChatMessages.Add(message);
+                    added.Add(message);
+                }
+
+                member.MarkRead(added[^1].Sequence);
+                try
+                {
+                    await db.SaveChangesAsync(cancellationToken);
+                }
+                catch (DbUpdateConcurrencyException) when (attempt < SendAttempts)
+                {
+                    // Another message took a number: number these again.
+                    db.DiscardChanges();
+                    continue;
+                }
+
+                var addedIds = added.ConvertAll(static m => m.Id);
+                var dtos = await LoadAsync(db.ChatMessages.Where(m => addedIds.Contains(m.Id)).OrderBy(static m => m.Sequence), null, cancellationToken);
+                var recipients = await MemberIdsAsync(chatId, cancellationToken);
+                foreach (var dto in dtos)
+                {
+                    events.MessageAdded(recipients, dto);
+                }
+
+                var last = dtos[^1];
+                var draft = new NotificationDraft(NotificationKind.ChatMessage, me, chatId, chat.Title ?? last.Author.FullName, last.Text.Length > 0 ? last.Text : null, $"/chats/{chatId}") { Collect = true };
+                await notifier.NotifyAsync(draft, recipients, cancellationToken);
+                return dtos;
+            }
+        }
+        catch (DomainException exception)
+        {
+            await DeleteFilesAsync(stored, cancellationToken);
+            return Error.Validation(exception.Message);
+        }
+        catch
+        {
+            await DeleteFilesAsync(stored, cancellationToken);
+            throw;
+        }
+    }
+
+    /// <inheritdoc />
     public async Task<Result<ChatMessageDto>> EditAsync(Guid chatId, Guid messageId, string? body, CancellationToken cancellationToken)
     {
         var found = await OwnMessageAsync(chatId, messageId, Texts.T("Редагувати можна лише власні повідомлення."), cancellationToken);
@@ -986,6 +1108,9 @@ internal sealed class ChatService(
                 m.ChatId,
                 m.Sequence,
                 Author = new PersonRow(m.AuthorId, m.Author!.LastName, m.Author.FirstName, m.Author.MiddleName, m.Author.PhotoId),
+                ForwardedFrom = m.ForwardedFromId == null
+                    ? null
+                    : new PersonRow(m.ForwardedFrom!.Id, m.ForwardedFrom.LastName, m.ForwardedFrom.FirstName, m.ForwardedFrom.MiddleName, m.ForwardedFrom.PhotoId),
                 m.Kind,
                 m.Event,
                 m.Body,
@@ -1039,11 +1164,12 @@ internal sealed class ChatService(
                 .GroupBy(static x => x.Kind)
                 .OrderBy(static g => g.Min(static x => x.CreatedAt))
                 .Select(static g => new ChatReactionDto(g.Key, g.OrderBy(static x => x.CreatedAt).Select(static x => x.UserId).ToList()))
-                .ToList()));
+                .ToList(),
+            ForwardedFrom: r.ForwardedFrom?.ToRef()));
         return loaded.ConvertAll(m => hidden.Contains(m.Id) ? Placeholder(m) : m);
 
         static ChatMessageDto Placeholder(ChatMessageDto m)
-            => m with { Body = string.Empty, Text = string.Empty, EditedAt = null, Attachments = [], Reactions = [], IsHidden = true };
+            => m with { Body = string.Empty, Text = string.Empty, EditedAt = null, Attachments = [], Reactions = [], IsHidden = true, ForwardedFrom = null };
 
         static ChatAttachmentDto ToDto(Guid chatId, ChatAttachment a) => new(
             a.Id,
@@ -1090,12 +1216,43 @@ internal sealed class ChatService(
     }
 
     /// <summary>
+    /// Copies a stored chat file under a new key (a forwarded message owns its files).
+    /// </summary>
+    /// <param name="storageKey">The key of the file.</param>
+    /// <param name="stored">Collects the keys of the copies (deleted again when forwarding fails).</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The key of the copy.</returns>
+    private async Task<string> CopyFileAsync(string storageKey, List<string> stored, CancellationToken cancellationToken)
+    {
+        await using var content = await files.OpenReadAsync(storageKey, cancellationToken);
+        var copy = await files.SaveAsync(content, StorageCategory, FileRules.MaxChatFileSize, cancellationToken);
+        stored.Add(copy.StorageKey);
+        return copy.StorageKey;
+    }
+
+    /// <summary>
     /// Deletes stored files; a file that cannot be deleted stays (it is unreachable without its row).
     /// </summary>
     /// <param name="keys">The storage keys.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task that completes when deleted.</returns>
     private Task DeleteFilesAsync(IEnumerable<string> keys, CancellationToken cancellationToken) => attachmentStore.DeleteAsync(keys, cancellationToken);
+
+    /// <summary>
+    /// The copied files of an attachment of a forwarded message.
+    /// </summary>
+    /// <param name="Original">The attachment of the original message.</param>
+    /// <param name="StorageKey">The key of the copied file.</param>
+    /// <param name="ThumbnailKey">The key of the copied thumbnail.</param>
+    private sealed record ChatAttachmentCopy(ChatAttachment Original, string StorageKey, string? ThumbnailKey)
+    {
+        /// <summary>
+        /// Builds the attachment of the new message.
+        /// </summary>
+        /// <returns>The attachment.</returns>
+        public ChatAttachment ToAttachment()
+            => new(Original.Kind, Original.FileName, Original.ContentType, Original.Size, StorageKey, ThumbnailKey, Original.Width, Original.Height);
+    }
 
     /// <summary>
     /// A change of a chat for its system note.

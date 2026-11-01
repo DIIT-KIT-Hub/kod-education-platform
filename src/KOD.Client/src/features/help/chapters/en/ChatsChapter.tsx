@@ -77,6 +77,12 @@ export function ChatsChapter() {
                         under the message; click one to join in.
                     </li>
                     <li>
+                        <Ui>Forward</Ui> — any message: choose a chat or find a colleague by name (the one-to-one chat with them opens by
+                        itself). The message appears there under your name marked “Forwarded from …” — always with the author of the
+                        original, even when you forward a forwarded message. Files and photos are copied, so deleting the original keeps the
+                        copy. A forwarded message cannot be edited.
+                    </li>
+                    <li>
                         <Ui>Edit</Ui> — your own messages only: the text opens for editing, <Ui>Save</Ui> (or <kbd>Enter</kbd>) saves it and
                         “edited” appears next to the time. Attachments stay.
                     </li>

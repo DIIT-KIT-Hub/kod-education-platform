@@ -417,6 +417,10 @@ namespace KOD.Infrastructure.Persistence.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("event");
 
+                    b.Property<Guid?>("ForwardedFromId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("forwarded_from_id");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean")
                         .HasColumnName("is_deleted");
@@ -444,6 +448,9 @@ namespace KOD.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("AuthorId")
                         .HasDatabaseName("ix_chat_messages_author_id");
+
+                    b.HasIndex("ForwardedFromId")
+                        .HasDatabaseName("ix_chat_messages_forwarded_from_id");
 
                     b.HasIndex("ChatId", "Sequence")
                         .IsUnique()
@@ -1895,7 +1902,15 @@ namespace KOD.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasConstraintName("fk_chat_messages_chats_chat_id");
 
+                    b.HasOne("KOD.Domain.Users.User", "ForwardedFrom")
+                        .WithMany()
+                        .HasForeignKey("ForwardedFromId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_chat_messages_users_forwarded_from_id");
+
                     b.Navigation("Author");
+
+                    b.Navigation("ForwardedFrom");
                 });
 
             modelBuilder.Entity("KOD.Domain.Chats.ChatReaction", b =>

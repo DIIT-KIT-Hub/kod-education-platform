@@ -177,6 +177,40 @@ public sealed class ChatTests : IDisposable
     }
 
     [Fact]
+    public async Task Forwarded_messages_name_the_original_author_and_own_copies_of_their_files()
+    {
+        var a = _world.As(_world.EmployeeA).Chats;
+        var b = _world.As(_world.EmployeeB).Chats;
+        var s = _world.As(_world.EmployeeS).Chats;
+        var direct = (await a.OpenDirectAsync(_world.EmployeeB.Id, CancellationToken.None)).Ok();
+        var original = (await a.SendAsync(direct, Text("<p>Звіт</p>", File("фото.png")), CancellationToken.None)).Ok();
+        var group = (await b.CreateGroupAsync("Проєкт", [_world.EmployeeS.Id], CancellationToken.None)).Ok();
+
+        var forwarded = Assert.Single((await b.ForwardAsync(group, direct, [original.Id], CancellationToken.None)).Ok());
+        Assert.Equal(_world.EmployeeB.Id, forwarded.Author.Id);
+        Assert.Equal(_world.EmployeeA.Id, forwarded.ForwardedFrom?.Id);
+        Assert.Equal("Звіт", forwarded.Text);
+        var copy = Assert.Single(forwarded.Attachments);
+        Assert.NotNull(copy.ThumbnailUrl);
+
+        // The group gets its own copy: it stays when the original is deleted.
+        Assert.True((await a.DeleteAsync(direct, original.Id, CancellationToken.None)).IsSuccess);
+        Assert.True((await s.OpenAttachmentAsync(group, copy.Id, thumbnail: true, CancellationToken.None)).IsSuccess);
+        Assert.Equal(2, _world.Files.Stored.Count);
+
+        // Forwarded again, it still names the first author; a forwarded message cannot be edited.
+        var again = Assert.Single((await s.ForwardAsync(group, group, [forwarded.Id], CancellationToken.None)).Ok());
+        Assert.Equal(_world.EmployeeA.Id, again.ForwardedFrom?.Id);
+        Assert.Equal(ErrorType.Validation, (await s.EditAsync(group, again.Id, "<p>Інше</p>", CancellationToken.None)).Failure());
+
+        // Only from the user's own chats, and only messages they still see.
+        Assert.Equal(ErrorType.NotFound, (await s.ForwardAsync(group, direct, [original.Id], CancellationToken.None)).Failure());
+        Assert.Equal(ErrorType.Validation, (await b.ForwardAsync(group, direct, [original.Id], CancellationToken.None)).Failure());
+        var note = (await b.GetMessagesAsync(group, null, null, 50, CancellationToken.None)).Ok().Messages[0];
+        Assert.Equal(ErrorType.Validation, (await b.ForwardAsync(direct, group, [note.Id], CancellationToken.None)).Failure());
+    }
+
+    [Fact]
     public async Task Messages_are_paged_backwards_and_caught_up_forwards()
     {
         var a = _world.As(_world.EmployeeA).Chats;

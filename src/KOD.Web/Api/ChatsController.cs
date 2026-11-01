@@ -215,6 +215,17 @@ public sealed class ChatsController(IChatService chats) : ApiControllerBase
     }
 
     /// <summary>
+    /// Forwards messages of another chat (or this one) to this chat.
+    /// </summary>
+    /// <param name="id">The chat the messages go to.</param>
+    /// <param name="request">The chat of the messages and the messages.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The new messages.</returns>
+    [HttpPost("{id:guid}/forward")]
+    public async Task<ActionResult<IReadOnlyList<ChatMessageDto>>> Forward(Guid id, ForwardChatMessagesRequest request, CancellationToken cancellationToken)
+        => FromResult(await chats.ForwardAsync(id, request.SourceChatId, request.MessageIds, cancellationToken));
+
+    /// <summary>
     /// Deletes the current user's message for everyone with its files.
     /// </summary>
     /// <param name="id">The chat.</param>

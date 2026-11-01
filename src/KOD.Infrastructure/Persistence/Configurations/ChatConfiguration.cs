@@ -70,6 +70,11 @@ internal sealed class ChatConfiguration :
             .HasForeignKey(static m => m.AuthorId)
             .OnDelete(DeleteBehavior.Restrict);
 
+        builder.HasOne(static m => m.ForwardedFrom)
+            .WithMany()
+            .HasForeignKey(static m => m.ForwardedFromId)
+            .OnDelete(DeleteBehavior.Restrict);
+
         builder.HasMany(static m => m.Attachments)
             .WithOne()
             .HasForeignKey(static a => a.MessageId)

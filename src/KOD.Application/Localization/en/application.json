@@ -109,5 +109,7 @@
   "Сповіщення не знайдено.": "Notification not found.",
   "Звернення можна призначити лише тому, хто опрацьовує звернення.": "A request can be assigned only to someone who handles requests.",
   "Файли типу «{0}» не можна додати до звернення.": "Files of type “{0}” cannot be attached to a request.",
-  "Видалити груповий чат для всіх може лише його власник.": "Only the owner of a group chat can delete it for everyone."
+  "Видалити груповий чат для всіх може лише його власник.": "Only the owner of a group chat can delete it for everyone.",
+  "Оберіть від 1 до {0} повідомлень.": "Choose from 1 to {0} messages.",
+  "Деякі з цих повідомлень не можна переслати.": "Some of these messages cannot be forwarded."
 }

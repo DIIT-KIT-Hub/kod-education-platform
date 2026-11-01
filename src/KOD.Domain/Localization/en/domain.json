@@ -126,5 +126,7 @@
   "Звернення не знайдено.": "Request not found.",
   "Звернення закрито: відповісти на нього не можна.": "The request is closed: it cannot be answered.",
   "Опрацювання звернень": "Handling requests",
-  "Перегляд усіх звернень користувачів (помилки, пропозиції, запитання), відповіді, призначення виконавців і зміна стану; сповіщення про нові звернення.": "View the requests of all users (bugs, suggestions, questions), answer them, assign handlers and change their state; notifications about new requests."
+  "Перегляд усіх звернень користувачів (помилки, пропозиції, запитання), відповіді, призначення виконавців і зміна стану; сповіщення про нові звернення.": "View the requests of all users (bugs, suggestions, questions), answer them, assign handlers and change their state; notifications about new requests.",
+  "Переслане повідомлення не можна змінити.": "A forwarded message cannot be edited.",
+  "Це повідомлення не можна переслати.": "This message cannot be forwarded."
 }

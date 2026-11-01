@@ -391,6 +391,21 @@ export const chatApi = {
         unwrap(api.PUT("/api/v1/chats/{id}/messages/{messageId}", { params: { path: { id: chatId, messageId } }, body: { body } })),
 
     /**
+     * Forwards messages to a chat; they appear there as the user's messages naming their original authors.
+     * @param chatId The chat the messages go to.
+     * @param sourceChatId The chat of the messages.
+     * @param messageIds The messages.
+     * @returns The new messages.
+     */
+    forward: (chatId: string, sourceChatId: string, messageIds: readonly string[]) =>
+        unwrap(
+            api.POST("/api/v1/chats/{id}/forward", {
+                params: { path: { id: chatId } },
+                body: { sourceChatId, messageIds: [...messageIds] },
+            }),
+        ),
+
+    /**
      * Deletes the user's own message for everyone.
      * @param chatId The chat.
      * @param messageId The message.

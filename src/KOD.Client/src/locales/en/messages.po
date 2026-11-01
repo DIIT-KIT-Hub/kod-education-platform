@@ -2158,6 +2158,10 @@ msgctxt "help"
 msgid "Куди звертатися по допомогу"
 msgstr "Where to get help"
 
+#: src/features/chats/components/ForwardDialog.tsx
+msgid "Куди переслати"
+msgstr "Where to forward"
+
 #: src/features/chats/components/Composer.tsx
 msgid "Курсив"
 msgstr "Italic"
@@ -2717,6 +2721,10 @@ msgstr "Could not clear the history."
 msgid "Не вдалося перевірити статус сертифіката (OCSP). Спробуйте пізніше."
 msgstr "Couldn't check the certificate status (OCSP). Try again later."
 
+#: src/features/chats/components/ForwardDialog.tsx
+msgid "Не вдалося переслати повідомлення."
+msgstr "Could not forward the message."
+
 #: src/features/chats/components/NewChatDialog.tsx
 msgid "Не вдалося почати чат."
 msgstr "Could not start the chat."
@@ -2854,6 +2862,7 @@ msgid "Нікого не знайдено."
 msgstr "Nobody found."
 
 #: src/features/chats/components/ChatList.tsx
+#: src/features/chats/components/ForwardDialog.tsx
 msgid "Нічого не знайдено."
 msgstr "Nothing found."
 
@@ -3296,6 +3305,10 @@ msgstr "Primary"
 msgid "Особисте"
 msgstr "Personal"
 
+#: src/features/chats/components/ForwardDialog.tsx
+msgid "Особистий чат"
+msgstr "One-to-one chat"
+
 #: src/features/admin/pages/UserEditorPage.tsx
 msgid "Особисті дані"
 msgstr "Personal data"
@@ -3518,6 +3531,19 @@ msgstr "List of permissions"
 #: src/features/documents/pages/DocumentPage.tsx
 msgid "Перемістити документ в архів?"
 msgstr "Move the document to the archive?"
+
+#. placeholder {0}: shortName(message.forwardedFrom.fullName)
+#: src/features/chats/components/MessageItem.tsx
+msgid "Переслано від {0}"
+msgstr "Forwarded from {0}"
+
+#: src/features/chats/components/MessageItem.tsx
+msgid "Переслати"
+msgstr "Forward"
+
+#: src/features/chats/components/ForwardDialog.tsx
+msgid "Переслати в чат"
+msgstr "Forward to a chat"
 
 #: src/features/signing/components/VerifyPanel.tsx
 msgid "Перетягніть підписаний файл (і за потреби оригінал)"
@@ -3817,6 +3843,15 @@ msgstr "The messages disappear only for you; the other members of the chat still
 msgid "Повідомлення не надіслано."
 msgstr "The message was not sent."
 
+#. placeholder {0}: messageIds.length
+#: src/features/chats/components/ForwardDialog.tsx
+msgid "Повідомлення переслано ({0})."
+msgstr "Messages forwarded ({0})."
+
+#: src/features/chats/components/ForwardDialog.tsx
+msgid "Повідомлення переслано."
+msgstr "Message forwarded."
+
 #: src/features/help/contents.ts
 msgctxt "help"
 msgid "Повідомлення про помилки та що робити"
@@ -4085,6 +4120,10 @@ msgstr "Search news"
 msgid "Пошук чатів"
 msgstr "Search chats"
 
+#: src/features/chats/components/ForwardDialog.tsx
+msgid "Пошук…"
+msgstr "Searching…"
+
 #: src/features/structure/pages/UnitPage.tsx
 msgid "Працівник"
 msgstr "Employee"
@@ -4268,8 +4307,8 @@ msgstr "Reactions and comments open once the post is published."
 
 #: src/features/help/contents.ts
 msgctxt "help"
-msgid "Реакції, зміна та видалення, прочитання"
-msgstr "Reactions, editing and deleting, reading"
+msgid "Реакції, пересилання, зміна та видалення, прочитання"
+msgstr "Reactions, forwarding, editing and deleting, reading"
 
 #: src/features/news/pages/NewsPage.tsx
 msgid "Реакцій"
@@ -5069,8 +5108,10 @@ msgstr "Members"
 msgid "Учасники чату"
 msgstr "Chat members"
 
+#. placeholder {0}: chat.memberCount
 #. placeholder {0}: chat.members.length
 #: src/features/chats/components/Conversation.tsx
+#: src/features/chats/components/ForwardDialog.tsx
 msgid "Учасників: {0}"
 msgstr "Members: {0}"
 
@@ -5273,6 +5314,10 @@ msgstr "Frequently asked questions"
 #: src/features/chats/display.ts
 msgid "Чат"
 msgstr "Chat"
+
+#: src/features/chats/components/ForwardDialog.tsx
+msgid "Чат або людина"
+msgstr "Chat or person"
 
 #: src/features/chats/components/ChatSync.tsx
 msgid "Чат видалено або вас із нього вилучено."

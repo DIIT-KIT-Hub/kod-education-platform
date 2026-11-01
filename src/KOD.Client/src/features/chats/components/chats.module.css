@@ -407,6 +407,16 @@
     color: var(--ds-color-on-inverse);
 }
 
+/* "Forwarded from …" above the text of a forwarded message. */
+.forwarded {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--ds-space-1);
+    font-size: var(--ds-fs-xs);
+    font-weight: 600;
+    opacity: 0.75;
+}
+
 .bubble[data-deleted] {
     border: 1px dashed var(--ds-color-border-strong);
     background: transparent;
