@@ -5,7 +5,8 @@ namespace KOD.Application.Features.Chats;
 
 /// <summary>
 /// A chat message. It is the same for every member (it is pushed to all of them), so it carries no per-reader flags:
-/// the client compares the author and the reacting people with the current user.
+/// the client compares the author and the reacting people with the current user. The one exception is
+/// <paramref name="IsHidden"/>, set only in the pages of the member who hid the message.
 /// </summary>
 /// <param name="Id">The identifier.</param>
 /// <param name="ChatId">The chat.</param>
@@ -21,6 +22,7 @@ namespace KOD.Application.Features.Chats;
 /// <param name="ClientId">The identifier the author's browser gave the message (matches a message being sent).</param>
 /// <param name="Attachments">The files and photos.</param>
 /// <param name="Reactions">The reactions, by emotion.</param>
+/// <param name="IsHidden">Whether the reader deleted the message for themselves (then it carries no content).</param>
 public sealed record ChatMessageDto(
     Guid Id,
     Guid ChatId,
@@ -35,4 +37,5 @@ public sealed record ChatMessageDto(
     bool IsDeleted,
     Guid? ClientId,
     IReadOnlyList<ChatAttachmentDto> Attachments,
-    IReadOnlyList<ChatReactionDto> Reactions);
+    IReadOnlyList<ChatReactionDto> Reactions,
+    bool IsHidden = false);

@@ -7,7 +7,7 @@ import { describeError } from "@/shared/api/problem";
 import { Button } from "@/shared/ui/Button";
 import { EmptyState } from "@/shared/ui/EmptyState";
 import { Icon } from "@/shared/ui/Icon";
-import { Spinner } from "@/shared/ui/Spinner";
+import { SkeletonList } from "@/shared/ui/Skeleton";
 import { toast } from "@/shared/ui/Toast";
 import { notificationApi, notificationKeys, notificationListQuery } from "@/features/notifications/api";
 import { NotificationItem } from "./NotificationItem";
@@ -122,7 +122,7 @@ export function NotificationPanel() {
                 )}
             </div>
             <div className={styles.panelBody}>
-                {list.isPending && <Spinner block />}
+                {list.isPending && <SkeletonList rows={5} media="icon" />}
                 {list.isError && <p className={styles.panelError}>{describeError(list.error, t`Не вдалося завантажити сповіщення.`)}</p>}
                 {list.data && list.data.items.length === 0 && (
                     <EmptyState

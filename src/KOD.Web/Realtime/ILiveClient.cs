@@ -47,6 +47,13 @@ public interface ILiveClient
     Task ChatRemoved(Guid chatId);
 
     /// <summary>
+    /// The user cleared the history of a chat for themselves (on another page).
+    /// </summary>
+    /// <param name="chatId">The chat.</param>
+    /// <returns>A task that completes when the message is sent.</returns>
+    Task ChatHistoryCleared(Guid chatId);
+
+    /// <summary>
     /// A member read a chat up to a message.
     /// </summary>
     /// <param name="chatId">The chat.</param>

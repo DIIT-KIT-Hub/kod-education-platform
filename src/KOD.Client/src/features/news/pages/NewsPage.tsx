@@ -18,7 +18,7 @@ import { PageHeader } from "@/shared/ui/PageHeader";
 import { Pagination } from "@/shared/ui/Pagination";
 import { PersonName } from "@/shared/ui/PersonName";
 import { SearchInput } from "@/shared/ui/SearchInput";
-import { Spinner } from "@/shared/ui/Spinner";
+import { SkeletonCards } from "@/shared/ui/Skeleton";
 import { Tab, Tabs } from "@/shared/ui/Tabs";
 import { newsListQuery } from "../api";
 import styles from "./news.module.css";
@@ -89,7 +89,7 @@ export function NewsPage() {
                 />
             </div>
 
-            {result.isPending && <Spinner block />}
+            {result.isPending && <SkeletonCards />}
             {result.isError && <Alert tone="danger">{describeError(result.error, t`Не вдалося завантажити новини.`)}</Alert>}
             {result.data &&
                 (result.data.items.length === 0 ? (

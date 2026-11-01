@@ -16,7 +16,7 @@ import { DataGrid, type GridColumn } from "@/shared/ui/DataGrid";
 import { PageHeader } from "@/shared/ui/PageHeader";
 import { SearchInput } from "@/shared/ui/SearchInput";
 import { Select } from "@/shared/ui/Select";
-import { Spinner } from "@/shared/ui/Spinner";
+import { SkeletonTable } from "@/shared/ui/Skeleton";
 import { userListQuery, userRolesQuery, userUnitsQuery, type UserFilters } from "../api";
 import { useListParams } from "../components/useListParams";
 import styles from "./admin.module.css";
@@ -207,7 +207,7 @@ export function UsersPage() {
                 </div>
             </div>
 
-            {users.isPending && <Spinner block />}
+            {users.isPending && <SkeletonTable rows={8} columns={3} avatar />}
             {users.isError && <Alert tone="danger">{describeError(users.error, t`Не вдалося завантажити користувачів.`)}</Alert>}
             {users.data && (
                 <DataGrid

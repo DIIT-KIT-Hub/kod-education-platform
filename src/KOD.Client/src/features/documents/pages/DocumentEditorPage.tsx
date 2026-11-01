@@ -40,7 +40,7 @@ import { Progress } from "@/shared/ui/Progress";
 import { SearchInput } from "@/shared/ui/SearchInput";
 import { Segmented } from "@/shared/ui/Segmented";
 import { Select } from "@/shared/ui/Select";
-import { Spinner } from "@/shared/ui/Spinner";
+import { SkeletonPage } from "@/shared/ui/Skeleton";
 import { Textarea } from "@/shared/ui/Textarea";
 import { TextInput } from "@/shared/ui/TextInput";
 import { toast } from "@/shared/ui/Toast";
@@ -67,7 +67,7 @@ export function DocumentEditorPage() {
     const existing = useQuery({ ...documentEditQuery(id ?? ""), enabled: id !== undefined });
 
     if (units.isPending || (id !== undefined && existing.isPending)) {
-        return <Spinner block />;
+        return <SkeletonPage variant="form" />;
     }
 
     if (id !== undefined && existing.isError) {

@@ -17,7 +17,7 @@ import { Checkbox } from "@/shared/ui/Checkbox";
 import { Field } from "@/shared/ui/Field";
 import { PageHeader } from "@/shared/ui/PageHeader";
 import { Select } from "@/shared/ui/Select";
-import { Spinner } from "@/shared/ui/Spinner";
+import { SkeletonPage } from "@/shared/ui/Skeleton";
 import { TextInput } from "@/shared/ui/TextInput";
 import { toast } from "@/shared/ui/Toast";
 import { adminApi, adminKeys, unitOptionsQuery, unitQuery, unitTypesQuery } from "../api";
@@ -35,7 +35,7 @@ export function UnitEditorPage() {
     const types = useQuery(unitTypesQuery);
 
     if (options.isPending || types.isPending || (id !== undefined && existing.isPending)) {
-        return <Spinner block />;
+        return <SkeletonPage variant="form" />;
     }
 
     const error = existing.error ?? options.error ?? types.error;

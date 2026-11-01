@@ -7,11 +7,11 @@ import type { ReactionKind } from "@/shared/api/schema";
 import { reactions } from "@/shared/i18n/display";
 import { formatClock, formatDateTime } from "@/shared/i18n/format";
 import { Avatar } from "@/shared/ui/Avatar";
-import { confirm } from "@/shared/ui/ConfirmHost";
+import { confirm, confirmWithOption } from "@/shared/ui/ConfirmHost";
 import { Icon } from "@/shared/ui/Icon";
 import { Spinner } from "@/shared/ui/Spinner";
 import { toast } from "@/shared/ui/Toast";
-import { chatApi, receiveMessage, type ChatMessage } from "@/features/chats/api";
+import { chatApi, chatKeys, receiveMessage, type ChatMessage } from "@/features/chats/api";
 import { eventText, shortName } from "@/features/chats/display";
 import { discardDraft, sendDraft } from "@/features/chats/send";
 import { Attachments } from "./Attachments";
@@ -36,16 +36,19 @@ export interface MessageItemProps {
     readonly editing: boolean;
     /** Starts or stops editing the message. */
     readonly onEditing: (editing: boolean) => void;
+    /** The label of the check box that deletes an own message for the others too. */
+    readonly everyoneLabel: string;
 }
 
 /**
  * One message of a conversation: the author's own on the right, others' on the left with their photo, system notes in
  * the middle. The text is the HTML sanitized by the server. Hovering or focusing shows the actions: a reaction for
- * everyone, editing and deleting for the author. A message that could not be sent offers "send again".
+ * everyone, editing for the author, and deleting: anyone's message for oneself, an own one also for everyone. A message
+ * that could not be sent offers "send again".
  * @param props The props.
  * @returns The message.
  */
-export function MessageItem({ message, me, compact, showAuthor, seen, editing, onEditing }: MessageItemProps) {
+export function MessageItem({ message, me, compact, showAuthor, seen, editing, onEditing, everyoneLabel }: MessageItemProps) {
     const { t, i18n } = useLingui();
     const queryClient = useQueryClient();
     const [picking, setPicking] = useState(false);
@@ -73,19 +76,44 @@ export function MessageItem({ message, me, compact, showAuthor, seen, editing, o
     }
 
     /**
-     * Deletes the message after a confirmation.
+     * Deletes the message after a confirmation: an own message for everyone (the check box, ticked at first) or only for
+     * the user, someone else's message or a deleted placeholder only for the user.
      */
     async function remove(): Promise<void> {
-        const confirmed = await confirm({
-            title: t`Видалити повідомлення?`,
-            text: t`Повідомлення та його файли буде видалено для всіх учасників чату.`,
-            confirmText: t`Видалити`,
-            danger: true,
-        });
-        if (confirmed) {
-            await chatApi
-                .remove(message.chatId, message.id)
-                .catch((error: unknown) => toast(describeError(error, t`Не вдалося видалити повідомлення.`), { danger: true }));
+        if (mine && !message.isDeleted) {
+            const forEveryone = await confirmWithOption({
+                title: t`Видалити повідомлення?`,
+                confirmText: t`Видалити`,
+                danger: true,
+                option: { label: everyoneLabel, hint: t`Повідомлення та його файли зникнуть в усіх учасників чату.`, checked: true },
+            });
+            if (forEveryone === null) {
+                return;
+            }
+
+            if (forEveryone) {
+                await chatApi
+                    .remove(message.chatId, message.id)
+                    .catch((error: unknown) => toast(describeError(error, t`Не вдалося видалити повідомлення.`), { danger: true }));
+                return;
+            }
+        } else {
+            const confirmed = await confirm({
+                title: t`Видалити повідомлення?`,
+                text: t`Повідомлення зникне лише у вас, інші учасники чату й надалі його бачитимуть.`,
+                confirmText: t`Видалити`,
+                danger: true,
+            });
+            if (!confirmed) {
+                return;
+            }
+        }
+
+        try {
+            receiveMessage(queryClient, await chatApi.hide(message.chatId, message.id));
+            void queryClient.invalidateQueries({ queryKey: chatKeys.list });
+        } catch (error) {
+            toast(describeError(error, t`Не вдалося видалити повідомлення.`), { danger: true });
         }
     }
 
@@ -102,7 +130,8 @@ export function MessageItem({ message, me, compact, showAuthor, seen, editing, o
         }).catch((error: unknown) => toast(describeError(error, t`Повідомлення не надіслано.`), { danger: true }));
     }
 
-    const actionable = !message.pending && !message.isDeleted;
+    const actionable = !message.pending;
+    const live = !message.isDeleted;
     return (
         <li
             className={styles.message}
@@ -222,38 +251,38 @@ export function MessageItem({ message, me, compact, showAuthor, seen, editing, o
 
             {actionable && !editing && (
                 <div className={styles.actions}>
+                    {live && (
+                        <button
+                            type="button"
+                            className={styles.action}
+                            aria-label={t`Реакція`}
+                            title={t`Реакція`}
+                            aria-expanded={picking}
+                            onClick={() => setPicking(!picking)}
+                        >
+                            <Icon icon={SmilePlus} size="sm" />
+                        </button>
+                    )}
+                    {mine && live && (
+                        <button
+                            type="button"
+                            className={styles.action}
+                            aria-label={t`Змінити`}
+                            title={t`Змінити`}
+                            onClick={() => onEditing(true)}
+                        >
+                            <Icon icon={Pencil} size="sm" />
+                        </button>
+                    )}
                     <button
                         type="button"
                         className={styles.action}
-                        aria-label={t`Реакція`}
-                        title={t`Реакція`}
-                        aria-expanded={picking}
-                        onClick={() => setPicking(!picking)}
+                        aria-label={t`Видалити`}
+                        title={t`Видалити`}
+                        onClick={() => void remove()}
                     >
-                        <Icon icon={SmilePlus} size="sm" />
+                        <Icon icon={Trash2} size="sm" />
                     </button>
-                    {mine && (
-                        <>
-                            <button
-                                type="button"
-                                className={styles.action}
-                                aria-label={t`Змінити`}
-                                title={t`Змінити`}
-                                onClick={() => onEditing(true)}
-                            >
-                                <Icon icon={Pencil} size="sm" />
-                            </button>
-                            <button
-                                type="button"
-                                className={styles.action}
-                                aria-label={t`Видалити`}
-                                title={t`Видалити`}
-                                onClick={() => void remove()}
-                            >
-                                <Icon icon={Trash2} size="sm" />
-                            </button>
-                        </>
-                    )}
                     {picking && (
                         <div className={styles.picker} role="group" aria-label={t`Реакції`}>
                             {reactions.map((reaction) => (

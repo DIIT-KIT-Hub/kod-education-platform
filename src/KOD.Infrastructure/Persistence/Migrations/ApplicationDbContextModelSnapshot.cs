@@ -356,6 +356,10 @@ namespace KOD.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("user_id");
 
+                    b.Property<long>("ClearedSequence")
+                        .HasColumnType("bigint")
+                        .HasColumnName("cleared_sequence");
+
                     b.Property<DateTimeOffset>("JoinedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("joined_at");
@@ -480,6 +484,36 @@ namespace KOD.Infrastructure.Persistence.Migrations
                         .HasDatabaseName("ix_chat_reactions_user_id");
 
                     b.ToTable("chat_reactions", (string)null);
+                });
+
+            modelBuilder.Entity("KOD.Domain.Chats.HiddenChatMessage", b =>
+                {
+                    b.Property<Guid>("MessageId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("message_id");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.Property<Guid>("ChatId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("chat_id");
+
+                    b.Property<DateTimeOffset>("HiddenAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("hidden_at");
+
+                    b.HasKey("MessageId", "UserId")
+                        .HasName("pk_chat_hidden_messages");
+
+                    b.HasIndex("ChatId")
+                        .HasDatabaseName("ix_chat_hidden_messages_chat_id");
+
+                    b.HasIndex("UserId", "ChatId")
+                        .HasDatabaseName("ix_chat_hidden_messages_user_id_chat_id");
+
+                    b.ToTable("chat_hidden_messages", (string)null);
                 });
 
             modelBuilder.Entity("KOD.Domain.Documents.Document", b =>
@@ -1879,6 +1913,30 @@ namespace KOD.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_chat_reactions_users_user_id");
+                });
+
+            modelBuilder.Entity("KOD.Domain.Chats.HiddenChatMessage", b =>
+                {
+                    b.HasOne("KOD.Domain.Chats.Chat", null)
+                        .WithMany()
+                        .HasForeignKey("ChatId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_chat_hidden_messages_chats_chat_id");
+
+                    b.HasOne("KOD.Domain.Chats.ChatMessage", null)
+                        .WithMany()
+                        .HasForeignKey("MessageId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_chat_hidden_messages_chat_messages_message_id");
+
+                    b.HasOne("KOD.Domain.Users.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_chat_hidden_messages_users_user_id");
                 });
 
             modelBuilder.Entity("KOD.Domain.Documents.Document", b =>

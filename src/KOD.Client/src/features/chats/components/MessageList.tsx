@@ -5,8 +5,8 @@ import { Fragment, useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { ChatKind } from "@/shared/api/schema";
 import { formatDate, kyivDay } from "@/shared/i18n/format";
 import { Icon } from "@/shared/ui/Icon";
-import { Spinner } from "@/shared/ui/Spinner";
 import { loadOlder, type ChatThread } from "@/features/chats/api";
+import { SkeletonMessages } from "@/shared/ui/Skeleton";
 import styles from "./chats.module.css";
 import { MessageItem } from "./MessageItem";
 
@@ -36,6 +36,8 @@ export interface MessageListProps {
     readonly peerRead: number;
     /** Called with the newest message number while the user sees the end of the conversation. */
     readonly onSeen: (sequence: number) => void;
+    /** The name of the other person of a one-to-one chat (for "also delete for…"). */
+    readonly peerName?: string;
 }
 
 /**
@@ -62,7 +64,7 @@ function dayLabel(moment: string, today: string, yesterday: string): string {
  * @param props The props.
  * @returns The list.
  */
-export function MessageList({ chatId, kind, thread, me, peerRead, onSeen }: MessageListProps) {
+export function MessageList({ chatId, kind, thread, me, peerRead, onSeen, peerName }: MessageListProps) {
     const { t } = useLingui();
     const queryClient = useQueryClient();
     const scroller = useRef<HTMLDivElement>(null);
@@ -72,8 +74,10 @@ export function MessageList({ chatId, kind, thread, me, peerRead, onSeen }: Mess
     const [loadingOlder, setLoadingOlder] = useState(false);
     const [unseen, setUnseen] = useState(false);
     const [editing, setEditing] = useState<string | null>(null);
-    const messages = thread.messages;
-    const newest = messages.filter((m) => !m.pending).at(-1)?.sequence ?? 0;
+    // Messages the user deleted for themselves stay in the thread (the numbering has no gaps) but are not shown.
+    const messages = thread.messages.filter((m) => !m.isHidden);
+    const newest = thread.messages.filter((m) => !m.pending).at(-1)?.sequence ?? 0;
+    const everyoneLabel = kind === "Direct" && peerName ? t`Також видалити для ${peerName}` : t`Видалити для всіх учасників`;
 
     /**
      * Scrolls to the newest message.
@@ -185,7 +189,7 @@ export function MessageList({ chatId, kind, thread, me, peerRead, onSeen }: Mess
                 }}
             >
                 <div ref={top} className={styles.topSentinel}>
-                    {loadingOlder && <Spinner />}
+                    {loadingOlder && <SkeletonMessages count={2} className={styles.older} />}
                     {!thread.hasOlder && messages.length > 0 && <span>{t`Початок розмови`}</span>}
                 </div>
                 <ol className={styles.messageList}>
@@ -213,6 +217,7 @@ export function MessageList({ chatId, kind, thread, me, peerRead, onSeen }: Mess
                                     seen={message.id === seenId}
                                     editing={editing === message.id}
                                     onEditing={(on) => setEditing(on ? message.id : null)}
+                                    everyoneLabel={everyoneLabel}
                                 />
                             </Fragment>
                         );

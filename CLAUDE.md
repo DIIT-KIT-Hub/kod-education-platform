@@ -159,6 +159,11 @@ Dependencies point inward: Web → Infrastructure → Application → Domain. Ce
   removes people, anyone renames/adds/leaves; the last member leaving deletes the chat with its files). Every message
   takes the next `Chat.LastSequence` (xmin concurrency, retried), so numbers have no gaps: the client detects a gap in a
   live message and fetches `?after=`; members keep `LastReadSequence` (unread = newer text messages of others).
+  Deleting works like Telegram: an own message for everyone (`DeleteAsync`, placeholder) or any message for oneself
+  (`HideAsync` → `HiddenChatMessage`; the reader gets an empty `IsHidden` placeholder, so numbering keeps no gaps,
+  and the client keeps it hidden in `mergeMessages`); `ClearHistoryAsync` sets `ChatMember.ClearedSequence` (older
+  messages are not returned, a cleared one-to-one chat leaves the list until a newer message); `DeleteChatAsync`
+  removes a chat for everyone (either person of a one-to-one chat, the owner of a group).
   `ClientId` (unique per chat and author) makes a resend idempotent; the client shows the message at once as pending
   and offers "send again" with the same id. Bodies are sanitized by `IRichTextSanitizer.SanitizeMessage` (text
   formatting and links only) and `ToText` gives previews. Attachments (`FileRules.ChatFileTypes` allow-list, 10 × 25 MB,
@@ -218,7 +223,11 @@ Dependencies point inward: Web → Infrastructure → Application → Domain. Ce
 - **Forms**: react-hook-form + `zodResolver`; build the zod schema inside the component with `t` so its messages are
   translated; `<Field>` gives the control its id / `aria-describedby` / `aria-invalid` through a render prop.
 - **Pages** set the document title with `<DocumentTitle>` or `<PageHeader>` (React hoists `<title>`).
-- Global UI services are module stores read with `useSyncExternalStore`: `toast(text)`, `await confirm({...})`.
+- Global UI services are module stores read with `useSyncExternalStore`: `toast(text)`, `await confirm({...})`,
+  `await confirmWithOption({..., option})` (a check box such as "also delete for…"; null when cancelled).
+- Loading data shows skeletons shaped like the content (`shared/ui/Skeleton`: `SkeletonTable`, `SkeletonList`,
+  `SkeletonCards`, `SkeletonPage`, `SkeletonMessages`, `SkeletonText`, primitives `Skeleton` in a `SkeletonGroup`), not
+  a spinner; `Spinner` stays only for a running action (a message being sent).
 - List pages keep search, filters, sorting and paging in the address (`DataGrid` sorts by `sortBy`/`descending`,
   `Pagination` by `page`/`pageSize`; `useListParams` in `features/admin`). `DatePicker` (`shared/ui`) takes and
   returns `yyyy-MM-dd`, accepts typed dates in the day-month-year order and opens a calendar popover.

@@ -15,7 +15,7 @@ import { CopyButton } from "@/shared/ui/CopyButton";
 import { Field } from "@/shared/ui/Field";
 import { OtpInput } from "@/shared/ui/OtpInput";
 import { PasswordInput } from "@/shared/ui/PasswordInput";
-import { Spinner } from "@/shared/ui/Spinner";
+import { Skeleton, SkeletonGroup, SkeletonText } from "@/shared/ui/Skeleton";
 import { authApi } from "../api";
 import { AuthHeader } from "../components/AuthHeader";
 import { completeSignIn, useRememberMe, useReturnUrl } from "../flow";
@@ -37,7 +37,7 @@ export function SetupAuthenticatorPage() {
     }
 
     if (pending.isPending) {
-        return <Spinner block />;
+        return <SkeletonText lines={5} />;
     }
 
     if (pending.isError) {
@@ -217,7 +217,11 @@ function LinkAuthenticator({ step, onEnrolled }: LinkAuthenticatorProps) {
                 <li>
                     <div className={layout.stackSm}>
                         <span>{t`Відскануйте QR-код або введіть ключ вручну:`}</span>
-                        {key.isPending && <Spinner />}
+                        {key.isPending && (
+                            <SkeletonGroup>
+                                <Skeleton shape="block" width="15rem" height="15rem" />
+                            </SkeletonGroup>
+                        )}
                         {key.isError && (
                             <Alert tone="danger">{describeError(key.error, t`Не вдалося зв'язатися з сервером. Спробуйте ще раз.`)}</Alert>
                         )}

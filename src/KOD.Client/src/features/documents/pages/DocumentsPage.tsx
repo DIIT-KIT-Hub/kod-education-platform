@@ -16,7 +16,7 @@ import { PageHeader } from "@/shared/ui/PageHeader";
 import { PersonName } from "@/shared/ui/PersonName";
 import { SearchInput } from "@/shared/ui/SearchInput";
 import { Select } from "@/shared/ui/Select";
-import { Spinner } from "@/shared/ui/Spinner";
+import { SkeletonTable } from "@/shared/ui/Skeleton";
 import { Tab, Tabs } from "@/shared/ui/Tabs";
 import { documentListQuery, type DocumentFilters } from "../api";
 import { DocumentStatusBadge } from "../components/DocumentStatusBadge";
@@ -199,7 +199,7 @@ export function DocumentsPage() {
                 />
             </div>
 
-            {result.isPending && <Spinner block />}
+            {result.isPending && <SkeletonTable rows={8} columns={3} />}
             {result.isError && <Alert tone="danger">{describeError(result.error, t`Не вдалося завантажити документи.`)}</Alert>}
             {result.data && (
                 <DataGrid

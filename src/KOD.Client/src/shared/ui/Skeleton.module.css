@@ -1,0 +1,257 @@
+/*
+ * Placeholders of content that is loading: grey "bones" with a light sweeping across them, laid out like the content
+ * that replaces them. The whole placeholder fades in after a short delay, so fast answers do not flash it.
+ */
+
+.skeleton {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ds-space-4);
+    min-width: 0;
+    animation: var(--ds-anim-fade-in);
+    animation-delay: 150ms;
+}
+
+.screen {
+    max-width: 80rem;
+    margin-inline: auto;
+    padding: var(--ds-space-8) var(--ds-space-4);
+}
+
+@media (min-width: 768px) {
+    .screen {
+        padding: var(--ds-space-10) var(--ds-space-8);
+    }
+}
+
+.bone {
+    --_bone: color-mix(in srgb, var(--ds-color-surface-3), var(--ds-color-border));
+    --_shine: var(--ds-color-surface-2);
+    display: block;
+    flex: none;
+    max-width: 100%;
+    height: 0.875rem;
+    border-radius: var(--ds-radius-pill);
+    background: linear-gradient(90deg, var(--_bone) 30%, var(--_shine) 50%, var(--_bone) 70%) 0 0 / 200% 100%;
+    animation: var(--ds-anim-shimmer);
+}
+
+:global([data-theme="dark"]) .bone {
+    --_shine: var(--ds-color-border-strong);
+}
+
+.circle {
+    border-radius: 50%;
+}
+
+.block {
+    border-radius: var(--ds-radius-md);
+}
+
+.lines {
+    display: grid;
+    gap: var(--ds-space-2);
+    min-width: 0;
+    flex: 1;
+}
+
+.split {
+    display: grid;
+    gap: var(--ds-space-6);
+    align-items: start;
+}
+
+@media (min-width: 1280px) {
+    .split {
+        grid-template-columns: minmax(0, 1fr) minmax(20rem, 26rem);
+    }
+}
+
+.column {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ds-space-6);
+    min-width: 0;
+}
+
+/* Page: breadcrumbs, title and subtitle like PageHeader. */
+
+.header {
+    display: grid;
+    gap: var(--ds-space-3);
+    margin-bottom: var(--ds-space-2);
+}
+
+.title {
+    height: 2.25rem;
+    border-radius: var(--ds-radius-sm);
+}
+
+.panel {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ds-space-4);
+    padding: var(--ds-space-5);
+    border-radius: var(--ds-radius-lg);
+    background: var(--ds-color-surface);
+    border: 1px solid var(--ds-color-border);
+    min-width: 0;
+}
+
+@media (min-width: 768px) {
+    .panel {
+        padding: var(--ds-space-6);
+    }
+}
+
+.field {
+    display: grid;
+    gap: var(--ds-space-2);
+}
+
+.input {
+    height: 3rem;
+    border-radius: var(--ds-radius-sm);
+}
+
+.button {
+    height: 2.75rem;
+    border-radius: var(--ds-radius-pill);
+}
+
+.pair {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+    gap: var(--ds-space-4);
+    align-items: center;
+}
+
+/* Table: a header strip and rows like DataGrid. */
+
+.table {
+    border-radius: var(--ds-radius-lg);
+    background: var(--ds-color-surface);
+    border: 1px solid var(--ds-color-border);
+    overflow: hidden;
+}
+
+.tableRow {
+    display: grid;
+    grid-template-columns: minmax(0, 2.2fr) repeat(var(--_columns), minmax(0, 1fr));
+    gap: var(--ds-space-6);
+    align-items: center;
+    padding: var(--ds-space-4);
+    border-bottom: 1px solid var(--ds-color-border);
+}
+
+.tableRow:last-child {
+    border-bottom: 0;
+}
+
+.tableHead {
+    padding-block: var(--ds-space-3);
+    background: var(--ds-color-surface-2);
+}
+
+.cell {
+    display: flex;
+    align-items: center;
+    gap: var(--ds-space-3);
+    min-width: 0;
+}
+
+/* On phones DataGrid shows cards: keep the main column and one more. */
+@media (max-width: 767px) {
+    .tableRow {
+        grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+    }
+
+    .tableRow > :nth-child(n + 3) {
+        display: none;
+    }
+}
+
+/* List: rows with an avatar or an icon. */
+
+.list {
+    display: grid;
+    gap: var(--ds-space-1);
+}
+
+.listRow {
+    display: flex;
+    align-items: center;
+    gap: var(--ds-space-3);
+    padding: var(--ds-space-3);
+    min-width: 0;
+}
+
+.listRow[data-indent="1"] {
+    padding-left: calc(var(--ds-space-3) + 2rem);
+}
+
+.listRow[data-indent="2"] {
+    padding-left: calc(var(--ds-space-3) + 4rem);
+}
+
+.listRow[data-top] {
+    align-items: flex-start;
+}
+
+/* Cards: news cards with a cover, or the statistic tiles. */
+
+.cards {
+    display: grid;
+    gap: var(--ds-space-4);
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, var(--_card-min)), 1fr));
+}
+
+.card {
+    display: flex;
+    flex-direction: column;
+    border-radius: var(--ds-radius-lg);
+    background: var(--ds-color-surface);
+    border: 1px solid var(--ds-color-border);
+    overflow: hidden;
+}
+
+.cardBody {
+    display: grid;
+    gap: var(--ds-space-3);
+    padding: var(--ds-space-5);
+}
+
+.cover {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
+    border-radius: 0;
+}
+
+/* Messages: bubbles on both sides like a conversation. */
+
+.messages {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: var(--ds-space-3);
+    flex: 1;
+    padding: var(--ds-space-4);
+    overflow: hidden;
+}
+
+.message {
+    display: flex;
+    align-items: flex-end;
+    gap: var(--ds-space-2);
+    max-width: 70%;
+}
+
+.message[data-mine] {
+    align-self: flex-end;
+}
+
+.bubble {
+    height: 2.5rem;
+    border-radius: var(--ds-radius-md);
+}

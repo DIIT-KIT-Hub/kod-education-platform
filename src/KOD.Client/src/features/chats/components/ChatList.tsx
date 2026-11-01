@@ -9,9 +9,9 @@ import { Alert } from "@/shared/ui/Alert";
 import { Button } from "@/shared/ui/Button";
 import { EmptyState } from "@/shared/ui/EmptyState";
 import { SearchInput } from "@/shared/ui/SearchInput";
-import { Spinner } from "@/shared/ui/Spinner";
 import { chatsQuery } from "@/features/chats/api";
 import { chatTitle, previewText } from "@/features/chats/display";
+import { SkeletonList } from "@/shared/ui/Skeleton";
 import { ChatAvatar } from "./ChatAvatar";
 import styles from "./chats.module.css";
 
@@ -50,7 +50,7 @@ export function ChatList({ onNew }: ChatListProps) {
             <SearchInput value={filter} onSearch={setFilter} placeholder={t`Пошук чатів`} />
 
             {isPending ? (
-                <Spinner block />
+                <SkeletonList rows={7} />
             ) : error ? (
                 <Alert tone="danger">{t`Не вдалося завантажити чати.`}</Alert>
             ) : shown.length === 0 ? (

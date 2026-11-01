@@ -14,7 +14,7 @@ import { DataGrid, GridPrimary, type GridColumn } from "@/shared/ui/DataGrid";
 import { PageHeader } from "@/shared/ui/PageHeader";
 import { PersonName } from "@/shared/ui/PersonName";
 import { SearchInput } from "@/shared/ui/SearchInput";
-import { Spinner } from "@/shared/ui/Spinner";
+import { SkeletonTable } from "@/shared/ui/Skeleton";
 import { newsListQuery } from "../api";
 import styles from "./news.module.css";
 
@@ -110,7 +110,7 @@ export function NewsManagePage() {
                     }}
                 />
             </div>
-            {result.isPending && <Spinner block />}
+            {result.isPending && <SkeletonTable rows={8} columns={3} />}
             {result.isError && <Alert tone="danger">{describeError(result.error, t`Не вдалося завантажити новини.`)}</Alert>}
             {result.data && (
                 <DataGrid

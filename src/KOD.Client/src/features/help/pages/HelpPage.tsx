@@ -8,7 +8,7 @@ import { Button } from "@/shared/ui/Button";
 import { Icon } from "@/shared/ui/Icon";
 import { PageHeader } from "@/shared/ui/PageHeader";
 import { SearchInput } from "@/shared/ui/SearchInput";
-import { Spinner } from "@/shared/ui/Spinner";
+import { SkeletonText } from "@/shared/ui/Skeleton";
 import { helpPermissionsQuery } from "../api";
 import { ManualContext } from "../components/manualContext";
 import { helpChapters } from "../contents";
@@ -343,7 +343,7 @@ export function HelpPage() {
                     </details>
 
                     <div className={styles.content} data-help-content>
-                        <Suspense fallback={<Spinner block />}>
+                        <Suspense fallback={<SkeletonText lines={12} />}>
                             <Manual />
                             <ManualReady onReady={() => setLoaded(true)} />
                         </Suspense>

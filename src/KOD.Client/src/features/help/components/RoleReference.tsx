@@ -6,7 +6,7 @@ import type { AppModule, PermissionDefinition } from "@/shared/api/schema";
 import { moduleNames } from "@/shared/i18n/display";
 import { moduleIcons } from "@/shared/lib/moduleIcons";
 import { Icon } from "@/shared/ui/Icon";
-import { Spinner } from "@/shared/ui/Spinner";
+import { SkeletonTable, SkeletonText } from "@/shared/ui/Skeleton";
 import { helpPermissionsQuery, systemRolesQuery } from "../api";
 import { Muted, Table } from "./Manual";
 import { useManual } from "./manualContext";
@@ -20,7 +20,7 @@ export function PermissionReference() {
     const { has } = useManual();
     const permissions = useQuery(helpPermissionsQuery);
     if (!permissions.data) {
-        return <Spinner block />;
+        return <SkeletonText lines={8} />;
     }
 
     const modules = new Map<AppModule, PermissionDefinition[]>();
@@ -65,7 +65,7 @@ export function SystemRoleReference() {
     const { permissionTitles } = useManual();
     const roles = useQuery(systemRolesQuery);
     if (!roles.data) {
-        return <Spinner block />;
+        return <SkeletonTable rows={5} columns={2} />;
     }
 
     return (

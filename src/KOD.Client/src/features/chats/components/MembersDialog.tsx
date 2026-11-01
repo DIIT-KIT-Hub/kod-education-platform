@@ -1,6 +1,6 @@
 import { useLingui } from "@lingui/react/macro";
 import { useQueryClient } from "@tanstack/react-query";
-import { LogOut, UserMinus, UserPlus } from "lucide-react";
+import { Eraser, LogOut, Trash2, UserMinus, UserPlus } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import { describeError } from "@/shared/api/problem";
@@ -8,7 +8,7 @@ import type { ChatDetails, UserLookupItem } from "@/shared/api/schema";
 import { Alert } from "@/shared/ui/Alert";
 import { Badge } from "@/shared/ui/Badge";
 import { Button } from "@/shared/ui/Button";
-import { confirm } from "@/shared/ui/ConfirmHost";
+import { confirm, confirmWithOption } from "@/shared/ui/ConfirmHost";
 import { Dialog } from "@/shared/ui/Dialog";
 import { Field } from "@/shared/ui/Field";
 import { PersonName } from "@/shared/ui/PersonName";
@@ -36,6 +36,8 @@ export interface MembersDialogProps {
 /**
  * The people of a chat. In a group anyone renames the chat and adds people, the owner removes people, and everyone may
  * leave; adding people to a one-to-one chat starts a new group with the other person (the one-to-one chat stays).
+ * Everyone may clear the history for themselves; a one-to-one chat is deleted for one person or both, a group chat for
+ * everyone by its owner.
  * @param props The props.
  * @returns The dialog.
  */
@@ -93,6 +95,89 @@ export function MembersDialog({ open, onClose, chat, me }: MembersDialogProps) {
             void navigate("/chats", { replace: true });
         } catch (failure) {
             toast(describeError(failure, t`Не вдалося вийти з чату.`), { danger: true });
+        }
+    }
+
+    /**
+     * Leaves the page of a chat that is gone for the user.
+     */
+    async function closeChat(): Promise<void> {
+        onClose();
+        await navigate("/chats", { replace: true });
+        queryClient.removeQueries({ queryKey: chatKeys.thread(chat.id) });
+        queryClient.removeQueries({ queryKey: chatKeys.details(chat.id) });
+        await queryClient.invalidateQueries({ queryKey: chatKeys.list });
+    }
+
+    /**
+     * Deletes a one-to-one chat for the user, or for both people when the check box is ticked.
+     */
+    async function deleteDirect(): Promise<void> {
+        const forBoth = await confirmWithOption({
+            title: t`Видалити чат?`,
+            text: t`Історія зникне у вас, а чат повернеться до списку з новим повідомленням.`,
+            confirmText: t`Видалити`,
+            danger: true,
+            option: {
+                label: t`Також видалити для ${peer?.user.fullName ?? ""}`,
+                hint: t`Чат з усіма повідомленнями й файлами буде видалено в обох.`,
+            },
+        });
+        if (forBoth === null) {
+            return;
+        }
+
+        try {
+            await (forBoth ? chatApi.deleteChat(chat.id) : chatApi.clearHistory(chat.id));
+            await closeChat();
+        } catch (failure) {
+            toast(describeError(failure, t`Не вдалося видалити чат.`), { danger: true });
+        }
+    }
+
+    /**
+     * Clears the history of a group chat for the user after a confirmation.
+     */
+    async function clearHistory(): Promise<void> {
+        const confirmed = await confirm({
+            title: t`Очистити історію?`,
+            text: t`Повідомлення зникнуть лише у вас, інші учасники чату й надалі їх бачитимуть.`,
+            confirmText: t`Очистити`,
+            danger: true,
+        });
+        if (!confirmed) {
+            return;
+        }
+
+        try {
+            await chatApi.clearHistory(chat.id);
+            await queryClient.invalidateQueries({ queryKey: chatKeys.thread(chat.id) });
+            await queryClient.invalidateQueries({ queryKey: chatKeys.list });
+            onClose();
+        } catch (failure) {
+            toast(describeError(failure, t`Не вдалося очистити історію.`), { danger: true });
+        }
+    }
+
+    /**
+     * Deletes a group chat for everyone after a confirmation (the owner).
+     */
+    async function deleteGroup(): Promise<void> {
+        const confirmed = await confirm({
+            title: t`Видалити чат для всіх?`,
+            text: t`Чат з усіма повідомленнями й файлами буде видалено для всіх учасників. Цю дію не можна скасувати.`,
+            confirmText: t`Видалити`,
+            danger: true,
+        });
+        if (!confirmed) {
+            return;
+        }
+
+        try {
+            await chatApi.deleteChat(chat.id);
+            await closeChat();
+        } catch (failure) {
+            toast(describeError(failure, t`Не вдалося видалити чат.`), { danger: true });
         }
     }
 
@@ -197,6 +282,22 @@ export function MembersDialog({ open, onClose, chat, me }: MembersDialogProps) {
                         <Button variant="secondary" icon={UserPlus} onClick={() => setGroupFromDirect(true)}>
                             {t`Створити груповий чат`}
                         </Button>
+                        <Button variant="danger" icon={Trash2} onClick={() => void deleteDirect()}>
+                            {t`Видалити чат`}
+                        </Button>
+                    </div>
+                )}
+
+                {isGroup && (
+                    <div className={styles.chatActions}>
+                        <Button variant="secondary" icon={Eraser} onClick={() => void clearHistory()}>
+                            {t`Очистити історію`}
+                        </Button>
+                        {owner && (
+                            <Button variant="danger" icon={Trash2} onClick={() => void deleteGroup()}>
+                                {t`Видалити чат для всіх`}
+                            </Button>
+                        )}
                     </div>
                 )}
             </div>

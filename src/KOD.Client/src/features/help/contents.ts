@@ -193,6 +193,11 @@ export const helpChapters: readonly HelpChapter[] = [
                 permissions: ["chats.use"],
             },
             { id: "chats-groups", title: msg({ message: "Групові чати та учасники", context: "help" }), permissions: ["chats.use"] },
+            {
+                id: "chats-delete",
+                title: msg({ message: "Видалення чатів і повідомлень", context: "help" }),
+                permissions: ["chats.use"],
+            },
             { id: "chats-privacy", title: msg({ message: "Хто бачить чати і файли", context: "help" }), permissions: ["chats.use"] },
         ],
     },

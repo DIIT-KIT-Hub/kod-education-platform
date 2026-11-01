@@ -38,7 +38,7 @@ import { Field } from "@/shared/ui/Field";
 import { Icon } from "@/shared/ui/Icon";
 import { PageHeader } from "@/shared/ui/PageHeader";
 import { PersonName } from "@/shared/ui/PersonName";
-import { Spinner } from "@/shared/ui/Spinner";
+import { SkeletonPage } from "@/shared/ui/Skeleton";
 import { Textarea } from "@/shared/ui/Textarea";
 import { Timeline, TimelineItem, type TimelineState } from "@/shared/ui/Timeline";
 import { toast } from "@/shared/ui/Toast";
@@ -57,7 +57,7 @@ export function DocumentPage() {
     const document = useQuery(documentQuery(id));
 
     if (document.isPending) {
-        return <Spinner block />;
+        return <SkeletonPage />;
     }
 
     if (document.isError) {

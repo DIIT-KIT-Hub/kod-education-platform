@@ -16,7 +16,7 @@ public interface IChatEvents
     void MessageAdded(IReadOnlyCollection<Guid> recipients, ChatMessageDto message);
 
     /// <summary>
-    /// A message was edited, deleted or got a reaction.
+    /// A message was edited, deleted or got a reaction, or the recipient hid it for themselves.
     /// </summary>
     /// <param name="recipients">The members.</param>
     /// <param name="message">The message as it is now.</param>
@@ -35,6 +35,13 @@ public interface IChatEvents
     /// <param name="recipients">The former members.</param>
     /// <param name="chatId">The chat.</param>
     void ChatRemoved(IReadOnlyCollection<Guid> recipients, Guid chatId);
+
+    /// <summary>
+    /// The recipients cleared the history of a chat for themselves (their other pages load it again).
+    /// </summary>
+    /// <param name="recipients">The members who cleared it.</param>
+    /// <param name="chatId">The chat.</param>
+    void HistoryCleared(IReadOnlyCollection<Guid> recipients, Guid chatId);
 
     /// <summary>
     /// A member read a chat up to a message.

@@ -6,14 +6,15 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 namespace KOD.Infrastructure.Persistence.Configurations;
 
 /// <summary>
-/// Maps chats, their members, messages, attachments and reactions.
+/// Maps chats, their members, messages, attachments, reactions and the messages members hid for themselves.
 /// </summary>
 internal sealed class ChatConfiguration :
     IEntityTypeConfiguration<Chat>,
     IEntityTypeConfiguration<ChatMember>,
     IEntityTypeConfiguration<ChatMessage>,
     IEntityTypeConfiguration<ChatAttachment>,
-    IEntityTypeConfiguration<ChatReaction>
+    IEntityTypeConfiguration<ChatReaction>,
+    IEntityTypeConfiguration<HiddenChatMessage>
 {
     /// <inheritdoc />
     public void Configure(EntityTypeBuilder<Chat> builder)
@@ -101,6 +102,31 @@ internal sealed class ChatConfiguration :
         builder.HasOne<User>()
             .WithMany()
             .HasForeignKey(static r => r.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+    }
+
+    /// <inheritdoc />
+    public void Configure(EntityTypeBuilder<HiddenChatMessage> builder)
+    {
+        builder.ToTable("chat_hidden_messages");
+        builder.HasKey(static h => new { h.MessageId, h.UserId });
+
+        // The chat list looks for the newest message a member still sees.
+        builder.HasIndex(static h => new { h.UserId, h.ChatId });
+
+        builder.HasOne<ChatMessage>()
+            .WithMany()
+            .HasForeignKey(static h => h.MessageId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasOne<Chat>()
+            .WithMany()
+            .HasForeignKey(static h => h.ChatId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasOne<User>()
+            .WithMany()
+            .HasForeignKey(static h => h.UserId)
             .OnDelete(DeleteBehavior.Cascade);
     }
 }

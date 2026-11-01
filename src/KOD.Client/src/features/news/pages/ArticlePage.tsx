@@ -12,7 +12,7 @@ import { EmptyState } from "@/shared/ui/EmptyState";
 import { Icon } from "@/shared/ui/Icon";
 import { PageHeader } from "@/shared/ui/PageHeader";
 import { PersonName } from "@/shared/ui/PersonName";
-import { Spinner } from "@/shared/ui/Spinner";
+import { SkeletonPage } from "@/shared/ui/Skeleton";
 import { articleQuery } from "../api";
 import { ArticleBody } from "../components/ArticleBody";
 import { Discussion } from "../components/Discussion";
@@ -28,7 +28,7 @@ export function ArticlePage() {
     const article = useQuery(articleQuery(slug));
 
     if (article.isPending) {
-        return <Spinner block />;
+        return <SkeletonPage variant="article" />;
     }
 
     if (article.isError) {

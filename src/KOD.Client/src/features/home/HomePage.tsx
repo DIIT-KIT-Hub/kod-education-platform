@@ -14,7 +14,7 @@ import { DocumentTitle } from "@/shared/ui/DocumentTitle";
 import { EmptyState } from "@/shared/ui/EmptyState";
 import { Icon } from "@/shared/ui/Icon";
 import { List, ListItem } from "@/shared/ui/List";
-import { Spinner } from "@/shared/ui/Spinner";
+import { SkeletonCards, SkeletonPage } from "@/shared/ui/Skeleton";
 import { StatCard } from "@/shared/ui/StatCard";
 import styles from "./HomePage.module.css";
 
@@ -64,7 +64,12 @@ export function HomePage() {
                 </div>
             </section>
 
-            {summary.isPending && <Spinner block />}
+            {summary.isPending && (
+                <>
+                    <SkeletonCards variant="stats" count={4} />
+                    <SkeletonPage header={false} />
+                </>
+            )}
 
             {summary.data && (
                 <>

@@ -25,7 +25,7 @@ import { Icon } from "@/shared/ui/Icon";
 import { List, ListItem } from "@/shared/ui/List";
 import { PageHeader } from "@/shared/ui/PageHeader";
 import { Segmented } from "@/shared/ui/Segmented";
-import { Spinner } from "@/shared/ui/Spinner";
+import { SkeletonPage } from "@/shared/ui/Skeleton";
 import { TextInput } from "@/shared/ui/TextInput";
 import { toast } from "@/shared/ui/Toast";
 import { profileApi, profileKeys, profileQuery } from "../api";
@@ -44,7 +44,7 @@ export function ProfilePage() {
         <>
             <PageHeader title={t`Мій профіль`} subtitle={t`Особисті дані, посади та доступні можливості.`} />
             <ProfileTabs current="overview" />
-            {profile.isPending && <Spinner block />}
+            {profile.isPending && <SkeletonPage header={false} />}
             {profile.isError && <Alert tone="danger">{describeError(profile.error, t`Не вдалося завантажити профіль.`)}</Alert>}
             {profile.data && (
                 <div className={layout.split}>

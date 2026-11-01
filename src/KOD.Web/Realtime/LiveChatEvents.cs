@@ -27,6 +27,10 @@ internal sealed partial class LiveChatEvents(IHubContext<LiveHub, ILiveClient> h
         => Send(recipients, chatId, client => client.ChatRemoved(chatId));
 
     /// <inheritdoc />
+    public void HistoryCleared(IReadOnlyCollection<Guid> recipients, Guid chatId)
+        => Send(recipients, chatId, client => client.ChatHistoryCleared(chatId));
+
+    /// <inheritdoc />
     public void Read(IReadOnlyCollection<Guid> recipients, Guid chatId, Guid userId, long sequence)
         => Send(recipients, chatId, client => client.ChatRead(chatId, userId, sequence));
 

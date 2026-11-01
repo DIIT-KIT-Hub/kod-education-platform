@@ -13,11 +13,11 @@ import { PageHeader } from "@/shared/ui/PageHeader";
 import { PersonName } from "@/shared/ui/PersonName";
 import { SearchInput } from "@/shared/ui/SearchInput";
 import { Select } from "@/shared/ui/Select";
-import { Spinner } from "@/shared/ui/Spinner";
 import { allTicketsQuery } from "@/features/tickets/api";
 import { TicketStatusBadge } from "@/features/tickets/components/TicketStatusBadge";
 import styles from "@/features/tickets/components/tickets.module.css";
 import { useTicketFilters } from "@/features/tickets/components/useTicketFilters";
+import { SkeletonTable } from "@/shared/ui/Skeleton";
 
 /**
  * The requests of all users for the people who handle them: open ones, assigned to me or all; by state and category;
@@ -133,7 +133,7 @@ export function TicketsAdminPage() {
                 </div>
             </div>
 
-            {tickets.isPending && <Spinner block />}
+            {tickets.isPending && <SkeletonTable rows={8} columns={4} />}
             {tickets.isError && <Alert tone="danger">{describeError(tickets.error, t`Не вдалося завантажити звернення.`)}</Alert>}
             {tickets.data && (
                 <DataGrid

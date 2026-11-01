@@ -335,6 +335,11 @@ internal sealed class TwoOrganizations : IDisposable
         /// </summary>
         public List<(IReadOnlyCollection<Guid> Recipients, Guid ChatId)> Removed { get; } = [];
 
+        /// <summary>
+        /// Gets the chats whose history people cleared for themselves.
+        /// </summary>
+        public List<(IReadOnlyCollection<Guid> Recipients, Guid ChatId)> Cleared { get; } = [];
+
         /// <inheritdoc />
         public void MessageAdded(IReadOnlyCollection<Guid> recipients, ChatMessageDto message) => Added.Add((recipients, message));
 
@@ -350,6 +355,9 @@ internal sealed class TwoOrganizations : IDisposable
 
         /// <inheritdoc />
         public void ChatRemoved(IReadOnlyCollection<Guid> recipients, Guid chatId) => Removed.Add((recipients, chatId));
+
+        /// <inheritdoc />
+        public void HistoryCleared(IReadOnlyCollection<Guid> recipients, Guid chatId) => Cleared.Add((recipients, chatId));
 
         /// <inheritdoc />
         public void Read(IReadOnlyCollection<Guid> recipients, Guid chatId, Guid userId, long sequence)

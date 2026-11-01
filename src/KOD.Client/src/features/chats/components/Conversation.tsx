@@ -7,7 +7,7 @@ import { useCurrentUser } from "@/shared/session/session";
 import { Button, ButtonLink } from "@/shared/ui/Button";
 import { DocumentTitle } from "@/shared/ui/DocumentTitle";
 import { EmptyState } from "@/shared/ui/EmptyState";
-import { Spinner } from "@/shared/ui/Spinner";
+import { Skeleton, SkeletonMessages } from "@/shared/ui/Skeleton";
 import { applyRead, chatApi, chatQuery, threadQuery } from "@/features/chats/api";
 import { chatTitle, shortName } from "@/features/chats/display";
 import { useTyping } from "@/features/chats/typing";
@@ -52,7 +52,18 @@ export function Conversation({ chatId }: ConversationProps) {
     }
 
     if (!details.data || !thread.data) {
-        return <Spinner block />;
+        return (
+            <div className={styles.conversation}>
+                <header className={styles.conversationHeader} aria-hidden="true">
+                    <Skeleton shape="circle" height="2.5rem" />
+                    <div className={styles.conversationTitle}>
+                        <Skeleton width="12rem" height="1rem" />
+                        <Skeleton width="8rem" height="0.75rem" />
+                    </div>
+                </header>
+                <SkeletonMessages count={8} />
+            </div>
+        );
     }
 
     const chat = details.data;
@@ -102,7 +113,15 @@ export function Conversation({ chatId }: ConversationProps) {
                 </Button>
             </header>
 
-            <MessageList chatId={chatId} kind={chat.kind} thread={thread.data} me={me} peerRead={peerRead} onSeen={seen} />
+            <MessageList
+                chatId={chatId}
+                kind={chat.kind}
+                thread={thread.data}
+                me={me}
+                peerRead={peerRead}
+                onSeen={seen}
+                peerName={others[0]?.user.fullName}
+            />
 
             <p className={styles.typing} aria-live="polite">
                 {typingText}

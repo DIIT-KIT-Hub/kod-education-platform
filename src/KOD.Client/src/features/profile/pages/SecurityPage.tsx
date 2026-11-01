@@ -14,7 +14,7 @@ import { CopyButton } from "@/shared/ui/CopyButton";
 import { Field } from "@/shared/ui/Field";
 import { OtpInput } from "@/shared/ui/OtpInput";
 import { PageHeader } from "@/shared/ui/PageHeader";
-import { Spinner } from "@/shared/ui/Spinner";
+import { SkeletonPage } from "@/shared/ui/Skeleton";
 import { toast } from "@/shared/ui/Toast";
 import { profileApi, profileKeys, profileQuery } from "../api";
 import { ProfileTabs } from "../components/ProfileTabs";
@@ -32,7 +32,7 @@ export function SecurityPage() {
         <>
             <PageHeader title={t`Безпека`} subtitle={t`Пароль, двофакторна автентифікація, резервні коди та входи на інших пристроях.`} />
             <ProfileTabs current="security" />
-            {profile.isPending && <Spinner block />}
+            {profile.isPending && <SkeletonPage header={false} />}
             {profile.isError && <Alert tone="danger">{describeError(profile.error, t`Не вдалося завантажити профіль.`)}</Alert>}
             {profile.data && (
                 <div className={[layout.cols, layout.stagger].join(" ")}>

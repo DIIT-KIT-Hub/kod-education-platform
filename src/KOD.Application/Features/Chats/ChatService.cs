@@ -71,12 +71,14 @@ internal sealed class ChatService(
             return [];
         }
 
-        // A one-to-one chat appears for the other person with its first message.
+        // A one-to-one chat appears for the other person with its first message, and leaves the list of a person who
+        // deleted it for themselves until a newer message arrives.
         var rows = await (
                 from m in db.ChatMembers
                 where m.UserId == me
                 join c in db.Chats on m.ChatId equals c.Id
                 where c.Kind == ChatKind.Group || c.LastSequence > 0 || c.CreatedById == me
+                where c.Kind == ChatKind.Group || m.ClearedSequence == 0 || c.LastSequence > m.ClearedSequence
                 orderby c.LastActivityAt descending
                 select new
                 {
@@ -91,7 +93,8 @@ internal sealed class ChatService(
                         && x.Sequence > m.LastReadSequence
                         && x.AuthorId != me
                         && x.Kind == ChatMessageKind.Text
-                        && !x.IsDeleted),
+                        && !x.IsDeleted
+                        && !db.HiddenChatMessages.Any(h => h.MessageId == x.Id && h.UserId == me)),
                     Members = db.ChatMembers
                         .Where(x => x.ChatId == c.Id && x.UserId != me)
                         .OrderBy(static x => x.JoinedAt)
@@ -99,7 +102,10 @@ internal sealed class ChatService(
                         .Select(static x => new PersonRow(x.UserId, x.User!.LastName, x.User.FirstName, x.User.MiddleName, x.User.PhotoId))
                         .ToList(),
                     Last = db.ChatMessages
-                        .Where(x => x.ChatId == c.Id && x.Sequence == c.LastSequence)
+                        .Where(x => x.ChatId == c.Id
+                            && x.Sequence > m.ClearedSequence
+                            && !db.HiddenChatMessages.Any(h => h.MessageId == x.Id && h.UserId == me))
+                        .OrderByDescending(static x => x.Sequence)
                         .Select(static x => new
                         {
                             Author = new PersonRow(x.AuthorId, x.Author!.LastName, x.Author.FirstName, x.Author.MiddleName, x.Author.PhotoId),
@@ -224,26 +230,28 @@ internal sealed class ChatService(
             return NotFound();
         }
 
-        var lastSequence = await db.Chats
-            .Where(c => c.Id == chatId && c.Members.Any(m => m.UserId == me))
-            .Select(static c => (long?)c.LastSequence)
+        var chat = await (
+                from m in db.ChatMembers
+                where m.ChatId == chatId && m.UserId == me
+                join c in db.Chats on m.ChatId equals c.Id
+                select new { c.LastSequence, m.ClearedSequence })
             .FirstOrDefaultAsync(cancellationToken);
-        if (lastSequence is null)
+        if (chat is null)
         {
             return NotFound();
         }
 
         limit = Math.Clamp(limit, 1, IChatService.MaxPageSize);
-        var messages = db.ChatMessages.Where(m => m.ChatId == chatId);
+        var messages = db.ChatMessages.Where(m => m.ChatId == chatId && m.Sequence > chat.ClearedSequence);
         List<ChatMessageDto> page;
         if (before is null && after is { } from)
         {
-            page = await LoadAsync(messages.Where(m => m.Sequence > from).OrderBy(static m => m.Sequence).Take(limit + 1), cancellationToken);
+            page = await LoadAsync(messages.Where(m => m.Sequence > from).OrderBy(static m => m.Sequence).Take(limit + 1), me, cancellationToken);
         }
         else
         {
             var upTo = before ?? long.MaxValue;
-            page = await LoadAsync(messages.Where(m => m.Sequence < upTo).OrderByDescending(static m => m.Sequence).Take(limit + 1), cancellationToken);
+            page = await LoadAsync(messages.Where(m => m.Sequence < upTo).OrderByDescending(static m => m.Sequence).Take(limit + 1), me, cancellationToken);
         }
 
         var hasMore = page.Count > limit;
@@ -254,7 +262,7 @@ internal sealed class ChatService(
             ordered.RemoveAt(before is null && after is not null ? ordered.Count - 1 : 0);
         }
 
-        return new ChatMessagePage(ordered, hasMore, lastSequence.Value);
+        return new ChatMessagePage(ordered, hasMore, chat.LastSequence);
     }
 
     /// <inheritdoc />
@@ -392,14 +400,7 @@ internal sealed class ChatService(
                 return Error.Validation(Texts.T("Це можна зробити лише в груповому чаті."));
             }
 
-            var keys = await db.ChatAttachments
-                .Where(a => a.ChatId == chatId)
-                .Select(static a => new { a.StorageKey, a.ThumbnailKey })
-                .ToListAsync(cancellationToken);
-            db.Chats.Remove(chat);
-            await db.SaveChangesAsync(cancellationToken);
-            await DeleteFilesAsync(keys.SelectMany(static k => new[] { k.StorageKey, k.ThumbnailKey }).OfType<string>(), cancellationToken);
-            events.ChatRemoved([userId], chatId);
+            await RemoveChatAsync(chat, [userId], cancellationToken);
             return Result.Success();
         }
 
@@ -412,6 +413,62 @@ internal sealed class ChatService(
 
         var result = await ChangeAsync(chatId, Remove, cancellationToken);
         return result.IsSuccess ? Result.Success() : result.Error;
+    }
+
+    /// <inheritdoc />
+    public async Task<Result> ClearHistoryAsync(Guid chatId, CancellationToken cancellationToken)
+    {
+        if (Me is not { } me)
+        {
+            return NotFound();
+        }
+
+        var member = await db.ChatMembers.FirstOrDefaultAsync(m => m.ChatId == chatId && m.UserId == me, cancellationToken);
+        if (member is null)
+        {
+            return NotFound();
+        }
+
+        // A message sent meanwhile takes a newer number and stays visible.
+        var last = await db.Chats.Where(c => c.Id == chatId).Select(static c => c.LastSequence).FirstAsync(cancellationToken);
+        var read = member.LastReadSequence;
+        member.ClearHistory(last);
+
+        // Messages hidden one by one are all behind the cleared position now.
+        db.HiddenChatMessages.RemoveRange(await db.HiddenChatMessages.Where(h => h.ChatId == chatId && h.UserId == me).ToListAsync(cancellationToken));
+        await db.SaveChangesAsync(cancellationToken);
+
+        events.HistoryCleared([me], chatId);
+        if (member.LastReadSequence > read)
+        {
+            events.Read(await MemberIdsAsync(chatId, cancellationToken), chatId, me, member.LastReadSequence);
+        }
+
+        await notifier.MarkReadAsync(me, chatId, cancellationToken);
+        return Result.Success();
+    }
+
+    /// <inheritdoc />
+    public async Task<Result> DeleteChatAsync(Guid chatId, CancellationToken cancellationToken)
+    {
+        if (Me is not { } me)
+        {
+            return NotFound();
+        }
+
+        var chat = await db.Chats.Include(static c => c.Members).FirstOrDefaultAsync(c => c.Id == chatId, cancellationToken);
+        if (chat?.MemberOf(me) is not { } member)
+        {
+            return NotFound();
+        }
+
+        if (chat.Kind == ChatKind.Group && member.Role != ChatMemberRole.Owner)
+        {
+            return Error.Forbidden(Texts.T("Видалити груповий чат для всіх може лише його власник."));
+        }
+
+        await RemoveChatAsync(chat, [.. chat.Members.Select(static m => m.UserId)], cancellationToken);
+        return Result.Success();
     }
 
     /// <inheritdoc />
@@ -488,7 +545,7 @@ internal sealed class ChatService(
                     throw;
                 }
 
-                var dto = (await LoadAsync(db.ChatMessages.Where(m => m.Id == added.Id), cancellationToken))[0];
+                var dto = (await LoadAsync(db.ChatMessages.Where(m => m.Id == added.Id), null, cancellationToken))[0];
                 var recipients = await MemberIdsAsync(chatId, cancellationToken);
                 events.MessageAdded(recipients, dto);
 
@@ -559,6 +616,48 @@ internal sealed class ChatService(
 
         var published = await PublishChangedAsync(chatId, messageId, cancellationToken);
         return published.IsSuccess ? Result.Success() : published.Error;
+    }
+
+    /// <inheritdoc />
+    public async Task<Result<ChatMessageDto>> HideAsync(Guid chatId, Guid messageId, CancellationToken cancellationToken)
+    {
+        if (Me is not { } me || !(await MemberIdsAsync(chatId, cancellationToken)).Contains(me))
+        {
+            return NotFound();
+        }
+
+        var kind = await db.ChatMessages
+            .Where(m => m.Id == messageId && m.ChatId == chatId)
+            .Select(static m => (ChatMessageKind?)m.Kind)
+            .FirstOrDefaultAsync(cancellationToken);
+        if (kind is null)
+        {
+            return Error.NotFound(Texts.T("Повідомлення не знайдено."));
+        }
+
+        if (kind != ChatMessageKind.Text)
+        {
+            return Error.Validation(Texts.T("Це повідомлення не можна видалити."));
+        }
+
+        if (!await db.HiddenChatMessages.AnyAsync(h => h.MessageId == messageId && h.UserId == me, cancellationToken))
+        {
+            db.HiddenChatMessages.Add(new HiddenChatMessage(chatId, messageId, me, timeProvider.GetUtcNow()));
+            try
+            {
+                await db.SaveChangesAsync(cancellationToken);
+            }
+            catch (DbUpdateException)
+            {
+                // Another page of the user hid it at the same moment.
+                db.DiscardChanges();
+            }
+        }
+
+        // The user's other pages replace the message with the placeholder too.
+        var placeholder = (await LoadAsync(db.ChatMessages.Where(m => m.Id == messageId), me, cancellationToken))[0];
+        events.MessageChanged([me], placeholder);
+        return placeholder;
     }
 
     /// <inheritdoc />
@@ -722,6 +821,31 @@ internal sealed class ChatService(
     }
 
     /// <summary>
+    /// Deletes a chat with its messages and files and tells its former members.
+    /// </summary>
+    /// <param name="chat">The tracked chat.</param>
+    /// <param name="members">The members to tell.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that completes when deleted.</returns>
+    private async Task RemoveChatAsync(Chat chat, IReadOnlyCollection<Guid> members, CancellationToken cancellationToken)
+    {
+        var keys = await db.ChatAttachments
+            .Where(a => a.ChatId == chat.Id)
+            .Select(static a => new { a.StorageKey, a.ThumbnailKey })
+            .ToListAsync(cancellationToken);
+        db.Chats.Remove(chat);
+        await db.SaveChangesAsync(cancellationToken);
+        await DeleteFilesAsync(keys.SelectMany(static k => new[] { k.StorageKey, k.ThumbnailKey }).OfType<string>(), cancellationToken);
+        events.ChatRemoved(members, chat.Id);
+
+        // The unread notifications about the chat lead nowhere now.
+        foreach (var member in members)
+        {
+            await notifier.MarkReadAsync(member, chat.Id, cancellationToken);
+        }
+    }
+
+    /// <summary>
     /// Finds a message the current user has already sent with a client identifier.
     /// </summary>
     /// <param name="chatId">The chat.</param>
@@ -731,7 +855,7 @@ internal sealed class ChatService(
     /// <returns>The message, or <see langword="null"/>.</returns>
     private async Task<ChatMessageDto?> FindSentAsync(Guid chatId, Guid authorId, Guid clientId, CancellationToken cancellationToken)
     {
-        var sent = await LoadAsync(db.ChatMessages.Where(m => m.ChatId == chatId && m.AuthorId == authorId && m.ClientId == clientId), cancellationToken);
+        var sent = await LoadAsync(db.ChatMessages.Where(m => m.ChatId == chatId && m.AuthorId == authorId && m.ClientId == clientId), null, cancellationToken);
         return sent.Count > 0 ? sent[0] : null;
     }
 
@@ -787,7 +911,7 @@ internal sealed class ChatService(
             }
 
             var members = chat.Members.Select(static m => m.UserId).ToList();
-            var dto = (await LoadAsync(db.ChatMessages.Where(m => m.Id == note.Id), cancellationToken))[0];
+            var dto = (await LoadAsync(db.ChatMessages.Where(m => m.Id == note.Id), null, cancellationToken))[0];
             if (described.Removed.Count > 0)
             {
                 events.ChatRemoved(described.Removed, chat.Id);
@@ -834,7 +958,7 @@ internal sealed class ChatService(
     /// <returns>The message as it is now.</returns>
     private async Task<Result<ChatMessageDto>> PublishChangedAsync(Guid chatId, Guid messageId, CancellationToken cancellationToken)
     {
-        var loaded = await LoadAsync(db.ChatMessages.Where(m => m.Id == messageId && m.ChatId == chatId), cancellationToken);
+        var loaded = await LoadAsync(db.ChatMessages.Where(m => m.Id == messageId && m.ChatId == chatId), null, cancellationToken);
         if (loaded.Count == 0)
         {
             return Error.NotFound(Texts.T("Повідомлення не знайдено."));
@@ -848,9 +972,11 @@ internal sealed class ChatService(
     /// Projects messages for display with their authors, attachments and reactions (three queries in all).
     /// </summary>
     /// <param name="messages">The filtered and ordered messages.</param>
+    /// <param name="reader">The member whose hidden messages become empty placeholders; <see langword="null"/> for
+    /// messages pushed to all members.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The messages in the order of the query.</returns>
-    private async Task<List<ChatMessageDto>> LoadAsync(IQueryable<ChatMessage> messages, CancellationToken cancellationToken)
+    private async Task<List<ChatMessageDto>> LoadAsync(IQueryable<ChatMessage> messages, Guid? reader, CancellationToken cancellationToken)
     {
         var rows = await messages
             .AsNoTracking()
@@ -888,8 +1014,14 @@ internal sealed class ChatService(
                 .Select(static r => new { r.MessageId, r.Kind, r.UserId, r.CreatedAt })
                 .ToListAsync(cancellationToken))
             .ToLookup(static r => r.MessageId);
+        var hidden = reader is { } readerId
+            ? (await db.HiddenChatMessages
+                .Where(h => h.UserId == readerId && ids.Contains(h.MessageId))
+                .Select(static h => h.MessageId)
+                .ToListAsync(cancellationToken)).ToHashSet()
+            : [];
 
-        return rows.ConvertAll(r => new ChatMessageDto(
+        var loaded = rows.ConvertAll(r => new ChatMessageDto(
             r.Id,
             r.ChatId,
             r.Sequence,
@@ -908,6 +1040,10 @@ internal sealed class ChatService(
                 .OrderBy(static g => g.Min(static x => x.CreatedAt))
                 .Select(static g => new ChatReactionDto(g.Key, g.OrderBy(static x => x.CreatedAt).Select(static x => x.UserId).ToList()))
                 .ToList()));
+        return loaded.ConvertAll(m => hidden.Contains(m.Id) ? Placeholder(m) : m);
+
+        static ChatMessageDto Placeholder(ChatMessageDto m)
+            => m with { Body = string.Empty, Text = string.Empty, EditedAt = null, Attachments = [], Reactions = [], IsHidden = true };
 
         static ChatAttachmentDto ToDto(Guid chatId, ChatAttachment a) => new(
             a.Id,

@@ -20,7 +20,7 @@ import { Field } from "@/shared/ui/Field";
 import { FileDrop } from "@/shared/ui/FileDrop";
 import { PageHeader } from "@/shared/ui/PageHeader";
 import { Select } from "@/shared/ui/Select";
-import { Spinner } from "@/shared/ui/Spinner";
+import { SkeletonPage } from "@/shared/ui/Skeleton";
 import { Textarea } from "@/shared/ui/Textarea";
 import { TextInput } from "@/shared/ui/TextInput";
 import { toast } from "@/shared/ui/Toast";
@@ -44,7 +44,7 @@ export function NewsEditorPage() {
     const existing = useQuery({ ...articleForEditQuery(id ?? ""), enabled: id !== undefined });
 
     if (organizations.isPending || (id !== undefined && existing.isPending)) {
-        return <Spinner block />;
+        return <SkeletonPage variant="form" />;
     }
 
     return (

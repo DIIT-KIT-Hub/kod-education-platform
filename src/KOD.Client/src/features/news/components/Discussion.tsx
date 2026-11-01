@@ -15,7 +15,7 @@ import { Button } from "@/shared/ui/Button";
 import { confirm } from "@/shared/ui/ConfirmHost";
 import { Pagination } from "@/shared/ui/Pagination";
 import { Select } from "@/shared/ui/Select";
-import { Spinner } from "@/shared/ui/Spinner";
+import { SkeletonList } from "@/shared/ui/Skeleton";
 import { Textarea } from "@/shared/ui/Textarea";
 import { toast } from "@/shared/ui/Toast";
 import { discussionQuery, newsApi, newsKeys } from "../api";
@@ -108,7 +108,7 @@ export function Discussion({ articleId }: { readonly articleId: string }) {
     }
 
     if (discussion.isPending) {
-        return <Spinner block />;
+        return <SkeletonList rows={6} lines={3} nested />;
     }
 
     if (discussion.isError) {

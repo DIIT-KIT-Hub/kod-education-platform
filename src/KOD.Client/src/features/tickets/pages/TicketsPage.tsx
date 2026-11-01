@@ -13,11 +13,11 @@ import { DataGrid, type GridColumn } from "@/shared/ui/DataGrid";
 import { PageHeader } from "@/shared/ui/PageHeader";
 import { SearchInput } from "@/shared/ui/SearchInput";
 import { Select } from "@/shared/ui/Select";
-import { Spinner } from "@/shared/ui/Spinner";
 import { myTicketsQuery } from "@/features/tickets/api";
 import { TicketStatusBadge } from "@/features/tickets/components/TicketStatusBadge";
 import styles from "@/features/tickets/components/tickets.module.css";
 import { useTicketFilters } from "@/features/tickets/components/useTicketFilters";
+import { SkeletonTable } from "@/shared/ui/Skeleton";
 
 /**
  * The requests of the current user: bugs, suggestions and questions they sent, with their states.
@@ -84,7 +84,7 @@ export function TicketsPage() {
                 </div>
             </div>
 
-            {tickets.isPending && <Spinner block />}
+            {tickets.isPending && <SkeletonTable columns={3} />}
             {tickets.isError && <Alert tone="danger">{describeError(tickets.error, t`Не вдалося завантажити звернення.`)}</Alert>}
             {tickets.data && (
                 <DataGrid

@@ -12,7 +12,7 @@ import { ButtonLink } from "@/shared/ui/Button";
 import { DataGrid, GridPrimary, type GridColumn } from "@/shared/ui/DataGrid";
 import { Icon } from "@/shared/ui/Icon";
 import { PageHeader } from "@/shared/ui/PageHeader";
-import { Spinner } from "@/shared/ui/Spinner";
+import { SkeletonTable } from "@/shared/ui/Skeleton";
 import { unitTypesQuery } from "../api";
 
 /**
@@ -83,7 +83,7 @@ export function UnitTypesPage() {
                         {t`Каталог типів спільний для всіх організацій кабінету, тому змінювати його може лише адміністратор усіх організацій. Ви можете використовувати ці типи для підрозділів своїх організацій.`}
                     </Alert>
                 )}
-                {types.isPending && <Spinner block />}
+                {types.isPending && <SkeletonTable columns={2} />}
                 {types.isError && <Alert tone="danger">{describeError(types.error, t`Не вдалося завантажити типи підрозділів.`)}</Alert>}
                 {types.data && (
                     <DataGrid

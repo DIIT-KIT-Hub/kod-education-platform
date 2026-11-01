@@ -433,10 +433,6 @@ msgstr "Take it"
 msgid "Ви"
 msgstr "You"
 
-#: src/features/chats/components/ChatSync.tsx
-msgid "Ви більше не в цьому чаті."
-msgstr "You are no longer in this chat."
-
 #: src/features/auth/pages/ChangePasswordPage.tsx
 msgid "Ви увійшли з тимчасовим паролем. Задайте власний пароль, щоб продовжити роботу."
 msgstr "You signed in with a temporary password. Set your own password to continue."
@@ -478,8 +474,14 @@ msgctxt "audit"
 msgid "Видалення типу підрозділу"
 msgstr "Unit type deleted"
 
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Видалення чатів і повідомлень"
+msgstr "Deleting chats and messages"
+
 #: src/features/admin/pages/RoleEditorPage.tsx
 #: src/features/admin/pages/UnitTypeEditorPage.tsx
+#: src/features/chats/components/MembersDialog.tsx
 #: src/features/chats/components/MessageItem.tsx
 #: src/features/documents/pages/DocumentPage.tsx
 #: src/features/news/components/Discussion.tsx
@@ -487,6 +489,10 @@ msgstr "Unit type deleted"
 #: src/features/notifications/pages/NotificationsPage.tsx
 msgid "Видалити"
 msgstr "Delete"
+
+#: src/features/chats/components/MessageList.tsx
+msgid "Видалити для всіх учасників"
+msgstr "Delete for all members"
 
 #: src/features/documents/pages/DocumentPage.tsx
 msgid "Видалити документ остаточно?"
@@ -535,6 +541,22 @@ msgstr "Delete type"
 #: src/features/admin/pages/UnitTypeEditorPage.tsx
 msgid "Видалити тип підрозділу?"
 msgstr "Delete this unit type?"
+
+#: src/features/chats/components/MembersDialog.tsx
+msgid "Видалити чат"
+msgstr "Delete chat"
+
+#: src/features/chats/components/MembersDialog.tsx
+msgid "Видалити чат для всіх"
+msgstr "Delete chat for everyone"
+
+#: src/features/chats/components/MembersDialog.tsx
+msgid "Видалити чат для всіх?"
+msgstr "Delete the chat for everyone?"
+
+#: src/features/chats/components/MembersDialog.tsx
+msgid "Видалити чат?"
+msgstr "Delete the chat?"
 
 #: src/features/admin/pages/UserEditorPage.tsx
 msgid "Видати новий тимчасовий пароль? Поточний пароль перестане діяти, а сесії буде завершено."
@@ -1370,6 +1392,7 @@ msgid "Забули пароль або змінили телефон"
 msgstr "Forgot your password or changed your phone"
 
 #: src/shared/ui/Progress.tsx
+#: src/shared/ui/Skeleton.tsx
 #: src/shared/ui/Spinner.tsx
 msgid "Завантаження"
 msgstr "Loading"
@@ -1839,6 +1862,10 @@ msgstr "Other devices"
 #: src/features/profile/pages/SecurityPage.tsx
 msgid "Інші пристрої втратять доступ протягом кількох хвилин — щойно закінчиться строк їхнього токена доступу."
 msgstr "Other devices lose access within a few minutes — as soon as their access token expires."
+
+#: src/features/chats/components/MembersDialog.tsx
+msgid "Історія зникне у вас, а чат повернеться до списку з новим повідомленням."
+msgstr "The history disappears for you, and the chat comes back to your list with a new message."
 
 #: src/shared/ui/Brand.tsx
 msgid "К"
@@ -2459,6 +2486,10 @@ msgid "Не вдалося видалити повідомлення."
 msgstr "Could not delete the message."
 
 #: src/features/chats/components/MembersDialog.tsx
+msgid "Не вдалося видалити чат."
+msgstr "Could not delete the chat."
+
+#: src/features/chats/components/MembersDialog.tsx
 msgid "Не вдалося вийти з чату."
 msgstr "Could not leave the chat."
 
@@ -2677,6 +2708,10 @@ msgstr "Could not process the file. Try again."
 #: src/shared/signing/client.ts
 msgid "Не вдалося отримати позначку часу. Спробуйте рівень підпису B-B або повторіть пізніше."
 msgstr "Couldn't get a timestamp. Try the B-B signature level or try again later."
+
+#: src/features/chats/components/MembersDialog.tsx
+msgid "Не вдалося очистити історію."
+msgstr "Could not clear the history."
 
 #: src/shared/signing/client.ts
 msgid "Не вдалося перевірити статус сертифіката (OCSP). Спробуйте пізніше."
@@ -3314,9 +3349,18 @@ msgstr "The latest signed version of the document does not match the system's re
 msgid "Остання підписана версія містить інший документ. Підписання зупинено."
 msgstr "The latest signed version contains a different document. Signing stopped."
 
+#: src/features/chats/components/MembersDialog.tsx
 #: src/shared/ui/DatePicker.tsx
 msgid "Очистити"
 msgstr "Clear"
+
+#: src/features/chats/components/MembersDialog.tsx
+msgid "Очистити історію"
+msgstr "Clear history"
+
+#: src/features/chats/components/MembersDialog.tsx
+msgid "Очистити історію?"
+msgstr "Clear the history?"
 
 #: src/features/tickets/pages/TicketsAdminPage.tsx
 msgid "Очікує відповіді"
@@ -3760,6 +3804,14 @@ msgstr "Messages"
 msgid "Повідомлення видалено"
 msgstr "Message deleted"
 
+#: src/features/chats/components/MessageItem.tsx
+msgid "Повідомлення зникне лише у вас, інші учасники чату й надалі його бачитимуть."
+msgstr "The message disappears only for you; the other members of the chat still see it."
+
+#: src/features/chats/components/MembersDialog.tsx
+msgid "Повідомлення зникнуть лише у вас, інші учасники чату й надалі їх бачитимуть."
+msgstr "The messages disappear only for you; the other members of the chat still see them."
+
 #: src/features/chats/components/Composer.tsx
 #: src/features/chats/components/MessageItem.tsx
 msgid "Повідомлення не надіслано."
@@ -3776,8 +3828,8 @@ msgid "Повідомлення про помилки, пропозиції та
 msgstr "Reports of bugs, suggestions and questions to the people who look after the cabinet, and the conversation with them."
 
 #: src/features/chats/components/MessageItem.tsx
-msgid "Повідомлення та його файли буде видалено для всіх учасників чату."
-msgstr "The message and its files will be deleted for every member of the chat."
+msgid "Повідомлення та його файли зникнуть в усіх учасників чату."
+msgstr "The message and its files disappear for all members of the chat."
 
 #: src/features/help/contents.ts
 msgctxt "help"
@@ -4764,6 +4816,15 @@ msgstr "Table"
 msgid "Таблиця:"
 msgstr "Table:"
 
+#. placeholder {0}: peer?.user.fullName ?? ""
+#: src/features/chats/components/MembersDialog.tsx
+msgid "Також видалити для {0}"
+msgstr "Also delete for {0}"
+
+#: src/features/chats/components/MessageList.tsx
+msgid "Також видалити для {peerName}"
+msgstr "Also delete for {peerName}"
+
 #: src/features/news/pages/NewsEditorPage.tsx
 msgid "Текст"
 msgstr "Text"
@@ -5212,6 +5273,18 @@ msgstr "Frequently asked questions"
 #: src/features/chats/display.ts
 msgid "Чат"
 msgstr "Chat"
+
+#: src/features/chats/components/ChatSync.tsx
+msgid "Чат видалено або вас із нього вилучено."
+msgstr "The chat was deleted or you were removed from it."
+
+#: src/features/chats/components/MembersDialog.tsx
+msgid "Чат з усіма повідомленнями й файлами буде видалено в обох."
+msgstr "The chat with all its messages and files will be deleted for both of you."
+
+#: src/features/chats/components/MembersDialog.tsx
+msgid "Чат з усіма повідомленнями й файлами буде видалено для всіх учасників. Цю дію не можна скасувати."
+msgstr "The chat with all its messages and files will be deleted for all members. This cannot be undone."
 
 #: src/features/chats/components/MembersDialog.tsx
 msgid "Чат зникне з вашого списку. Повернутися можна, лише якщо хтось із учасників додасть вас знову."

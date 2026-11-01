@@ -17,7 +17,7 @@ import { Icon } from "@/shared/ui/Icon";
 import { PageHeader } from "@/shared/ui/PageHeader";
 import { PersonName } from "@/shared/ui/PersonName";
 import { SearchInput } from "@/shared/ui/SearchInput";
-import { Spinner } from "@/shared/ui/Spinner";
+import { SkeletonPage, SkeletonTable } from "@/shared/ui/Skeleton";
 import { unitQuery, unitStaffQuery } from "../api";
 import styles from "./structure.module.css";
 
@@ -31,7 +31,7 @@ export function UnitPage() {
     const unit = useQuery(unitQuery(id));
 
     if (unit.isPending) {
-        return <Spinner block />;
+        return <SkeletonPage />;
     }
 
     if (unit.isError) {
@@ -205,7 +205,7 @@ function Staff({ unitId }: { readonly unitId: string }) {
                     }}
                 />
             </div>
-            {staff.isPending && <Spinner block />}
+            {staff.isPending && <SkeletonTable columns={2} avatar />}
             {staff.isError && <Alert tone="danger">{describeError(staff.error, t`Не вдалося завантажити працівників.`)}</Alert>}
             {staff.data && (
                 <DataGrid

@@ -278,6 +278,12 @@
     font-size: var(--ds-fs-xs);
 }
 
+/* Older messages that are loading: bubbles across the whole width above the list. */
+.topSentinel .older {
+    justify-self: stretch;
+    padding: 0 0 var(--ds-space-3);
+}
+
 .messageList {
     display: grid;
     gap: 2px;
@@ -1114,4 +1120,11 @@ a.file:hover {
     flex-wrap: wrap;
     justify-content: space-between;
     gap: var(--ds-space-3);
+}
+
+/* Clearing the history and deleting the chat, under the people of a group. */
+.chatActions {
+    composes: dialogActions;
+    padding-top: var(--ds-space-4);
+    border-top: 1px solid var(--ds-color-border);
 }

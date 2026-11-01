@@ -198,6 +198,82 @@ public sealed class ChatTests : IDisposable
         Assert.Equal(5, missed.LastSequence);
     }
 
+    [Fact]
+    public async Task A_direct_chat_deleted_for_me_leaves_only_my_list_until_a_new_message()
+    {
+        var a = _world.As(_world.EmployeeA).Chats;
+        var b = _world.As(_world.EmployeeB).Chats;
+        var chat = (await a.OpenDirectAsync(_world.EmployeeB.Id, CancellationToken.None)).Ok();
+        await a.SendAsync(chat, Text("Раз"), CancellationToken.None);
+        await a.SendAsync(chat, Text("Два"), CancellationToken.None);
+
+        Assert.True((await b.ClearHistoryAsync(chat, CancellationToken.None)).IsSuccess);
+
+        Assert.Empty(await b.ListAsync(CancellationToken.None));
+        Assert.Empty((await b.GetMessagesAsync(chat, null, null, 50, CancellationToken.None)).Ok().Messages);
+        Assert.Equal(2, (await a.GetMessagesAsync(chat, null, null, 50, CancellationToken.None)).Ok().Messages.Count);
+        Assert.Contains(_world.ChatEvents.Cleared, e => e.ChatId == chat && e.Recipients.SequenceEqual([_world.EmployeeB.Id]));
+
+        // A new message brings the chat back with only what came after the clearing.
+        await a.SendAsync(chat, Text("Три"), CancellationToken.None);
+        var listed = Assert.Single(await b.ListAsync(CancellationToken.None));
+        Assert.Equal("Три", listed.LastMessage?.Text);
+        Assert.Equal(1, listed.UnreadCount);
+        Assert.Equal([3L], (await b.GetMessagesAsync(chat, null, null, 50, CancellationToken.None)).Ok().Messages.Select(static m => m.Sequence));
+    }
+
+    [Fact]
+    public async Task Either_person_deletes_a_direct_chat_for_both_but_only_the_owner_deletes_a_group()
+    {
+        var a = _world.As(_world.EmployeeA).Chats;
+        var b = _world.As(_world.EmployeeB).Chats;
+        var direct = (await a.OpenDirectAsync(_world.EmployeeB.Id, CancellationToken.None)).Ok();
+        await a.SendAsync(direct, Text("Привіт"), CancellationToken.None);
+
+        Assert.Equal(ErrorType.NotFound, (await _world.As(_world.EmployeeS).Chats.DeleteChatAsync(direct, CancellationToken.None)).Failure());
+        Assert.True((await b.DeleteChatAsync(direct, CancellationToken.None)).IsSuccess);
+        Assert.Empty(_world.Db.Chats);
+        var removed = Assert.Single(_world.ChatEvents.Removed);
+        Assert.Equal([_world.EmployeeA.Id, _world.EmployeeB.Id], removed.Recipients.Order());
+
+        var group = (await a.CreateGroupAsync("Проєкт", [_world.EmployeeB.Id], CancellationToken.None)).Ok();
+        Assert.Equal(ErrorType.Forbidden, (await b.DeleteChatAsync(group, CancellationToken.None)).Failure());
+        Assert.True((await a.DeleteChatAsync(group, CancellationToken.None)).IsSuccess);
+        Assert.Empty(_world.Db.Chats);
+    }
+
+    [Fact]
+    public async Task A_message_deleted_for_me_becomes_an_empty_placeholder_only_for_me()
+    {
+        var a = _world.As(_world.EmployeeA).Chats;
+        var b = _world.As(_world.EmployeeB).Chats;
+        var chat = (await a.OpenDirectAsync(_world.EmployeeB.Id, CancellationToken.None)).Ok();
+        var secret = (await a.SendAsync(chat, Text("Секрет"), CancellationToken.None)).Ok();
+        var last = (await a.SendAsync(chat, Text("Останнє"), CancellationToken.None)).Ok();
+
+        var placeholder = (await b.HideAsync(chat, secret.Id, CancellationToken.None)).Ok();
+        Assert.True(placeholder.IsHidden);
+        Assert.Empty(placeholder.Text);
+        Assert.True((await b.HideAsync(chat, secret.Id, CancellationToken.None)).IsSuccess);
+
+        // The numbering keeps no gaps for the reader; the author still sees the text.
+        var mine = (await b.GetMessagesAsync(chat, null, null, 50, CancellationToken.None)).Ok().Messages;
+        Assert.Equal([1L, 2L], mine.Select(static m => m.Sequence));
+        Assert.Equal([true, false], mine.Select(static m => m.IsHidden));
+        Assert.Equal("Секрет", (await a.GetMessagesAsync(chat, null, null, 50, CancellationToken.None)).Ok().Messages[0].Text);
+        Assert.Equal(1, Assert.Single(await b.ListAsync(CancellationToken.None)).UnreadCount);
+
+        // Hiding the newest message shows the one before it in the list.
+        await b.HideAsync(chat, last.Id, CancellationToken.None);
+        Assert.Null(Assert.Single(await b.ListAsync(CancellationToken.None)).LastMessage);
+        Assert.Equal("Останнє", Assert.Single(await a.ListAsync(CancellationToken.None)).LastMessage?.Text);
+
+        // System notes cannot be hidden.
+        var group = (await a.CreateGroupAsync(null, [_world.EmployeeB.Id], CancellationToken.None)).Ok();
+        var note = (await b.GetMessagesAsync(group, null, null, 50, CancellationToken.None)).Ok().Messages[0];
+        Assert.Equal(ErrorType.Validation, (await b.HideAsync(group, note.Id, CancellationToken.None)).Failure());
+    }
+
     /// <summary>
     /// Builds a message with a new client identifier.
     /// </summary>

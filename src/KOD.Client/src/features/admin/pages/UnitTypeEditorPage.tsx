@@ -20,7 +20,7 @@ import { confirm } from "@/shared/ui/ConfirmHost";
 import { Field } from "@/shared/ui/Field";
 import { Icon } from "@/shared/ui/Icon";
 import { PageHeader } from "@/shared/ui/PageHeader";
-import { Spinner } from "@/shared/ui/Spinner";
+import { SkeletonPage } from "@/shared/ui/Skeleton";
 import { Textarea } from "@/shared/ui/Textarea";
 import { TextInput } from "@/shared/ui/TextInput";
 import { toast } from "@/shared/ui/Toast";
@@ -37,7 +37,7 @@ export function UnitTypeEditorPage() {
     const existing = useQuery({ ...unitTypeQuery(id ?? ""), enabled: id !== undefined });
 
     if (id !== undefined && existing.isPending) {
-        return <Spinner block />;
+        return <SkeletonPage variant="form" />;
     }
 
     if (existing.isError) {

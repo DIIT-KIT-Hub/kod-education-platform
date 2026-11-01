@@ -14,7 +14,7 @@ import { Icon } from "@/shared/ui/Icon";
 import { PageHeader } from "@/shared/ui/PageHeader";
 import { SearchInput } from "@/shared/ui/SearchInput";
 import { Select } from "@/shared/ui/Select";
-import { Spinner } from "@/shared/ui/Spinner";
+import { SkeletonTable } from "@/shared/ui/Skeleton";
 import { unitListQuery, unitOptionsQuery, unitTypesQuery } from "../api";
 import { useListParams } from "../components/useListParams";
 import styles from "./admin.module.css";
@@ -137,7 +137,7 @@ export function UnitsPage() {
                 </div>
             </div>
 
-            {units.isPending && <Spinner block />}
+            {units.isPending && <SkeletonTable rows={8} columns={3} />}
             {units.isError && <Alert tone="danger">{describeError(units.error, t`Не вдалося завантажити підрозділи.`)}</Alert>}
             {units.data && (
                 <DataGrid

@@ -123,6 +123,28 @@ public sealed class ChatsController(IChatService chats) : ApiControllerBase
         => FromResult(await chats.RemoveMemberAsync(id, userId, cancellationToken));
 
     /// <summary>
+    /// Clears the history of a chat for the current user only; a one-to-one chat also leaves their list until a new
+    /// message arrives.
+    /// </summary>
+    /// <param name="id">The chat.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>204 on success.</returns>
+    [HttpPost("{id:guid}/clear")]
+    public async Task<ActionResult> ClearHistory(Guid id, CancellationToken cancellationToken)
+        => FromResult(await chats.ClearHistoryAsync(id, cancellationToken));
+
+    /// <summary>
+    /// Deletes a chat for all its members with its messages and files (a one-to-one chat by either person, a group chat
+    /// by its owner).
+    /// </summary>
+    /// <param name="id">The chat.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>204 on success.</returns>
+    [HttpDelete("{id:guid}")]
+    public async Task<ActionResult> DeleteChat(Guid id, CancellationToken cancellationToken)
+        => FromResult(await chats.DeleteChatAsync(id, cancellationToken));
+
+    /// <summary>
     /// Gets messages: the newest page, the page before a number or the messages after a number.
     /// </summary>
     /// <param name="id">The chat.</param>
@@ -193,7 +215,7 @@ public sealed class ChatsController(IChatService chats) : ApiControllerBase
     }
 
     /// <summary>
-    /// Deletes the current user's message with its files.
+    /// Deletes the current user's message for everyone with its files.
     /// </summary>
     /// <param name="id">The chat.</param>
     /// <param name="messageId">The message.</param>
@@ -202,6 +224,17 @@ public sealed class ChatsController(IChatService chats) : ApiControllerBase
     [HttpDelete("{id:guid}/messages/{messageId:guid}")]
     public async Task<ActionResult> Delete(Guid id, Guid messageId, CancellationToken cancellationToken)
         => FromResult(await chats.DeleteAsync(id, messageId, cancellationToken));
+
+    /// <summary>
+    /// Deletes a message for the current user only (the others keep it).
+    /// </summary>
+    /// <param name="id">The chat.</param>
+    /// <param name="messageId">The message.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The empty placeholder the user sees now.</returns>
+    [HttpPost("{id:guid}/messages/{messageId:guid}/hide")]
+    public async Task<ActionResult<ChatMessageDto>> Hide(Guid id, Guid messageId, CancellationToken cancellationToken)
+        => FromResult(await chats.HideAsync(id, messageId, cancellationToken));
 
     /// <summary>
     /// Sets the current user's reaction to a message; the same reaction again removes it.

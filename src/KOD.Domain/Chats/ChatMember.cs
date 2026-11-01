@@ -62,6 +62,22 @@ public sealed class ChatMember
     public long LastReadSequence { get; private set; }
 
     /// <summary>
+    /// Gets the number of the last message the person cleared from their history (0 when nothing was cleared): older
+    /// messages are no longer shown to them, and a one-to-one chat leaves their list until a newer message arrives.
+    /// </summary>
+    public long ClearedSequence { get; private set; }
+
+    /// <summary>
+    /// Clears the history for this person up to the newest message, which also counts as read.
+    /// </summary>
+    /// <param name="lastSequence">The number of the newest message of the chat.</param>
+    public void ClearHistory(long lastSequence)
+    {
+        ClearedSequence = Math.Max(ClearedSequence, lastSequence);
+        MarkRead(lastSequence);
+    }
+
+    /// <summary>
     /// Moves the read position forward (never back: another tab may have read further).
     /// </summary>
     /// <param name="sequence">The number of the last read message.</param>

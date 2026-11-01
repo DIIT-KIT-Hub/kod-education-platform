@@ -24,7 +24,7 @@ import { EmptyState } from "@/shared/ui/EmptyState";
 import { Field } from "@/shared/ui/Field";
 import { PageHeader } from "@/shared/ui/PageHeader";
 import { Select } from "@/shared/ui/Select";
-import { Spinner } from "@/shared/ui/Spinner";
+import { SkeletonPage } from "@/shared/ui/Skeleton";
 import { TextInput } from "@/shared/ui/TextInput";
 import { toast } from "@/shared/ui/Toast";
 import { adminApi, adminKeys, permissionsQuery, userQuery, userRolesQuery, userUnitsQuery } from "../api";
@@ -52,7 +52,7 @@ export function UserEditorPage() {
     const permissions = useQuery({ ...permissionsQuery, enabled: canEditOverrides });
 
     if (units.isPending || roles.isPending || (canEditOverrides && permissions.isPending) || (id !== undefined && existing.isPending)) {
-        return <Spinner block />;
+        return <SkeletonPage variant="form" />;
     }
 
     const error = existing.error ?? units.error ?? roles.error ?? permissions.error;

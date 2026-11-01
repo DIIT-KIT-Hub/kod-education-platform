@@ -17,7 +17,7 @@ import { Checkbox } from "@/shared/ui/Checkbox";
 import { confirm } from "@/shared/ui/ConfirmHost";
 import { Field } from "@/shared/ui/Field";
 import { PageHeader } from "@/shared/ui/PageHeader";
-import { Spinner } from "@/shared/ui/Spinner";
+import { SkeletonPage } from "@/shared/ui/Skeleton";
 import { Textarea } from "@/shared/ui/Textarea";
 import { TextInput } from "@/shared/ui/TextInput";
 import { toast } from "@/shared/ui/Toast";
@@ -36,7 +36,7 @@ export function RoleEditorPage() {
     const permissions = useQuery(permissionsQuery);
 
     if (permissions.isPending || (id !== undefined && existing.isPending)) {
-        return <Spinner block />;
+        return <SkeletonPage variant="form" />;
     }
 
     const error = existing.error ?? permissions.error;

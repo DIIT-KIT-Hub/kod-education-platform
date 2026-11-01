@@ -110,6 +110,24 @@ public interface IChatService
     Task<Result> RemoveMemberAsync(Guid chatId, Guid userId, CancellationToken cancellationToken);
 
     /// <summary>
+    /// Clears the history of a chat for the current user only (the others keep it). A one-to-one chat also leaves the
+    /// user's list until a new message arrives ("delete for me").
+    /// </summary>
+    /// <param name="chatId">The chat.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The result.</returns>
+    Task<Result> ClearHistoryAsync(Guid chatId, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Deletes a chat for all its members with its messages and files: a one-to-one chat by either person, a group chat
+    /// by its owner.
+    /// </summary>
+    /// <param name="chatId">The chat.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The result.</returns>
+    Task<Result> DeleteChatAsync(Guid chatId, CancellationToken cancellationToken);
+
+    /// <summary>
     /// Sends a message with formatted text and attachments. Sending again with the same client identifier returns the
     /// message already sent.
     /// </summary>
@@ -130,13 +148,22 @@ public interface IChatService
     Task<Result<ChatMessageDto>> EditAsync(Guid chatId, Guid messageId, string? body, CancellationToken cancellationToken);
 
     /// <summary>
-    /// Deletes the current user's message with its files (a placeholder stays).
+    /// Deletes the current user's message for everyone with its files (a placeholder stays).
     /// </summary>
     /// <param name="chatId">The chat.</param>
     /// <param name="messageId">The message.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The result.</returns>
     Task<Result> DeleteAsync(Guid chatId, Guid messageId, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Deletes a message (anyone's, also a deleted placeholder) for the current user only.
+    /// </summary>
+    /// <param name="chatId">The chat.</param>
+    /// <param name="messageId">The message.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The empty placeholder the user sees now.</returns>
+    Task<Result<ChatMessageDto>> HideAsync(Guid chatId, Guid messageId, CancellationToken cancellationToken);
 
     /// <summary>
     /// Sets the current user's emotion on a message; choosing the same emotion again removes it.

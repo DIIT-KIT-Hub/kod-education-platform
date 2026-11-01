@@ -43,6 +43,7 @@ export async function sendDraft(queryClient: QueryClient, chatId: string, author
         clientId: draft.clientId,
         attachments: [],
         reactions: [],
+        isHidden: false,
         pending: { failed, files: draft.files },
     });
     const put = (message: ChatMessage) =>

@@ -108,6 +108,11 @@ public interface IApplicationDbContext
     DbSet<ChatReaction> ChatReactions { get; }
 
     /// <summary>
+    /// Gets the chat messages members deleted only for themselves.
+    /// </summary>
+    DbSet<HiddenChatMessage> HiddenChatMessages { get; }
+
+    /// <summary>
     /// Gets the requests of users.
     /// </summary>
     DbSet<Ticket> Tickets { get; }

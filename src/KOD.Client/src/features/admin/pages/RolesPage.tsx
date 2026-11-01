@@ -10,7 +10,7 @@ import { ButtonLink } from "@/shared/ui/Button";
 import { DataGrid, GridPrimary, type GridColumn } from "@/shared/ui/DataGrid";
 import { PageHeader } from "@/shared/ui/PageHeader";
 import { SearchInput } from "@/shared/ui/SearchInput";
-import { Spinner } from "@/shared/ui/Spinner";
+import { SkeletonTable } from "@/shared/ui/Skeleton";
 import { roleListQuery } from "../api";
 import { useListParams } from "../components/useListParams";
 import styles from "./admin.module.css";
@@ -82,7 +82,7 @@ export function RolesPage() {
                 />
             </div>
 
-            {roles.isPending && <Spinner block />}
+            {roles.isPending && <SkeletonTable columns={2} />}
             {roles.isError && <Alert tone="danger">{describeError(roles.error, t`Не вдалося завантажити ролі.`)}</Alert>}
             {roles.data && (
                 <DataGrid

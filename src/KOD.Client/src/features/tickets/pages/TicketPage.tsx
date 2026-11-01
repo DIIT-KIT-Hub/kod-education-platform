@@ -17,7 +17,7 @@ import { Field } from "@/shared/ui/Field";
 import { PageHeader } from "@/shared/ui/PageHeader";
 import { PersonName } from "@/shared/ui/PersonName";
 import { Select } from "@/shared/ui/Select";
-import { Spinner } from "@/shared/ui/Spinner";
+import { SkeletonPage } from "@/shared/ui/Skeleton";
 import { toast } from "@/shared/ui/Toast";
 import { handlersQuery, ticketApi, ticketKeys, ticketQuery } from "@/features/tickets/api";
 import { TicketStatusBadge } from "@/features/tickets/components/TicketStatusBadge";
@@ -34,7 +34,7 @@ export function TicketPage() {
     const ticket = useQuery(ticketQuery(id));
 
     if (ticket.isPending) {
-        return <Spinner block />;
+        return <SkeletonPage />;
     }
 
     if (ticket.isError) {

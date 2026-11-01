@@ -10,7 +10,7 @@ import { Card } from "@/shared/ui/Card";
 import { EmptyState } from "@/shared/ui/EmptyState";
 import { PageHeader } from "@/shared/ui/PageHeader";
 import { SearchInput } from "@/shared/ui/SearchInput";
-import { Spinner } from "@/shared/ui/Spinner";
+import { SkeletonList } from "@/shared/ui/Skeleton";
 import { unitTreeQuery } from "../api";
 import { filterTree, UnitTree } from "../components/UnitTree";
 import styles from "./structure.module.css";
@@ -70,7 +70,7 @@ export function StructurePage() {
                 </div>
             )}
 
-            {tree.isPending && <Spinner block />}
+            {tree.isPending && <SkeletonList rows={10} media="icon" lines={1} nested framed />}
             {tree.isError && <Alert tone="danger">{describeError(tree.error, t`Не вдалося завантажити структуру.`)}</Alert>}
             {tree.data && (
                 <Card>

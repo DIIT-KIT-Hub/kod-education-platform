@@ -11,7 +11,7 @@ import { EmptyState } from "@/shared/ui/EmptyState";
 import { PageHeader } from "@/shared/ui/PageHeader";
 import { Pagination } from "@/shared/ui/Pagination";
 import { Select } from "@/shared/ui/Select";
-import { Spinner } from "@/shared/ui/Spinner";
+import { SkeletonList } from "@/shared/ui/Skeleton";
 import { toast } from "@/shared/ui/Toast";
 import { notificationApi, notificationKeys, notificationListQuery } from "@/features/notifications/api";
 import { NotificationItem } from "@/features/notifications/components/NotificationItem";
@@ -89,7 +89,7 @@ export function NotificationsPage() {
                 />
             </div>
 
-            {list.isPending && <Spinner block />}
+            {list.isPending && <SkeletonList rows={8} media="icon" framed />}
             {list.isError && <Alert tone="danger">{describeError(list.error, t`Не вдалося завантажити сповіщення.`)}</Alert>}
             {list.data && list.data.items.length === 0 && (
                 <EmptyState

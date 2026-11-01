@@ -741,7 +741,33 @@ export interface paths {
         };
         put?: never;
         post?: never;
-        delete?: never;
+        /**
+         * Deletes a chat for all its members with its messages and files (a one-to-one chat by either person, a group chat
+         *     by its owner).
+         */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The chat. */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description 204 on success. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
         options?: never;
         head?: never;
         patch?: never;
@@ -880,6 +906,48 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/chats/{id}/clear": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Clears the history of a chat for the current user only; a one-to-one chat also leaves their list until a new
+         *     message arrives.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The chat. */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description 204 on success. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/chats/{id}/messages": {
         parameters: {
             query?: never;
@@ -1004,7 +1072,7 @@ export interface paths {
             };
         };
         post?: never;
-        /** Deletes the current user's message with its files. */
+        /** Deletes the current user's message for everyone with its files. */
         delete: {
             parameters: {
                 query?: never;
@@ -1030,6 +1098,47 @@ export interface paths {
                 };
             };
         };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/chats/{id}/messages/{messageId}/hide": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Deletes a message for the current user only (the others keep it). */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The chat. */
+                    id: string;
+                    /** @description The message. */
+                    messageId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description The empty placeholder the user sees now. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ChatMessageDto"];
+                    };
+                };
+            };
+        };
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -4831,7 +4940,8 @@ export interface components {
         };
         /**
          * @description A chat message. It is the same for every member (it is pushed to all of them), so it carries no per-reader flags:
-         *     the client compares the author and the reacting people with the current user.
+         *     the client compares the author and the reacting people with the current user. The one exception is
+         *     IsHidden, set only in the pages of the member who hid the message.
          */
         ChatMessageDto: {
             /**
@@ -4879,6 +4989,11 @@ export interface components {
             attachments: components["schemas"]["ChatAttachmentDto"][];
             /** @description The reactions, by emotion. */
             reactions: components["schemas"]["ChatReactionDto"][];
+            /**
+             * @description Whether the reader deleted the message for themselves (then it carries no content).
+             * @default false
+             */
+            isHidden: boolean;
         };
         /**
          * @description The kind of a chat message.

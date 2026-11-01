@@ -1,6 +1,6 @@
 import { createBrowserRouter } from "react-router";
 import { authContextQuery, Permissions } from "@/shared/session/session";
-import { Spinner } from "@/shared/ui/Spinner";
+import { SkeletonPage } from "@/shared/ui/Skeleton";
 import { requireAnonymous, requirePasswordSet, requirePermission, requireReadyUser, requireUser } from "./guards";
 import { AppShell } from "./layout/AppShell";
 import { adminPermissions } from "./layout/navigation";
@@ -17,7 +17,7 @@ export const router = createBrowserRouter([
     {
         Component: RootLayout,
         ErrorBoundary: RouteError,
-        HydrateFallback: () => <Spinner block />,
+        HydrateFallback: () => <SkeletonPage screen />,
         loader: async () => {
             await queryClient.ensureQueryData(authContextQuery);
             return null;

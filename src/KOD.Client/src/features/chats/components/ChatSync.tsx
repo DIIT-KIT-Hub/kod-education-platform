@@ -57,9 +57,13 @@ export function ChatSync() {
         queryClient.removeQueries({ queryKey: chatKeys.details(chatId) });
         void queryClient.invalidateQueries({ queryKey: chatKeys.list });
         if (open === chatId) {
-            toast(t`Ви більше не в цьому чаті.`);
+            toast(t`Чат видалено або вас із нього вилучено.`);
             void navigate("/chats", { replace: true });
         }
+    });
+    useLiveEvent("ChatHistoryCleared", (chatId: string) => {
+        void queryClient.invalidateQueries({ queryKey: chatKeys.thread(chatId) });
+        void queryClient.invalidateQueries({ queryKey: chatKeys.list });
     });
     useLiveEvent("ChatRead", (chatId: string, userId: string, sequence: number) => applyRead(queryClient, chatId, userId, sequence, me));
     useLiveEvent("ChatTyping", (chatId: string, user: UserRef) => noteTyping(chatId, user));

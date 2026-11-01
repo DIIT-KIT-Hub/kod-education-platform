@@ -1,6 +1,7 @@
 import { useLingui } from "@lingui/react/macro";
-import { useSyncExternalStore } from "react";
+import { useState, useSyncExternalStore } from "react";
 import { Button } from "./Button";
+import { Checkbox } from "./Checkbox";
 import { Dialog } from "./Dialog";
 
 /**
@@ -15,8 +16,22 @@ interface ConfirmRequest {
     readonly confirmText?: string;
     /** Whether confirming destroys something (red button). */
     readonly danger?: boolean;
-    /** Settles the promise returned by {@link confirm}. */
-    readonly resolve: (confirmed: boolean) => void;
+    /** A check box that widens the action ("also delete for…"). */
+    readonly option?: ConfirmOption;
+    /** Settles the promise: whether the user confirmed and whether the check box was ticked. */
+    readonly resolve: (confirmed: boolean, option: boolean) => void;
+}
+
+/**
+ * The check box of a confirmation.
+ */
+export interface ConfirmOption {
+    /** The label. */
+    readonly label: string;
+    /** A hint under the label. */
+    readonly hint?: string;
+    /** Whether it starts ticked. */
+    readonly checked?: boolean;
 }
 
 let current: ConfirmRequest | null = null;
@@ -36,9 +51,19 @@ function update(next: ConfirmRequest | null): void {
  * @param options The question, an explanation, the button label and whether the action is destructive.
  * @returns Whether the user confirmed.
  */
-export function confirm(options: Omit<ConfirmRequest, "resolve">): Promise<boolean> {
-    current?.resolve(false);
-    return new Promise((resolve) => update({ ...options, resolve }));
+export function confirm(options: Omit<ConfirmRequest, "resolve" | "option">): Promise<boolean> {
+    current?.resolve(false, false);
+    return new Promise((resolve) => update({ ...options, resolve: (confirmed) => resolve(confirmed) }));
+}
+
+/**
+ * Asks the user to confirm an action with a check box that widens it (like "also delete for the other person").
+ * @param options The question, an explanation, the button label, whether the action is destructive and the check box.
+ * @returns Whether the check box was ticked, or null when the user cancelled.
+ */
+export function confirmWithOption(options: Omit<ConfirmRequest, "resolve"> & { readonly option: ConfirmOption }): Promise<boolean | null> {
+    current?.resolve(false, false);
+    return new Promise((resolve) => update({ ...options, resolve: (confirmed, option) => resolve(confirmed ? option : null) }));
 }
 
 /**
@@ -58,13 +83,21 @@ function subscribe(listener: () => void): () => void {
 export function ConfirmHost() {
     const { t } = useLingui();
     const request = useSyncExternalStore(subscribe, () => current);
+    const [shown, setShown] = useState(request);
+    const [checked, setChecked] = useState(false);
+
+    // A new question starts with its own check box state.
+    if (shown !== request) {
+        setShown(request);
+        setChecked(request?.option?.checked ?? false);
+    }
 
     /**
      * Closes the dialog with the answer.
      * @param confirmed The answer.
      */
     function answer(confirmed: boolean): void {
-        request?.resolve(confirmed);
+        request?.resolve(confirmed, checked);
         update(null);
     }
 
@@ -85,6 +118,11 @@ export function ConfirmHost() {
             }
         >
             {request?.text && <p>{request.text}</p>}
+            {request?.option && (
+                <Checkbox checked={checked} onChange={(event) => setChecked(event.target.checked)} hint={request.option.hint}>
+                    {request.option.label}
+                </Checkbox>
+            )}
         </Dialog>
     );
 }

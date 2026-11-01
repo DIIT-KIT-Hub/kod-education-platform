@@ -6,9 +6,9 @@ import type { UserLookupItem } from "@/shared/api/schema";
 import { Avatar } from "@/shared/ui/Avatar";
 import { Icon } from "@/shared/ui/Icon";
 import { SearchInput } from "@/shared/ui/SearchInput";
-import { Spinner } from "@/shared/ui/Spinner";
 import { peopleQuery } from "@/features/chats/api";
 import { shortName } from "@/features/chats/display";
+import { SkeletonList } from "@/shared/ui/Skeleton";
 import styles from "./chats.module.css";
 
 /**
@@ -75,7 +75,7 @@ export function PeoplePicker({ selected, onChange, exclude = [], single }: Peopl
             {term.length < 2 ? (
                 <p className={styles.pickerHint}>{t`Введіть щонайменше два символи.`}</p>
             ) : isFetching && !data ? (
-                <Spinner block />
+                <SkeletonList rows={4} />
             ) : results.length === 0 ? (
                 <p className={styles.pickerHint}>{t`Нікого не знайдено.`}</p>
             ) : (

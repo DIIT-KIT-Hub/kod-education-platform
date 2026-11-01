@@ -108,5 +108,6 @@
   "Чат не знайдено.": "Chat not found.",
   "Сповіщення не знайдено.": "Notification not found.",
   "Звернення можна призначити лише тому, хто опрацьовує звернення.": "A request can be assigned only to someone who handles requests.",
-  "Файли типу «{0}» не можна додати до звернення.": "Files of type “{0}” cannot be attached to a request."
+  "Файли типу «{0}» не можна додати до звернення.": "Files of type “{0}” cannot be attached to a request.",
+  "Видалити груповий чат для всіх може лише його власник.": "Only the owner of a group chat can delete it for everyone."
 }

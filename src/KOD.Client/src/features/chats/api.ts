@@ -120,8 +120,10 @@ export function mergeMessages(thread: ChatThread, incoming: readonly ChatMessage
             (m) => m.id === message.id || (message.clientId !== null && m.clientId === message.clientId && (m.pending || message.pending)),
         );
         if (index >= 0) {
-            // A late echo of a message must not bring back its pending state.
-            if (!(message.pending && !messages[index]?.pending)) {
+            // A late echo of a message must not bring back its pending state, and a message the user hid stays hidden
+            // when the others change it.
+            const current = messages[index];
+            if (!(message.pending && !current?.pending) && !(current?.isHidden && !message.isHidden)) {
                 messages[index] = message;
             }
         } else {
@@ -347,6 +349,20 @@ export const chatApi = {
         unwrap(api.DELETE("/api/v1/chats/{id}/members/{userId}", { params: { path: { id: chatId, userId } } })),
 
     /**
+     * Clears the history for the current user only; a one-to-one chat leaves their list until a new message.
+     * @param chatId The chat.
+     * @returns Resolves when cleared.
+     */
+    clearHistory: (chatId: string) => unwrap(api.POST("/api/v1/chats/{id}/clear", { params: { path: { id: chatId } } })),
+
+    /**
+     * Deletes the chat for all its members with its messages and files.
+     * @param chatId The chat.
+     * @returns Resolves when deleted.
+     */
+    deleteChat: (chatId: string) => unwrap(api.DELETE("/api/v1/chats/{id}", { params: { path: { id: chatId } } })),
+
+    /**
      * Sends a message.
      * @param chatId The chat.
      * @param clientId The identifier of the message in this page (a resend lands once).
@@ -375,13 +391,22 @@ export const chatApi = {
         unwrap(api.PUT("/api/v1/chats/{id}/messages/{messageId}", { params: { path: { id: chatId, messageId } }, body: { body } })),
 
     /**
-     * Deletes a message.
+     * Deletes the user's own message for everyone.
      * @param chatId The chat.
      * @param messageId The message.
      * @returns Resolves when deleted.
      */
     remove: (chatId: string, messageId: string) =>
         unwrap(api.DELETE("/api/v1/chats/{id}/messages/{messageId}", { params: { path: { id: chatId, messageId } } })),
+
+    /**
+     * Deletes a message for the current user only.
+     * @param chatId The chat.
+     * @param messageId The message.
+     * @returns The empty placeholder the user sees now.
+     */
+    hide: (chatId: string, messageId: string) =>
+        unwrap(api.POST("/api/v1/chats/{id}/messages/{messageId}/hide", { params: { path: { id: chatId, messageId } } })),
 
     /**
      * Sets or removes a reaction.

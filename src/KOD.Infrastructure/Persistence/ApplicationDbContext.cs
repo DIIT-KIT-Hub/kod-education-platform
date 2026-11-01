@@ -89,6 +89,9 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
     public DbSet<ChatReaction> ChatReactions => Set<ChatReaction>();
 
     /// <inheritdoc />
+    public DbSet<HiddenChatMessage> HiddenChatMessages => Set<HiddenChatMessage>();
+
+    /// <inheritdoc />
     public DbSet<Ticket> Tickets => Set<Ticket>();
 
     /// <inheritdoc />
