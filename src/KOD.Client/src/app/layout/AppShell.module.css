@@ -211,11 +211,15 @@
     transform: rotate(180deg);
 }
 
-/* The entries slide open: the row grows from 0 to the height of its content. */
+/*
+ * The entries slide open: the row grows from 0 to the height of its content. The folding box has no vertical padding
+ * (it would keep the row from reaching 0 and jump when switched), so the spacing sits on the list inside it.
+ */
 .groupBody {
+    --_fold: 300ms var(--ds-ease-in-out);
     display: grid;
     grid-template-rows: 0fr;
-    transition: grid-template-rows 280ms var(--ds-ease-in-out);
+    transition: grid-template-rows var(--_fold);
 }
 
 .navGroup[data-open] .groupBody {
@@ -223,20 +227,23 @@
 }
 
 .groupItems {
-    display: grid;
-    gap: 0.25rem;
     min-height: 0;
     margin-left: 1.65rem;
-    padding: 0 0 0 var(--ds-space-2);
+    padding-left: var(--ds-space-2);
     border-left: 1px solid var(--ds-color-border);
     overflow: hidden;
     opacity: 0;
-    transition: opacity var(--ds-duration-base) var(--ds-ease-out);
+    transition: opacity var(--_fold);
 }
 
 .navGroup[data-open] .groupItems {
-    padding-block: 0.25rem;
     opacity: 1;
+}
+
+.groupList {
+    display: grid;
+    gap: 0.25rem;
+    padding-block: 0.25rem;
 }
 
 .groupItems .navLink.active {
@@ -416,6 +423,25 @@
         transition: padding var(--_sidebar-transition);
     }
 
+    /*
+     * A section opening on a short screen makes the menu scroll: the room of the scroll bar is kept from the start
+     * (a thin bar), so the entries do not jump sideways halfway through the animation.
+     */
+    :global(:root:not([data-sidebar="collapsed"])) .sidebar {
+        padding-right: calc(var(--ds-space-4) - 6px);
+        scrollbar-gutter: stable;
+    }
+    .sidebar::-webkit-scrollbar {
+        width: 6px;
+    }
+    .sidebar::-webkit-scrollbar-thumb {
+        border-radius: 3px;
+        background: var(--ds-color-border-strong);
+    }
+    .sidebar::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
     .sidebar .brand {
         padding: 0 var(--ds-space-2);
         transition: padding var(--_sidebar-transition);
@@ -523,6 +549,9 @@
         padding: 0;
         border: 0;
         opacity: 1;
+    }
+    :global([data-sidebar="collapsed"]) .sidebar .groupList {
+        padding: 0;
     }
     :global([data-sidebar="collapsed"]) .sidebar .userCard {
         justify-content: center;

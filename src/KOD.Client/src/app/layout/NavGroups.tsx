@@ -89,15 +89,18 @@ export function NavGroups({ groups, counts, rail, onNavigate, onHint }: NavGroup
                 </button>
                 {/* A folded section keeps its links out of the tab order (on the rail every entry stays reachable). */}
                 <div id={bodyId} className={styles.groupBody} role="group" aria-label={text} inert={!expanded && !rail}>
+                    {/* The outer box folds to nothing; the spacing lives inside, so it slides with the entries. */}
                     <div className={styles.groupItems}>
-                        <NavLinks
-                            items={group.items}
-                            linkClassName={styles.navLink}
-                            activeClassName={styles.active}
-                            counts={counts}
-                            onNavigate={onNavigate}
-                            onHint={onHint}
-                        />
+                        <div className={styles.groupList}>
+                            <NavLinks
+                                items={group.items}
+                                linkClassName={styles.navLink}
+                                activeClassName={styles.active}
+                                counts={counts}
+                                onNavigate={onNavigate}
+                                onHint={onHint}
+                            />
+                        </div>
                     </div>
                 </div>
             </div>
