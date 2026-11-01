@@ -1,6 +1,8 @@
 /* align-content: start keeps the control its own height when a neighbour in the form row is taller (e.g. has a hint). */
+/* The column never grows past the field: a select with a long value shortens its text instead of spilling over. */
 .field {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: var(--ds-space-2);
     min-width: 0;
     align-content: start;

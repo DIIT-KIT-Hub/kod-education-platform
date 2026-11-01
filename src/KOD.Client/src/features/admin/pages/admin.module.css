@@ -139,18 +139,65 @@
     gap: var(--ds-space-3);
 }
 
+/*
+ * A position: the unit over the role and the title, the main-position switch and the remove button below. In a wide
+ * card (the card is a size container) everything fits in one row, the switch and the button centred on the controls.
+ */
 .position {
     display: grid;
-    gap: var(--ds-space-3);
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-areas:
+        "unit unit"
+        "role title"
+        "primary remove";
+    gap: var(--ds-space-3) var(--ds-space-4);
+    align-items: end;
     padding: var(--ds-space-4);
     border-radius: var(--ds-radius-md);
     background: var(--ds-color-surface-2);
     animation: var(--ds-anim-scale-in);
 }
-@media (min-width: 1024px) {
+
+.positionUnit {
+    grid-area: unit;
+}
+.positionRole {
+    grid-area: role;
+}
+.positionTitle {
+    grid-area: title;
+}
+.positionPrimary {
+    grid-area: primary;
+    display: flex;
+    align-items: center;
+    min-height: var(--ds-control-height);
+}
+.positionRemove {
+    grid-area: remove;
+    justify-self: end;
+    align-self: center;
+}
+
+@container (min-width: 52rem) {
     .position {
-        grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1fr) auto auto;
-        align-items: end;
+        grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) minmax(0, 1fr) auto auto;
+        grid-template-areas: "unit role title primary remove";
+    }
+    .positionRemove {
+        align-self: end;
+        margin-bottom: calc((var(--ds-control-height) - var(--ds-control-height-sm)) / 2);
+    }
+}
+
+@container (max-width: 30rem) {
+    .position {
+        grid-template-columns: minmax(0, 1fr) auto;
+        grid-template-areas:
+            "unit unit"
+            "role role"
+            "title title"
+            "primary remove";
     }
 }
 
@@ -164,10 +211,6 @@
     padding: var(--ds-space-4);
     border: 1px dashed var(--ds-color-border);
     border-radius: var(--ds-radius-md);
-}
-
-.primaryCheck {
-    padding-bottom: var(--ds-space-3);
 }
 
 /* Icon picker ---------------------------------------------------------------------------------------------------- */
