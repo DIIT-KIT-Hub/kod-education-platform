@@ -3,10 +3,12 @@ using KOD.Application.Common.Access;
 using KOD.Application.Common.Errors;
 using KOD.Application.Common.Models;
 using KOD.Application.Common.Results;
+using KOD.Application.Features.Notifications;
 using KOD.Domain.Access;
 using KOD.Domain.Audit;
 using KOD.Domain.Localization;
 using KOD.Domain.News;
+using KOD.Domain.Notifications;
 using Microsoft.EntityFrameworkCore;
 
 namespace KOD.Application.Features.News.Discussion;
@@ -19,6 +21,7 @@ namespace KOD.Application.Features.News.Discussion;
 /// <param name="accessScope">The data access rules of the current user.</param>
 /// <param name="events">Notifies open article pages.</param>
 /// <param name="audit">The audit logger.</param>
+/// <param name="notifier">Tells the authors of comments about the replies.</param>
 /// <param name="timeProvider">The clock.</param>
 internal sealed class NewsDiscussionService(
     IApplicationDbContext db,
@@ -26,6 +29,7 @@ internal sealed class NewsDiscussionService(
     IAccessScope accessScope,
     INewsDiscussionEvents events,
     IAuditLogger audit,
+    INotifier notifier,
     TimeProvider timeProvider) : INewsDiscussionService
 {
     /// <inheritdoc />
@@ -199,7 +203,7 @@ internal sealed class NewsDiscussionService(
             }
         }
 
-        return await DomainErrors.GuardAsync<Guid>(async () =>
+        var result = await DomainErrors.GuardAsync<Guid>(async () =>
         {
             var comment = new NewsComment(articleId, me, parent, body);
             db.NewsComments.Add(comment);
@@ -207,6 +211,16 @@ internal sealed class NewsDiscussionService(
             events.Publish(articleId);
             return comment.Id;
         });
+
+        // The author of the comment answered hears about the reply.
+        if (result.IsSuccess && parent is { IsDeleted: false } && parent.AuthorId != me)
+        {
+            var article = await db.NewsArticles.Where(a => a.Id == articleId).Select(static a => new { a.Title, a.Slug }).FirstAsync(cancellationToken);
+            var draft = new NotificationDraft(NotificationKind.NewsReply, me, articleId, article.Title, body, $"/news/{article.Slug}#comment-{result.Value}");
+            await notifier.NotifyAsync(draft, [parent.AuthorId], cancellationToken);
+        }
+
+        return result;
     }
 
     /// <inheritdoc />

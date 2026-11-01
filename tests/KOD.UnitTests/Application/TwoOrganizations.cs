@@ -1,11 +1,14 @@
 using KOD.Application.Abstractions;
 using KOD.Application.Common.Access;
+using KOD.Application.Common.Files;
 using KOD.Application.Common.Results;
 using KOD.Application.Features.Chats;
 using KOD.Application.Features.Media;
 using KOD.Application.Features.News;
 using KOD.Application.Features.News.Discussion;
+using KOD.Application.Features.Notifications;
 using KOD.Application.Features.Organization;
+using KOD.Application.Features.Tickets;
 using KOD.Application.Features.Users;
 using KOD.Domain.Access;
 using KOD.Domain.Media;
@@ -16,6 +19,7 @@ using KOD.Infrastructure.Persistence;
 using KOD.Infrastructure.Text;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace KOD.UnitTests.Application;
 
@@ -49,6 +53,7 @@ internal sealed class TwoOrganizations : IDisposable
         Employee = Role(SystemRoles.Employee, Permissions.Documents.View, Permissions.News.View, Permissions.Chats.Use);
         Steward = Role("steward", Permissions.Structure.View, Permissions.Structure.Manage, Permissions.News.View, Permissions.News.Manage, Permissions.Documents.View);
         Administrator = Role(SystemRoles.Administrator);
+        HelpDesk = Role("help-desk", Permissions.Tickets.Manage, Permissions.Documents.View);
 
         // The HR specialist of A is also an ordinary employee of B: users.* must apply only in A.
         HrA = Person("hr.a@example.com", (AHr, Hr, true), (BProj, Employee, false));
@@ -58,6 +63,7 @@ internal sealed class TwoOrganizations : IDisposable
         Shared = Person("shared@example.com", (AHr, Employee, false), (BProj, Employee, true));
         StewardA = Person("steward.a@example.com", (AHr, Steward, true));
         Admin = Person("admin@example.com", (A, Administrator, true));
+        HelpDeskB = Person("help.b@example.com", (BProj, HelpDesk, true));
         Db.SaveChanges();
     }
 
@@ -100,6 +106,9 @@ internal sealed class TwoOrganizations : IDisposable
     /// <summary>Gets the system administrator role.</summary>
     public Role Administrator { get; }
 
+    /// <summary>Gets a role that handles requests.</summary>
+    public Role HelpDesk { get; }
+
     /// <summary>Gets the HR specialist of A (also an employee of B).</summary>
     public User HrA { get; }
 
@@ -121,6 +130,9 @@ internal sealed class TwoOrganizations : IDisposable
     /// <summary>Gets the system administrator.</summary>
     public User Admin { get; }
 
+    /// <summary>Gets the person who handles requests (in B).</summary>
+    public User HelpDeskB { get; }
+
     /// <summary>Gets the image storage shared by the services.</summary>
     public MemoryMediaStorage Storage { get; } = new();
 
@@ -133,6 +145,11 @@ internal sealed class TwoOrganizations : IDisposable
     /// Gets the chat changes sent to the members' pages.
     /// </summary>
     public RecordedChatEvents ChatEvents { get; } = new();
+
+    /// <summary>
+    /// Gets the notifications sent to the recipients' pages.
+    /// </summary>
+    public RecordedNotificationEvents NotificationEvents { get; } = new();
 
     /// <summary>Gets or sets the rows the fake spreadsheet returns.</summary>
     public IReadOnlyList<UserSheetRow> SheetRows { get; set; } = [];
@@ -152,14 +169,18 @@ internal sealed class TwoOrganizations : IDisposable
         var scope = new AccessScope(Db, currentUser);
         var audit = new FakeAudit();
         var media = new MediaLibrary(Db, new FakeImageProcessor(), Storage);
+        var notifier = new Notifier(Db, NotificationEvents, TimeProvider.System, NullLogger<Notifier>.Instance);
+        var attachments = new AttachmentStore(new FakeImageProcessor(), Files);
         return new Services(
             scope,
             new UserService(Db, currentUser, new FakeIdentity(Db), new PermissionResolver(Db), scope, new FakeSpreadsheet(this), audit, TimeProvider.System),
             new OrganizationService(Db, currentUser, scope, audit),
             new NewsService(Db, currentUser, scope, new FakeMarkdown(), new RichTextSanitizer(), media, audit, TimeProvider.System),
-            new NewsDiscussionService(Db, currentUser, scope, new SilentDiscussionEvents(), audit, TimeProvider.System),
+            new NewsDiscussionService(Db, currentUser, scope, new SilentDiscussionEvents(), audit, notifier, TimeProvider.System),
             new MediaService(currentUser, media),
-            new ChatService(Db, currentUser, new RichTextSanitizer(), new FakeImageProcessor(), Files, ChatEvents, TimeProvider.System));
+            new ChatService(Db, currentUser, new RichTextSanitizer(), attachments, Files, ChatEvents, notifier, TimeProvider.System),
+            new TicketService(Db, currentUser, attachments, Files, notifier, TimeProvider.System),
+            new NotificationService(Db, currentUser, NotificationEvents, TimeProvider.System));
     }
 
     /// <summary>
@@ -230,6 +251,8 @@ internal sealed class TwoOrganizations : IDisposable
     /// <param name="Discussion">The news discussion service.</param>
     /// <param name="Media">The image upload service.</param>
     /// <param name="Chats">The chat service.</param>
+    /// <param name="Tickets">The request service.</param>
+    /// <param name="Notifications">The notification service.</param>
     internal sealed record Services(
         IAccessScope Scope,
         IUserService Users,
@@ -237,7 +260,9 @@ internal sealed class TwoOrganizations : IDisposable
         INewsService News,
         INewsDiscussionService Discussion,
         IMediaService Media,
-        IChatService Chats);
+        IChatService Chats,
+        ITicketService Tickets,
+        INotificationService Notifications);
 
     /// <summary>
     /// An in-memory image storage.
@@ -330,6 +355,28 @@ internal sealed class TwoOrganizations : IDisposable
         public void Read(IReadOnlyCollection<Guid> recipients, Guid chatId, Guid userId, long sequence)
         {
         }
+    }
+
+    /// <summary>
+    /// Records the notifications sent to the recipients' pages.
+    /// </summary>
+    internal sealed class RecordedNotificationEvents : INotificationEvents
+    {
+        /// <summary>
+        /// Gets the delivered notifications with their recipients and unread counts.
+        /// </summary>
+        public List<(Guid UserId, NotificationDto Notification, int UnreadCount)> Received { get; } = [];
+
+        /// <summary>
+        /// Gets the unread counts sent after reading or deleting.
+        /// </summary>
+        public List<(Guid UserId, int UnreadCount)> Changed { get; } = [];
+
+        /// <inheritdoc />
+        void INotificationEvents.Received(Guid userId, NotificationDto notification, int unreadCount) => Received.Add((userId, notification, unreadCount));
+
+        /// <inheritdoc />
+        void INotificationEvents.Changed(Guid userId, int unreadCount) => Changed.Add((userId, unreadCount));
     }
 
     /// <summary>

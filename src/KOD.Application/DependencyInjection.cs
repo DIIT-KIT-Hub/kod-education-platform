@@ -1,4 +1,5 @@
 using KOD.Application.Common.Access;
+using KOD.Application.Common.Files;
 using KOD.Application.Features.Audit;
 using KOD.Application.Features.Chats;
 using KOD.Application.Features.Dashboard;
@@ -6,10 +7,12 @@ using KOD.Application.Features.Documents;
 using KOD.Application.Features.Media;
 using KOD.Application.Features.News;
 using KOD.Application.Features.News.Discussion;
+using KOD.Application.Features.Notifications;
 using KOD.Application.Features.Organization;
 using KOD.Application.Features.Profile;
 using KOD.Application.Features.Roles;
 using KOD.Application.Features.Signing;
+using KOD.Application.Features.Tickets;
 using KOD.Application.Features.Users;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -36,7 +39,11 @@ public static class DependencyInjection
             services.AddScoped<IDocumentService, DocumentService>();
             services.AddScoped<INewsService, NewsService>();
             services.AddScoped<INewsDiscussionService, NewsDiscussionService>();
+            services.AddScoped<AttachmentStore>();
+            services.AddScoped<INotifier, Notifier>();
+            services.AddScoped<INotificationService, NotificationService>();
             services.AddScoped<IChatService, ChatService>();
+            services.AddScoped<ITicketService, TicketService>();
             services.AddScoped<MediaLibrary>();
             services.AddScoped<IMediaService, MediaService>();
             services.AddScoped<IOrganizationService, OrganizationService>();

@@ -97,6 +97,12 @@
 .navLink {
     position: relative;
     display: flex;
+    width: 100%;
+    border: 0;
+    background: none;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
     align-items: center;
     gap: var(--ds-space-3);
     min-height: 3rem;
@@ -147,6 +153,94 @@
 .active .count {
     background: var(--ds-color-on-primary);
     color: var(--ds-color-primary);
+}
+
+.navLink:focus-visible,
+.groupHeader:focus-visible {
+    outline: 2px solid var(--ds-color-focus);
+    outline-offset: -2px;
+}
+
+/* Sections of the menu: an accordion, one section open at a time. */
+.navGroup {
+    display: grid;
+}
+
+.groupHeader {
+    display: flex;
+    align-items: center;
+    gap: var(--ds-space-3);
+    width: 100%;
+    min-height: 2.75rem;
+    padding: 0 var(--ds-space-4);
+    border: 0;
+    border-radius: var(--ds-radius-pill);
+    background: none;
+    color: var(--ds-color-text-muted);
+    font: inherit;
+    font-weight: 700;
+    text-align: left;
+    cursor: pointer;
+    transition:
+        background-color var(--ds-duration-base) var(--ds-ease-out),
+        color var(--ds-duration-base) var(--ds-ease-out);
+}
+
+.groupHeader:hover,
+.groupHeader[data-current] {
+    color: var(--ds-color-text);
+}
+
+.groupHeader:hover {
+    background: var(--ds-color-surface-3);
+}
+
+.chevron {
+    flex: none;
+    width: 1rem;
+    height: 1rem;
+    margin-left: auto;
+    transition: transform var(--ds-duration-base) var(--ds-ease-out);
+}
+
+.groupHeader .count + .chevron {
+    margin-left: 0;
+}
+
+.navGroup[data-open] .chevron {
+    transform: rotate(180deg);
+}
+
+/* The entries slide open: the row grows from 0 to the height of its content. */
+.groupBody {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 280ms var(--ds-ease-in-out);
+}
+
+.navGroup[data-open] .groupBody {
+    grid-template-rows: 1fr;
+}
+
+.groupItems {
+    display: grid;
+    gap: 0.25rem;
+    min-height: 0;
+    margin-left: 1.65rem;
+    padding: 0 0 0 var(--ds-space-2);
+    border-left: 1px solid var(--ds-color-border);
+    overflow: hidden;
+    opacity: 0;
+    transition: opacity var(--ds-duration-base) var(--ds-ease-out);
+}
+
+.navGroup[data-open] .groupItems {
+    padding-block: 0.25rem;
+    opacity: 1;
+}
+
+.groupItems .navLink.active {
+    box-shadow: none;
 }
 
 /* Drawer (popover) */
@@ -411,6 +505,24 @@
         justify-content: center;
         gap: 0;
         padding: 0;
+    }
+
+    /* On the rail every entry shows; a line divides the sections instead of their headings. */
+    :global([data-sidebar="collapsed"]) .sidebar .groupHeader {
+        display: none;
+    }
+    :global([data-sidebar="collapsed"]) .sidebar .navGroup {
+        padding-top: 0.25rem;
+        border-top: 1px solid var(--ds-color-border);
+    }
+    :global([data-sidebar="collapsed"]) .sidebar .groupBody {
+        grid-template-rows: 1fr;
+    }
+    :global([data-sidebar="collapsed"]) .sidebar .groupItems {
+        margin: 0;
+        padding: 0;
+        border: 0;
+        opacity: 1;
     }
     :global([data-sidebar="collapsed"]) .sidebar .userCard {
         justify-content: center;

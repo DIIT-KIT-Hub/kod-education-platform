@@ -4,7 +4,9 @@ import {
     CircleHelp,
     FileText,
     House,
+    Bell,
     KeyRound,
+    LifeBuoy,
     MessagesSquare,
     Network,
     Newspaper,
@@ -195,6 +197,34 @@ export const helpChapters: readonly HelpChapter[] = [
         ],
     },
     {
+        id: "requests",
+        title: msg({ message: "Звернення", context: "help" }),
+        icon: LifeBuoy,
+        summary: msg({
+            message: "Повідомлення про помилки, пропозиції та запитання до тих, хто опікується кабінетом, і листування з ними.",
+            context: "help",
+        }),
+        permissions: [],
+        topics: [
+            { id: "requests-new", title: msg({ message: "Нове звернення", context: "help" }), permissions: [] },
+            { id: "requests-follow", title: msg({ message: "Відповіді, стани та закриття", context: "help" }), permissions: [] },
+        ],
+    },
+    {
+        id: "notifications",
+        title: msg({ message: "Сповіщення", context: "help" }),
+        icon: Bell,
+        summary: msg({
+            message: "Дзвіночок з лічильником: відповіді на коментарі, документи на підпис, нові повідомлення й відповіді у зверненнях.",
+            context: "help",
+        }),
+        permissions: [],
+        topics: [
+            { id: "notifications-kinds", title: msg({ message: "Про що приходять сповіщення", context: "help" }), permissions: [] },
+            { id: "notifications-panel", title: msg({ message: "Панель і сторінка сповіщень", context: "help" }), permissions: [] },
+        ],
+    },
+    {
         id: "structure",
         title: msg({ message: "Структура", context: "help" }),
         icon: Network,
@@ -247,8 +277,8 @@ export const helpChapters: readonly HelpChapter[] = [
         id: "admin",
         title: msg({ message: "Адміністрування", context: "help" }),
         icon: Shield,
-        summary: msg({ message: "Користувачі, імпорт та експорт, ролі й дозволи, структура, журнал аудиту.", context: "help" }),
-        permissions: ["users.view", "roles.manage", "structure.manage", "news.manage", "audit.view"],
+        summary: msg({ message: "Користувачі, імпорт та експорт, ролі й дозволи, структура, звернення, журнал аудиту.", context: "help" }),
+        permissions: ["users.view", "roles.manage", "structure.manage", "news.manage", "audit.view", "tickets.manage"],
         topics: [
             { id: "admin-overview", title: msg({ message: "Панель адміністрування", context: "help" }), permissions: [] },
             {
@@ -276,6 +306,7 @@ export const helpChapters: readonly HelpChapter[] = [
             { id: "admin-import", title: msg({ message: "Імпорт користувачів", context: "help" }), permissions: ["users.import"] },
             { id: "admin-export", title: msg({ message: "Експорт користувачів", context: "help" }), permissions: ["users.export"] },
             { id: "admin-roles", title: msg({ message: "Ролі та матриця дозволів", context: "help" }), permissions: ["roles.manage"] },
+            { id: "admin-requests", title: msg({ message: "Опрацювання звернень", context: "help" }), permissions: ["tickets.manage"] },
             { id: "admin-audit", title: msg({ message: "Журнал аудиту", context: "help" }), permissions: ["audit.view"] },
             { id: "admin-hierarchy", title: msg({ message: "Межі повноважень адміністраторів", context: "help" }), permissions: [] },
         ],

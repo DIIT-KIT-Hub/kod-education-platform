@@ -117,5 +117,14 @@
   "Напишіть повідомлення або додайте файл.": "Write a message or attach a file.",
   "Повідомлення задовге: не більше {0} символів.": "The message is too long: at most {0} characters.",
   "Це повідомлення не можна видалити.": "This message cannot be deleted.",
-  "Це повідомлення не можна змінити.": "This message cannot be edited."
+  "Це повідомлення не можна змінити.": "This message cannot be edited.",
+  "Тема": "Subject",
+  "Оберіть категорію та пріоритет звернення.": "Choose the category and the priority of the request.",
+  "Невідомий стан звернення.": "Unknown request state.",
+  "Змінювати стан звернення можуть лише ті, хто опрацьовує звернення.": "Only the people who handle requests can change the state of a request.",
+  "Звернення вже має цей стан.": "The request already has this state.",
+  "Звернення не знайдено.": "Request not found.",
+  "Звернення закрито: відповісти на нього не можна.": "The request is closed: it cannot be answered.",
+  "Опрацювання звернень": "Handling requests",
+  "Перегляд усіх звернень користувачів (помилки, пропозиції, запитання), відповіді, призначення виконавців і зміна стану; сповіщення про нові звернення.": "View the requests of all users (bugs, suggestions, questions), answer them, assign handlers and change their state; notifications about new requests."
 }

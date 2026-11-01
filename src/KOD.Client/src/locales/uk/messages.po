@@ -233,6 +233,8 @@ msgstr "Автентифікація"
 #: src/features/documents/pages/DocumentPage.tsx
 #: src/features/documents/pages/DocumentsPage.tsx
 #: src/features/news/pages/NewsManagePage.tsx
+#: src/features/tickets/pages/TicketPage.tsx
+#: src/features/tickets/pages/TicketsAdminPage.tsx
 msgid "Автор"
 msgstr "Автор"
 
@@ -256,6 +258,8 @@ msgstr "Автор публікації"
 #: src/features/admin/pages/UserEditorPage.tsx
 #: src/features/admin/pages/UsersImportPage.tsx
 #: src/features/admin/pages/UsersPage.tsx
+#: src/features/tickets/pages/TicketPage.tsx
+#: src/features/tickets/pages/TicketsAdminPage.tsx
 #: src/shared/i18n/display.ts
 msgid "Адміністрування"
 msgstr "Адміністрування"
@@ -381,6 +385,14 @@ msgstr "В архів"
 msgid "В архіві"
 msgstr "В архіві"
 
+#: src/shared/i18n/display.ts
+msgid "В роботі"
+msgstr "В роботі"
+
+#: src/features/notifications/display.ts
+msgid "Вам призначено звернення"
+msgstr "Вам призначено звернення"
+
 #: src/features/documents/pages/DocumentsPage.tsx
 msgid "Ваш підпис"
 msgstr "Ваш підпис"
@@ -412,6 +424,10 @@ msgstr "Введіть щонайменше два символи."
 #: src/features/documents/pages/DocumentPage.tsx
 msgid "Версія після цього підпису"
 msgstr "Версія після цього підпису"
+
+#: src/features/tickets/pages/TicketPage.tsx
+msgid "Взяти собі"
+msgstr "Взяти собі"
 
 #: src/features/chats/components/MembersDialog.tsx
 msgid "Ви"
@@ -468,6 +484,7 @@ msgstr "Видалення типу підрозділу"
 #: src/features/documents/pages/DocumentPage.tsx
 #: src/features/news/components/Discussion.tsx
 #: src/features/news/pages/NewsEditorPage.tsx
+#: src/features/notifications/pages/NotificationsPage.tsx
 msgid "Видалити"
 msgstr "Видалити"
 
@@ -483,6 +500,14 @@ msgstr "Видалити коментар?"
 msgid "Видалити повідомлення?"
 msgstr "Видалити повідомлення?"
 
+#: src/features/notifications/pages/NotificationsPage.tsx
+msgid "Видалити прочитані"
+msgstr "Видалити прочитані"
+
+#: src/features/notifications/pages/NotificationsPage.tsx
+msgid "Видалити прочитані сповіщення?"
+msgstr "Видалити прочитані сповіщення?"
+
 #: src/features/news/pages/NewsEditorPage.tsx
 msgid "Видалити публікацію остаточно?"
 msgstr "Видалити публікацію остаточно?"
@@ -494,6 +519,10 @@ msgstr "Видалити роль"
 #: src/features/admin/pages/RoleEditorPage.tsx
 msgid "Видалити роль?"
 msgstr "Видалити роль?"
+
+#: src/features/notifications/components/NotificationItem.tsx
+msgid "Видалити сповіщення"
+msgstr "Видалити сповіщення"
 
 #: src/features/news/components/RichTextEditor.tsx
 msgid "Видалити таблицю"
@@ -545,6 +574,20 @@ msgstr "Вийти на всіх інших пристроях?"
 msgid "Вийти на інших пристроях"
 msgstr "Вийти на інших пристроях"
 
+#: src/features/tickets/pages/TicketPage.tsx
+#: src/features/tickets/pages/TicketsAdminPage.tsx
+msgid "Виконавець"
+msgstr "Виконавець"
+
+#. placeholder {0}: message.body
+#: src/features/tickets/components/TicketThread.tsx
+msgid "Виконавець: {0}"
+msgstr "Виконавець: {0}"
+
+#: src/features/tickets/components/TicketThread.tsx
+msgid "Виконавця знято"
+msgstr "Виконавця знято"
+
 #: src/features/auth/pages/RecoveryPage.tsx
 msgid "Використайте один із резервних кодів, отриманих під час підключення автентифікатора. Кожен код діє лише один раз."
 msgstr "Використайте один із резервних кодів, отриманих під час підключення автентифікатора. Кожен код діє лише один раз."
@@ -565,6 +608,14 @@ msgstr "Виправте його та надішліть на підпис по
 #: src/features/admin/pages/UsersImportPage.tsx
 msgid "Виправте файл і перевірте його ще раз — імпорт можливий лише без помилок."
 msgstr "Виправте файл і перевірте його ще раз — імпорт можливий лише без помилок."
+
+#: src/shared/i18n/display.ts
+msgid "Вирішено"
+msgstr "Вирішено"
+
+#: src/shared/i18n/display.ts
+msgid "Високий"
+msgstr "Високий"
 
 #: src/shared/i18n/display.ts
 msgctxt "audit"
@@ -603,8 +654,13 @@ msgstr "Відкрити"
 
 #. placeholder {0}: photo.fileName
 #: src/features/chats/components/Attachments.tsx
+#: src/features/tickets/components/TicketAttachments.tsx
 msgid "Відкрити фото {0}"
 msgstr "Відкрити фото {0}"
+
+#: src/features/tickets/pages/TicketsAdminPage.tsx
+msgid "Відкриті"
+msgstr "Відкриті"
 
 #: src/features/documents/pages/DocumentPage.tsx
 msgid "Відмова в підписанні"
@@ -633,6 +689,7 @@ msgid "Відмову зафіксовано"
 msgstr "Відмову зафіксовано"
 
 #: src/features/documents/pages/DocumentPage.tsx
+#: src/features/tickets/pages/TicketPage.tsx
 msgid "Відомості"
 msgstr "Відомості"
 
@@ -640,10 +697,27 @@ msgstr "Відомості"
 msgid "відповідей: {replyCount}"
 msgstr "відповідей: {replyCount}"
 
+#: src/features/notifications/pages/NotificationsPage.tsx
+msgid "Відповіді на ваші коментарі, документи на підпис, нові повідомлення й відповіді у зверненнях."
+msgstr "Відповіді на ваші коментарі, документи на підпис, нові повідомлення й відповіді у зверненнях."
+
 #: src/features/help/contents.ts
 msgctxt "help"
 msgid "Відповіді на часті запитання та що робити, коли щось не працює."
 msgstr "Відповіді на часті запитання та що робити, коли щось не працює."
+
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Відповіді, стани та закриття"
+msgstr "Відповіді, стани та закриття"
+
+#: src/features/tickets/pages/TicketPage.tsx
+msgid "Відповідь автору звернення…"
+msgstr "Відповідь автору звернення…"
+
+#: src/features/notifications/display.ts
+msgid "Відповідь на ваш коментар"
+msgstr "Відповідь на ваш коментар"
 
 #: src/features/news/components/Discussion.tsx
 msgid "Відповідь на коментар"
@@ -725,6 +799,10 @@ msgstr "Вкажіть причину відмови."
 msgid "Вкажіть прізвище."
 msgstr "Вкажіть прізвище."
 
+#: src/features/tickets/pages/NewTicketPage.tsx
+msgid "Вкажіть тему."
+msgstr "Вкажіть тему."
+
 #: src/features/admin/pages/UnitEditorPage.tsx
 #: src/features/admin/pages/UnitTypeEditorPage.tsx
 msgid "Вкажіть число."
@@ -736,6 +814,7 @@ msgstr "Вкладені підрозділи"
 
 #: src/features/chats/components/Composer.tsx
 #: src/features/chats/display.ts
+#: src/features/tickets/pages/NewTicketPage.tsx
 msgid "Вкладення"
 msgstr "Вкладення"
 
@@ -859,6 +938,11 @@ msgctxt "help"
 msgid "Дерево організацій і підрозділів"
 msgstr "Дерево організацій і підрозділів"
 
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Дзвіночок з лічильником: відповіді на коментарі, документи на підпис, нові повідомлення й відповіді у зверненнях."
+msgstr "Дзвіночок з лічильником: відповіді на коментарі, документи на підпис, нові повідомлення й відповіді у зверненнях."
+
 #: src/features/admin/pages/UserEditorPage.tsx
 msgid "діє зараз"
 msgstr "діє зараз"
@@ -977,6 +1061,10 @@ msgstr "Додайте його"
 msgid "Додайте підписантів у потрібному порядку."
 msgstr "Додайте підписантів у потрібному порядку."
 
+#: src/features/tickets/pages/TicketPage.tsx
+msgid "Додайте подробиці або дайте відповідь…"
+msgstr "Додайте подробиці або дайте відповідь…"
+
 #: src/features/auth/pages/PhotoPage.tsx
 msgid "Додайте фото профілю"
 msgstr "Додайте фото профілю"
@@ -1004,6 +1092,7 @@ msgid "Додати сертифікати вручну (якщо надавач
 msgstr "Додати сертифікати вручну (якщо надавач не підтримує автоматичне завантаження)"
 
 #: src/features/chats/components/Composer.tsx
+#: src/features/tickets/components/FilePicker.tsx
 msgid "Додати файли"
 msgstr "Додати файли"
 
@@ -1051,6 +1140,7 @@ msgstr "Документ відкликано"
 
 #: src/features/documents/pages/DocumentEditorPage.tsx
 #: src/features/documents/pages/DocumentPage.tsx
+#: src/features/notifications/display.ts
 msgid "Документ відхилено"
 msgstr "Документ відхилено"
 
@@ -1086,12 +1176,17 @@ msgid "Документ не можна змінити"
 msgstr "Документ не можна змінити"
 
 #: src/features/documents/pages/DocumentPage.tsx
+#: src/features/notifications/display.ts
 msgid "Документ очікує вашого підпису"
 msgstr "Документ очікує вашого підпису"
 
 #: src/features/documents/pages/DocumentPage.tsx
 msgid "Документ переміщено в архів"
 msgstr "Документ переміщено в архів"
+
+#: src/features/notifications/display.ts
+msgid "Документ підписали всі підписанти"
+msgstr "Документ підписали всі підписанти"
 
 #: src/features/documents/pages/DocumentPage.tsx
 #: src/shared/signing/SigningWizard.tsx
@@ -1145,9 +1240,14 @@ msgstr "Документів не знайдено"
 msgid "Документів, що очікують вашого підпису, немає."
 msgstr "Документів, що очікують вашого підпису, немає."
 
+#: src/app/layout/navigation.ts
 #: src/shared/i18n/display.ts
 msgid "Документообіг"
 msgstr "Документообіг"
+
+#: src/shared/i18n/display.ts
+msgid "Доступ і права"
+msgstr "Доступ і права"
 
 #: src/app/pages/RouteError.tsx
 msgid "Доступ обмежено"
@@ -1185,6 +1285,7 @@ msgstr "Експорт користувачів"
 
 #: src/features/auth/pages/LoginPage.tsx
 #: src/features/profile/pages/ProfilePage.tsx
+#: src/features/tickets/pages/TicketPage.tsx
 msgid "Електронна пошта"
 msgstr "Електронна пошта"
 
@@ -1288,6 +1389,7 @@ msgstr "Завантаження фото… ({left})"
 
 #: src/features/chats/components/Attachments.tsx
 #: src/features/documents/pages/DocumentPage.tsx
+#: src/features/tickets/components/TicketAttachments.tsx
 msgid "Завантажити"
 msgstr "Завантажити"
 
@@ -1340,13 +1442,27 @@ msgid "Закреслений"
 msgstr "Закреслений"
 
 #: src/features/news/components/ArticleBody.tsx
+#: src/features/tickets/pages/TicketPage.tsx
 #: src/shared/ui/Dialog.tsx
 msgid "Закрити"
 msgstr "Закрити"
 
+#: src/features/tickets/pages/TicketPage.tsx
+msgid "Закрити звернення"
+msgstr "Закрити звернення"
+
+#: src/features/tickets/pages/TicketPage.tsx
+msgid "Закрити звернення?"
+msgstr "Закрити звернення?"
+
 #: src/app/layout/AppShell.tsx
 msgid "Закрити меню"
 msgstr "Закрити меню"
+
+#: src/shared/i18n/display.ts
+msgctxt "ticket-status"
+msgid "Закрито"
+msgstr "Закрито"
 
 #: src/features/news/pages/NewsEditorPage.tsx
 msgid "Закріпити зверху"
@@ -1368,6 +1484,10 @@ msgstr "Замінити файл"
 #: src/features/auth/pages/LoginPage.tsx
 msgid "Запам'ятати мене на цьому пристрої"
 msgstr "Запам'ятати мене на цьому пристрої"
+
+#: src/shared/i18n/display.ts
+msgid "Запитання"
+msgstr "Запитання"
 
 #: src/features/help/contents.ts
 msgctxt "help"
@@ -1432,9 +1552,56 @@ msgstr "Зберегти чернетку"
 msgid "Збережіть резервні коди в надійному місці. Вони знадобляться, якщо ви втратите доступ до телефону. Кожен код діє один раз."
 msgstr "Збережіть резервні коди в надійному місці. Вони знадобляться, якщо ви втратите доступ до телефону. Кожен код діє один раз."
 
+#: src/app/layout/navigation.ts
+#: src/features/admin/pages/AdminPage.tsx
+#: src/features/tickets/pages/NewTicketPage.tsx
+#: src/features/tickets/pages/TicketPage.tsx
+#: src/features/tickets/pages/TicketsAdminPage.tsx
+#: src/features/tickets/pages/TicketsPage.tsx
+#: src/shared/i18n/display.ts
+msgid "Звернення"
+msgstr "Звернення"
+
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Звернення"
+msgstr "Звернення"
+
+#: src/features/tickets/pages/TicketPage.tsx
+msgid "Звернення закрито"
+msgstr "Звернення закрито"
+
+#: src/features/tickets/pages/TicketPage.tsx
+msgid "Звернення закрито: відповісти на нього не можна. Якщо питання лишилося, створіть нове звернення."
+msgstr "Звернення закрито: відповісти на нього не можна. Якщо питання лишилося, створіть нове звернення."
+
+#: src/features/tickets/pages/TicketsAdminPage.tsx
+msgid "Звернення користувачів"
+msgstr "Звернення користувачів"
+
+#: src/features/tickets/pages/NewTicketPage.tsx
+msgid "Звернення надіслано"
+msgstr "Звернення надіслано"
+
+#: src/features/tickets/pages/NewTicketPage.tsx
+msgid "Звернення побачать ті, хто опрацьовує звернення. Про відповідь ви дізнаєтеся зі сповіщення."
+msgstr "Звернення побачать ті, хто опрацьовує звернення. Про відповідь ви дізнаєтеся зі сповіщення."
+
+#: src/features/tickets/pages/TicketsAdminPage.tsx
+msgid "Звернень не знайдено"
+msgstr "Звернень не знайдено"
+
+#: src/features/tickets/pages/TicketsPage.tsx
+msgid "Звернень ще немає"
+msgstr "Звернень ще немає"
+
 #: src/features/profile/pages/ProfilePage.tsx
 msgid "Зверніться до відділу кадрів."
 msgstr "Зверніться до відділу кадрів."
+
+#: src/shared/i18n/display.ts
+msgid "Звичайний"
+msgstr "Звичайний"
 
 #: src/features/help/contents.ts
 msgctxt "help"
@@ -1573,6 +1740,15 @@ msgstr "Знайдено тем: {0}"
 msgid "Знайти працівника"
 msgstr "Знайти працівника"
 
+#: src/features/tickets/pages/TicketsPage.tsx
+msgid "Знайшли помилку чи маєте ідею? Створіть звернення — його побачать ті, хто опрацьовує звернення."
+msgstr "Знайшли помилку чи маєте ідею? Створіть звернення — його побачать ті, хто опрацьовує звернення."
+
+#. placeholder {0}: formatFileSize(maxFileSize)
+#: src/features/tickets/components/FilePicker.tsx
+msgid "Знімки екрана, документи, архіви — до {maxFiles} файлів по {0}."
+msgstr "Знімки екрана, документи, архіви — до {maxFiles} файлів по {0}."
+
 #: src/features/news/pages/NewsEditorPage.tsx
 msgid "Зображення не може бути більшим за 15 МБ."
 msgstr "Зображення не може бути більшим за 15 МБ."
@@ -1643,6 +1819,11 @@ msgid "Інтерфейс: меню, тема, сповіщення"
 msgstr "Інтерфейс: меню, тема, сповіщення"
 
 #: src/shared/i18n/display.ts
+msgctxt "ticket-category"
+msgid "Інше"
+msgstr "Інше"
+
+#: src/shared/i18n/display.ts
 msgctxt "document-kind"
 msgid "Інший документ"
 msgstr "Інший документ"
@@ -1690,6 +1871,10 @@ msgstr "Категорії"
 
 #: src/features/admin/pages/AuditPage.tsx
 #: src/features/news/pages/NewsEditorPage.tsx
+#: src/features/tickets/pages/NewTicketPage.tsx
+#: src/features/tickets/pages/TicketPage.tsx
+#: src/features/tickets/pages/TicketsAdminPage.tsx
+#: src/features/tickets/pages/TicketsPage.tsx
 msgid "Категорія"
 msgstr "Категорія"
 
@@ -1845,6 +2030,10 @@ msgstr "Коментарів"
 msgid "Коментарів ще немає. Будьте першими!"
 msgstr "Коментарів ще немає. Будьте першими!"
 
+#: src/app/layout/navigation.ts
+msgid "Комунікації"
+msgstr "Комунікації"
+
 #: src/features/profile/pages/ProfilePage.tsx
 msgid "Контакти"
 msgstr "Контакти"
@@ -1893,8 +2082,8 @@ msgstr "Користувачі"
 
 #: src/features/help/contents.ts
 msgctxt "help"
-msgid "Користувачі, імпорт та експорт, ролі й дозволи, структура, журнал аудиту."
-msgstr "Користувачі, імпорт та експорт, ролі й дозволи, структура, журнал аудиту."
+msgid "Користувачі, імпорт та експорт, ролі й дозволи, структура, звернення, журнал аудиту."
+msgstr "Користувачі, імпорт та експорт, ролі й дозволи, структура, звернення, журнал аудиту."
 
 #: src/features/admin/pages/UsersPage.tsx
 msgid "Користувачів не знайдено"
@@ -1913,6 +2102,10 @@ msgstr "Короткий зміст або коментар для підпис�
 msgctxt "help"
 msgid "Короткий огляд: що чекає на вашу дію, ключові показники та свіжі новини."
 msgstr "Короткий огляд: що чекає на вашу дію, ключові показники та свіжі новини."
+
+#: src/shared/i18n/display.ts
+msgid "Критичний"
+msgstr "Критичний"
 
 #. placeholder {0}: index + 1
 #. placeholder {1}: steps.length
@@ -2056,6 +2249,14 @@ msgstr "Можливо, її було видалено або знято з пу
 msgid "Можливо, посилання застаріло або сторінку перенесено."
 msgstr "Можливо, посилання застаріло або сторінку перенесено."
 
+#: src/features/tickets/components/FilePicker.tsx
+msgid "Можна додати не більше {maxFiles} файлів."
+msgstr "Можна додати не більше {maxFiles} файлів."
+
+#: src/features/tickets/pages/TicketsPage.tsx
+msgid "Мої звернення"
+msgstr "Мої звернення"
+
 #: src/features/home/HomePage.tsx
 msgid "Мої на підписанні"
 msgstr "Мої на підписанні"
@@ -2119,12 +2320,17 @@ msgstr "Надіслано на підпис"
 
 #: src/features/chats/components/Composer.tsx
 #: src/features/news/components/Discussion.tsx
+#: src/features/tickets/components/TicketThread.tsx
 msgid "Надіслати"
 msgstr "Надіслати"
 
 #: src/features/documents/pages/DocumentPage.tsx
 msgid "Надіслати документ на підписання?"
 msgstr "Надіслати документ на підписання?"
+
+#: src/features/tickets/pages/NewTicketPage.tsx
+msgid "Надіслати звернення"
+msgstr "Надіслати звернення"
 
 #: src/features/chats/components/MessageItem.tsx
 msgid "Надіслати ще раз"
@@ -2224,6 +2430,10 @@ msgstr "Напишіть текст новини."
 msgid "напр. доцент"
 msgstr "напр. доцент"
 
+#: src/features/tickets/pages/NewTicketPage.tsx
+msgid "Наприклад: не завантажується файл документа"
+msgstr "Наприклад: не завантажується файл документа"
+
 #: src/features/documents/pages/DocumentEditorPage.tsx
 msgid "Наприклад: Про затвердження графіка відпусток"
 msgstr "Наприклад: Про затвердження графіка відпусток"
@@ -2295,6 +2505,12 @@ msgstr "Не вдалося завантажити документи."
 msgid "Не вдалося завантажити журнал."
 msgstr "Не вдалося завантажити журнал."
 
+#: src/features/tickets/pages/TicketPage.tsx
+#: src/features/tickets/pages/TicketsAdminPage.tsx
+#: src/features/tickets/pages/TicketsPage.tsx
+msgid "Не вдалося завантажити звернення."
+msgstr "Не вдалося завантажити звернення."
+
 #: src/features/news/components/Discussion.tsx
 msgid "Не вдалося завантажити коментарі."
 msgstr "Не вдалося завантажити коментарі."
@@ -2341,6 +2557,11 @@ msgstr "Не вдалося завантажити ролі."
 #: src/features/admin/pages/RoleEditorPage.tsx
 msgid "Не вдалося завантажити роль."
 msgstr "Не вдалося завантажити роль."
+
+#: src/features/notifications/components/NotificationPanel.tsx
+#: src/features/notifications/pages/NotificationsPage.tsx
+msgid "Не вдалося завантажити сповіщення."
+msgstr "Не вдалося завантажити сповіщення."
 
 #: src/features/structure/pages/StructurePage.tsx
 msgid "Не вдалося завантажити структуру."
@@ -2418,6 +2639,10 @@ msgstr "Не вдалося зв'язатися з сервером. Спроб�
 msgid "Не вдалося згенерувати коди. Спробуйте ще раз."
 msgstr "Не вдалося згенерувати коди. Спробуйте ще раз."
 
+#: src/features/tickets/pages/TicketPage.tsx
+msgid "Не вдалося змінити звернення."
+msgstr "Не вдалося змінити звернення."
+
 #: src/features/auth/components/LanguageSwitch.tsx
 #: src/features/profile/pages/ProfilePage.tsx
 msgid "Не вдалося змінити мову."
@@ -2427,9 +2652,23 @@ msgstr "Не вдалося змінити мову."
 msgid "Не вдалося змінити назву."
 msgstr "Не вдалося змінити назву."
 
+#: src/features/notifications/components/NotificationItem.tsx
+#: src/features/notifications/components/NotificationPanel.tsx
+#: src/features/notifications/pages/NotificationsPage.tsx
+msgid "Не вдалося змінити сповіщення."
+msgstr "Не вдалося змінити сповіщення."
+
 #: src/shared/signing/client.ts
 msgid "Не вдалося знайти сертифікат ключа. Оберіть надавача вручну або додайте файли сертифікатів."
 msgstr "Не вдалося знайти сертифікат ключа. Оберіть надавача вручну або додайте файли сертифікатів."
+
+#: src/features/tickets/pages/NewTicketPage.tsx
+msgid "Не вдалося надіслати звернення. Спробуйте ще раз."
+msgstr "Не вдалося надіслати звернення. Спробуйте ще раз."
+
+#: src/features/tickets/components/TicketThread.tsx
+msgid "Не вдалося надіслати повідомлення."
+msgstr "Не вдалося надіслати повідомлення."
 
 #: src/features/admin/pages/UsersImportPage.tsx
 msgid "Не вдалося обробити файл. Спробуйте ще раз."
@@ -2474,6 +2713,10 @@ msgstr "Не налаштовано"
 #: src/shared/i18n/display.ts
 msgid "Не подобається"
 msgstr "Не подобається"
+
+#: src/features/tickets/pages/TicketPage.tsx
+msgid "Не призначено"
+msgstr "Не призначено"
 
 #: src/features/admin/pages/UnitsPage.tsx
 #: src/features/structure/pages/UnitPage.tsx
@@ -2534,6 +2777,14 @@ msgstr "Необов'язково: без назви чат називаєтьс
 msgid "Неправильний пароль або пошкоджений файл ключа."
 msgstr "Неправильний пароль або пошкоджений файл ключа."
 
+#: src/features/notifications/components/NotificationItem.tsx
+msgid "Непрочитане"
+msgstr "Непрочитане"
+
+#: src/features/notifications/pages/NotificationsPage.tsx
+msgid "Непрочитаних сповіщень немає"
+msgstr "Непрочитаних сповіщень немає"
+
 #. placeholder {0}: chat.unreadCount
 #: src/features/chats/components/ChatList.tsx
 msgid "Непрочитаних: {0}"
@@ -2543,9 +2794,25 @@ msgstr "Непрочитаних: {0}"
 msgid "Непрочитаних: {count}"
 msgstr "Непрочитаних: {count}"
 
+#: src/app/layout/NavGroups.tsx
+msgid "Непрочитаних: {hidden}"
+msgstr "Непрочитаних: {hidden}"
+
+#: src/features/notifications/pages/NotificationsPage.tsx
+msgid "Непрочитані"
+msgstr "Непрочитані"
+
+#: src/features/notifications/pages/NotificationsPage.tsx
+msgid "Непрочитані ({unread})"
+msgstr "Непрочитані ({unread})"
+
 #: src/features/documents/pages/DocumentEditorPage.tsx
 msgid "Нижче"
 msgstr "Нижче"
+
+#: src/shared/i18n/display.ts
+msgid "Низький"
+msgstr "Низький"
 
 #: src/features/chats/components/PeoplePicker.tsx
 msgid "Нікого не знайдено."
@@ -2564,6 +2831,10 @@ msgstr "Нічого не знайдено. Спробуйте інше слов
 msgid "Нова"
 msgstr "Нова"
 
+#: src/features/notifications/display.ts
+msgid "Нова відповідь у зверненні"
+msgstr "Нова відповідь у зверненні"
+
 #: src/features/admin/pages/UnitEditorPage.tsx
 #: src/features/admin/pages/UnitsPage.tsx
 #: src/features/structure/pages/StructurePage.tsx
@@ -2580,6 +2851,30 @@ msgstr "Нова публікація"
 #: src/features/admin/pages/RolesPage.tsx
 msgid "Нова роль"
 msgstr "Нова роль"
+
+#: src/features/tickets/pages/NewTicketPage.tsx
+msgid "Нове"
+msgstr "Нове"
+
+#: src/shared/i18n/display.ts
+msgctxt "ticket-status"
+msgid "Нове"
+msgstr "Нове"
+
+#: src/features/notifications/display.ts
+#: src/features/tickets/pages/NewTicketPage.tsx
+#: src/features/tickets/pages/TicketsPage.tsx
+msgid "Нове звернення"
+msgstr "Нове звернення"
+
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Нове звернення"
+msgstr "Нове звернення"
+
+#: src/features/notifications/display.ts
+msgid "Нове повідомлення"
+msgstr "Нове повідомлення"
 
 #: src/features/auth/pages/PhotoPage.tsx
 msgid "Нове фото замінить поточне всюди в кабінеті."
@@ -2704,6 +2999,11 @@ msgstr "Нові коди — збережіть їх зараз, вони бі�
 msgid "Нові повідомлення"
 msgstr "Нові повідомлення"
 
+#. placeholder {0}: notification.count
+#: src/features/notifications/display.ts
+msgid "Нові повідомлення: {0}"
+msgstr "Нові повідомлення: {0}"
+
 #: src/shared/i18n/display.ts
 msgctxt "audit"
 msgid "Нові резервні коди"
@@ -2712,6 +3012,14 @@ msgstr "Нові резервні коди"
 #: src/features/documents/pages/DocumentsPage.tsx
 msgid "Номер"
 msgstr "Номер"
+
+#: src/features/tickets/pages/TicketsPage.tsx
+msgid "Номер або тема"
+msgstr "Номер або тема"
+
+#: src/features/tickets/pages/TicketsAdminPage.tsx
+msgid "Номер, тема або автор"
+msgstr "Номер, тема або автор"
 
 #: src/features/chats/components/Composer.tsx
 #: src/features/news/components/RichTextEditor.tsx
@@ -2815,8 +3123,8 @@ msgid "Облікові записи, посади, блокування, ски
 msgstr "Облікові записи, посади, блокування, скидання пароля та 2FA."
 
 #: src/features/admin/pages/AdminPage.tsx
-msgid "Облікові записи, ролі, організації та їхня структура, журнал подій."
-msgstr "Облікові записи, ролі, організації та їхня структура, журнал подій."
+msgid "Облікові записи, ролі, організації та їхня структура, звернення користувачів, журнал подій."
+msgstr "Облікові записи, ролі, організації та їхня структура, звернення користувачів, журнал подій."
 
 #: src/features/chats/components/PeoplePicker.tsx
 msgid "Обрані люди"
@@ -2851,22 +3159,46 @@ msgid "Оновити"
 msgstr "Оновити"
 
 #: src/features/admin/pages/UsersImportPage.tsx
+#: src/features/tickets/pages/TicketsAdminPage.tsx
+#: src/features/tickets/pages/TicketsPage.tsx
 msgid "Оновлено"
 msgstr "Оновлено"
 
 #: src/features/admin/pages/RoleEditorPage.tsx
 #: src/features/admin/pages/UnitTypeEditorPage.tsx
 #: src/features/documents/pages/DocumentEditorPage.tsx
+#: src/features/tickets/pages/NewTicketPage.tsx
 msgid "Опис"
 msgstr "Опис"
+
+#: src/features/tickets/pages/NewTicketPage.tsx
+msgid "Опис задовгий."
+msgstr "Опис задовгий."
+
+#: src/features/tickets/components/TicketThread.tsx
+msgid "Опис звернення"
+msgstr "Опис звернення"
 
 #: src/features/documents/pages/DocumentEditorPage.tsx
 msgid "Опис не може бути довшим за 4000 символів."
 msgstr "Опис не може бути довшим за 4000 символів."
 
+#: src/features/tickets/pages/NewTicketPage.tsx
+msgid "Опишіть звернення докладніше."
+msgstr "Опишіть звернення докладніше."
+
 #: src/shared/i18n/display.ts
 msgid "Оплески"
 msgstr "Оплески"
+
+#: src/features/tickets/pages/TicketPage.tsx
+msgid "Опрацювання"
+msgstr "Опрацювання"
+
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Опрацювання звернень"
+msgstr "Опрацювання звернень"
 
 #: src/features/news/pages/NewsEditorPage.tsx
 #: src/features/news/pages/NewsManagePage.tsx
@@ -2902,6 +3234,7 @@ msgstr "Організації, структурою яких ви керуєт�
 msgid "організація"
 msgstr "організація"
 
+#: src/app/layout/navigation.ts
 #: src/features/admin/pages/UnitsPage.tsx
 #: src/features/admin/pages/UnitTypesPage.tsx
 #: src/features/news/pages/NewsEditorPage.tsx
@@ -2923,6 +3256,10 @@ msgstr "Організація: {0}"
 #: src/features/profile/pages/ProfilePage.tsx
 msgid "Основна"
 msgstr "Основна"
+
+#: src/app/layout/navigation.ts
+msgid "Особисте"
+msgstr "Особисте"
 
 #: src/features/admin/pages/UserEditorPage.tsx
 msgid "Особисті дані"
@@ -2961,6 +3298,14 @@ msgstr "Останній вхід"
 msgid "Останній вхід: {0}"
 msgstr "Останній вхід: {0}"
 
+#: src/features/tickets/pages/TicketsAdminPage.tsx
+msgid "Остання відповідь — від автора"
+msgstr "Остання відповідь — від автора"
+
+#: src/features/tickets/pages/TicketPage.tsx
+msgid "Остання зміна"
+msgstr "Остання зміна"
+
 #: src/shared/signing/client.ts
 msgid "Остання підписана версія документа не збігається з даними системи. Оновіть сторінку й спробуйте ще раз."
 msgstr "Остання підписана версія документа не збігається з даними системи. Оновіть сторінку й спробуйте ще раз."
@@ -2972,6 +3317,14 @@ msgstr "Остання підписана версія містить інший
 #: src/shared/ui/DatePicker.tsx
 msgid "Очистити"
 msgstr "Очистити"
+
+#: src/features/tickets/pages/TicketsAdminPage.tsx
+msgid "Очікує відповіді"
+msgstr "Очікує відповіді"
+
+#: src/shared/i18n/display.ts
+msgid "Очікує відповіді автора"
+msgstr "Очікує відповіді автора"
 
 #: src/shared/i18n/display.ts
 msgid "Очікується підпис"
@@ -2986,6 +3339,11 @@ msgstr "Очікують мого підпису"
 msgctxt "help"
 msgid "Панель адміністрування"
 msgstr "Панель адміністрування"
+
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Панель і сторінка сповіщень"
+msgstr "Панель і сторінка сповіщень"
 
 #: src/shared/i18n/display.ts
 msgid "Паралельно"
@@ -3146,6 +3504,10 @@ msgstr "Перший вхід у систему"
 msgctxt "help"
 msgid "Перший вхід, двофакторна автентифікація, резервні коди, паролі та вихід із системи."
 msgstr "Перший вхід, двофакторна автентифікація, резервні коди, паролі та вихід із системи."
+
+#: src/features/tickets/pages/TicketPage.tsx
+msgid "Питання вирішилося або звернення більше не актуальне?"
+msgstr "Питання вирішилося або звернення більше не актуальне?"
 
 #: src/features/admin/pages/UsersPage.tsx
 msgid "ПІБ або e-mail"
@@ -3346,9 +3708,17 @@ msgstr "Підтвердити"
 msgid "Підтвердити та увійти"
 msgstr "Підтвердити та увійти"
 
+#: src/features/tickets/components/TicketThread.tsx
+msgid "Підтримка"
+msgstr "Підтримка"
+
 #: src/features/auth/pages/RecoveryPage.tsx
 msgid "Після входу згенеруйте нові резервні коди у профілі."
 msgstr "Після входу згенеруйте нові резервні коди у профілі."
+
+#: src/features/tickets/pages/TicketPage.tsx
+msgid "Після закриття в ньому не можна буде писати."
+msgstr "Після закриття в ньому не можна буде писати."
 
 #: src/features/auth/pages/ChangePasswordPage.tsx
 msgid "Після зміни пароля всі інші сесії буде завершено."
@@ -3381,6 +3751,7 @@ msgstr "Повернутися"
 
 #: src/features/chats/components/Composer.tsx
 #: src/features/chats/components/MessageList.tsx
+#: src/features/tickets/components/TicketThread.tsx
 msgid "Повідомлення"
 msgstr "Повідомлення"
 
@@ -3399,6 +3770,11 @@ msgctxt "help"
 msgid "Повідомлення про помилки та що робити"
 msgstr "Повідомлення про помилки та що робити"
 
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Повідомлення про помилки, пропозиції та запитання до тих, хто опікується кабінетом, і листування з ними."
+msgstr "Повідомлення про помилки, пропозиції та запитання до тих, хто опікується кабінетом, і листування з ними."
+
 #: src/features/chats/components/MessageItem.tsx
 msgid "Повідомлення та його файли буде видалено для всіх учасників чату."
 msgstr "Повідомлення та його файли буде видалено для всіх учасників чату."
@@ -3411,6 +3787,10 @@ msgstr "Повідомлення, форматування та файли"
 #: src/features/chats/display.ts
 msgid "Повідомлень ще немає"
 msgstr "Повідомлень ще немає"
+
+#: src/features/tickets/pages/TicketsPage.tsx
+msgid "Повідомте про помилку, запропонуйте покращення або поставте запитання — відповідь прийде сюди й у сповіщення."
+msgstr "Повідомте про помилку, запропонуйте покращення або поставте запитання — відповідь прийде сюди й у сповіщення."
 
 #: src/features/admin/pages/UnitEditorPage.tsx
 msgid "Повна назва"
@@ -3441,6 +3821,10 @@ msgstr "Подія"
 msgid "Подобається"
 msgstr "Подобається"
 
+#: src/features/notifications/components/NotificationItem.tsx
+msgid "Позначити прочитаним"
+msgstr "Позначити прочитаним"
+
 #: src/features/signing/components/VerifyPanel.tsx
 msgid "Позначка часу"
 msgstr "Позначка часу"
@@ -3448,6 +3832,11 @@ msgstr "Позначка часу"
 #: src/features/admin/pages/RoleEditorPage.tsx
 msgid "Позначте дозволи, які надає роль."
 msgstr "Позначте дозволи, які надає роль."
+
+#: src/features/notifications/pages/NotificationsPage.tsx
+#: src/features/tickets/pages/TicketsAdminPage.tsx
+msgid "Показати"
+msgstr "Показати"
 
 #: src/shared/ui/PasswordInput.tsx
 msgid "Показати пароль"
@@ -3475,9 +3864,22 @@ msgstr "Положення / інструкція"
 msgid "Помилка"
 msgstr "Помилка"
 
+#: src/shared/i18n/display.ts
+msgctxt "ticket-category"
+msgid "Помилка"
+msgstr "Помилка"
+
 #: src/features/admin/pages/UsersImportPage.tsx
 msgid "Помилки імпорту"
 msgstr "Помилки імпорту"
+
+#: src/features/tickets/pages/TicketsAdminPage.tsx
+msgid "Помилки, пропозиції та запитання користувачів: відповідайте, призначайте виконавців і змінюйте стан."
+msgstr "Помилки, пропозиції та запитання користувачів: відповідайте, призначайте виконавців і змінюйте стан."
+
+#: src/features/admin/pages/AdminPage.tsx
+msgid "Помилки, пропозиції та запитання користувачів: відповіді, виконавці, стан."
+msgstr "Помилки, пропозиції та запитання користувачів: відповіді, виконавці, стан."
 
 #: src/features/admin/pages/UsersImportPage.tsx
 msgid "Помилок не знайдено"
@@ -3686,6 +4088,15 @@ msgstr "Прибрати посаду"
 msgid "Прибрати посилання"
 msgstr "Прибрати посилання"
 
+#. placeholder {0}: file.name
+#: src/features/tickets/components/FilePicker.tsx
+msgid "Прибрати файл {0}"
+msgstr "Прибрати файл {0}"
+
+#: src/features/tickets/pages/TicketsAdminPage.tsx
+msgid "Призначені мені"
+msgstr "Призначені мені"
+
 #: src/features/help/components/RoleReference.tsx
 msgid "Призначення"
 msgstr "Призначення"
@@ -3710,10 +4121,21 @@ msgstr "Прізвище"
 msgid "Прізвище, ім'я або e-mail"
 msgstr "Прізвище, ім'я або e-mail"
 
+#: src/features/tickets/pages/NewTicketPage.tsx
+#: src/features/tickets/pages/TicketPage.tsx
+#: src/features/tickets/pages/TicketsAdminPage.tsx
+msgid "Пріоритет"
+msgstr "Пріоритет"
+
 #: src/features/chats/components/Conversation.tsx
 #: src/features/chats/components/MembersDialog.tsx
 msgid "Про чат"
 msgstr "Про чат"
+
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Про що приходять сповіщення"
+msgstr "Про що приходять сповіщення"
 
 #: src/features/auth/pages/LoginPage.tsx
 msgid "Продовжити"
@@ -3726,6 +4148,10 @@ msgstr "Продовжити гілку ({replyCount}) →"
 #: src/shared/i18n/display.ts
 msgid "Проєкти та досягнення"
 msgstr "Проєкти та досягнення"
+
+#: src/shared/i18n/display.ts
+msgid "Пропозиція"
+msgstr "Пропозиція"
 
 #: src/shared/i18n/display.ts
 msgctxt "document-kind"
@@ -3741,6 +4167,11 @@ msgstr "Профіль"
 msgctxt "help"
 msgid "Профіль"
 msgstr "Профіль"
+
+#: src/features/notifications/components/NotificationPanel.tsx
+#: src/features/notifications/pages/NotificationsPage.tsx
+msgid "Прочитати всі"
+msgstr "Прочитати всі"
 
 #: src/features/admin/pages/AdminPage.tsx
 msgid "Публікації та оголошення."
@@ -4102,6 +4533,25 @@ msgctxt "help"
 msgid "Список чатів і новий чат"
 msgstr "Список чатів і новий чат"
 
+#: src/features/notifications/components/NotificationPanel.tsx
+#: src/features/notifications/pages/NotificationsPage.tsx
+msgid "Сповіщення"
+msgstr "Сповіщення"
+
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Сповіщення"
+msgstr "Сповіщення"
+
+#: src/features/notifications/components/NotificationPanel.tsx
+msgid "Сповіщення, непрочитаних: {unread}"
+msgstr "Сповіщення, непрочитаних: {unread}"
+
+#: src/features/notifications/components/NotificationPanel.tsx
+#: src/features/notifications/pages/NotificationsPage.tsx
+msgid "Сповіщень немає"
+msgstr "Сповіщень немає"
+
 #: src/shared/signing/client.ts
 msgid "Спочатку зчитайте ключ."
 msgstr "Спочатку зчитайте ключ."
@@ -4121,6 +4571,26 @@ msgstr "Спробуйте іншу назву або код."
 #: src/app/pages/RouteError.tsx
 msgid "Сталася помилка"
 msgstr "Сталася помилка"
+
+#: src/features/tickets/pages/TicketPage.tsx
+#: src/features/tickets/pages/TicketsAdminPage.tsx
+#: src/features/tickets/pages/TicketsPage.tsx
+msgid "Стан"
+msgstr "Стан"
+
+#: src/features/notifications/display.ts
+msgid "Стан звернення змінено"
+msgstr "Стан звернення змінено"
+
+#. placeholder {0}: i18n._(status)
+#: src/features/notifications/display.ts
+msgid "Стан звернення: {0}"
+msgstr "Стан звернення: {0}"
+
+#. placeholder {0}: t(ticketStatusNames[message.status])
+#: src/features/tickets/components/TicketThread.tsx
+msgid "Стан змінено на «{0}»"
+msgstr "Стан змінено на «{0}»"
 
 #: src/features/help/components/RoleReference.tsx
 msgid "Стандартні дозволи"
@@ -4175,6 +4645,7 @@ msgstr "Створення та редагування публікації"
 #: src/features/admin/pages/UsersImportPage.tsx
 #: src/features/documents/pages/DocumentPage.tsx
 #: src/features/documents/pages/DocumentsPage.tsx
+#: src/features/tickets/pages/TicketPage.tsx
 msgid "Створено"
 msgstr "Створено"
 
@@ -4323,6 +4794,15 @@ msgstr "Телефон збережено."
 msgid "Тема"
 msgstr "Тема"
 
+#: src/features/tickets/pages/NewTicketPage.tsx
+msgctxt "ticket"
+msgid "Тема"
+msgstr "Тема"
+
+#: src/features/tickets/pages/NewTicketPage.tsx
+msgid "Тема задовга."
+msgstr "Тема задовга."
+
 #: src/features/admin/pages/UserEditorPage.tsx
 msgid "Тимчасовий пароль"
 msgstr "Тимчасовий пароль"
@@ -4397,6 +4877,11 @@ msgctxt "help"
 msgid "Тривалість входу та вихід із системи"
 msgstr "Тривалість входу та вихід із системи"
 
+#: src/features/notifications/components/NotificationPanel.tsx
+#: src/features/notifications/pages/NotificationsPage.tsx
+msgid "Тут з'являться відповіді, документи на підпис, повідомлення й звернення."
+msgstr "Тут з'являться відповіді, документи на підпис, повідомлення й звернення."
+
 #: src/features/documents/pages/DocumentEditorPage.tsx
 msgid "у будь-якому порядку"
 msgstr "у будь-якому порядку"
@@ -4459,6 +4944,14 @@ msgstr "Усі види"
 msgid "Усі доступні"
 msgstr "Усі доступні"
 
+#: src/features/tickets/pages/TicketsAdminPage.tsx
+msgid "Усі звернення"
+msgstr "Усі звернення"
+
+#: src/features/tickets/pages/TicketsAdminPage.tsx
+msgid "Усі категорії"
+msgstr "Усі категорії"
+
 #. placeholder {0}: profile.permissions.length
 #: src/features/profile/pages/ProfilePage.tsx
 msgid "Усі мої дозволи ({0})"
@@ -4487,6 +4980,16 @@ msgstr "Усі події"
 #: src/features/admin/pages/UsersPage.tsx
 msgid "Усі ролі"
 msgstr "Усі ролі"
+
+#: src/features/notifications/components/NotificationPanel.tsx
+#: src/features/notifications/pages/NotificationsPage.tsx
+msgid "Усі сповіщення"
+msgstr "Усі сповіщення"
+
+#: src/features/tickets/pages/TicketsAdminPage.tsx
+#: src/features/tickets/pages/TicketsPage.tsx
+msgid "Усі стани"
+msgstr "Усі стани"
 
 #: src/features/documents/pages/DocumentsPage.tsx
 #: src/shared/i18n/display.ts
@@ -4517,6 +5020,17 @@ msgstr "Учора"
 #: src/features/documents/pages/DocumentEditorPage.tsx
 msgid "Файл"
 msgstr "Файл"
+
+#. placeholder {0}: file.name
+#. placeholder {1}: formatFileSize(maxFileSize)
+#: src/features/tickets/components/FilePicker.tsx
+msgid "Файл «{0}» більший за {1}."
+msgstr "Файл «{0}» більший за {1}."
+
+#. placeholder {0}: file.name
+#: src/features/tickets/components/FilePicker.tsx
+msgid "Файл «{0}» має недозволений тип."
+msgstr "Файл «{0}» має недозволений тип."
 
 #. placeholder {0}: tooLarge.name
 #: src/features/chats/components/Composer.tsx
@@ -4562,6 +5076,11 @@ msgstr "Файли одного повідомлення не можуть бу�
 #: src/shared/signing/SigningWizard.tsx
 msgid "Файли понад 25 МБ не підтримуються."
 msgstr "Файли понад 25 МБ не підтримуються."
+
+#. placeholder {0}: formatFileSize(maxTotalSize)
+#: src/features/tickets/components/FilePicker.tsx
+msgid "Файли разом не можуть бути більшими за {0}."
+msgstr "Файли разом не можуть бути більшими за {0}."
 
 #: src/shared/signing/KeyPanel.tsx
 msgid "Файли сертифікатів"
@@ -4754,6 +5273,10 @@ msgstr "Швидка навігація"
 msgid "Ще відповідей: {hidden}"
 msgstr "Ще відповідей: {hidden}"
 
+#: src/features/tickets/pages/NewTicketPage.tsx
+msgid "Що ви робили, що очікували побачити і що сталося натомість. Для помилки — кроки, щоб її повторити."
+msgstr "Що ви робили, що очікували побачити і що сталося натомість. Для помилки — кроки, щоб її повторити."
+
 #: src/features/help/components/RoleReference.tsx
 msgid "Що дає"
 msgstr "Що дає"
@@ -4766,6 +5289,10 @@ msgstr "Що підтримується"
 msgctxt "help"
 msgid "Що показує головна сторінка"
 msgstr "Що показує головна сторінка"
+
+#: src/features/tickets/pages/NewTicketPage.tsx
+msgid "Що сталося?"
+msgstr "Що сталося?"
 
 #: src/features/help/contents.ts
 msgctxt "help"

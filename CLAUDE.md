@@ -58,11 +58,13 @@ Write tool and run them with `node`. `/tmp` in Git Bash is not visible to Window
 ```
 src/KOD.Domain          Entities + invariants (User, Role, StaffPosition, OrganizationUnit, UnitType, Document with
                         signers and signatures, NewsArticle with NewsComment/NewsReaction/NewsView, Chat with ChatMember/
-                        ChatMessage/ChatAttachment/ChatReaction, MediaFile, AuditEntry),
+                        ChatMessage/ChatAttachment/ChatReaction, Ticket with TicketMessage/TicketAttachment,
+                        Notification, MediaFile, AuditEntry),
                         permission catalog, system roles, Guard, DomainException, localization catalog
                         (Localization/Texts.cs, Languages.cs).
 src/KOD.Application     Use-case services (DocumentService, UserService, OrganizationService, UnitTypeService, RoleService,
-                        NewsService, NewsDiscussionService, ChatService, MediaService + MediaLibrary, ProfileService, DashboardService,
+                        NewsService, NewsDiscussionService, ChatService, TicketService, NotificationService + Notifier,
+                        AttachmentStore, MediaService + MediaLibrary, ProfileService, DashboardService,
                         AuditService, SigningJournal), DTOs, Result<T>/Error, paging, access rules (IPermissionResolver,
                         IAccessScope, AdministrationScope), abstractions.
 src/KOD.Infrastructure  EF Core + PostgreSQL (snake_case, citext, xmin concurrency), migrations, seeding, Identity
@@ -164,6 +166,24 @@ Dependencies point inward: Web → Infrastructure → Application → Domain. Ce
   are served by `GET /api/v1/chats/{id}/attachments/{attachmentId}` to members only, as downloads. The client keeps
   each open conversation in the query cache (`threadQuery`, merged by `mergeMessages`), and `ChatSync` (mounted in the
   shell for users with `chats.use`) applies live events everywhere, including the unread badge of the menu.
+- **Requests** (`Ticket`, `TicketService`, `features/tickets`, routes `/requests`, `/requests/new`, `/requests/:id`,
+  `/admin/requests`; API `/api/v1/tickets`): every user submits requests and writes in their own; `tickets.manage`
+  (cabinet-wide, module `Tickets`) sees all, answers, assigns (`PermissionHolders.UsersWith` lists the handlers; a
+  system administrator always holds every permission), changes state/category/priority. `Ticket.Comment` makes the
+  automatic changes (first handler answer → In progress + assignee; author answer on Waiting/Resolved → In progress) and
+  returns the history entries to add. `Number` is an identity column. Plain-text bodies; files go through
+  `AttachmentStore` (shared with chats: `FileRules.ChatFileTypes`, photos → AVIF + thumbnail) into `IFileStorage`
+  (`tickets/…`), served only to the author and handlers. Client allow-list: `shared/lib/attachments.ts`.
+- **Notifications** (`Notification`, `INotifier` for other services, `INotificationService` for the user,
+  `features/notifications`): services call `notifier.NotifyAsync(draft, recipients)` **after** their own save (it saves
+  separately, skips the actor and inactive accounts, logs failures instead of throwing) and `MarkReadAsync(user,
+  entityId)` when the user has seen the thing (document/ticket opened, chat read to the end). `Collect` folds chat
+  messages into one unread notification per chat (`Count`); `OnceSince` tells a signer once per submission. Titles are
+  built on the client from `Kind` (`features/notifications/display.ts`); `Code` carries a machine value (the new ticket
+  state). Live: `LiveNotificationEvents` → `NotificationReceived(dto, unreadCount)` / `NotificationsChanged(unreadCount)`
+  to the user; `NotificationSync` (shell) updates the badge, invalidates `["tickets"]`/`["documents"]` and toasts (not
+  for chats). The bell (`NotificationTrigger`) opens `NotificationPanel` (a `popover="auto"` inside the shell, so it
+  reads `--_sidebar-current`). News reply links end with `#comment-{id}` (`Discussion` scrolls there, `:target` marks it).
 
 ## React client (`src/KOD.Client`)
 
@@ -204,6 +224,10 @@ Dependencies point inward: Web → Infrastructure → Application → Domain. Ce
   returns `yyyy-MM-dd`, accepts typed dates in the day-month-year order and opens a calendar popover.
 - Temporary passwords (new account, reset, import) are shown once and never put into the history state; the file of
   an import's passwords is built by `POST /api/v1/user-imports/credentials` from the report the browser holds.
+- **Main menu** (`app/layout/navigation.ts`): `home` + sections (`NavigationGroup`) rendered by `NavGroups` as an
+  accordion — the section of the current page is open until the user opens another (the choice is kept per pathname,
+  no effects); a one-item section renders as a plain link; folded sections are `inert`; on the collapsed rail every
+  entry shows. The tab bar of phones takes `navigation.items` with `tabBar`.
 - Unit type icons are stored as Lucide names (`UnitType.Icons` on the server); the client maps them to components in
   `shared/lib/unitTypeIcons.ts` — add a new icon in both places. Module names: `moduleNames` in `shared/i18n/display.ts`.
 - After a language change, queries other than the auth context are invalidated: some data comes translated by the

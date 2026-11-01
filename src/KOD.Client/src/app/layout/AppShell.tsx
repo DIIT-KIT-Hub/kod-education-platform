@@ -4,6 +4,8 @@ import { useRef, useState, type FocusEvent, type MouseEvent } from "react";
 import { Link, Outlet } from "react-router";
 import { toggleSidebar, useSidebarCollapsed } from "@/shared/lib/preferences";
 import { ChatSync, useUnreadChats } from "@/features/chats/components/ChatSync";
+import { NotificationPanel, NotificationTrigger } from "@/features/notifications/components/NotificationPanel";
+import { NotificationSync } from "@/features/notifications/components/NotificationSync";
 import { hasPermission, Permissions, useCurrentUser } from "@/shared/session/session";
 import layout from "@/shared/styles/layout.module.css";
 import { BrandMark, ProductName } from "@/shared/ui/Brand";
@@ -11,6 +13,7 @@ import { Button } from "@/shared/ui/Button";
 import { ThemeToggle } from "@/shared/ui/ThemeToggle";
 import styles from "./AppShell.module.css";
 import { navigationFor } from "./navigation";
+import { NavGroups } from "./NavGroups";
 import { NavLinks } from "./NavLinks";
 import { UserMenu } from "./UserMenu";
 
@@ -25,13 +28,14 @@ interface RailTip {
 
 /**
  * The layout of the signed-in pages. Mobile-first: phones get a top bar and a bottom tab bar, tablets a top bar and a
- * drawer, desktops (1024px+) a sidebar that collapses to an icon rail.
+ * drawer, desktops (1024px+) a sidebar that collapses to an icon rail. The menu folds into sections (one open at a
+ * time); the bell opens the notification panel.
  * @returns The layout.
  */
 export function AppShell() {
     const { t } = useLingui();
     const user = useCurrentUser();
-    const items = navigationFor(user);
+    const navigation = navigationFor(user);
     const canChat = hasPermission(user, Permissions.chatsUse);
     const counts = { "/chats": useUnreadChats(canChat) };
     const collapsed = useSidebarCollapsed();
@@ -79,10 +83,17 @@ export function AppShell() {
                     </Link>
                     <nav className={styles.nav}>
                         <NavLinks
-                            items={items}
+                            items={[navigation.home]}
                             linkClassName={styles.navLink}
                             activeClassName={styles.active}
+                            onHint={hint}
+                            onNavigate={() => setTip(null)}
+                        />
+                        <NotificationTrigger variant="menu" className={styles.navLink} countClassName={styles.count} onHint={hint} />
+                        <NavGroups
+                            groups={navigation.groups}
                             counts={counts}
+                            rail={collapsed}
                             onHint={hint}
                             onNavigate={() => setTip(null)}
                         />
@@ -111,6 +122,7 @@ export function AppShell() {
                         <strong>{t`КОД`}</strong>
                     </Link>
                     <div className={layout.row}>
+                        <NotificationTrigger variant="icon" />
                         <ThemeToggle />
                         <Button variant="ghost" size="sm" iconOnly icon={Menu} popoverTarget="app-drawer">
                             {t`Меню`}
@@ -127,17 +139,20 @@ export function AppShell() {
                     </div>
                     <nav className={styles.nav}>
                         <NavLinks
-                            items={items}
+                            items={[navigation.home]}
                             linkClassName={styles.navLink}
                             activeClassName={styles.active}
-                            counts={counts}
                             onNavigate={() => drawer.current?.hidePopover()}
                         />
+                        <NavGroups groups={navigation.groups} counts={counts} onNavigate={() => drawer.current?.hidePopover()} />
                     </nav>
                     <div className={styles.drawerFooter}>
                         <UserMenu />
                     </div>
                 </div>
+
+                {/* Inside the shell: next to the sidebar it reads the sidebar's current width. */}
+                <NotificationPanel />
 
                 <main id="main" className={styles.main} tabIndex={-1}>
                     <div className={styles.page}>
@@ -147,7 +162,7 @@ export function AppShell() {
 
                 <nav className={styles.tabbar} aria-label={t`Швидка навігація`}>
                     <NavLinks
-                        items={items.filter((item) => item.tabBar)}
+                        items={navigation.items.filter((item) => item.tabBar)}
                         limit={5}
                         counts={counts}
                         linkClassName={styles.tab}
@@ -157,6 +172,7 @@ export function AppShell() {
             </div>
 
             {canChat && <ChatSync />}
+            <NotificationSync />
 
             {tip && (
                 <div className={styles.railTip} style={{ left: tip.left, top: tip.top }} aria-hidden="true">

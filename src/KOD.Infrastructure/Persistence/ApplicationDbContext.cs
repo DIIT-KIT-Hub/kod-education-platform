@@ -6,7 +6,9 @@ using KOD.Domain.Common;
 using KOD.Domain.Documents;
 using KOD.Domain.Media;
 using KOD.Domain.News;
+using KOD.Domain.Notifications;
 using KOD.Domain.Organization;
+using KOD.Domain.Tickets;
 using KOD.Domain.Users;
 using KOD.Infrastructure.Identity.Tokens;
 using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
@@ -87,6 +89,18 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
     public DbSet<ChatReaction> ChatReactions => Set<ChatReaction>();
 
     /// <inheritdoc />
+    public DbSet<Ticket> Tickets => Set<Ticket>();
+
+    /// <inheritdoc />
+    public DbSet<TicketMessage> TicketMessages => Set<TicketMessage>();
+
+    /// <inheritdoc />
+    public DbSet<TicketAttachment> TicketAttachments => Set<TicketAttachment>();
+
+    /// <inheritdoc />
+    public DbSet<Notification> Notifications => Set<Notification>();
+
+    /// <inheritdoc />
     public DbSet<AuditEntry> AuditEntries => Set<AuditEntry>();
 
     /// <inheritdoc />
@@ -162,5 +176,10 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
         configurationBuilder.Properties<NewsBodyFormat>().HaveConversion<string>().HaveMaxLength(16);
         configurationBuilder.Properties<ReactionKind>().HaveConversion<string>().HaveMaxLength(16);
         configurationBuilder.Properties<MediaPurpose>().HaveConversion<string>().HaveMaxLength(16);
+        configurationBuilder.Properties<TicketCategory>().HaveConversion<string>().HaveMaxLength(32);
+        configurationBuilder.Properties<TicketPriority>().HaveConversion<string>().HaveMaxLength(32);
+        configurationBuilder.Properties<TicketStatus>().HaveConversion<string>().HaveMaxLength(32);
+        configurationBuilder.Properties<TicketMessageKind>().HaveConversion<string>().HaveMaxLength(32);
+        configurationBuilder.Properties<NotificationKind>().HaveConversion<string>().HaveMaxLength(32);
     }
 }

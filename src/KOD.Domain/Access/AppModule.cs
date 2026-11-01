@@ -44,4 +44,9 @@ public enum AppModule
     /// One-to-one and group chats.
     /// </summary>
     Chats = 7,
+
+    /// <summary>
+    /// Requests of users: bugs, suggestions, questions.
+    /// </summary>
+    Tickets = 8,
 }

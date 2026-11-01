@@ -22,6 +22,7 @@ public static class Permissions
         new(Signing.Use, AppModule.Signing, "Підписання та перевірка файлів", "Інструменти підписання та перевірки довільних файлів у браузері."),
         new(News.View, AppModule.News, "Перегляд новин", "Перегляд новин та оголошень."),
         new(News.Manage, AppModule.News, "Керування новинами", "Створення, редагування та публікація новин."),
+        new(Tickets.Manage, AppModule.Tickets, "Опрацювання звернень", "Перегляд усіх звернень користувачів (помилки, пропозиції, запитання), відповіді, призначення виконавців і зміна стану; сповіщення про нові звернення."),
         new(Chats.Use, AppModule.Chats, "Чати", "Особисті та групові чати з колегами в реальному часі: повідомлення, файли й фото."),
         new(Structure.View, AppModule.Structure, "Перегляд структури", "Перегляд організацій, їхніх підрозділів і працівників."),
         new(Structure.Manage, AppModule.Structure, "Керування структурою", "Створення та редагування організацій, підрозділів і типів підрозділів."),
@@ -95,6 +96,15 @@ public static class Permissions
     {
         /// <summary>Write in one-to-one and group chats.</summary>
         public const string Use = "chats.use";
+    }
+
+    /// <summary>
+    /// Request (ticket) permissions. Every signed-in user submits requests and follows their own.
+    /// </summary>
+    public static class Tickets
+    {
+        /// <summary>Handle the requests of all users (cabinet-wide).</summary>
+        public const string Manage = "tickets.manage";
     }
 
     /// <summary>

@@ -1,7 +1,7 @@
 import { msg } from "@lingui/core/macro";
 import type { MessageDescriptor } from "@lingui/core";
 import { useLingui } from "@lingui/react/macro";
-import { ArrowRight, FileSpreadsheet, History, Layers, Network, Newspaper, Shield, Users, type LucideIcon } from "lucide-react";
+import { ArrowRight, FileSpreadsheet, History, Layers, LifeBuoy, Network, Newspaper, Shield, Users, type LucideIcon } from "lucide-react";
 import { Link } from "react-router";
 import { hasPermission, Permissions, useCurrentUser } from "@/shared/session/session";
 import layout from "@/shared/styles/layout.module.css";
@@ -66,6 +66,13 @@ const sections: readonly AdminSection[] = [
         permissions: [Permissions.newsManage],
     },
     {
+        to: "/admin/requests",
+        title: msg`Звернення`,
+        description: msg`Помилки, пропозиції та запитання користувачів: відповіді, виконавці, стан.`,
+        icon: LifeBuoy,
+        permissions: [Permissions.ticketsManage],
+    },
+    {
         to: "/admin/audit",
         title: msg`Журнал аудиту`,
         description: msg`Входи, зміни прав, підписання документів.`,
@@ -84,7 +91,10 @@ export function AdminPage() {
 
     return (
         <>
-            <PageHeader title={t`Адміністрування`} subtitle={t`Облікові записи, ролі, організації та їхня структура, журнал подій.`} />
+            <PageHeader
+                title={t`Адміністрування`}
+                subtitle={t`Облікові записи, ролі, організації та їхня структура, звернення користувачів, журнал подій.`}
+            />
             <div className={[styles.sections, layout.stagger].join(" ")}>
                 {sections
                     .filter((section) => section.permissions.some((permission) => hasPermission(user, permission)))

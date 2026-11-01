@@ -6,10 +6,12 @@ using KOD.Application.Common.Models;
 using KOD.Application.Common.Paging;
 using KOD.Application.Common.Results;
 using KOD.Application.Common.Text;
+using KOD.Application.Features.Notifications;
 using KOD.Domain.Access;
 using KOD.Domain.Audit;
 using KOD.Domain.Documents;
 using KOD.Domain.Localization;
+using KOD.Domain.Notifications;
 using Microsoft.EntityFrameworkCore;
 
 namespace KOD.Application.Features.Documents;
@@ -24,6 +26,7 @@ namespace KOD.Application.Features.Documents;
 /// <param name="numbers">The registration number generator.</param>
 /// <param name="signatureInspector">The signature container inspector.</param>
 /// <param name="audit">The audit logger.</param>
+/// <param name="notifier">Tells the signers and the author about the progress of signing.</param>
 /// <param name="timeProvider">The clock.</param>
 internal sealed class DocumentService(
     IApplicationDbContext db,
@@ -33,6 +36,7 @@ internal sealed class DocumentService(
     IDocumentNumberGenerator numbers,
     ISignatureInspector signatureInspector,
     IAuditLogger audit,
+    INotifier notifier,
     TimeProvider timeProvider) : IDocumentService
 {
     /// <summary>
@@ -156,6 +160,9 @@ internal sealed class DocumentService(
             .Select(static p => new { p.UserId, p.Title, Role = p.Role!.Name, Unit = p.OrganizationUnit!.Name })
             .ToDictionaryAsync(static p => p.UserId, static p => StoredText.PositionInUnit(p.Title, p.Role, p.Unit)!, cancellationToken);
 
+        // Opening the document answers the notifications about it.
+        await notifier.MarkReadAsync(me, id, cancellationToken);
+
         var isAuthor = document.AuthorId == me;
         var canManage = currentUser.Has(Permissions.Documents.Manage);
         var awaitingMe = document.IsAwaitingSignatureFrom(me) && currentUser.Has(Permissions.Documents.Sign);
@@ -255,6 +262,11 @@ internal sealed class DocumentService(
             });
 
             saved = result.IsSuccess;
+            if (saved && command.Submit)
+            {
+                await NotifyProgressAsync(result.Value, cancellationToken);
+            }
+
             return result;
         }
         finally
@@ -429,6 +441,11 @@ internal sealed class DocumentService(
         // Only files that are no longer referenced are deleted, and only after the database agreed.
         if (result.IsSuccess)
         {
+            if (command.Submit)
+            {
+                await NotifyProgressAsync(command.Id, cancellationToken);
+            }
+
             if (newFile is not null)
             {
                 await fileStorage.DeleteAsync(previousFile.StorageKey, CancellationToken.None);
@@ -448,8 +465,16 @@ internal sealed class DocumentService(
     }
 
     /// <inheritdoc />
-    public Task<Result> SubmitAsync(Guid id, CancellationToken cancellationToken)
-        => MutateAsAuthorAsync(id, document => document.Submit(timeProvider.GetUtcNow()), AuditActions.DocumentSubmitted, cancellationToken);
+    public async Task<Result> SubmitAsync(Guid id, CancellationToken cancellationToken)
+    {
+        var result = await MutateAsAuthorAsync(id, document => document.Submit(timeProvider.GetUtcNow()), AuditActions.DocumentSubmitted, cancellationToken);
+        if (result.IsSuccess)
+        {
+            await NotifyProgressAsync(id, cancellationToken);
+        }
+
+        return result;
+    }
 
     /// <inheritdoc />
     public Task<Result> WithdrawAsync(Guid id, CancellationToken cancellationToken)
@@ -567,6 +592,10 @@ internal sealed class DocumentService(
             {
                 await fileStorage.DeleteAsync(blob.StorageKey, CancellationToken.None);
             }
+            else
+            {
+                await NotifyProgressAsync(command.DocumentId, cancellationToken);
+            }
 
             return result;
         }
@@ -676,13 +705,20 @@ internal sealed class DocumentService(
             return Error.NotFound(Texts.T("Документ не знайдено."));
         }
 
-        return await DomainErrors.GuardAsync(async () =>
+        var result = await DomainErrors.GuardAsync(async () =>
         {
             document.Reject(me, reason, timeProvider.GetUtcNow());
             audit.Add(AuditActions.DocumentRejected, nameof(Document), document.Id.ToString(), $"{document.RegistrationNumber}: {reason}");
             await db.SaveChangesAsync(cancellationToken);
             return Result.Success();
         });
+
+        if (result.IsSuccess)
+        {
+            await NotifyProgressAsync(id, cancellationToken);
+        }
+
+        return result;
     }
 
     /// <inheritdoc />
@@ -921,6 +957,48 @@ internal sealed class DocumentService(
 
         var visible = await accessScope.VisibleDocumentsAsync(db.Documents.AsNoTracking().Where(d => d.Id == id), cancellationToken);
         return await visible.AnyAsync(cancellationToken);
+    }
+
+    /// <summary>
+    /// Tells the signers whose turn came that a document waits for them (once per sending for signing), and the author when
+    /// the document got every signature or a signer declined it.
+    /// </summary>
+    /// <param name="documentId">The document.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that completes when the notifications are saved.</returns>
+    private async Task NotifyProgressAsync(Guid documentId, CancellationToken cancellationToken)
+    {
+        var document = await db.Documents.AsNoTracking().Include(static d => d.Signers).FirstOrDefaultAsync(d => d.Id == documentId, cancellationToken);
+        if (document is null)
+        {
+            return;
+        }
+
+        // The one who acted has seen the document: their own notifications about it are done.
+        if (currentUser.Id is { } me)
+        {
+            await notifier.MarkReadAsync(me, documentId, cancellationToken);
+        }
+
+        var subject = $"{document.RegistrationNumber} · {document.Title}";
+        var link = $"/documents/{document.Id}";
+        switch (document.Status)
+        {
+            case DocumentStatus.InSigning:
+                var waiting = document.Signers.Where(s => document.IsAwaitingSignatureFrom(s.UserId)).Select(static s => s.UserId).ToList();
+                var toSign = new NotificationDraft(NotificationKind.DocumentToSign, currentUser.Id, document.Id, subject, document.Description, link) { OnceSince = document.SubmittedAt };
+                await notifier.NotifyAsync(toSign, waiting, cancellationToken);
+                break;
+            case DocumentStatus.Signed:
+                var signed = new NotificationDraft(NotificationKind.DocumentSigned, currentUser.Id, document.Id, subject, null, link) { OnceSince = document.CompletedAt };
+                await notifier.NotifyAsync(signed, [document.AuthorId], cancellationToken);
+                break;
+            case DocumentStatus.Rejected:
+                var reason = document.Signers.Where(static s => s.Status == SignerStatus.Rejected).MaxBy(static s => s.DecidedAt)?.Comment;
+                var rejected = new NotificationDraft(NotificationKind.DocumentRejected, currentUser.Id, document.Id, subject, reason, link) { OnceSince = document.CompletedAt };
+                await notifier.NotifyAsync(rejected, [document.AuthorId], cancellationToken);
+                break;
+        }
     }
 
     /// <summary>

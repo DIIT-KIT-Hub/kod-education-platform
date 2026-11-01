@@ -5,6 +5,8 @@ import { DocumentsChapter } from "./DocumentsChapter";
 import { SigningChapter } from "./SigningChapter";
 import { NewsChapter } from "./NewsChapter";
 import { ChatsChapter } from "./ChatsChapter";
+import { RequestsChapter } from "./RequestsChapter";
+import { NotificationsChapter } from "./NotificationsChapter";
 import { StructureChapter } from "./StructureChapter";
 import { ProfileChapter } from "./ProfileChapter";
 import { AdministrationChapter } from "./AdministrationChapter";
@@ -25,6 +27,8 @@ export function Manual() {
             <SigningChapter />
             <NewsChapter />
             <ChatsChapter />
+            <RequestsChapter />
+            <NotificationsChapter />
             <StructureChapter />
             <ProfileChapter />
             <AdministrationChapter />

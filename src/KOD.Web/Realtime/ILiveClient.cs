@@ -1,5 +1,6 @@
 using KOD.Application.Common.Models;
 using KOD.Application.Features.Chats;
+using KOD.Application.Features.Notifications;
 
 namespace KOD.Web.Realtime;
 
@@ -61,4 +62,19 @@ public interface ILiveClient
     /// <param name="user">The member.</param>
     /// <returns>A task that completes when the message is sent.</returns>
     Task ChatTyping(Guid chatId, UserRef user);
+
+    /// <summary>
+    /// A new notification of the user (or one more message of a chat in its notification).
+    /// </summary>
+    /// <param name="notification">The notification.</param>
+    /// <param name="unreadCount">The number of unread notifications now.</param>
+    /// <returns>A task that completes when the message is sent.</returns>
+    Task NotificationReceived(NotificationDto notification, int unreadCount);
+
+    /// <summary>
+    /// Notifications of the user were read or deleted on another page.
+    /// </summary>
+    /// <param name="unreadCount">The number of unread notifications now.</param>
+    /// <returns>A task that completes when the message is sent.</returns>
+    Task NotificationsChanged(int unreadCount);
 }

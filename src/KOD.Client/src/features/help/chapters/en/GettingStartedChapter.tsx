@@ -1,4 +1,4 @@
-import { ChevronLeft, CircleCheck, Link2, Lock, Menu, Moon, Sun, Users } from "lucide-react";
+import { Bell, ChevronDown, ChevronLeft, CircleCheck, Link2, Lock, Menu, Moon, Sun, Users } from "lucide-react";
 import { Badge } from "@/shared/ui/Badge";
 import { Icon } from "@/shared/ui/Icon";
 import { Chapter, Ref, Table, Topic, Ui } from "../../components/Manual";
@@ -44,12 +44,16 @@ export function GettingStartedChapter() {
                 <h4>Menu</h4>
                 <ul>
                     <li>
-                        <strong>On a computer</strong> (screens from 1024 px) the menu is always visible on the left: <Ui>Home</Ui>,{" "}
-                        <Ui>Documents</Ui>, <Ui>Chats</Ui>, <Ui>Signing</Ui>, <Ui>News</Ui>, <Ui>Structure</Ui>, <Ui>Administration</Ui>,{" "}
-                        <Ui>Profile</Ui>, <Ui>Help</Ui>. A number next to <Ui>Chats</Ui> shows unread messages. At the bottom are your name
-                        (a link to your profile), the theme switch and the sign-out button. The round <Icon icon={ChevronLeft} /> button on
-                        the edge of the menu next to the logo collapses it to a narrow bar of icons (the item name appears on hover) and
-                        expands it again; your choice is remembered in the browser.
+                        <strong>On a computer</strong> (screens from 1024 px) the menu is always visible on the left. At the top are{" "}
+                        <Ui>Home</Ui> and <Ui>Notifications</Ui> <Icon icon={Bell} />, then the sections: <Ui>Document workflow</Ui> (
+                        <Ui>Documents</Ui>, <Ui>Signing</Ui>), <Ui>Communication</Ui> (<Ui>Chats</Ui>, <Ui>News</Ui>, <Ui>Requests</Ui>),{" "}
+                        <Ui>Organization</Ui> (<Ui>Structure</Ui>, <Ui>Administration</Ui>) and <Ui>Personal</Ui> (<Ui>Profile</Ui>,{" "}
+                        <Ui>Help</Ui>). One section is open at a time — the one of the page you are viewing; clicking the name of another
+                        section <Icon icon={ChevronDown} /> opens it and folds the previous one. A number next to <Ui>Chats</Ui> shows
+                        unread messages (next to the section name while it is folded). At the bottom are your name (a link to your profile),
+                        the theme switch and the sign-out button. The round <Icon icon={ChevronLeft} /> button on the edge of the menu next
+                        to the logo collapses it to a narrow bar of icons (the item name appears on hover) and expands it again; your choice
+                        is remembered in the browser.
                     </li>
                     <li>
                         <strong>On a phone</strong> there is a quick navigation bar at the bottom of the screen: <Ui>Home</Ui>,{" "}
@@ -57,12 +61,18 @@ export function GettingStartedChapter() {
                         menu in the top-right corner.
                     </li>
                     <li>
-                        <strong>On a tablet</strong> the menu opens with the <Icon icon={Menu} /> button in the top bar.
+                        <strong>On a tablet</strong> the menu opens with the <Icon icon={Menu} /> button in the top bar. On phones and
+                        tablets the notification bell <Icon icon={Bell} /> is in the top bar.
                     </li>
                 </ul>
                 <p>
                     The menu shows only the modules you have access to. If an item is missing, you don't have the corresponding permission
                     (see “<Ref to="intro-access">Roles and access</Ref>”).
+                </p>
+                <h4>Notifications</h4>
+                <p>
+                    The number on the bell <Icon icon={Bell} /> is your unread notifications; it changes at once, without reloading the
+                    page. See “<Ref to="notifications-kinds">Notifications</Ref>” for details.
                 </p>
                 <h4>Theme</h4>
                 <p>

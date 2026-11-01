@@ -198,6 +198,33 @@ export const router = createBrowserRouter([
                                 ],
                             },
                             {
+                                path: "requests",
+                                children: [
+                                    {
+                                        index: true,
+                                        lazy: async () => ({
+                                            Component: (await import("@/features/tickets/pages/TicketsPage")).TicketsPage,
+                                        }),
+                                    },
+                                    {
+                                        path: "new",
+                                        lazy: async () => ({
+                                            Component: (await import("@/features/tickets/pages/NewTicketPage")).NewTicketPage,
+                                        }),
+                                    },
+                                    {
+                                        path: ":id",
+                                        lazy: async () => ({ Component: (await import("@/features/tickets/pages/TicketPage")).TicketPage }),
+                                    },
+                                ],
+                            },
+                            {
+                                path: "notifications",
+                                lazy: async () => ({
+                                    Component: (await import("@/features/notifications/pages/NotificationsPage")).NotificationsPage,
+                                }),
+                            },
+                            {
                                 path: "profile",
                                 children: [
                                     {
@@ -305,6 +332,13 @@ export const router = createBrowserRouter([
                                         loader: requirePermission(Permissions.structureManage),
                                         lazy: async () => ({
                                             Component: (await import("@/features/admin/pages/UnitTypeEditorPage")).UnitTypeEditorPage,
+                                        }),
+                                    },
+                                    {
+                                        path: "requests",
+                                        loader: requirePermission(Permissions.ticketsManage),
+                                        lazy: async () => ({
+                                            Component: (await import("@/features/tickets/pages/TicketsAdminPage")).TicketsAdminPage,
                                         }),
                                     },
                                     {

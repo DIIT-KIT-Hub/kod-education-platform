@@ -85,4 +85,5 @@ export const Permissions = {
     usersExport: "users.export",
     administrationAll: "administration.all",
     chatsUse: "chats.use",
+    ticketsManage: "tickets.manage",
 } as const;

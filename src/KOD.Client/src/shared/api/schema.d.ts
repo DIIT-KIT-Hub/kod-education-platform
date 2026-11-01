@@ -2453,6 +2453,220 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/notifications": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Lists the notifications, the newest first. */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Gets a value indicating whether only unread notifications are listed. */
+                    UnreadOnly?: boolean;
+                    Page?: number;
+                    PageSize?: number;
+                    Search?: string;
+                    SortBy?: string;
+                    Descending?: boolean;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description The page. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PagedResultOfNotificationDto"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/notifications/unread-count": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Counts the unread notifications (the badge). */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description The number. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["UnreadCountResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/notifications/{id}/read": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Marks a notification read. */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The notification. */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description 204 on success. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/notifications/read": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Marks every notification read. */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description 204. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        post?: never;
+        /** Deletes the read notifications. */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description 204. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/notifications/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Deletes a notification. */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The notification. */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description 204 on success. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/organization-units": {
         parameters: {
             query?: never;
@@ -3197,6 +3411,481 @@ export interface paths {
                 };
             };
         };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tickets/mine": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Lists the requests of the current user. */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Gets the state; `null` lists all of them. */
+                    Status?: components["schemas"]["TicketStatus"];
+                    /** @description Gets the category; `null` lists all of them. */
+                    Category?: components["schemas"]["TicketCategory"];
+                    /** @description Gets a value indicating whether only the open requests (not resolved and not closed) are listed. */
+                    OpenOnly?: boolean;
+                    /** @description Gets a value indicating whether only the requests assigned to the current user are listed (handlers). */
+                    AssignedToMe?: boolean;
+                    Page?: number;
+                    PageSize?: number;
+                    Search?: string;
+                    SortBy?: string;
+                    Descending?: boolean;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description The page. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PagedResultOfTicketListItem"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tickets": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Lists the requests of all users. */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Gets the state; `null` lists all of them. */
+                    Status?: components["schemas"]["TicketStatus"];
+                    /** @description Gets the category; `null` lists all of them. */
+                    Category?: components["schemas"]["TicketCategory"];
+                    /** @description Gets a value indicating whether only the open requests (not resolved and not closed) are listed. */
+                    OpenOnly?: boolean;
+                    /** @description Gets a value indicating whether only the requests assigned to the current user are listed (handlers). */
+                    AssignedToMe?: boolean;
+                    Page?: number;
+                    PageSize?: number;
+                    Search?: string;
+                    SortBy?: string;
+                    Descending?: boolean;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description The page. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["PagedResultOfTicketListItem"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        /** Submits a request (multipart: the fields and up to ten files). */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            /** @description Gets or sets the attached files and screenshots. */
+            requestBody: {
+                content: {
+                    "multipart/form-data": {
+                        Category?: components["schemas"]["TicketCategory"];
+                        Priority?: components["schemas"]["TicketPriority"];
+                        Subject?: string;
+                        Description?: string;
+                        Files?: components["schemas"]["IFormFile"][];
+                    };
+                };
+            };
+            responses: {
+                /** @description 201 with the request. */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["TicketIdResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tickets/handlers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Lists the people who handle requests. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description The people. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["UserRef"][];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tickets/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Gets a request with its history. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The request. */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description The request with its history. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["TicketDetails"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tickets/{id}/messages": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Writes a message in a request (multipart: the text and up to ten files). */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The request. */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            /** @description Gets or sets the attached files. */
+            requestBody: {
+                content: {
+                    "multipart/form-data": {
+                        Body?: string;
+                        Files?: components["schemas"]["IFormFile"][];
+                    };
+                };
+            };
+            responses: {
+                /** @description 204 on success. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tickets/{id}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Changes the state of a request (a handler; the author may close their own). */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The request. */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            /** @description The cancellation token. */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["TicketStatusRequest"];
+                    "text/json": components["schemas"]["TicketStatusRequest"];
+                    "application/*+json": components["schemas"]["TicketStatusRequest"];
+                };
+            };
+            responses: {
+                /** @description 204 on success. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tickets/{id}/assignee": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Assigns a request to a handler or releases it. */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The request. */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            /** @description The cancellation token. */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["TicketAssigneeRequest"];
+                    "text/json": components["schemas"]["TicketAssigneeRequest"];
+                    "application/*+json": components["schemas"]["TicketAssigneeRequest"];
+                };
+            };
+            responses: {
+                /** @description 204 on success. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tickets/{id}/classification": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Changes the category and the priority of a request. */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The request. */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            /** @description The cancellation token. */
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["TicketClassificationRequest"];
+                    "text/json": components["schemas"]["TicketClassificationRequest"];
+                    "application/*+json": components["schemas"]["TicketClassificationRequest"];
+                };
+            };
+            responses: {
+                /** @description 204 on success. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tickets/{id}/attachments/{attachmentId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Downloads a file of a request, or a photo in full size. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The request. */
+                    id: string;
+                    /** @description The file. */
+                    attachmentId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description The content of the file. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/octet-stream": components["schemas"]["FileStreamResult"];
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tickets/{id}/attachments/{attachmentId}/thumb": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Gets the thumbnail of a photo. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description The request. */
+                    id: string;
+                    /** @description The photo. */
+                    attachmentId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description The thumbnail. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "image/avif": components["schemas"]["FileStreamResult"];
+                        "application/json": unknown;
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -3974,7 +4663,7 @@ export interface components {
          * @description Functional module of the cabinet. A module is visible to a user when the user has at least one of its permissions.
          * @enum {unknown}
          */
-        AppModule: "Documents" | "Signing" | "News" | "Structure" | "Users" | "Administration" | "Audit" | "Chats";
+        AppModule: "Documents" | "Signing" | "News" | "Structure" | "Users" | "Administration" | "Audit" | "Chats" | "Tickets";
         /** @description A row of the audit trail. */
         AuditEntryDto: {
             /**
@@ -4497,7 +5186,19 @@ export interface components {
          * @description Kind of an organizational and administrative document (the common set of Ukrainian office work, DSTU 4163).
          * @enum {unknown}
          */
-        DocumentKind: "Order" | "Directive" | "Memo" | "Application" | "Report" | "Minutes" | "Contract" | "Certificate" | "Regulation" | "Letter" | "Act" | "Other";
+        DocumentKind:
+            | "Order"
+            | "Directive"
+            | "Memo"
+            | "Application"
+            | "Report"
+            | "Minutes"
+            | "Contract"
+            | "Certificate"
+            | "Regulation"
+            | "Letter"
+            | "Act"
+            | "Other";
         /** @description A row of the document registry. */
         DocumentListItem: {
             /**
@@ -4955,6 +5656,59 @@ export interface components {
              */
             allowComments: boolean;
         };
+        /** @description A notification for display. */
+        NotificationDto: {
+            /**
+             * Format: uuid
+             * @description The identifier.
+             */
+            id: string;
+            /** @description What happened (the client translates it into the title). */
+            kind: components["schemas"]["NotificationKind"];
+            actor: null | components["schemas"]["UserRef"];
+            /**
+             * Format: uuid
+             * @description The document, article, chat or request concerned (the client refreshes its page).
+             */
+            entityId: string;
+            /** @description The title of what is concerned. */
+            subject: string;
+            /** @description The start of the text. */
+            preview: null | string;
+            /** @description A machine value shown translated (the new state of a request). */
+            code: null | string;
+            /** @description The address of the page to open. */
+            link: string;
+            /**
+             * Format: int32
+             * @description How many events it collects (messages of a chat).
+             */
+            count: number;
+            /**
+             * Format: date-time
+             * @description The moment of the last event.
+             */
+            createdAt: string;
+            /**
+             * Format: date-time
+             * @description The moment it was read.
+             */
+            readAt: null | string;
+        };
+        /**
+         * @description What a notification tells about. The client builds the translated title from it.
+         * @enum {unknown}
+         */
+        NotificationKind:
+            | "NewsReply"
+            | "DocumentToSign"
+            | "DocumentSigned"
+            | "DocumentRejected"
+            | "ChatMessage"
+            | "TicketCreated"
+            | "TicketReply"
+            | "TicketStatusChanged"
+            | "TicketAssigned";
         /** @description Body of `POST /api/v1/chats/direct`. */
         OpenDirectChatRequest: {
             /**
@@ -5081,9 +5835,87 @@ export interface components {
             lastItemIndex?: number;
         };
         /** @description A single page of items with the information needed to render pagination. */
+        PagedResultOfNotificationDto: {
+            /** @description The items of the current page. */
+            items: components["schemas"]["NotificationDto"][];
+            /**
+             * Format: int32
+             * @description The 1-based page number.
+             */
+            page: number;
+            /**
+             * Format: int32
+             * @description The page size.
+             */
+            pageSize: number;
+            /**
+             * Format: int32
+             * @description The total number of items matching the query.
+             */
+            totalCount: number;
+            /**
+             * Format: int32
+             * @description Gets the total number of pages (at least one).
+             */
+            totalPages?: number;
+            /** @description Gets a value indicating whether a previous page exists. */
+            hasPrevious?: boolean;
+            /** @description Gets a value indicating whether a next page exists. */
+            hasNext?: boolean;
+            /**
+             * Format: int32
+             * @description Gets the 1-based index of the first item on the page (0 when empty).
+             */
+            firstItemIndex?: number;
+            /**
+             * Format: int32
+             * @description Gets the 1-based index of the last item on the page.
+             */
+            lastItemIndex?: number;
+        };
+        /** @description A single page of items with the information needed to render pagination. */
         PagedResultOfRoleListItem: {
             /** @description The items of the current page. */
             items: components["schemas"]["RoleListItem"][];
+            /**
+             * Format: int32
+             * @description The 1-based page number.
+             */
+            page: number;
+            /**
+             * Format: int32
+             * @description The page size.
+             */
+            pageSize: number;
+            /**
+             * Format: int32
+             * @description The total number of items matching the query.
+             */
+            totalCount: number;
+            /**
+             * Format: int32
+             * @description Gets the total number of pages (at least one).
+             */
+            totalPages?: number;
+            /** @description Gets a value indicating whether a previous page exists. */
+            hasPrevious?: boolean;
+            /** @description Gets a value indicating whether a next page exists. */
+            hasNext?: boolean;
+            /**
+             * Format: int32
+             * @description Gets the 1-based index of the first item on the page (0 when empty).
+             */
+            firstItemIndex?: number;
+            /**
+             * Format: int32
+             * @description Gets the 1-based index of the last item on the page.
+             */
+            lastItemIndex?: number;
+        };
+        /** @description A single page of items with the information needed to render pagination. */
+        PagedResultOfTicketListItem: {
+            /** @description The items of the current page. */
+            items: components["schemas"]["TicketListItem"][];
             /**
              * Format: int32
              * @description The 1-based page number.
@@ -5622,6 +6454,200 @@ export interface components {
             /** @description Gets the user-facing role description in the current interface language. */
             description?: null | string;
         };
+        /** @description Body of `PUT /api/v1/tickets/{id}/assignee`. */
+        TicketAssigneeRequest: {
+            /**
+             * Format: uuid
+             * @description The handler, or `null` to release the request.
+             */
+            assigneeId: null | string;
+        };
+        /** @description A file of a request message. */
+        TicketAttachmentDto: {
+            /**
+             * Format: uuid
+             * @description The identifier.
+             */
+            id: string;
+            /** @description The file name. */
+            fileName: string;
+            /** @description The media type. */
+            contentType: string;
+            /**
+             * Format: int64
+             * @description The size in bytes.
+             */
+            size: number;
+            /** @description Whether it is a photo shown in the history (with a thumbnail). */
+            isImage: boolean;
+            /**
+             * Format: int32
+             * @description The width of a photo.
+             */
+            width: null | number;
+            /**
+             * Format: int32
+             * @description The height of a photo.
+             */
+            height: null | number;
+            /** @description The download address. */
+            url: string;
+            /** @description The address of the thumbnail of a photo. */
+            thumbnailUrl: null | string;
+        };
+        /**
+         * @description What a request is about.
+         * @enum {unknown}
+         */
+        TicketCategory: "Bug" | "Suggestion" | "Question" | "Access" | "Other";
+        /** @description Body of `PUT /api/v1/tickets/{id}/classification`. */
+        TicketClassificationRequest: {
+            /** @description What the request is about. */
+            category: components["schemas"]["TicketCategory"];
+            /** @description How urgent it is. */
+            priority: components["schemas"]["TicketPriority"];
+        };
+        /** @description A request with its whole history and what the current user may do with it. */
+        TicketDetails: {
+            /**
+             * Format: uuid
+             * @description The identifier.
+             */
+            id: string;
+            /**
+             * Format: int32
+             * @description The number shown to people.
+             */
+            number: number;
+            /** @description The subject. */
+            subject: string;
+            /** @description What it is about. */
+            category: components["schemas"]["TicketCategory"];
+            /** @description How urgent it is. */
+            priority: components["schemas"]["TicketPriority"];
+            /** @description The state. */
+            status: components["schemas"]["TicketStatus"];
+            /** @description The author. */
+            author: components["schemas"]["UserRef"];
+            /** @description The main position of the author (for the handlers). */
+            authorPosition: null | string;
+            /** @description The e-mail of the author (for the handlers). */
+            authorEmail: null | string;
+            assignee: null | components["schemas"]["UserRef"];
+            /**
+             * Format: date-time
+             * @description The moment it was submitted.
+             */
+            createdAt: string;
+            /**
+             * Format: date-time
+             * @description The moment of the last message or change.
+             */
+            lastActivityAt: string;
+            /** @description The history, oldest first (the first message is the description). */
+            messages: components["schemas"]["TicketMessageDto"][];
+            /** @description Whether the current user submitted it. */
+            isMine: boolean;
+            /** @description Whether the current user handles requests (state, handler, category). */
+            canManage: boolean;
+            /** @description Whether the current user may write in it now. */
+            canReply: boolean;
+            /** @description Whether the current user may close it. */
+            canClose: boolean;
+        };
+        /** @description The request a call created. */
+        TicketIdResponse: {
+            /**
+             * Format: uuid
+             * @description The request identifier.
+             */
+            id: string;
+        };
+        /** @description A request in a list. */
+        TicketListItem: {
+            /**
+             * Format: uuid
+             * @description The identifier.
+             */
+            id: string;
+            /**
+             * Format: int32
+             * @description The number shown to people.
+             */
+            number: number;
+            /** @description The subject. */
+            subject: string;
+            /** @description What it is about. */
+            category: components["schemas"]["TicketCategory"];
+            /** @description How urgent it is. */
+            priority: components["schemas"]["TicketPriority"];
+            /** @description The state. */
+            status: components["schemas"]["TicketStatus"];
+            /** @description The author. */
+            author: components["schemas"]["UserRef"];
+            assignee: null | components["schemas"]["UserRef"];
+            /**
+             * Format: date-time
+             * @description The moment it was submitted.
+             */
+            createdAt: string;
+            /**
+             * Format: date-time
+             * @description The moment of the last message or change.
+             */
+            lastActivityAt: string;
+            /**
+             * Format: int32
+             * @description The number of messages (the description included).
+             */
+            commentCount: number;
+            /** @description Whether the last message is the author's (the handlers owe an answer). */
+            awaitingAnswer: boolean;
+        };
+        /** @description An entry in the history of a request. */
+        TicketMessageDto: {
+            /**
+             * Format: uuid
+             * @description The identifier.
+             */
+            id: string;
+            /** @description The kind. */
+            kind: components["schemas"]["TicketMessageKind"];
+            /** @description The writer (for a note, who made the change). */
+            author: components["schemas"]["UserRef"];
+            /** @description Whether the author of the request wrote it (otherwise a handler). */
+            fromAuthor: boolean;
+            /** @description The plain text (the name of the new handler for an assignment note). */
+            body: string;
+            status: null | components["schemas"]["TicketStatus"];
+            /**
+             * Format: date-time
+             * @description The moment it was written.
+             */
+            createdAt: string;
+            /** @description The files. */
+            attachments: components["schemas"]["TicketAttachmentDto"][];
+        };
+        /**
+         * @description The kind of an entry in the history of a request.
+         * @enum {unknown}
+         */
+        TicketMessageKind: "Comment" | "StatusChanged" | "Assigned";
+        /**
+         * @description How urgent a request is for its author.
+         * @enum {unknown}
+         */
+        TicketPriority: "Low" | "Normal" | "High" | "Critical";
+        /**
+         * @description The state of a request.
+         * @enum {unknown}
+         */
+        TicketStatus: "New" | "InProgress" | "WaitingForAuthor" | "Resolved" | "Closed";
+        /** @description Body of `PUT /api/v1/tickets/{id}/status`. */
+        TicketStatusRequest: {
+            /** @description The new state. */
+            status: components["schemas"]["TicketStatus"];
+        };
         /** @description Full information about an organization unit. */
         UnitDetails: {
             /**
@@ -5806,6 +6832,14 @@ export interface components {
             icon: string;
             /** @description Whether units of this type are organizations. */
             isOrganization: boolean;
+        };
+        /** @description Answer of `GET /api/v1/notifications/unread-count`. */
+        UnreadCountResponse: {
+            /**
+             * Format: int32
+             * @description The number of unread notifications.
+             */
+            count: number;
         };
         /** @description One-time credentials of a new or reset account. The temporary password must be changed at the first sign-in. */
         UserCredentials: {
@@ -6010,119 +7044,136 @@ export interface components {
     headers: never;
     pathItems: never;
 }
-export type AppModule = components['schemas']['AppModule'];
-export type AuditEntryDto = components['schemas']['AuditEntryDto'];
-export type AuthContextResponse = components['schemas']['AuthContextResponse'];
-export type AuthenticatorSetupResponse = components['schemas']['AuthenticatorSetupResponse'];
-export type ChangePasswordRequest = components['schemas']['ChangePasswordRequest'];
-export type ChatAttachmentDto = components['schemas']['ChatAttachmentDto'];
-export type ChatAttachmentKind = components['schemas']['ChatAttachmentKind'];
-export type ChatDetails = components['schemas']['ChatDetails'];
-export type ChatEvent = components['schemas']['ChatEvent'];
-export type ChatIdResponse = components['schemas']['ChatIdResponse'];
-export type ChatKind = components['schemas']['ChatKind'];
-export type ChatMemberDto = components['schemas']['ChatMemberDto'];
-export type ChatMemberRole = components['schemas']['ChatMemberRole'];
-export type ChatMembersRequest = components['schemas']['ChatMembersRequest'];
-export type ChatMessageDto = components['schemas']['ChatMessageDto'];
-export type ChatMessageKind = components['schemas']['ChatMessageKind'];
-export type ChatMessagePage = components['schemas']['ChatMessagePage'];
-export type ChatMessageRequest = components['schemas']['ChatMessageRequest'];
-export type ChatPreview = components['schemas']['ChatPreview'];
-export type ChatReactionDto = components['schemas']['ChatReactionDto'];
-export type ChatReadRequest = components['schemas']['ChatReadRequest'];
-export type ChatSummary = components['schemas']['ChatSummary'];
-export type ChatTitleRequest = components['schemas']['ChatTitleRequest'];
-export type CodeRequest = components['schemas']['CodeRequest'];
-export type CommentRequest = components['schemas']['CommentRequest'];
-export type CommentSort = components['schemas']['CommentSort'];
-export type CreateGroupChatRequest = components['schemas']['CreateGroupChatRequest'];
-export type CredentialsFileRequest = components['schemas']['CredentialsFileRequest'];
-export type CurrentUserResponse = components['schemas']['CurrentUserResponse'];
-export type DashboardSummary = components['schemas']['DashboardSummary'];
-export type DocumentActions = components['schemas']['DocumentActions'];
-export type DocumentDetails = components['schemas']['DocumentDetails'];
-export type DocumentEditModel = components['schemas']['DocumentEditModel'];
-export type DocumentFileInfo = components['schemas']['DocumentFileInfo'];
-export type DocumentKind = components['schemas']['DocumentKind'];
-export type DocumentListItem = components['schemas']['DocumentListItem'];
-export type DocumentScope = components['schemas']['DocumentScope'];
-export type DocumentSignatureItem = components['schemas']['DocumentSignatureItem'];
-export type DocumentSignerItem = components['schemas']['DocumentSignerItem'];
-export type DocumentStatus = components['schemas']['DocumentStatus'];
-export type DocumentStatusRequest = components['schemas']['DocumentStatusRequest'];
-export type EntityTagHeaderValue = components['schemas']['EntityTagHeaderValue'];
-export type FileSigningRecord = components['schemas']['FileSigningRecord'];
-export type FileStreamResult = components['schemas']['FileStreamResult'];
-export type IFormFile = components['schemas']['IFormFile'];
-export type ImportRowError = components['schemas']['ImportRowError'];
-export type KeyMediaType = components['schemas']['KeyMediaType'];
-export type LanguageRequest = components['schemas']['LanguageRequest'];
-export type LoginRequest = components['schemas']['LoginRequest'];
-export type LoginResponse = components['schemas']['LoginResponse'];
-export type MediaDto = components['schemas']['MediaDto'];
-export type NewPasswordRequest = components['schemas']['NewPasswordRequest'];
-export type NewsArticleDto = components['schemas']['NewsArticleDto'];
-export type NewsBodyFormat = components['schemas']['NewsBodyFormat'];
-export type NewsCategory = components['schemas']['NewsCategory'];
-export type NewsCommentDto = components['schemas']['NewsCommentDto'];
-export type NewsDiscussion = components['schemas']['NewsDiscussion'];
-export type NewsListItem = components['schemas']['NewsListItem'];
-export type NewsOrganizationsResponse = components['schemas']['NewsOrganizationsResponse'];
-export type NewsRequest = components['schemas']['NewsRequest'];
-export type OpenDirectChatRequest = components['schemas']['OpenDirectChatRequest'];
-export type PagedResultOfAuditEntryDto = components['schemas']['PagedResultOfAuditEntryDto'];
-export type PagedResultOfDocumentListItem = components['schemas']['PagedResultOfDocumentListItem'];
-export type PagedResultOfNewsListItem = components['schemas']['PagedResultOfNewsListItem'];
-export type PagedResultOfRoleListItem = components['schemas']['PagedResultOfRoleListItem'];
-export type PagedResultOfUnitListItem = components['schemas']['PagedResultOfUnitListItem'];
-export type PagedResultOfUnitStaffItem = components['schemas']['PagedResultOfUnitStaffItem'];
-export type PagedResultOfUserListItem = components['schemas']['PagedResultOfUserListItem'];
-export type PendingSignInResponse = components['schemas']['PendingSignInResponse'];
-export type PermissionDefinition = components['schemas']['PermissionDefinition'];
-export type PositionDto = components['schemas']['PositionDto'];
-export type PositionInput = components['schemas']['PositionInput'];
-export type ProfileDto = components['schemas']['ProfileDto'];
-export type ProfileUpdateRequest = components['schemas']['ProfileUpdateRequest'];
-export type ReactionCount = components['schemas']['ReactionCount'];
-export type ReactionKind = components['schemas']['ReactionKind'];
-export type ReactionSummary = components['schemas']['ReactionSummary'];
-export type RecoveryCodesResponse = components['schemas']['RecoveryCodesResponse'];
-export type RejectionRequest = components['schemas']['RejectionRequest'];
-export type RoleDetails = components['schemas']['RoleDetails'];
-export type RoleListItem = components['schemas']['RoleListItem'];
-export type RoleOption = components['schemas']['RoleOption'];
-export type SaveRoleCommand = components['schemas']['SaveRoleCommand'];
-export type SaveUnitCommand = components['schemas']['SaveUnitCommand'];
-export type SaveUnitTypeCommand = components['schemas']['SaveUnitTypeCommand'];
-export type SaveUserCommand = components['schemas']['SaveUserCommand'];
-export type SignatureFormat = components['schemas']['SignatureFormat'];
-export type SignaturePackaging = components['schemas']['SignaturePackaging'];
-export type SignerCertificate = components['schemas']['SignerCertificate'];
-export type SignerStatus = components['schemas']['SignerStatus'];
-export type SigningMode = components['schemas']['SigningMode'];
-export type SigningSession = components['schemas']['SigningSession'];
-export type SpreadsheetFormat = components['schemas']['SpreadsheetFormat'];
-export type StepUpRequest = components['schemas']['StepUpRequest'];
-export type Stream = components['schemas']['Stream'];
-export type StringSegment = components['schemas']['StringSegment'];
-export type SystemRoleDefinition = components['schemas']['SystemRoleDefinition'];
-export type UnitDetails = components['schemas']['UnitDetails'];
-export type UnitListItem = components['schemas']['UnitListItem'];
-export type UnitOption = components['schemas']['UnitOption'];
-export type UnitRef = components['schemas']['UnitRef'];
-export type UnitStaffItem = components['schemas']['UnitStaffItem'];
-export type UnitTreeNode = components['schemas']['UnitTreeNode'];
-export type UnitTypeItem = components['schemas']['UnitTypeItem'];
-export type UnitTypeRef = components['schemas']['UnitTypeRef'];
-export type UserCredentials = components['schemas']['UserCredentials'];
-export type UserDetails = components['schemas']['UserDetails'];
-export type UserImportReport = components['schemas']['UserImportReport'];
-export type UserListItem = components['schemas']['UserListItem'];
-export type UserLookupItem = components['schemas']['UserLookupItem'];
-export type UserPositionDto = components['schemas']['UserPositionDto'];
-export type UserRef = components['schemas']['UserRef'];
-export type UserStatusFilter = components['schemas']['UserStatusFilter'];
-export type UserStatusRequest = components['schemas']['UserStatusRequest'];
+export type AppModule = components["schemas"]["AppModule"];
+export type AuditEntryDto = components["schemas"]["AuditEntryDto"];
+export type AuthContextResponse = components["schemas"]["AuthContextResponse"];
+export type AuthenticatorSetupResponse = components["schemas"]["AuthenticatorSetupResponse"];
+export type ChangePasswordRequest = components["schemas"]["ChangePasswordRequest"];
+export type ChatAttachmentDto = components["schemas"]["ChatAttachmentDto"];
+export type ChatAttachmentKind = components["schemas"]["ChatAttachmentKind"];
+export type ChatDetails = components["schemas"]["ChatDetails"];
+export type ChatEvent = components["schemas"]["ChatEvent"];
+export type ChatIdResponse = components["schemas"]["ChatIdResponse"];
+export type ChatKind = components["schemas"]["ChatKind"];
+export type ChatMemberDto = components["schemas"]["ChatMemberDto"];
+export type ChatMemberRole = components["schemas"]["ChatMemberRole"];
+export type ChatMembersRequest = components["schemas"]["ChatMembersRequest"];
+export type ChatMessageDto = components["schemas"]["ChatMessageDto"];
+export type ChatMessageKind = components["schemas"]["ChatMessageKind"];
+export type ChatMessagePage = components["schemas"]["ChatMessagePage"];
+export type ChatMessageRequest = components["schemas"]["ChatMessageRequest"];
+export type ChatPreview = components["schemas"]["ChatPreview"];
+export type ChatReactionDto = components["schemas"]["ChatReactionDto"];
+export type ChatReadRequest = components["schemas"]["ChatReadRequest"];
+export type ChatSummary = components["schemas"]["ChatSummary"];
+export type ChatTitleRequest = components["schemas"]["ChatTitleRequest"];
+export type CodeRequest = components["schemas"]["CodeRequest"];
+export type CommentRequest = components["schemas"]["CommentRequest"];
+export type CommentSort = components["schemas"]["CommentSort"];
+export type CreateGroupChatRequest = components["schemas"]["CreateGroupChatRequest"];
+export type CredentialsFileRequest = components["schemas"]["CredentialsFileRequest"];
+export type CurrentUserResponse = components["schemas"]["CurrentUserResponse"];
+export type DashboardSummary = components["schemas"]["DashboardSummary"];
+export type DocumentActions = components["schemas"]["DocumentActions"];
+export type DocumentDetails = components["schemas"]["DocumentDetails"];
+export type DocumentEditModel = components["schemas"]["DocumentEditModel"];
+export type DocumentFileInfo = components["schemas"]["DocumentFileInfo"];
+export type DocumentKind = components["schemas"]["DocumentKind"];
+export type DocumentListItem = components["schemas"]["DocumentListItem"];
+export type DocumentScope = components["schemas"]["DocumentScope"];
+export type DocumentSignatureItem = components["schemas"]["DocumentSignatureItem"];
+export type DocumentSignerItem = components["schemas"]["DocumentSignerItem"];
+export type DocumentStatus = components["schemas"]["DocumentStatus"];
+export type DocumentStatusRequest = components["schemas"]["DocumentStatusRequest"];
+export type EntityTagHeaderValue = components["schemas"]["EntityTagHeaderValue"];
+export type FileSigningRecord = components["schemas"]["FileSigningRecord"];
+export type FileStreamResult = components["schemas"]["FileStreamResult"];
+export type IFormFile = components["schemas"]["IFormFile"];
+export type ImportRowError = components["schemas"]["ImportRowError"];
+export type KeyMediaType = components["schemas"]["KeyMediaType"];
+export type LanguageRequest = components["schemas"]["LanguageRequest"];
+export type LoginRequest = components["schemas"]["LoginRequest"];
+export type LoginResponse = components["schemas"]["LoginResponse"];
+export type MediaDto = components["schemas"]["MediaDto"];
+export type NewPasswordRequest = components["schemas"]["NewPasswordRequest"];
+export type NewsArticleDto = components["schemas"]["NewsArticleDto"];
+export type NewsBodyFormat = components["schemas"]["NewsBodyFormat"];
+export type NewsCategory = components["schemas"]["NewsCategory"];
+export type NewsCommentDto = components["schemas"]["NewsCommentDto"];
+export type NewsDiscussion = components["schemas"]["NewsDiscussion"];
+export type NewsListItem = components["schemas"]["NewsListItem"];
+export type NewsOrganizationsResponse = components["schemas"]["NewsOrganizationsResponse"];
+export type NewsRequest = components["schemas"]["NewsRequest"];
+export type NotificationDto = components["schemas"]["NotificationDto"];
+export type NotificationKind = components["schemas"]["NotificationKind"];
+export type OpenDirectChatRequest = components["schemas"]["OpenDirectChatRequest"];
+export type PagedResultOfAuditEntryDto = components["schemas"]["PagedResultOfAuditEntryDto"];
+export type PagedResultOfDocumentListItem = components["schemas"]["PagedResultOfDocumentListItem"];
+export type PagedResultOfNewsListItem = components["schemas"]["PagedResultOfNewsListItem"];
+export type PagedResultOfNotificationDto = components["schemas"]["PagedResultOfNotificationDto"];
+export type PagedResultOfRoleListItem = components["schemas"]["PagedResultOfRoleListItem"];
+export type PagedResultOfTicketListItem = components["schemas"]["PagedResultOfTicketListItem"];
+export type PagedResultOfUnitListItem = components["schemas"]["PagedResultOfUnitListItem"];
+export type PagedResultOfUnitStaffItem = components["schemas"]["PagedResultOfUnitStaffItem"];
+export type PagedResultOfUserListItem = components["schemas"]["PagedResultOfUserListItem"];
+export type PendingSignInResponse = components["schemas"]["PendingSignInResponse"];
+export type PermissionDefinition = components["schemas"]["PermissionDefinition"];
+export type PositionDto = components["schemas"]["PositionDto"];
+export type PositionInput = components["schemas"]["PositionInput"];
+export type ProfileDto = components["schemas"]["ProfileDto"];
+export type ProfileUpdateRequest = components["schemas"]["ProfileUpdateRequest"];
+export type ReactionCount = components["schemas"]["ReactionCount"];
+export type ReactionKind = components["schemas"]["ReactionKind"];
+export type ReactionSummary = components["schemas"]["ReactionSummary"];
+export type RecoveryCodesResponse = components["schemas"]["RecoveryCodesResponse"];
+export type RejectionRequest = components["schemas"]["RejectionRequest"];
+export type RoleDetails = components["schemas"]["RoleDetails"];
+export type RoleListItem = components["schemas"]["RoleListItem"];
+export type RoleOption = components["schemas"]["RoleOption"];
+export type SaveRoleCommand = components["schemas"]["SaveRoleCommand"];
+export type SaveUnitCommand = components["schemas"]["SaveUnitCommand"];
+export type SaveUnitTypeCommand = components["schemas"]["SaveUnitTypeCommand"];
+export type SaveUserCommand = components["schemas"]["SaveUserCommand"];
+export type SignatureFormat = components["schemas"]["SignatureFormat"];
+export type SignaturePackaging = components["schemas"]["SignaturePackaging"];
+export type SignerCertificate = components["schemas"]["SignerCertificate"];
+export type SignerStatus = components["schemas"]["SignerStatus"];
+export type SigningMode = components["schemas"]["SigningMode"];
+export type SigningSession = components["schemas"]["SigningSession"];
+export type SpreadsheetFormat = components["schemas"]["SpreadsheetFormat"];
+export type StepUpRequest = components["schemas"]["StepUpRequest"];
+export type Stream = components["schemas"]["Stream"];
+export type StringSegment = components["schemas"]["StringSegment"];
+export type SystemRoleDefinition = components["schemas"]["SystemRoleDefinition"];
+export type TicketAssigneeRequest = components["schemas"]["TicketAssigneeRequest"];
+export type TicketAttachmentDto = components["schemas"]["TicketAttachmentDto"];
+export type TicketCategory = components["schemas"]["TicketCategory"];
+export type TicketClassificationRequest = components["schemas"]["TicketClassificationRequest"];
+export type TicketDetails = components["schemas"]["TicketDetails"];
+export type TicketIdResponse = components["schemas"]["TicketIdResponse"];
+export type TicketListItem = components["schemas"]["TicketListItem"];
+export type TicketMessageDto = components["schemas"]["TicketMessageDto"];
+export type TicketMessageKind = components["schemas"]["TicketMessageKind"];
+export type TicketPriority = components["schemas"]["TicketPriority"];
+export type TicketStatus = components["schemas"]["TicketStatus"];
+export type TicketStatusRequest = components["schemas"]["TicketStatusRequest"];
+export type UnitDetails = components["schemas"]["UnitDetails"];
+export type UnitListItem = components["schemas"]["UnitListItem"];
+export type UnitOption = components["schemas"]["UnitOption"];
+export type UnitRef = components["schemas"]["UnitRef"];
+export type UnitStaffItem = components["schemas"]["UnitStaffItem"];
+export type UnitTreeNode = components["schemas"]["UnitTreeNode"];
+export type UnitTypeItem = components["schemas"]["UnitTypeItem"];
+export type UnitTypeRef = components["schemas"]["UnitTypeRef"];
+export type UnreadCountResponse = components["schemas"]["UnreadCountResponse"];
+export type UserCredentials = components["schemas"]["UserCredentials"];
+export type UserDetails = components["schemas"]["UserDetails"];
+export type UserImportReport = components["schemas"]["UserImportReport"];
+export type UserListItem = components["schemas"]["UserListItem"];
+export type UserLookupItem = components["schemas"]["UserLookupItem"];
+export type UserPositionDto = components["schemas"]["UserPositionDto"];
+export type UserRef = components["schemas"]["UserRef"];
+export type UserStatusFilter = components["schemas"]["UserStatusFilter"];
+export type UserStatusRequest = components["schemas"]["UserStatusRequest"];
 export type $defs = Record<string, never>;
 export type operations = Record<string, never>;

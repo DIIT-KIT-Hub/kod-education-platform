@@ -1,0 +1,121 @@
+import { useLingui } from "@lingui/react/macro";
+import { useQueryClient } from "@tanstack/react-query";
+import { Check, Trash2 } from "lucide-react";
+import { useNavigate } from "react-router";
+import { describeError } from "@/shared/api/problem";
+import type { NotificationDto } from "@/shared/api/schema";
+import { formatAgo, formatDateTime } from "@/shared/i18n/format";
+import { Avatar } from "@/shared/ui/Avatar";
+import { Button } from "@/shared/ui/Button";
+import { Icon } from "@/shared/ui/Icon";
+import { toast } from "@/shared/ui/Toast";
+import { notificationApi } from "@/features/notifications/api";
+import { notificationIcons, notificationTitle } from "@/features/notifications/display";
+import styles from "./notifications.module.css";
+
+/**
+ * Props of {@link NotificationItem}.
+ */
+export interface NotificationItemProps {
+    /** The notification. */
+    readonly notification: NotificationDto;
+    /** Shows the buttons to mark it read and to delete it (the full list). */
+    readonly actions?: boolean;
+    /** Called after the user opened it (closes the panel). */
+    readonly onOpen?: () => void;
+}
+
+/**
+ * A notification: who did what, about what, when. Choosing it marks it read and opens its page.
+ * @param props The props.
+ * @returns The row.
+ */
+export function NotificationItem({ notification, actions, onOpen }: NotificationItemProps) {
+    const { t, i18n } = useLingui();
+    const navigate = useNavigate();
+    const queryClient = useQueryClient();
+    const unread = !notification.readAt;
+    const title = notificationTitle(notification, i18n);
+
+    /**
+     * Marks the notification read and opens its page.
+     */
+    function open(): void {
+        if (unread) {
+            void notificationApi.markRead(notification.id).catch(() => undefined);
+        }
+
+        onOpen?.();
+        void navigate(notification.link);
+    }
+
+    /**
+     * Runs a change and reports a failure.
+     * @param change The change.
+     */
+    async function run(change: () => Promise<unknown>): Promise<void> {
+        try {
+            await change();
+            await queryClient.invalidateQueries({ queryKey: ["notifications"] });
+        } catch (error) {
+            toast(describeError(error, t`Не вдалося змінити сповіщення.`), { danger: true });
+        }
+    }
+
+    return (
+        <li className={styles.item} data-unread={unread || undefined}>
+            <button type="button" className={styles.itemMain} onClick={open}>
+                <span className={styles.itemIcon}>
+                    {notification.actor ? (
+                        <Avatar name={notification.actor.fullName} photoId={notification.actor.photoId} size="sm" decorative />
+                    ) : (
+                        <Icon icon={notificationIcons[notification.kind]} />
+                    )}
+                    {notification.actor && (
+                        <span className={styles.itemKind}>
+                            <Icon icon={notificationIcons[notification.kind]} />
+                        </span>
+                    )}
+                </span>
+                <span className={styles.itemText}>
+                    <span className={styles.itemTitle}>{title}</span>
+                    <span className={styles.itemSubject}>{notification.subject}</span>
+                    {notification.preview && (
+                        <span className={styles.itemPreview}>
+                            {notification.actor && <strong>{notification.actor.fullName}: </strong>}
+                            {notification.preview}
+                        </span>
+                    )}
+                    <time className={styles.itemTime} dateTime={notification.createdAt} title={formatDateTime(notification.createdAt)}>
+                        {formatAgo(notification.createdAt)}
+                    </time>
+                </span>
+                {unread && <span className={styles.dot} aria-label={t`Непрочитане`} />}
+            </button>
+            {actions && (
+                <span className={styles.itemActions}>
+                    {unread && (
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            iconOnly
+                            icon={Check}
+                            onClick={() => void run(() => notificationApi.markRead(notification.id))}
+                        >
+                            {t`Позначити прочитаним`}
+                        </Button>
+                    )}
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        iconOnly
+                        icon={Trash2}
+                        onClick={() => void run(() => notificationApi.remove(notification.id))}
+                    >
+                        {t`Видалити сповіщення`}
+                    </Button>
+                </span>
+            )}
+        </li>
+    );
+}

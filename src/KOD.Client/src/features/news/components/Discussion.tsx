@@ -1,8 +1,8 @@
 import { useLingui } from "@lingui/react/macro";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, CornerDownRight, MessageSquare, Minus, Pencil, Plus, Reply, Send, Trash2 } from "lucide-react";
-import { useRef, useState, type ReactNode } from "react";
-import { useSearchParams } from "react-router";
+import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useLocation, useSearchParams } from "react-router";
 import { describeError } from "@/shared/api/problem";
 import type { CommentSort, NewsCommentDto, NewsDiscussion, ReactionKind } from "@/shared/api/schema";
 import { formatAgo, formatDateTime } from "@/shared/i18n/format";
@@ -71,6 +71,15 @@ export function Discussion({ articleId }: { readonly articleId: string }) {
     const section = useRef<HTMLElement>(null);
 
     const reload = () => queryClient.invalidateQueries({ queryKey: newsKeys.discussion(articleId) });
+    const { hash } = useLocation();
+    const loaded = discussion.data !== undefined;
+
+    // A link to a comment (a reply notification) scrolls to it once the discussion is there; :target marks it.
+    useEffect(() => {
+        if (loaded && hash.startsWith("#comment-")) {
+            document.getElementById(hash.slice(1))?.scrollIntoView({ block: "center", behavior: "smooth" });
+        }
+    }, [loaded, hash]);
 
     // Comments and reactions of other readers appear at once.
     useLiveGroup(
@@ -299,7 +308,11 @@ function CommentNode({ comment, actions, depthOffset }: CommentNodeProps) {
 
     return (
         <li className={styles.node}>
-            <article className={styles.comment} aria-label={comment.isDeleted ? t`Коментар видалено.` : t`Коментар: ${authorName}`}>
+            <article
+                id={`comment-${comment.id}`}
+                className={styles.comment}
+                aria-label={comment.isDeleted ? t`Коментар видалено.` : t`Коментар: ${authorName}`}
+            >
                 <div className={styles.rail}>
                     <Avatar name={authorName} photoId={comment.author.photoId} size={depth === 0 ? "md" : "sm"} decorative />
                     {(comment.replies.length > 0 || actions.replyTo === comment.id) && (

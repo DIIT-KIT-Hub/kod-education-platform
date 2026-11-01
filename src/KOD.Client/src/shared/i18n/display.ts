@@ -9,6 +9,9 @@ import type {
     SignaturePackaging,
     SignerStatus,
     SigningMode,
+    TicketCategory,
+    TicketPriority,
+    TicketStatus,
     UserStatusFilter,
 } from "@/shared/api/schema";
 
@@ -42,6 +45,39 @@ export const moduleNames: Record<AppModule, MessageDescriptor> = {
     Administration: msg`Адміністрування`,
     Audit: msg`Аудит`,
     Chats: msg`Чати`,
+    Tickets: msg`Звернення`,
+};
+
+/**
+ * The names of request categories.
+ */
+export const ticketCategoryNames: Record<TicketCategory, MessageDescriptor> = {
+    Bug: msg({ message: "Помилка", context: "ticket-category" }),
+    Suggestion: msg`Пропозиція`,
+    Question: msg`Запитання`,
+    Access: msg`Доступ і права`,
+    Other: msg({ message: "Інше", context: "ticket-category" }),
+};
+
+/**
+ * The names of request priorities.
+ */
+export const ticketPriorityNames: Record<TicketPriority, MessageDescriptor> = {
+    Low: msg`Низький`,
+    Normal: msg`Звичайний`,
+    High: msg`Високий`,
+    Critical: msg`Критичний`,
+};
+
+/**
+ * The names of request states.
+ */
+export const ticketStatusNames: Record<TicketStatus, MessageDescriptor> = {
+    New: msg({ message: "Нове", context: "ticket-status" }),
+    InProgress: msg`В роботі`,
+    WaitingForAuthor: msg`Очікує відповіді автора`,
+    Resolved: msg`Вирішено`,
+    Closed: msg({ message: "Закрито", context: "ticket-status" }),
 };
 
 /**

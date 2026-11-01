@@ -105,5 +105,8 @@
   "Файли одного повідомлення не можуть бути більшими за {0} МБ разом.": "The files of one message cannot exceed {0} MB in total.",
   "Файли типу «{0}» не можна надсилати в чат.": "Files of type “{0}” cannot be sent to a chat.",
   "Цій людині не можна написати: обліковий запис заблоковано або чати для неї вимкнено.": "You cannot write to this person: the account is blocked or chats are turned off for them.",
-  "Чат не знайдено.": "Chat not found."
+  "Чат не знайдено.": "Chat not found.",
+  "Сповіщення не знайдено.": "Notification not found.",
+  "Звернення можна призначити лише тому, хто опрацьовує звернення.": "A request can be assigned only to someone who handles requests.",
+  "Файли типу «{0}» не можна додати до звернення.": "Files of type “{0}” cannot be attached to a request."
 }

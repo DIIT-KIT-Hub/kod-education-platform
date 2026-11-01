@@ -1,14 +1,17 @@
 using KOD.Application.Abstractions;
+using KOD.Application.Common.Access;
 using KOD.Application.Common.Files;
 using KOD.Application.Common.Models;
 using KOD.Application.Common.Results;
 using KOD.Application.Common.Text;
+using KOD.Application.Features.Notifications;
 using KOD.Domain.Access;
 using KOD.Domain.Chats;
 using KOD.Domain.Common;
 using KOD.Domain.Localization;
 using KOD.Domain.Media;
 using KOD.Domain.News;
+using KOD.Domain.Notifications;
 using KOD.Domain.Users;
 using Microsoft.EntityFrameworkCore;
 
@@ -20,17 +23,19 @@ namespace KOD.Application.Features.Chats;
 /// <param name="db">The database context.</param>
 /// <param name="currentUser">The current user.</param>
 /// <param name="sanitizer">Cleans the HTML of messages.</param>
-/// <param name="images">Optimizes photos.</param>
+/// <param name="attachmentStore">Checks and stores the files of messages.</param>
 /// <param name="files">The private file storage.</param>
 /// <param name="events">Delivers changes to the members' pages.</param>
+/// <param name="notifier">Collects new messages in the notifications of the members.</param>
 /// <param name="timeProvider">The clock.</param>
 internal sealed class ChatService(
     IApplicationDbContext db,
     ICurrentUser currentUser,
     IRichTextSanitizer sanitizer,
-    IImageProcessor images,
+    AttachmentStore attachmentStore,
     IFileStorage files,
     IChatEvents events,
+    INotifier notifier,
     TimeProvider timeProvider) : IChatService
 {
     /// <summary>
@@ -484,7 +489,12 @@ internal sealed class ChatService(
                 }
 
                 var dto = (await LoadAsync(db.ChatMessages.Where(m => m.Id == added.Id), cancellationToken))[0];
-                events.MessageAdded(await MemberIdsAsync(chatId, cancellationToken), dto);
+                var recipients = await MemberIdsAsync(chatId, cancellationToken);
+                events.MessageAdded(recipients, dto);
+
+                // One unread notification per chat collects its new messages.
+                var draft = new NotificationDraft(NotificationKind.ChatMessage, me, chatId, chat.Title ?? dto.Author.FullName, text.Length > 0 ? text : null, $"/chats/{chatId}") { Collect = true };
+                await notifier.NotifyAsync(draft, recipients, cancellationToken);
                 return dto;
             }
         }
@@ -613,6 +623,12 @@ internal sealed class ChatService(
             events.Read(await MemberIdsAsync(chatId, cancellationToken), chatId, me, member.LastReadSequence);
         }
 
+        // Read to the end: the notification about the chat is done.
+        if (member.LastReadSequence >= last)
+        {
+            await notifier.MarkReadAsync(me, chatId, cancellationToken);
+        }
+
         return Result.Success();
     }
 
@@ -658,10 +674,7 @@ internal sealed class ChatService(
     /// Selects the active accounts that may use chats (role permissions and individual grants, minus denials).
     /// </summary>
     /// <returns>The query.</returns>
-    private IQueryable<User> ChatUsers() => db.Users.Where(u => u.IsActive
-        && !db.UserPermissionOverrides.Any(o => o.UserId == u.Id && o.ClaimType == PermissionClaimTypes.DeniedPermission && o.ClaimValue == Permissions.Chats.Use)
-        && (u.Positions.Any(p => p.Role!.Permissions.Any(rp => rp.ClaimType == PermissionClaimTypes.Permission && rp.ClaimValue == Permissions.Chats.Use))
-            || db.UserPermissionOverrides.Any(o => o.UserId == u.Id && o.ClaimType == PermissionClaimTypes.Permission && o.ClaimValue == Permissions.Chats.Use)));
+    private IQueryable<User> ChatUsers() => db.UsersWith(Permissions.Chats.Use);
 
     /// <summary>
     /// Checks that everyone may be added to a chat.
@@ -909,8 +922,7 @@ internal sealed class ChatService(
     }
 
     /// <summary>
-    /// Checks and stores the files of a message: photos are optimized to AVIF with a thumbnail, other allowed files are
-    /// stored as they are.
+    /// Checks and stores the files of a message.
     /// </summary>
     /// <param name="uploads">The uploaded files.</param>
     /// <param name="stored">Collects the keys of the stored files (deleted again when sending fails).</param>
@@ -918,59 +930,27 @@ internal sealed class ChatService(
     /// <returns>The attachments.</returns>
     private async Task<Result<IReadOnlyList<ChatAttachment>>> StoreAsync(IReadOnlyList<FileUpload> uploads, List<string> stored, CancellationToken cancellationToken)
     {
-        if (uploads.Count > ChatMessage.MaxAttachments)
+        var result = await attachmentStore.StoreAsync(
+            uploads,
+            StorageCategory,
+            ChatMessage.MaxAttachments,
+            static extension => Texts.T("Файли типу «{0}» не можна надсилати в чат.", extension),
+            stored,
+            cancellationToken);
+        if (!result.IsSuccess)
         {
-            return Error.Validation(Texts.T("До повідомлення можна додати не більше {0} файлів.", ChatMessage.MaxAttachments));
+            return result.Error;
         }
 
-        if (uploads.Sum(static f => f.Length) > FileRules.MaxChatMessageSize)
-        {
-            return Error.Validation(Texts.T("Файли одного повідомлення не можуть бути більшими за {0} МБ разом.", FileRules.MaxChatMessageSize / 1024 / 1024));
-        }
-
-        var attachments = new List<ChatAttachment>();
-        foreach (var upload in uploads)
-        {
-            var type = FileRules.ResolveChatFileType(upload.FileName);
-            if (type is null)
-            {
-                return Error.Validation(Texts.T("Файли типу «{0}» не можна надсилати в чат.", Path.GetExtension(upload.FileName)));
-            }
-
-            if (upload.Length > FileRules.MaxChatFileSize)
-            {
-                return Error.Validation(Texts.T("Розмір файлу перевищує {0} МБ.", FileRules.MaxChatFileSize / 1024 / 1024));
-            }
-
-            if (FileRules.ChatPhotoExtensions.Contains(Path.GetExtension(upload.FileName)) && upload.Length <= FileRules.MaxImageSize)
-            {
-                using var buffer = new MemoryStream();
-                await upload.Content.CopyToAsync(buffer, cancellationToken);
-                var photo = await images.ProcessAsync(buffer.ToArray(), MediaPurpose.Chat, crop: null, cancellationToken);
-                if (photo is not null)
-                {
-                    var main = await files.SaveAsync(new MemoryStream(photo.Main), StorageCategory, FileRules.MaxChatFileSize, cancellationToken);
-                    stored.Add(main.StorageKey);
-                    var small = await files.SaveAsync(new MemoryStream(photo.Thumbnail), StorageCategory, FileRules.MaxChatFileSize, cancellationToken);
-                    stored.Add(small.StorageKey);
-                    attachments.Add(new ChatAttachment(ChatAttachmentKind.Image, upload.FileName, "image/avif", main.Size, main.StorageKey, small.StorageKey, photo.Width, photo.Height));
-                    continue;
-                }
-
-                // Not a readable photo after all: it is sent as the file it is.
-                buffer.Position = 0;
-                var original = await files.SaveAsync(buffer, StorageCategory, FileRules.MaxChatFileSize, cancellationToken);
-                stored.Add(original.StorageKey);
-                attachments.Add(new ChatAttachment(ChatAttachmentKind.File, upload.FileName, type, original.Size, original.StorageKey, null, null, null));
-                continue;
-            }
-
-            var blob = await files.SaveAsync(upload.Content, StorageCategory, FileRules.MaxChatFileSize, cancellationToken);
-            stored.Add(blob.StorageKey);
-            attachments.Add(new ChatAttachment(ChatAttachmentKind.File, upload.FileName, type, blob.Size, blob.StorageKey, null, null, null));
-        }
-
-        return Result<IReadOnlyList<ChatAttachment>>.Success(attachments);
+        return Result<IReadOnlyList<ChatAttachment>>.Success(result.Value.Select(static f => new ChatAttachment(
+            f.ThumbnailKey is null ? ChatAttachmentKind.File : ChatAttachmentKind.Image,
+            f.FileName,
+            f.ContentType,
+            f.Size,
+            f.StorageKey,
+            f.ThumbnailKey,
+            f.Width,
+            f.Height)).ToList());
     }
 
     /// <summary>
@@ -979,22 +959,7 @@ internal sealed class ChatService(
     /// <param name="keys">The storage keys.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task that completes when deleted.</returns>
-    private async Task DeleteFilesAsync(IEnumerable<string> keys, CancellationToken cancellationToken)
-    {
-        foreach (var key in keys)
-        {
-            try
-            {
-                await files.DeleteAsync(key, CancellationToken.None);
-            }
-            catch (IOException)
-            {
-                // Locked by a download in progress; harmless.
-            }
-        }
-
-        cancellationToken.ThrowIfCancellationRequested();
-    }
+    private Task DeleteFilesAsync(IEnumerable<string> keys, CancellationToken cancellationToken) => attachmentStore.DeleteAsync(keys, cancellationToken);
 
     /// <summary>
     /// A change of a chat for its system note.

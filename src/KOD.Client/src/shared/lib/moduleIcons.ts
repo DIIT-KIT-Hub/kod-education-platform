@@ -1,4 +1,4 @@
-import { FileText, History, MessagesSquare, Network, Newspaper, Shield, Signature, Users, type LucideIcon } from "lucide-react";
+import { FileText, History, LifeBuoy, MessagesSquare, Network, Newspaper, Shield, Signature, Users, type LucideIcon } from "lucide-react";
 import type { AppModule } from "@/shared/api/schema";
 
 /**
@@ -13,4 +13,5 @@ export const moduleIcons: Record<AppModule, LucideIcon> = {
     Administration: Shield,
     Audit: History,
     Chats: MessagesSquare,
+    Tickets: LifeBuoy,
 };

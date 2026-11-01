@@ -5,6 +5,7 @@ using System.Threading.RateLimiting;
 using KOD.Application.Abstractions;
 using KOD.Application.Features.Chats;
 using KOD.Application.Features.News.Discussion;
+using KOD.Application.Features.Notifications;
 using KOD.Domain.Localization;
 using KOD.Infrastructure.Identity.Tokens;
 using KOD.Web.Identity;
@@ -50,6 +51,7 @@ internal static class WebServiceCollectionExtensions
             services.AddSingleton<IUserIdProvider, SubjectUserIdProvider>();
             services.AddSingleton<INewsDiscussionEvents, LiveNewsDiscussionEvents>();
             services.AddSingleton<IChatEvents, LiveChatEvents>();
+            services.AddSingleton<INotificationEvents, LiveNotificationEvents>();
 
             services.AddJwtAuthentication();
             services.AddPermissionAuthorization();

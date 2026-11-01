@@ -4,7 +4,9 @@ using KOD.Domain.Chats;
 using KOD.Domain.Documents;
 using KOD.Domain.Media;
 using KOD.Domain.News;
+using KOD.Domain.Notifications;
 using KOD.Domain.Organization;
+using KOD.Domain.Tickets;
 using KOD.Domain.Users;
 using Microsoft.EntityFrameworkCore;
 
@@ -104,6 +106,26 @@ public interface IApplicationDbContext
     /// Gets the reactions to chat messages.
     /// </summary>
     DbSet<ChatReaction> ChatReactions { get; }
+
+    /// <summary>
+    /// Gets the requests of users.
+    /// </summary>
+    DbSet<Ticket> Tickets { get; }
+
+    /// <summary>
+    /// Gets the messages and notes of requests.
+    /// </summary>
+    DbSet<TicketMessage> TicketMessages { get; }
+
+    /// <summary>
+    /// Gets the files of request messages.
+    /// </summary>
+    DbSet<TicketAttachment> TicketAttachments { get; }
+
+    /// <summary>
+    /// Gets the notifications of users.
+    /// </summary>
+    DbSet<Notification> Notifications { get; }
 
     /// <summary>
     /// Gets the audit trail.

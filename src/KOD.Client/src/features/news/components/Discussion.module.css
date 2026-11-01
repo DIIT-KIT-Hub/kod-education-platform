@@ -52,7 +52,15 @@
     display: grid;
     grid-template-columns: auto minmax(0, 1fr);
     gap: var(--ds-space-3);
+    border-radius: var(--ds-radius-md);
     animation: var(--ds-anim-fade-up-fast);
+    scroll-margin-top: 6rem;
+}
+
+/* The comment a link points to (a reply notification). */
+.comment:target {
+    outline: 2px solid var(--ds-color-text);
+    outline-offset: var(--ds-space-2);
 }
 
 .rail {
