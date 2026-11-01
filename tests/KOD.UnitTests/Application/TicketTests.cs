@@ -45,6 +45,29 @@ public sealed class TicketTests : IDisposable
     }
 
     [Fact]
+    public async Task Every_handler_but_the_author_gets_an_email_in_their_language()
+    {
+        _world.HelpDeskB.SetLanguage("en");
+        _world.Db.SaveChanges();
+
+        var id = await SubmitAsync();
+
+        var emails = _world.Emails.Sent.ToDictionary(static e => e.To);
+        Assert.Equal(new[] { _world.Admin.Email, _world.HelpDeskB.Email }.Order(), emails.Keys.Order());
+        var english = emails[_world.HelpDeskB.Email!];
+        var ukrainian = emails[_world.Admin.Email!];
+        Assert.StartsWith("New request No.", english.Subject, StringComparison.Ordinal);
+        Assert.Contains("Open the request", english.Html, StringComparison.Ordinal);
+        Assert.StartsWith("Нове звернення №", ukrainian.Subject, StringComparison.Ordinal);
+        Assert.EndsWith("Не відкривається документ", ukrainian.Subject, StringComparison.Ordinal);
+
+        // A link to the request and the beginning of its description, in both bodies.
+        Assert.Contains($"https://kod.test/requests/{id}", ukrainian.Html, StringComparison.Ordinal);
+        Assert.Contains($"https://kod.test/requests/{id}", ukrainian.Text, StringComparison.Ordinal);
+        Assert.Contains("Після натискання нічого не відбувається.", ukrainian.Text, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public async Task The_first_answer_of_a_handler_takes_the_request_and_reaches_the_author()
     {
         var id = await SubmitAsync();

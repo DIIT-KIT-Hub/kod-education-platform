@@ -34,8 +34,9 @@ export function RequestsChapter() {
                     </li>
                 </Steps>
                 <p>
-                    The request gets a number (for example “No. 12”), and the people who handle requests get a notification about it. The
-                    list of your requests with their states is on the <Ui>Requests</Ui> page; search works by number or subject.
+                    The request gets a number (for example “No. 12”), and the people who handle requests get a notification about it in the
+                    cabinet and an e-mail with a link to the request (when the administrator has set up e-mail). The list of your requests
+                    with their states is on the <Ui>Requests</Ui> page; search works by number or subject.
                 </p>
             </Topic>
             <Topic id="requests-follow">

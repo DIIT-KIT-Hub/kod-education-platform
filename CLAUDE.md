@@ -181,6 +181,11 @@ Dependencies point inward: Web → Infrastructure → Application → Domain. Ce
   returns the history entries to add. `Number` is an identity column. Plain-text bodies; files go through
   `AttachmentStore` (shared with chats: `FileRules.ChatFileTypes`, photos → AVIF + thumbnail) into `IFileStorage`
   (`tickets/…`), served only to the author and handlers. Client allow-list: `shared/lib/attachments.ts`.
+- **E-mail** (`IEmailOutbox` → `EmailOutbox` channel → `SmtpEmailSender` background service, MailKit; settings
+  `Email:*` in `EmailOptions`, password only in user secrets): requests never wait for SMTP; nothing is sent without
+  `Email:Host` and `Email:FromAddress`. Bodies are built by `EmailLayout` (inline-styled tables in the cabinet's
+  style, plain text twin) inside `EmailLayout.InLanguage(user.Language, …)` so `Texts.T` follows the recipient. New
+  requests: `TicketMail.NewTicketAsync` writes to every `tickets.manage` holder except the author.
 - **Notifications** (`Notification`, `INotifier` for other services, `INotificationService` for the user,
   `features/notifications`): services call `notifier.NotifyAsync(draft, recipients)` **after** their own save (it saves
   separately, skips the actor and inactive accounts, logs failures instead of throwing) and `MarkReadAsync(user,

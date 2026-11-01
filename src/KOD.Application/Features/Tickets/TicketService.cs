@@ -23,6 +23,7 @@ namespace KOD.Application.Features.Tickets;
 /// <param name="attachmentStore">Checks and stores the files of messages.</param>
 /// <param name="files">The private file storage.</param>
 /// <param name="notifier">Notifies the people concerned.</param>
+/// <param name="mail">E-mails the handlers about new requests.</param>
 /// <param name="timeProvider">The clock.</param>
 internal sealed class TicketService(
     IApplicationDbContext db,
@@ -30,6 +31,7 @@ internal sealed class TicketService(
     AttachmentStore attachmentStore,
     IFileStorage files,
     INotifier notifier,
+    TicketMail mail,
     TimeProvider timeProvider) : ITicketService
 {
     /// <summary>
@@ -155,6 +157,7 @@ internal sealed class TicketService(
 
             var handlers = await db.UsersWith(Permissions.Tickets.Manage).Select(static u => u.Id).ToListAsync(cancellationToken);
             await notifier.NotifyAsync(Draft(NotificationKind.TicketCreated, me, ticket, description.Body), handlers, cancellationToken);
+            await mail.NewTicketAsync(ticket, description, cancellationToken);
             return ticket.Id;
         }
         catch (DomainException exception)

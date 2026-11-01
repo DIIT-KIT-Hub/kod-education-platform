@@ -1,9 +1,11 @@
 using System.Security.Cryptography.X509Certificates;
 using KOD.Application.Abstractions;
+using KOD.Application.Common.Email;
 using KOD.Application.Features.Users;
 using KOD.Domain.Access;
 using KOD.Domain.Users;
 using KOD.Infrastructure.Auditing;
+using KOD.Infrastructure.Email;
 using KOD.Infrastructure.Files;
 using KOD.Infrastructure.Identity;
 using KOD.Infrastructure.Identity.Tokens;
@@ -68,6 +70,7 @@ public static class DependencyInjection
             services.Configure<JwtOptions>(configuration.GetSection(JwtOptions.SectionName));
             services.Configure<StorageOptions>(configuration.GetSection(StorageOptions.SectionName));
             services.Configure<SeedOptions>(configuration.GetSection(SeedOptions.SectionName));
+            services.Configure<EmailOptions>(configuration.GetSection(EmailOptions.SectionName));
 
             services.AddScoped<IDocumentNumberGenerator, DocumentNumberGenerator>();
             services.AddScoped<IAuditLogger, AuditLogger>();
@@ -79,6 +82,9 @@ public static class DependencyInjection
             services.AddSingleton<IImageProcessor, VipsImageProcessor>();
             services.AddSingleton<IMediaStorage, LocalMediaStorage>();
             services.AddHostedService<MediaCleanupService>();
+            services.AddSingleton<EmailOutbox>();
+            services.AddSingleton<IEmailOutbox>(static provider => provider.GetRequiredService<EmailOutbox>());
+            services.AddHostedService<SmtpEmailSender>();
             services.AddSingleton<ISignatureInspector, CmsSignatureInspector>();
 
             return services;

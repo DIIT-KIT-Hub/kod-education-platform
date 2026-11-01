@@ -43,6 +43,7 @@ public static class DependencyInjection
             services.AddScoped<INotifier, Notifier>();
             services.AddScoped<INotificationService, NotificationService>();
             services.AddScoped<IChatService, ChatService>();
+            services.AddScoped<TicketMail>();
             services.AddScoped<ITicketService, TicketService>();
             services.AddScoped<MediaLibrary>();
             services.AddScoped<IMediaService, MediaService>();

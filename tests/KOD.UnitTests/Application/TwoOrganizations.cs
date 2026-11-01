@@ -1,5 +1,6 @@
 using KOD.Application.Abstractions;
 using KOD.Application.Common.Access;
+using KOD.Application.Common.Email;
 using KOD.Application.Common.Files;
 using KOD.Application.Common.Results;
 using KOD.Application.Features.Chats;
@@ -20,6 +21,7 @@ using KOD.Infrastructure.Text;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
 
 namespace KOD.UnitTests.Application;
 
@@ -151,6 +153,11 @@ internal sealed class TwoOrganizations : IDisposable
     /// </summary>
     public RecordedNotificationEvents NotificationEvents { get; } = new();
 
+    /// <summary>
+    /// Gets the e-mails put into the outbox.
+    /// </summary>
+    public RecordedEmails Emails { get; } = new();
+
     /// <summary>Gets or sets the rows the fake spreadsheet returns.</summary>
     public IReadOnlyList<UserSheetRow> SheetRows { get; set; } = [];
 
@@ -179,7 +186,7 @@ internal sealed class TwoOrganizations : IDisposable
             new NewsDiscussionService(Db, currentUser, scope, new SilentDiscussionEvents(), audit, notifier, TimeProvider.System),
             new MediaService(currentUser, media),
             new ChatService(Db, currentUser, new RichTextSanitizer(), attachments, Files, ChatEvents, notifier, TimeProvider.System),
-            new TicketService(Db, currentUser, attachments, Files, notifier, TimeProvider.System),
+            new TicketService(Db, currentUser, attachments, Files, notifier, new TicketMail(Db, Emails, Options.Create(new EmailOptions { SiteUrl = "https://kod.test/" })), TimeProvider.System),
             new NotificationService(Db, currentUser, NotificationEvents, TimeProvider.System));
     }
 
@@ -363,6 +370,23 @@ internal sealed class TwoOrganizations : IDisposable
         public void Read(IReadOnlyCollection<Guid> recipients, Guid chatId, Guid userId, long sequence)
         {
         }
+    }
+
+    /// <summary>
+    /// Records the e-mails instead of sending them.
+    /// </summary>
+    internal sealed class RecordedEmails : IEmailOutbox
+    {
+        /// <summary>
+        /// Gets the queued e-mails.
+        /// </summary>
+        public List<EmailMessage> Sent { get; } = [];
+
+        /// <inheritdoc />
+        public bool IsEnabled => true;
+
+        /// <inheritdoc />
+        public void Enqueue(EmailMessage message) => Sent.Add(message);
     }
 
     /// <summary>
