@@ -95,7 +95,6 @@ function DocumentView({ document }: { readonly document: DocumentDetails }) {
     const [signingBusy, setSigningBusy] = useState(false);
     const [signingRound, setSigningRound] = useState(0);
     const [rejecting, setRejecting] = useState(false);
-    const [error, setError] = useState<string | null>(null);
     const actions = document.actions;
     const number = document.registrationNumber;
 
@@ -110,13 +109,12 @@ function DocumentView({ document }: { readonly document: DocumentDetails }) {
             return;
         }
 
-        setError(null);
         try {
             await change();
             await queryClient.invalidateQueries({ queryKey: documentKeys.all });
             toast(done);
         } catch (failure) {
-            setError(describeError(failure, t`Не вдалося виконати дію. Спробуйте ще раз.`));
+            toast(describeError(failure, t`Не вдалося виконати дію. Спробуйте ще раз.`), { tone: "error" });
         }
     }
 
@@ -135,7 +133,7 @@ function DocumentView({ document }: { readonly document: DocumentDetails }) {
             toast(t`Документ видалено`);
             await navigate("/documents?scope=Authored", { replace: true });
         } catch (failure) {
-            setError(describeError(failure, t`Не вдалося виконати дію. Спробуйте ще раз.`));
+            toast(describeError(failure, t`Не вдалося виконати дію. Спробуйте ще раз.`), { tone: "error" });
         }
     }
 
@@ -233,8 +231,6 @@ function DocumentView({ document }: { readonly document: DocumentDetails }) {
                     <Badge tone="dashed">{t`№ ${number}`}</Badge>
                 </div>
             </PageHeader>
-
-            {error && <Alert tone="danger">{error}</Alert>}
 
             <div className={layout.split}>
                 <div className={[layout.stackLg, layout.stagger].join(" ")}>
@@ -471,7 +467,6 @@ interface RejectDialogProps {
  */
 function RejectDialog({ open, documentId, onClose, onRejected }: RejectDialogProps) {
     const { t } = useLingui();
-    const [error, setError] = useState<string | null>(null);
     const schema = z.object({
         reason: z
             .string()
@@ -486,13 +481,12 @@ function RejectDialog({ open, documentId, onClose, onRejected }: RejectDialogPro
      * @param values The form values.
      */
     async function reject(values: z.infer<typeof schema>): Promise<void> {
-        setError(null);
         try {
             await documentsApi.reject(documentId, values.reason);
             reset();
             await onRejected();
         } catch (failure) {
-            setError(describeError(failure, t`Не вдалося виконати дію. Спробуйте ще раз.`));
+            toast(describeError(failure, t`Не вдалося виконати дію. Спробуйте ще раз.`), { tone: "error" });
         }
     }
 
@@ -504,7 +498,6 @@ function RejectDialog({ open, documentId, onClose, onRejected }: RejectDialogPro
             description={t`Автор побачить причину й зможе виправити документ.`}
         >
             <form className={layout.stack} noValidate onSubmit={handleSubmit(reject)}>
-                {error && <Alert tone="danger">{error}</Alert>}
                 <Field label={t`Причина`} required error={formState.errors.reason?.message}>
                     {(control) => <Textarea {...control} {...register("reason")} maxLength={1000} />}
                 </Field>

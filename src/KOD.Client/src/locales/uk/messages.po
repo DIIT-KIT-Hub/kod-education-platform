@@ -1467,6 +1467,7 @@ msgstr "Закреслений"
 #: src/features/news/components/ArticleBody.tsx
 #: src/features/tickets/pages/TicketPage.tsx
 #: src/shared/ui/Dialog.tsx
+#: src/shared/ui/Toast.tsx
 msgid "Закрити"
 msgstr "Закрити"
 

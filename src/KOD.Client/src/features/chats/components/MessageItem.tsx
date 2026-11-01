@@ -75,7 +75,7 @@ export function MessageItem({ message, me, compact, showAuthor, seen, editing, o
         chatApi
             .react(message.chatId, message.id, kind)
             .then((updated) => receiveMessage(queryClient, updated))
-            .catch((error: unknown) => toast(describeError(error, t`Не вдалося додати реакцію.`), { danger: true }));
+            .catch((error: unknown) => toast(describeError(error, t`Не вдалося додати реакцію.`), { tone: "error" }));
     }
 
     /**
@@ -97,7 +97,7 @@ export function MessageItem({ message, me, compact, showAuthor, seen, editing, o
             if (forEveryone) {
                 await chatApi
                     .remove(message.chatId, message.id)
-                    .catch((error: unknown) => toast(describeError(error, t`Не вдалося видалити повідомлення.`), { danger: true }));
+                    .catch((error: unknown) => toast(describeError(error, t`Не вдалося видалити повідомлення.`), { tone: "error" }));
                 return;
             }
         } else {
@@ -116,7 +116,7 @@ export function MessageItem({ message, me, compact, showAuthor, seen, editing, o
             receiveMessage(queryClient, await chatApi.hide(message.chatId, message.id));
             void queryClient.invalidateQueries({ queryKey: chatKeys.list });
         } catch (error) {
-            toast(describeError(error, t`Не вдалося видалити повідомлення.`), { danger: true });
+            toast(describeError(error, t`Не вдалося видалити повідомлення.`), { tone: "error" });
         }
     }
 
@@ -130,7 +130,7 @@ export function MessageItem({ message, me, compact, showAuthor, seen, editing, o
             body: message.body,
             text: message.text,
             files,
-        }).catch((error: unknown) => toast(describeError(error, t`Повідомлення не надіслано.`), { danger: true }));
+        }).catch((error: unknown) => toast(describeError(error, t`Повідомлення не надіслано.`), { tone: "error" }));
     }
 
     const actionable = !message.pending;

@@ -80,7 +80,6 @@ function RecoveryCodes({ profile }: { readonly profile: ProfileDto }) {
     const queryClient = useQueryClient();
     const [code, setCode] = useState("");
     const [codes, setCodes] = useState<readonly string[] | null>(null);
-    const [error, setError] = useState<string | null>(null);
     const [busy, setBusy] = useState(false);
 
     /**
@@ -88,7 +87,7 @@ function RecoveryCodes({ profile }: { readonly profile: ProfileDto }) {
      */
     async function regenerate(): Promise<void> {
         if (code.length !== 6) {
-            setError(t`Введіть 6 цифр із застосунку-автентифікатора.`);
+            toast(t`Введіть 6 цифр із застосунку-автентифікатора.`, { tone: "warning" });
             return;
         }
 
@@ -97,13 +96,12 @@ function RecoveryCodes({ profile }: { readonly profile: ProfileDto }) {
         }
 
         setBusy(true);
-        setError(null);
         try {
             const result = await profileApi.recoveryCodes(code);
             setCodes(result.codes);
             await queryClient.invalidateQueries({ queryKey: profileKeys.all });
         } catch (failure) {
-            setError(describeError(failure, t`Не вдалося згенерувати коди. Спробуйте ще раз.`));
+            toast(describeError(failure, t`Не вдалося згенерувати коди. Спробуйте ще раз.`), { tone: "error" });
         } finally {
             setCode("");
             setBusy(false);
@@ -116,7 +114,6 @@ function RecoveryCodes({ profile }: { readonly profile: ProfileDto }) {
                 <span className={styles.counterValue}>{profile.recoveryCodesLeft}</span>
                 <span className={layout.muted}>{t`кодів залишилось`}</span>
             </p>
-            {error && <Alert tone="danger">{error}</Alert>}
             {codes && (
                 <div className={styles.secret}>
                     <span className={layout.strong}>{t`Нові коди — збережіть їх зараз, вони більше не відображатимуться:`}</span>
@@ -174,7 +171,7 @@ function OtherDevices() {
             await profileApi.signOutEverywhere();
             toast(t`Входи на інших пристроях завершено`);
         } catch (failure) {
-            toast(describeError(failure, t`Не вдалося виконати дію. Спробуйте ще раз.`), { danger: true });
+            toast(describeError(failure, t`Не вдалося виконати дію. Спробуйте ще раз.`), { tone: "error" });
         } finally {
             setBusy(false);
         }

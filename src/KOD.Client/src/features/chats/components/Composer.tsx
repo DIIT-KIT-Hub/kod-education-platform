@@ -195,15 +195,15 @@ export function Composer({ chatId, editing }: ComposerProps) {
         const tooLarge = picked.find((file) => file.size > maxFileSize);
         const next = [...filesRef.current, ...picked.filter((file) => isAllowedFile(file) && file.size <= maxFileSize)];
         if (refused) {
-            toast(t`Файли такого типу не можна надсилати в чат: ${refused.name}`, { danger: true });
+            toast(t`Файли такого типу не можна надсилати в чат: ${refused.name}`, { tone: "warning" });
         } else if (tooLarge) {
-            toast(t`Файл більший за 25 МБ: ${tooLarge.name}`, { danger: true });
+            toast(t`Файл більший за 25 МБ: ${tooLarge.name}`, { tone: "warning" });
         }
 
         if (next.length > maxFiles) {
-            toast(t`До повідомлення можна додати не більше ${maxFiles} файлів.`, { danger: true });
+            toast(t`До повідомлення можна додати не більше ${maxFiles} файлів.`, { tone: "warning" });
         } else if (next.reduce((sum, file) => sum + file.size, 0) > maxTotalSize) {
-            toast(t`Файли одного повідомлення не можуть бути більшими за 50 МБ разом.`, { danger: true });
+            toast(t`Файли одного повідомлення не можуть бути більшими за 50 МБ разом.`, { tone: "warning" });
         } else {
             setFiles(next);
         }
@@ -226,7 +226,7 @@ export function Composer({ chatId, editing }: ComposerProps) {
             setSaving(true);
             void editing
                 .save(body)
-                .catch((error: unknown) => toast(describeError(error, t`Не вдалося зберегти повідомлення.`), { danger: true }))
+                .catch((error: unknown) => toast(describeError(error, t`Не вдалося зберегти повідомлення.`), { tone: "error" }))
                 .finally(() => setSaving(false));
             return;
         }
@@ -240,7 +240,7 @@ export function Composer({ chatId, editing }: ComposerProps) {
         setFiles([]);
         setLinkOpen(false);
         void sendDraft(queryClient, chatId, { id: user.id, fullName: user.fullName, photoId: user.photoId }, draft).catch(
-            (error: unknown) => toast(describeError(error, t`Повідомлення не надіслано.`), { danger: true }),
+            (error: unknown) => toast(describeError(error, t`Повідомлення не надіслано.`), { tone: "error" }),
         );
     }
 

@@ -2,7 +2,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useLingui } from "@lingui/react/macro";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Eye, Info, Save } from "lucide-react";
-import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router";
 import { z } from "zod";
@@ -68,7 +67,6 @@ function UnitForm({ existing, units, types }: UnitFormProps) {
     const cabinetWide = hasPermission(useCurrentUser(), Permissions.administrationAll);
     const top = existing === null && params.get("top") === "true";
     const canBeTopLevel = cabinetWide || existing?.parentId === null;
-    const [error, setError] = useState<string | null>(null);
 
     // A unit of an organization the user does not manage, or a new organization without the cabinet-wide permission.
     const notice = existing
@@ -121,7 +119,6 @@ function UnitForm({ existing, units, types }: UnitFormProps) {
      * @param values The form values.
      */
     async function save(values: z.infer<typeof schema>): Promise<void> {
-        setError(null);
         const command = {
             code: values.code,
             name: values.name,
@@ -143,7 +140,7 @@ function UnitForm({ existing, units, types }: UnitFormProps) {
             toast(t`Підрозділ збережено`);
             await navigate("/admin/units", { replace: true });
         } catch (failure) {
-            setError(describeError(failure, t`Не вдалося зберегти підрозділ. Спробуйте ще раз.`));
+            toast(describeError(failure, t`Не вдалося зберегти підрозділ. Спробуйте ще раз.`), { tone: "error" });
         }
     }
 
@@ -181,7 +178,6 @@ function UnitForm({ existing, units, types }: UnitFormProps) {
                             {notice}
                         </Alert>
                     )}
-                    {error && <Alert tone="danger">{error}</Alert>}
                     <Card>
                         <fieldset className={styles.formGrid} disabled={readOnly}>
                             <Field label={t`Повна назва`} required error={formState.errors.name?.message} className={styles.full}>

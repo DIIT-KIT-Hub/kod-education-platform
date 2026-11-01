@@ -66,6 +66,10 @@
     --ds-gray-900: #141414;
     --ds-red-600: #c8231c;
     --ds-red-50: #fdeceb;
+    --ds-green-600: #157f3b;
+    --ds-green-50: #e6f5eb;
+    --ds-amber-600: #a35800;
+    --ds-amber-50: #fff3df;
 
     --ds-font: "Manrope", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
     --ds-font-mono: ui-monospace, "Cascadia Mono", "SFMono-Regular", Consolas, monospace;
@@ -166,6 +170,10 @@
     --ds-color-on-inverse: var(--ds-white);
     --ds-color-danger: var(--ds-red-600);
     --ds-color-danger-surface: var(--ds-red-50);
+    --ds-color-success: var(--ds-green-600);
+    --ds-color-success-surface: var(--ds-green-50);
+    --ds-color-warning: var(--ds-amber-600);
+    --ds-color-warning-surface: var(--ds-amber-50);
     --ds-color-focus: var(--ds-black);
     --ds-color-overlay: rgb(0 0 0 / 0.45);
     --ds-shadow-sm: 0 1px 2px rgb(0 0 0 / 0.04), 0 1px 1px rgb(0 0 0 / 0.03);
@@ -191,6 +199,10 @@
     --ds-color-on-inverse: var(--ds-black);
     --ds-color-danger: #ff6b63;
     --ds-color-danger-surface: #2a0f0d;
+    --ds-color-success: #4cc77a;
+    --ds-color-success-surface: #0e2a18;
+    --ds-color-warning: #f0b14a;
+    --ds-color-warning-surface: #2e2208;
     --ds-color-focus: var(--ds-white);
     --ds-color-overlay: rgb(0 0 0 / 0.7);
     --ds-shadow-sm: 0 1px 2px rgb(0 0 0 / 0.6);

@@ -10,7 +10,6 @@ import { describeError } from "@/shared/api/problem";
 import type { TicketCategory, TicketPriority } from "@/shared/api/schema";
 import { ticketCategoryNames, ticketPriorityNames } from "@/shared/i18n/display";
 import layout from "@/shared/styles/layout.module.css";
-import { Alert } from "@/shared/ui/Alert";
 import { Button } from "@/shared/ui/Button";
 import { Card } from "@/shared/ui/Card";
 import { Field } from "@/shared/ui/Field";
@@ -44,7 +43,6 @@ export function NewTicketPage() {
     const navigate = useNavigate();
     const queryClient = useQueryClient();
     const [files, setFiles] = useState<readonly File[]>([]);
-    const [error, setError] = useState<string | null>(null);
 
     const schema = z.object({
         category: z.enum(["Bug", "Suggestion", "Question", "Access", "Other"]),
@@ -71,14 +69,13 @@ export function NewTicketPage() {
      * @param values The form values.
      */
     async function submit(values: z.infer<typeof schema>): Promise<void> {
-        setError(null);
         try {
             const { id } = await ticketApi.submit({ ...values, files });
             await queryClient.invalidateQueries({ queryKey: ticketKeys.all });
             toast(t`Звернення надіслано`);
             await navigate(`/requests/${id}`, { replace: true });
         } catch (failure) {
-            setError(describeError(failure, t`Не вдалося надіслати звернення. Спробуйте ще раз.`));
+            toast(describeError(failure, t`Не вдалося надіслати звернення. Спробуйте ще раз.`), { tone: "error" });
         }
     }
 
@@ -88,7 +85,6 @@ export function NewTicketPage() {
 
             <form className={layout.split} noValidate onSubmit={handleSubmit(submit)}>
                 <div className={layout.stackLg}>
-                    {error && <Alert tone="danger">{error}</Alert>}
                     <Card title={t`Що сталося?`}>
                         <Controller
                             control={control}

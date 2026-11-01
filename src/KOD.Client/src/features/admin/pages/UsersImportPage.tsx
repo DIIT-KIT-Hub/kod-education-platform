@@ -42,7 +42,6 @@ export function UsersImportPage() {
     const roles = useQuery({ ...importRolesQuery, enabled: canImport });
     const [file, setFile] = useState<File | null>(null);
     const [report, setReport] = useState<UserImportReport | null>(null);
-    const [error, setError] = useState<string | null>(null);
     const [busy, setBusy] = useState(false);
 
     /**
@@ -55,12 +54,11 @@ export function UsersImportPage() {
         }
 
         setBusy(true);
-        setError(null);
         try {
             setReport(await adminApi.importUsers(file, dryRun));
         } catch (failure) {
             setReport(null);
-            setError(describeError(failure, t`Не вдалося обробити файл. Спробуйте ще раз.`));
+            toast(describeError(failure, t`Не вдалося обробити файл. Спробуйте ще раз.`), { tone: "error" });
         } finally {
             setBusy(false);
         }
@@ -74,7 +72,7 @@ export function UsersImportPage() {
         try {
             await downloadCredentials(report?.credentials ?? [], format);
         } catch {
-            toast(t`Не вдалося завантажити файл.`, { danger: true });
+            toast(t`Не вдалося завантажити файл.`, { tone: "error" });
         }
     }
 
@@ -109,11 +107,10 @@ export function UsersImportPage() {
                                         setReport(null);
                                         if (chosen && chosen.size > maxImportBytes) {
                                             setFile(null);
-                                            setError(t`Файл імпорту не може бути більшим за 5 МБ.`);
+                                            toast(t`Файл імпорту не може бути більшим за 5 МБ.`, { tone: "warning" });
                                             return;
                                         }
 
-                                        setError(null);
                                         setFile(chosen);
                                     }}
                                 />
@@ -133,7 +130,6 @@ export function UsersImportPage() {
                             </Card>
 
                             {busy && <Progress />}
-                            {error && <Alert tone="danger">{error}</Alert>}
                             {report && <ImportReport report={report} onDownload={(format) => void download(format)} />}
                         </>
                     )}

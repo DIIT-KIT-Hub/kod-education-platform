@@ -57,7 +57,6 @@ function UnitTypeForm({ existing }: { readonly existing: UnitTypeItem | null }) 
     const navigate = useNavigate();
     const queryClient = useQueryClient();
     const cabinetWide = hasPermission(useCurrentUser(), Permissions.administrationAll);
-    const [error, setError] = useState<string | null>(null);
     const [deleting, setDeleting] = useState(false);
 
     const schema = z.object({
@@ -95,7 +94,6 @@ function UnitTypeForm({ existing }: { readonly existing: UnitTypeItem | null }) 
      * @param values The form values.
      */
     async function save(values: z.infer<typeof schema>): Promise<void> {
-        setError(null);
         const command = { ...values, description: values.description || null };
         try {
             if (existing) {
@@ -109,7 +107,7 @@ function UnitTypeForm({ existing }: { readonly existing: UnitTypeItem | null }) 
             toast(t`Тип підрозділу збережено`);
             await navigate("/admin/unit-types", { replace: true });
         } catch (failure) {
-            setError(describeError(failure, t`Не вдалося зберегти тип підрозділу. Спробуйте ще раз.`));
+            toast(describeError(failure, t`Не вдалося зберегти тип підрозділу. Спробуйте ще раз.`), { tone: "error" });
         }
     }
 
@@ -128,7 +126,7 @@ function UnitTypeForm({ existing }: { readonly existing: UnitTypeItem | null }) 
             toast(t`Тип підрозділу видалено`);
             await navigate("/admin/unit-types", { replace: true });
         } catch (failure) {
-            setError(describeError(failure, t`Не вдалося виконати дію. Спробуйте ще раз.`));
+            toast(describeError(failure, t`Не вдалося виконати дію. Спробуйте ще раз.`), { tone: "error" });
         } finally {
             setDeleting(false);
         }
@@ -162,7 +160,6 @@ function UnitTypeForm({ existing }: { readonly existing: UnitTypeItem | null }) 
                             {t`Каталог типів спільний для всіх організацій кабінету, тому змінювати його може лише адміністратор усіх організацій.`}
                         </Alert>
                     )}
-                    {error && <Alert tone="danger">{error}</Alert>}
                     <Card>
                         <div className={styles.formGrid}>
                             <Field

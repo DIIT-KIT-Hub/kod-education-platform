@@ -5,7 +5,6 @@ import { useState } from "react";
 import { useNavigate } from "react-router";
 import { describeError } from "@/shared/api/problem";
 import type { ChatDetails, UserLookupItem } from "@/shared/api/schema";
-import { Alert } from "@/shared/ui/Alert";
 import { Badge } from "@/shared/ui/Badge";
 import { Button } from "@/shared/ui/Button";
 import { confirm, confirmWithOption } from "@/shared/ui/ConfirmHost";
@@ -48,7 +47,6 @@ export function MembersDialog({ open, onClose, chat, me }: MembersDialogProps) {
     const [title, setTitle] = useState(chat.title ?? "");
     const [adding, setAdding] = useState<readonly UserLookupItem[]>([]);
     const [busy, setBusy] = useState(false);
-    const [error, setError] = useState<string | null>(null);
     const [groupFromDirect, setGroupFromDirect] = useState(false);
     const isGroup = chat.kind === "Group";
     const owner = chat.myRole === "Owner";
@@ -61,13 +59,12 @@ export function MembersDialog({ open, onClose, chat, me }: MembersDialogProps) {
      */
     async function run(change: () => Promise<unknown>, fallback: string): Promise<void> {
         setBusy(true);
-        setError(null);
         try {
             await change();
             await queryClient.invalidateQueries({ queryKey: chatKeys.details(chat.id) });
             await queryClient.invalidateQueries({ queryKey: chatKeys.list });
         } catch (failure) {
-            setError(describeError(failure, fallback));
+            toast(describeError(failure, fallback), { tone: "error" });
         } finally {
             setBusy(false);
         }
@@ -94,7 +91,7 @@ export function MembersDialog({ open, onClose, chat, me }: MembersDialogProps) {
             onClose();
             void navigate("/chats", { replace: true });
         } catch (failure) {
-            toast(describeError(failure, t`Не вдалося вийти з чату.`), { danger: true });
+            toast(describeError(failure, t`Не вдалося вийти з чату.`), { tone: "error" });
         }
     }
 
@@ -131,7 +128,7 @@ export function MembersDialog({ open, onClose, chat, me }: MembersDialogProps) {
             await (forBoth ? chatApi.deleteChat(chat.id) : chatApi.clearHistory(chat.id));
             await closeChat();
         } catch (failure) {
-            toast(describeError(failure, t`Не вдалося видалити чат.`), { danger: true });
+            toast(describeError(failure, t`Не вдалося видалити чат.`), { tone: "error" });
         }
     }
 
@@ -155,7 +152,7 @@ export function MembersDialog({ open, onClose, chat, me }: MembersDialogProps) {
             await queryClient.invalidateQueries({ queryKey: chatKeys.list });
             onClose();
         } catch (failure) {
-            toast(describeError(failure, t`Не вдалося очистити історію.`), { danger: true });
+            toast(describeError(failure, t`Не вдалося очистити історію.`), { tone: "error" });
         }
     }
 
@@ -177,7 +174,7 @@ export function MembersDialog({ open, onClose, chat, me }: MembersDialogProps) {
             await chatApi.deleteChat(chat.id);
             await closeChat();
         } catch (failure) {
-            toast(describeError(failure, t`Не вдалося видалити чат.`), { danger: true });
+            toast(describeError(failure, t`Не вдалося видалити чат.`), { tone: "error" });
         }
     }
 
@@ -199,8 +196,6 @@ export function MembersDialog({ open, onClose, chat, me }: MembersDialogProps) {
     return (
         <Dialog open={open} onClose={onClose} title={isGroup ? t`Учасники чату` : t`Про чат`}>
             <div className={styles.dialogBody}>
-                {error && <Alert tone="danger">{error}</Alert>}
-
                 {isGroup && (
                     <form
                         className={styles.renameRow}

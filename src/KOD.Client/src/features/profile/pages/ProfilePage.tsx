@@ -182,7 +182,6 @@ function Modules({ profile }: ProfileCardProps) {
 function Contacts({ profile }: ProfileCardProps) {
     const { t } = useLingui();
     const queryClient = useQueryClient();
-    const [error, setError] = useState<string | null>(null);
 
     const schema = z.object({
         phoneNumber: z
@@ -202,20 +201,18 @@ function Contacts({ profile }: ProfileCardProps) {
      * @param values The form values.
      */
     async function save(values: z.infer<typeof schema>): Promise<void> {
-        setError(null);
         try {
             await profileApi.phone(values.phoneNumber || null);
             reset(values);
             await queryClient.invalidateQueries({ queryKey: profileKeys.all });
             toast(t`Телефон збережено.`);
         } catch (failure) {
-            setError(describeError(failure, t`Не вдалося зберегти телефон. Спробуйте ще раз.`));
+            toast(describeError(failure, t`Не вдалося зберегти телефон. Спробуйте ще раз.`), { tone: "error" });
         }
     }
 
     return (
         <Card title={t`Контакти`}>
-            {error && <Alert tone="danger">{error}</Alert>}
             <form className={layout.stack} noValidate onSubmit={handleSubmit(save)}>
                 <Field label={t`Електронна пошта`}>{(ids) => <TextInput {...ids} value={profile.email} disabled readOnly />}</Field>
                 <Field label={t`Телефон`} error={formState.errors.phoneNumber?.message}>
@@ -255,7 +252,7 @@ function Language() {
             // Some data comes translated by the server (permission titles, role and unit type names): load it again.
             await queryClient.invalidateQueries({ predicate: (query) => query.queryKey[0] !== "auth" });
         } catch (failure) {
-            toast(describeError(failure, t`Не вдалося змінити мову.`), { danger: true });
+            toast(describeError(failure, t`Не вдалося змінити мову.`), { tone: "error" });
         } finally {
             setBusy(false);
         }

@@ -4,11 +4,11 @@ import { useState } from "react";
 import { useNavigate } from "react-router";
 import { describeError } from "@/shared/api/problem";
 import type { UserLookupItem } from "@/shared/api/schema";
-import { Alert } from "@/shared/ui/Alert";
 import { Button } from "@/shared/ui/Button";
 import { Dialog } from "@/shared/ui/Dialog";
 import { Field } from "@/shared/ui/Field";
 import { TextInput } from "@/shared/ui/TextInput";
+import { toast } from "@/shared/ui/Toast";
 import { chatApi, chatKeys } from "@/features/chats/api";
 import styles from "./chats.module.css";
 import { PeoplePicker } from "./PeoplePicker";
@@ -38,7 +38,6 @@ export function NewChatDialog({ open, onClose, initial = [] }: NewChatDialogProp
     const [people, setPeople] = useState<readonly UserLookupItem[]>(initial);
     const [title, setTitle] = useState("");
     const [busy, setBusy] = useState(false);
-    const [error, setError] = useState<string | null>(null);
 
     /**
      * Closes the dialog and forgets the choice.
@@ -46,7 +45,6 @@ export function NewChatDialog({ open, onClose, initial = [] }: NewChatDialogProp
     function close(): void {
         setPeople(initial);
         setTitle("");
-        setError(null);
         onClose();
     }
 
@@ -55,7 +53,6 @@ export function NewChatDialog({ open, onClose, initial = [] }: NewChatDialogProp
      */
     async function start(): Promise<void> {
         setBusy(true);
-        setError(null);
         try {
             const ids = people.map((person) => person.id);
             const { id } = ids.length === 1 && ids[0] ? await chatApi.openDirect(ids[0]) : await chatApi.createGroup(title, ids);
@@ -63,7 +60,7 @@ export function NewChatDialog({ open, onClose, initial = [] }: NewChatDialogProp
             close();
             void navigate(`/chats/${id}`);
         } catch (failure) {
-            setError(describeError(failure, t`Не вдалося почати чат.`));
+            toast(describeError(failure, t`Не вдалося почати чат.`), { tone: "error" });
         } finally {
             setBusy(false);
         }
@@ -87,7 +84,6 @@ export function NewChatDialog({ open, onClose, initial = [] }: NewChatDialogProp
             }
         >
             <div className={styles.dialogBody}>
-                {error && <Alert tone="danger">{error}</Alert>}
                 <PeoplePicker selected={people} onChange={setPeople} />
                 {people.length > 1 && (
                     <Field label={t`Назва чату`} hint={t`Необов'язково: без назви чат називається іменами учасників.`}>

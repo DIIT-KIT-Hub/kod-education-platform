@@ -36,12 +36,12 @@ export function FilePicker({ files, onChange, disabled }: FilePickerProps) {
     function add(added: readonly File[]): void {
         const allowed = added.filter((file) => {
             if (!isAllowedFile(file)) {
-                toast(t`Файл «${file.name}» має недозволений тип.`, { danger: true });
+                toast(t`Файл «${file.name}» має недозволений тип.`, { tone: "warning" });
                 return false;
             }
 
             if (file.size > maxFileSize) {
-                toast(t`Файл «${file.name}» більший за ${formatFileSize(maxFileSize)}.`, { danger: true });
+                toast(t`Файл «${file.name}» більший за ${formatFileSize(maxFileSize)}.`, { tone: "warning" });
                 return false;
             }
 
@@ -49,12 +49,12 @@ export function FilePicker({ files, onChange, disabled }: FilePickerProps) {
         });
         const next = [...files, ...allowed];
         if (next.length > maxFiles) {
-            toast(t`Можна додати не більше ${maxFiles} файлів.`, { danger: true });
+            toast(t`Можна додати не більше ${maxFiles} файлів.`, { tone: "warning" });
             return;
         }
 
         if (next.reduce((sum, file) => sum + file.size, 0) > maxTotalSize) {
-            toast(t`Файли разом не можуть бути більшими за ${formatFileSize(maxTotalSize)}.`, { danger: true });
+            toast(t`Файли разом не можуть бути більшими за ${formatFileSize(maxTotalSize)}.`, { tone: "warning" });
             return;
         }
 

@@ -15,6 +15,7 @@ import { Icon } from "@/shared/ui/Icon";
 import { Progress } from "@/shared/ui/Progress";
 import { Segmented } from "@/shared/ui/Segmented";
 import { Select } from "@/shared/ui/Select";
+import { toast } from "@/shared/ui/Toast";
 import { Wizard } from "@/shared/ui/Wizard";
 import { SigningClient, type KeyOwner, type SignFormat, type SignLevel, type SignPackaging, type SignResult } from "./client";
 import {
@@ -132,7 +133,6 @@ export function SigningWizard({ target, active, onBusyChange, onSigned }: Signin
     const documentMode = target.kind === "document";
     const [round, setRound] = useState(0);
     const [files, setFiles] = useState<readonly DataFile[]>([]);
-    const [filesError, setFilesError] = useState<string | null>(null);
     const [data, setData] = useState<DataState>({ kind: documentMode ? "loading" : "idle" });
     const [session, setSession] = useState<SigningSession | null>(null);
     const previous = useRef<ArrayBuffer | null>(null);
@@ -143,7 +143,6 @@ export function SigningWizard({ target, active, onBusyChange, onSigned }: Signin
     const [level, setLevel] = useState<SignLevel>("B-LT");
     const [owner, setOwner] = useState<KeyOwner | null>(null);
     const [keyRound, setKeyRound] = useState(0);
-    const [signError, setSignError] = useState<string | null>(null);
     const [libraryError, setLibraryError] = useState<string | null>(null);
     const [filesResult, setFilesResult] = useState<FilesResult | null>(null);
     const [documentSigned, setDocumentSigned] = useState(false);
@@ -317,11 +316,9 @@ export function SigningWizard({ target, active, onBusyChange, onSigned }: Signin
      * Signs with the key read on the last step and, for a document, uploads the signature.
      */
     async function sign(): Promise<void> {
-        setSignError(null);
-
         // Every precondition is checked again here instead of trusting the state of the buttons.
         if (!owner || files.length === 0 || !integrityOk) {
-            setSignError(t`Не всі кроки завершено.`);
+            toast(t`Не всі кроки завершено.`, { tone: "warning" });
             return;
         }
 
@@ -365,9 +362,9 @@ export function SigningWizard({ target, active, onBusyChange, onSigned }: Signin
                 });
             }
         } catch (failure) {
-            setSignError(
-                describeError(failure, failure instanceof Error && failure.message ? failure.message : t`Не вдалося зберегти підпис.`),
-            );
+            toast(describeError(failure, failure instanceof Error && failure.message ? failure.message : t`Не вдалося зберегти підпис.`), {
+                tone: "error",
+            });
             return;
         }
 
@@ -465,10 +462,9 @@ export function SigningWizard({ target, active, onBusyChange, onSigned }: Signin
                 title={t`Перетягніть файли або натисніть, щоб обрати`}
                 hint={t`До 25 МБ кожен. Для XAdES та ASiC-E можна обрати кілька файлів; для PAdES — PDF.`}
                 onFiles={(selected) => {
-                    setFilesError(null);
                     if (selected.some((file) => file.size > maxDataBytes)) {
                         setFiles([]);
-                        setFilesError(t`Файли понад 25 МБ не підтримуються.`);
+                        toast(t`Файли понад 25 МБ не підтримуються.`, { tone: "warning" });
                         return;
                     }
 
@@ -488,7 +484,6 @@ export function SigningWizard({ target, active, onBusyChange, onSigned }: Signin
                     ))}
                 </ul>
             )}
-            {filesError && <Alert tone="danger">{filesError}</Alert>}
         </div>
     );
 
@@ -556,7 +551,6 @@ export function SigningWizard({ target, active, onBusyChange, onSigned }: Signin
                 />
             </div>
             {owner ? <OwnerCard owner={owner} onForget={forget} /> : <KeyPanel key={keyRound} client={client} onRead={setOwner} />}
-            {signError && <Alert tone="danger">{signError}</Alert>}
         </div>
     );
 
@@ -590,7 +584,6 @@ export function SigningWizard({ target, active, onBusyChange, onSigned }: Signin
                         description: t`Ключ зчитується лише у вашому браузері; пароль не передається на сервер.`,
                         content: keyStep,
                         complete: owner !== null,
-                        onEnter: () => setSignError(null),
                         // The private key never outlives the step it is needed for.
                         onLeave: () => forget(),
                     },

@@ -1,17 +1,16 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useLingui } from "@lingui/react/macro";
 import { ArrowRight } from "lucide-react";
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
 import { z } from "zod";
 import { ApiError, describeError } from "@/shared/api/problem";
-import { Alert } from "@/shared/ui/Alert";
 import { Button } from "@/shared/ui/Button";
 import { Checkbox } from "@/shared/ui/Checkbox";
 import { Field } from "@/shared/ui/Field";
 import { PasswordInput } from "@/shared/ui/PasswordInput";
 import { TextInput } from "@/shared/ui/TextInput";
+import { toast } from "@/shared/ui/Toast";
 import { authApi } from "../api";
 import { AuthHeader } from "../components/AuthHeader";
 import { flowUrl, useReturnUrl } from "../flow";
@@ -26,7 +25,6 @@ export function LoginPage() {
     const { t } = useLingui();
     const navigate = useNavigate();
     const returnUrl = useReturnUrl();
-    const [error, setError] = useState<string | null>(null);
 
     const schema = z.object({
         email: z
@@ -51,7 +49,6 @@ export function LoginPage() {
      * @param values The form values.
      */
     async function signIn(values: z.infer<typeof schema>): Promise<void> {
-        setError(null);
         try {
             const { next } = await authApi.login(values.email, values.password, values.rememberMe);
             await navigate(flowUrl(next === "setup" ? "/account/setup-authenticator" : "/account/login-2fa", returnUrl, values.rememberMe));
@@ -61,7 +58,7 @@ export function LoginPage() {
                 return;
             }
 
-            setError(describeError(failure, t`Не вдалося зв'язатися з сервером. Спробуйте ще раз.`));
+            toast(describeError(failure, t`Не вдалося зв'язатися з сервером. Спробуйте ще раз.`), { tone: "error" });
         }
     }
 
@@ -72,8 +69,6 @@ export function LoginPage() {
                 pageTitle={t`Вхід`}
                 text={t`Увійдіть за обліковим записом, виданим адміністратором вашої організації.`}
             />
-
-            {error && <Alert tone="danger">{error}</Alert>}
 
             <form className={styles.form} noValidate onSubmit={handleSubmit(signIn)}>
                 <Field label={t`Електронна пошта`} error={formState.errors.email?.message}>

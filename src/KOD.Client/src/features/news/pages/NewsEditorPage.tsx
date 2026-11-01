@@ -11,7 +11,6 @@ import type { NewsArticleDto, NewsCategory } from "@/shared/api/schema";
 import { newsCategoryNames } from "@/shared/i18n/display";
 import { imageAccept } from "@/shared/lib/image";
 import layout from "@/shared/styles/layout.module.css";
-import { Alert } from "@/shared/ui/Alert";
 import { Button, ButtonLink } from "@/shared/ui/Button";
 import { Card } from "@/shared/ui/Card";
 import { Checkbox } from "@/shared/ui/Checkbox";
@@ -77,7 +76,6 @@ function ArticleEditor({ existing, organizations, cabinetWide }: ArticleEditorPr
     const queryClient = useQueryClient();
     const [cover, setCover] = useState<File | null>(null);
     const [uploading, setUploading] = useState(0);
-    const [error, setError] = useState<string | null>(null);
     const [busy, setBusy] = useState(false);
 
     const schema = z.object({
@@ -126,12 +124,11 @@ function ArticleEditor({ existing, organizations, cabinetWide }: ArticleEditorPr
      */
     async function save(values: z.infer<typeof schema>): Promise<void> {
         if (uploading > 0) {
-            setError(t`Дочекайтеся, поки завантажаться фото.`);
+            toast(t`Дочекайтеся, поки завантажаться фото.`, { tone: "warning" });
             return;
         }
 
         setBusy(true);
-        setError(null);
         const form = {
             title: values.title,
             summary: values.summary,
@@ -153,7 +150,7 @@ function ArticleEditor({ existing, organizations, cabinetWide }: ArticleEditorPr
             toast(t`Публікацію збережено`);
             await navigate("/news/manage", { replace: true });
         } catch (failure) {
-            setError(describeError(failure, t`Не вдалося зберегти публікацію. Спробуйте ще раз.`));
+            toast(describeError(failure, t`Не вдалося зберегти публікацію. Спробуйте ще раз.`), { tone: "error" });
         } finally {
             setBusy(false);
         }
@@ -173,7 +170,7 @@ function ArticleEditor({ existing, organizations, cabinetWide }: ArticleEditorPr
             toast(t`Публікацію видалено`);
             await navigate("/news/manage", { replace: true });
         } catch (failure) {
-            setError(describeError(failure, t`Не вдалося виконати дію. Спробуйте ще раз.`));
+            toast(describeError(failure, t`Не вдалося виконати дію. Спробуйте ще раз.`), { tone: "error" });
         }
     }
 
@@ -197,7 +194,6 @@ function ArticleEditor({ existing, organizations, cabinetWide }: ArticleEditorPr
 
             <form className={layout.split} noValidate onSubmit={handleSubmit(save)}>
                 <div className={layout.stackLg}>
-                    {error && <Alert tone="danger">{error}</Alert>}
                     <Card>
                         <div className={layout.stack}>
                             <Field label={t`Заголовок`} required error={formState.errors.title?.message}>
@@ -305,11 +301,10 @@ function ArticleEditor({ existing, organizations, cabinetWide }: ArticleEditorPr
                             onFiles={(files) => {
                                 const file = files[0] ?? null;
                                 if (file && file.size > maxImageBytes) {
-                                    setError(t`Зображення не може бути більшим за 15 МБ.`);
+                                    toast(t`Зображення не може бути більшим за 15 МБ.`, { tone: "warning" });
                                     return;
                                 }
 
-                                setError(null);
                                 setCover(file);
                             }}
                         />

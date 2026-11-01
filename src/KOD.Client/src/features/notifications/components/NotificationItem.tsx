@@ -58,7 +58,7 @@ export function NotificationItem({ notification, actions, onOpen }: Notification
             await change();
             await queryClient.invalidateQueries({ queryKey: ["notifications"] });
         } catch (error) {
-            toast(describeError(error, t`Не вдалося змінити сповіщення.`), { danger: true });
+            toast(describeError(error, t`Не вдалося змінити сповіщення.`), { tone: "error" });
         }
     }
 

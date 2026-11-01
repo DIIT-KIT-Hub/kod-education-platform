@@ -34,7 +34,7 @@ export function NotificationSync() {
 
         // The page of the notification is open: it refreshes itself, no message needed.
         if (notification.kind !== "ChatMessage" && pathname !== notification.link.split("#")[0]) {
-            toast(`${notificationTitle(notification, i18n)}: ${notification.subject}`);
+            toast(`${notificationTitle(notification, i18n)}: ${notification.subject}`, { tone: "info" });
         }
     }
 

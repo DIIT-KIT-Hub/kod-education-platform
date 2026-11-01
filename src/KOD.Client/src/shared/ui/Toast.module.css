@@ -1,38 +1,141 @@
+/* A manual popover in the top layer (above modal dialogs); the user agent popover look is reset. */
 .region {
     position: fixed;
     z-index: var(--ds-z-toast);
-    right: var(--ds-gutter);
-    bottom: calc(var(--ds-gutter) + env(safe-area-inset-bottom));
+    inset: auto var(--ds-gutter) calc(var(--ds-gutter) + env(safe-area-inset-bottom)) auto;
+    width: min(100% - 2 * var(--ds-gutter), 25rem);
+    height: auto;
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    pointer-events: none;
+}
+
+.region:popover-open {
     display: grid;
     gap: var(--ds-space-2);
-    width: min(100% - 2 * var(--ds-gutter), 24rem);
-    pointer-events: none;
 }
 
 @media (max-width: 767.98px) {
     .region {
-        bottom: calc(5.5rem + env(safe-area-inset-bottom));
+        inset-block-end: calc(5.5rem + env(safe-area-inset-bottom));
     }
 }
 
+/*
+ * A card on the surface: the tone colours the icon badge, a stripe on the left and the line that runs out while the
+ * notification stays.
+ */
 .toast {
+    --_accent: var(--ds-color-success);
+    --_accent-surface: var(--ds-color-success-surface);
+    position: relative;
     display: flex;
     gap: var(--ds-space-3);
     align-items: center;
-    padding: var(--ds-space-4) var(--ds-space-5);
+    padding: var(--ds-space-3) var(--ds-space-3) var(--ds-space-3) var(--ds-space-4);
+    overflow: hidden;
+    border: 1px solid var(--ds-color-border);
     border-radius: var(--ds-radius-md);
-    background: var(--ds-color-inverse);
-    color: var(--ds-color-on-inverse);
+    background: var(--ds-color-surface);
+    color: var(--ds-color-text);
     box-shadow: var(--ds-shadow-lg);
     font-weight: 600;
     pointer-events: auto;
     animation: var(--ds-anim-slide-up);
 }
 
+.toast::before {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 4px;
+    background: var(--_accent);
+}
+
+.toast::after {
+    content: "";
+    position: absolute;
+    inset: auto 0 0 0;
+    height: 3px;
+    background: var(--_accent);
+    opacity: 0.35;
+    transform-origin: left;
+    animation: runOut var(--_duration) linear forwards;
+}
+
+@keyframes runOut {
+    from {
+        transform: scaleX(1);
+    }
+    to {
+        transform: scaleX(0);
+    }
+}
+
+.toast[data-tone="error"] {
+    --_accent: var(--ds-color-danger);
+    --_accent-surface: var(--ds-color-danger-surface);
+}
+
+.toast[data-tone="warning"] {
+    --_accent: var(--ds-color-warning);
+    --_accent-surface: var(--ds-color-warning-surface);
+}
+
+.toast[data-tone="info"] {
+    --_accent: var(--ds-color-text);
+    --_accent-surface: var(--ds-color-surface-3);
+}
+
 .toast[data-leaving] {
     animation: var(--ds-anim-fade-out);
 }
-.danger {
-    background: var(--ds-color-danger);
-    color: #fff;
+
+.icon {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 50%;
+    background: var(--_accent-surface);
+    color: var(--_accent);
+}
+
+.text {
+    flex: 1;
+    min-width: 0;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+}
+
+.close {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--ds-color-text-muted);
+    cursor: pointer;
+    transition:
+        background-color var(--ds-duration-fast),
+        color var(--ds-duration-fast);
+}
+
+.close:hover {
+    background: var(--ds-color-surface-3);
+    color: var(--ds-color-text);
+}
+
+.close:focus-visible {
+    outline: 2px solid var(--ds-color-focus);
+    outline-offset: 1px;
 }

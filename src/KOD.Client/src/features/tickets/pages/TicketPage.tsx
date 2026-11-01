@@ -149,7 +149,7 @@ function ManageCard({ ticket }: { readonly ticket: TicketDetails }) {
             await change();
             await queryClient.invalidateQueries({ queryKey: ticketKeys.all });
         } catch (error) {
-            toast(describeError(error, t`Не вдалося змінити звернення.`), { danger: true });
+            toast(describeError(error, t`Не вдалося змінити звернення.`), { tone: "error" });
         }
     }
 
@@ -246,7 +246,7 @@ function CloseCard({ ticketId }: { readonly ticketId: string }) {
             await queryClient.invalidateQueries({ queryKey: ticketKeys.all });
             toast(t`Звернення закрито`);
         } catch (error) {
-            toast(describeError(error, t`Не вдалося змінити звернення.`), { danger: true });
+            toast(describeError(error, t`Не вдалося змінити звернення.`), { tone: "error" });
         }
     }
 

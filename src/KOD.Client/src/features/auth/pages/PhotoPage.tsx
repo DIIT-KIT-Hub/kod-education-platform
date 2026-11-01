@@ -5,7 +5,6 @@ import { useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import { describeError } from "@/shared/api/problem";
 import { reloadAuthContext, useCurrentUser } from "@/shared/session/session";
-import { Alert } from "@/shared/ui/Alert";
 import { Button, ButtonLink } from "@/shared/ui/Button";
 import { PhotoPicker, type PhotoSelection } from "@/shared/ui/PhotoPicker";
 import { toast } from "@/shared/ui/Toast";
@@ -27,7 +26,6 @@ export function PhotoPage() {
     const selection = useRef<PhotoSelection | null>(null);
     const [chosen, setChosen] = useState(false);
     const [busy, setBusy] = useState(false);
-    const [error, setError] = useState<string | null>(null);
 
     /**
      * Uploads the chosen photo and its square.
@@ -35,19 +33,18 @@ export function PhotoPage() {
     async function save(): Promise<void> {
         const photo = selection.current;
         if (!photo) {
-            setError(t`Оберіть фото.`);
+            toast(t`Оберіть фото.`, { tone: "warning" });
             return;
         }
 
         setBusy(true);
-        setError(null);
         try {
             await uploadPhoto(photo.file, photo.crop);
             await reloadAuthContext(queryClient);
             toast(t`Фото збережено.`);
             await navigate(required ? returnUrl : "/profile", { replace: true });
         } catch (failure) {
-            setError(describeError(failure, t`Не вдалося зберегти фото. Спробуйте ще раз.`));
+            toast(describeError(failure, t`Не вдалося зберегти фото. Спробуйте ще раз.`), { tone: "error" });
         } finally {
             setBusy(false);
         }
@@ -73,8 +70,6 @@ export function PhotoPage() {
                         : t`Нове фото замінить поточне всюди в кабінеті.`
                 }
             />
-
-            {error && <Alert tone="danger">{error}</Alert>}
 
             <form
                 className={styles.form}

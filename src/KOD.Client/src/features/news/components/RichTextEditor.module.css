@@ -160,8 +160,3 @@
     font-size: var(--ds-fs-xs);
     color: var(--ds-color-text-muted);
 }
-
-.status[data-error] {
-    color: var(--ds-color-danger);
-    font-weight: 650;
-}

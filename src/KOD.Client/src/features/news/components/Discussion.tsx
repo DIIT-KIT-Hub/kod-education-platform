@@ -67,7 +67,6 @@ export function Discussion({ articleId }: { readonly articleId: string }) {
     const [replyTo, setReplyTo] = useState<string | null>(null);
     const [editing, setEditing] = useState<string | null>(null);
     const [focused, setFocused] = useState<NewsCommentDto | null>(null);
-    const [error, setError] = useState<string | null>(null);
     const section = useRef<HTMLElement>(null);
 
     const reload = () => queryClient.invalidateQueries({ queryKey: newsKeys.discussion(articleId) });
@@ -96,13 +95,12 @@ export function Discussion({ articleId }: { readonly articleId: string }) {
      * @returns Whether it succeeded.
      */
     async function run(change: () => Promise<unknown>): Promise<boolean> {
-        setError(null);
         try {
             await change();
             await reload();
             return true;
         } catch (failure) {
-            setError(describeError(failure, t`Не вдалося виконати дію. Спробуйте ще раз.`));
+            toast(describeError(failure, t`Не вдалося виконати дію. Спробуйте ще раз.`), { tone: "error" });
             return false;
         }
     }
@@ -191,8 +189,6 @@ export function Discussion({ articleId }: { readonly articleId: string }) {
                     />
                 )}
             </header>
-
-            {error && <Alert tone="danger">{error}</Alert>}
 
             {data.canComment ? (
                 <CommentForm

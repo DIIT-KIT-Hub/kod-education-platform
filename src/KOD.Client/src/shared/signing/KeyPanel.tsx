@@ -3,7 +3,6 @@ import { FileKey, FileBadge, KeyRound, RefreshCw } from "lucide-react";
 import { useEffect, useState, type FormEvent } from "react";
 import { formatDateTime } from "@/shared/i18n/format";
 import layout from "@/shared/styles/layout.module.css";
-import { Alert } from "@/shared/ui/Alert";
 import { Button } from "@/shared/ui/Button";
 import { DescriptionList } from "@/shared/ui/DescriptionList";
 import { Field } from "@/shared/ui/Field";
@@ -11,6 +10,7 @@ import { FileDrop } from "@/shared/ui/FileDrop";
 import { PasswordInput } from "@/shared/ui/PasswordInput";
 import { Segmented } from "@/shared/ui/Segmented";
 import { Select } from "@/shared/ui/Select";
+import { toast } from "@/shared/ui/Toast";
 import type { KeyOwner, SigningClient } from "./client";
 import { keyAccept } from "./formats";
 import styles from "./Signing.module.css";
@@ -39,7 +39,6 @@ export function KeyPanel({ client, onRead }: KeyPanelProps) {
     const [keyFile, setKeyFile] = useState<File | null>(null);
     const [certificates, setCertificates] = useState<readonly File[]>([]);
     const [password, setPassword] = useState("");
-    const [error, setError] = useState<string | null>(null);
     const [busy, setBusy] = useState(false);
 
     // The provider list arrives with the library.
@@ -60,14 +59,13 @@ export function KeyPanel({ client, onRead }: KeyPanelProps) {
      */
     async function read(event: FormEvent): Promise<void> {
         event.preventDefault();
-        setError(null);
         if (!keyFile) {
-            setError(t`Оберіть файл ключа.`);
+            toast(t`Оберіть файл ключа.`, { tone: "warning" });
             return;
         }
 
         if (!password) {
-            setError(t`Введіть пароль.`);
+            toast(t`Введіть пароль.`, { tone: "warning" });
             return;
         }
 
@@ -80,7 +78,7 @@ export function KeyPanel({ client, onRead }: KeyPanelProps) {
             const certificateBuffers = await Promise.all(certificates.map((file) => file.arrayBuffer()));
             onRead(await client.readKey(keyFile.name, keyBuffer, secret, Number(provider), certificateBuffers));
         } catch (failure) {
-            setError(failure instanceof Error ? failure.message : String(failure));
+            toast(failure instanceof Error ? failure.message : String(failure), { tone: "error" });
         } finally {
             setBusy(false);
         }
@@ -140,7 +138,6 @@ export function KeyPanel({ client, onRead }: KeyPanelProps) {
                     onFiles={setCertificates}
                 />
             </details>
-            {error && <Alert tone="danger">{error}</Alert>}
             <Button type="submit" icon={KeyRound} block busy={busy}>
                 {t`Зчитати ключ`}
             </Button>

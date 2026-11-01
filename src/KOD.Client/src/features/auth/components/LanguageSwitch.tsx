@@ -29,7 +29,7 @@ export function LanguageSwitch() {
             await authApi.language(language);
             await reloadAuthContext(queryClient);
         } catch (error) {
-            toast(describeError(error, t`Не вдалося змінити мову.`), { danger: true });
+            toast(describeError(error, t`Не вдалося змінити мову.`), { tone: "error" });
         } finally {
             setBusy(false);
         }

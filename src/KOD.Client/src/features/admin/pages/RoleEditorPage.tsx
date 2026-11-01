@@ -65,7 +65,6 @@ function RoleForm({ existing, catalog }: RoleFormProps) {
     const navigate = useNavigate();
     const queryClient = useQueryClient();
     const [granted, setGranted] = useState<ReadonlySet<string>>(() => new Set(existing?.permissions ?? []));
-    const [error, setError] = useState<string | null>(null);
     const [deleting, setDeleting] = useState(false);
     const readOnly = existing?.isAdministrator === true;
 
@@ -118,7 +117,6 @@ function RoleForm({ existing, catalog }: RoleFormProps) {
      * @param values The form values.
      */
     async function save(values: z.infer<typeof schema>): Promise<void> {
-        setError(null);
         const command = { ...values, description: values.description || null, permissions: [...granted] };
         try {
             if (existing) {
@@ -131,7 +129,7 @@ function RoleForm({ existing, catalog }: RoleFormProps) {
             toast(t`Роль збережено`);
             await navigate("/admin/roles", { replace: true });
         } catch (failure) {
-            setError(describeError(failure, t`Не вдалося зберегти роль. Спробуйте ще раз.`));
+            toast(describeError(failure, t`Не вдалося зберегти роль. Спробуйте ще раз.`), { tone: "error" });
         }
     }
 
@@ -150,7 +148,7 @@ function RoleForm({ existing, catalog }: RoleFormProps) {
             toast(t`Роль видалено`);
             await navigate("/admin/roles", { replace: true });
         } catch (failure) {
-            setError(describeError(failure, t`Не вдалося виконати дію. Спробуйте ще раз.`));
+            toast(describeError(failure, t`Не вдалося виконати дію. Спробуйте ще раз.`), { tone: "error" });
         } finally {
             setDeleting(false);
         }
@@ -179,7 +177,6 @@ function RoleForm({ existing, catalog }: RoleFormProps) {
 
             <form className={layout.split} noValidate onSubmit={handleSubmit(save)}>
                 <div className={layout.stackLg}>
-                    {error && <Alert tone="danger">{error}</Alert>}
                     <Card title={t`Дозволи`}>
                         <fieldset className={styles.fieldset} disabled={readOnly}>
                             <PermissionModules permissions={catalog}>

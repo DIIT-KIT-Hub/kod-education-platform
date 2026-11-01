@@ -9,6 +9,7 @@ import layout from "@/shared/styles/layout.module.css";
 import { Alert } from "@/shared/ui/Alert";
 import { Button } from "@/shared/ui/Button";
 import { FileDrop } from "@/shared/ui/FileDrop";
+import { toast } from "@/shared/ui/Toast";
 
 /**
  * Verifies a signed file in the browser: who signed, the certificate, the time and the integrity of the data. Nothing
@@ -41,7 +42,7 @@ export function VerifyPanel() {
             const payload = await Promise.all(files.map(async (file) => ({ name: file.name, data: await file.arrayBuffer() })));
             setResult(await client.verify(payload));
         } catch (failure) {
-            setError(failure instanceof Error ? failure.message : String(failure));
+            toast(failure instanceof Error ? failure.message : String(failure), { tone: "error" });
         } finally {
             setBusy(false);
         }

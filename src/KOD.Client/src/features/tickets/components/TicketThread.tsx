@@ -121,7 +121,7 @@ export function ReplyBox({ ticketId, placeholder }: ReplyBoxProps) {
             setFiles([]);
             await queryClient.invalidateQueries({ queryKey: ticketKeys.all });
         } catch (error) {
-            toast(describeError(error, t`Не вдалося надіслати повідомлення.`), { danger: true });
+            toast(describeError(error, t`Не вдалося надіслати повідомлення.`), { tone: "error" });
         } finally {
             setSending(false);
         }

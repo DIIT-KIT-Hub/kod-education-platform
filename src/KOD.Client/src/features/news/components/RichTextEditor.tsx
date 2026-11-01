@@ -40,6 +40,7 @@ import { imageAccept } from "@/shared/lib/image";
 import { Button } from "@/shared/ui/Button";
 import { Icon } from "@/shared/ui/Icon";
 import { TextInput } from "@/shared/ui/TextInput";
+import { toast } from "@/shared/ui/Toast";
 import { uploadImage } from "../api";
 import prose from "./Prose.module.css";
 import styles from "./RichTextEditor.module.css";
@@ -151,7 +152,8 @@ export function RichTextEditor({ initialHtml, onChange, onUploadingChange, label
     const fileInput = useRef<HTMLInputElement>(null);
     const pickMode = useRef<"image" | "gallery">("image");
     const uploading = useRef(0);
-    const [status, setStatus] = useState<{ readonly text: string; readonly error: boolean } | null>(null);
+    // The progress of photo uploads; their failures go to notifications.
+    const [status, setStatus] = useState<string | null>(null);
     const [linkOpen, setLinkOpen] = useState(false);
     const [link, setLink] = useState("");
 
@@ -240,19 +242,18 @@ export function RichTextEditor({ initialHtml, onChange, onUploadingChange, label
 
         track(images.length);
         const count = uploading.current;
-        setStatus({ text: t`Завантаження фото… (${count})`, error: false });
+        setStatus(t`Завантаження фото… (${count})`);
         void Promise.allSettled(images.map(uploadImage)).then((results) => {
             track(-images.length);
             const stored = results.flatMap((result) => (result.status === "fulfilled" ? [result.value] : []));
             const failed = results.find((result) => result.status === "rejected");
             const left = uploading.current;
-            setStatus(
-                failed
-                    ? { text: describeError(failed.reason, t`Не вдалося завантажити фото.`), error: true }
-                    : left > 0
-                      ? { text: t`Завантаження фото… (${left})`, error: false }
-                      : null,
-            );
+            // The progress stays in the toolbar; a failure is reported like every other one.
+            if (failed) {
+                toast(describeError(failed.reason, t`Не вдалося завантажити фото.`), { tone: "error" });
+            }
+
+            setStatus(left > 0 ? t`Завантаження фото… (${left})` : null);
             if (stored.length === 0) {
                 return;
             }
@@ -476,8 +477,8 @@ export function RichTextEditor({ initialHtml, onChange, onUploadingChange, label
             <EditorContent editor={editor} className={styles.content} />
 
             <div className={styles.footer}>
-                <span className={styles.status} data-error={status?.error || undefined} role="status">
-                    {status?.text}
+                <span className={styles.status} role="status">
+                    {status}
                 </span>
                 <span>{t`${characters} / ${textLimit} символів`}</span>
             </div>

@@ -57,7 +57,7 @@ export function ChatSync() {
         queryClient.removeQueries({ queryKey: chatKeys.details(chatId) });
         void queryClient.invalidateQueries({ queryKey: chatKeys.list });
         if (open === chatId) {
-            toast(t`Чат видалено або вас із нього вилучено.`);
+            toast(t`Чат видалено або вас із нього вилучено.`, { tone: "warning" });
             void navigate("/chats", { replace: true });
         }
     });

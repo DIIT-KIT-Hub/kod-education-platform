@@ -117,7 +117,6 @@ function DocumentForm({ existing, units }: DocumentFormProps) {
     const [file, setFile] = useState<File | null>(null);
     const [signers, setSigners] = useState<readonly UserLookupItem[]>(existing?.signers ?? []);
     const [term, setTerm] = useState("");
-    const [error, setError] = useState<string | null>(null);
     const [submitting, setSubmitting] = useState<"submit" | "draft" | null>(null);
     const suggestions = useQuery(signerSearchQuery(term));
 
@@ -160,7 +159,6 @@ function DocumentForm({ existing, units }: DocumentFormProps) {
      * @param files The chosen files.
      */
     function choose(files: readonly File[]): void {
-        setError(null);
         const chosen = files[0];
         if (!chosen) {
             return;
@@ -168,13 +166,13 @@ function DocumentForm({ existing, units }: DocumentFormProps) {
 
         const extension = chosen.name.slice(chosen.name.lastIndexOf(".")).toLowerCase();
         if (!accept.split(",").includes(extension)) {
-            setError(t`Цей тип файлу не підтримується.`);
+            toast(t`Цей тип файлу не підтримується.`, { tone: "warning" });
             setFile(null);
             return;
         }
 
         if (chosen.size > maxFileBytes) {
-            setError(t`Розмір файлу не може перевищувати 25 МБ.`);
+            toast(t`Розмір файлу не може перевищувати 25 МБ.`, { tone: "warning" });
             setFile(null);
             return;
         }
@@ -208,12 +206,11 @@ function DocumentForm({ existing, units }: DocumentFormProps) {
      */
     async function save(values: z.infer<typeof schema>, submit: boolean): Promise<void> {
         if (!existing && !file) {
-            setError(t`Оберіть файл документа.`);
+            toast(t`Оберіть файл документа.`, { tone: "warning" });
             return;
         }
 
         setSubmitting(submit ? "submit" : "draft");
-        setError(null);
         const form = {
             title: values.title,
             description: values.description,
@@ -238,7 +235,7 @@ function DocumentForm({ existing, units }: DocumentFormProps) {
             );
             await navigate(`/documents/${documentId}`, { replace: true });
         } catch (failure) {
-            setError(describeError(failure, t`Не вдалося зберегти документ. Спробуйте ще раз.`));
+            toast(describeError(failure, t`Не вдалося зберегти документ. Спробуйте ще раз.`), { tone: "error" });
         } finally {
             setSubmitting(null);
         }
@@ -274,8 +271,6 @@ function DocumentForm({ existing, units }: DocumentFormProps) {
                             {t`Виправте його та надішліть на підпис повторно. Підписи, накладені на поточний файл, збережуться — ці підписанти не підписуватимуть знову, якщо ви не заміните файл і не приберете їх із маршруту.`}
                         </Alert>
                     )}
-
-                    {error && <Alert tone="danger">{error}</Alert>}
 
                     <Card title={t`Файл`}>
                         {existing && (

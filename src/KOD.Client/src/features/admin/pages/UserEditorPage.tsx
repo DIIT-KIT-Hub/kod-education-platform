@@ -149,8 +149,6 @@ function UserForm({ existing, units, roles, catalog }: UserFormProps) {
     const [credentials, setCredentials] = useState<UserCredentials | null>(() =>
         existing && createdCredentials?.userId === existing.id ? createdCredentials : null,
     );
-    const [message, setMessage] = useState<string | null>(null);
-    const [error, setError] = useState<string | null>(null);
     const [busy, setBusy] = useState(false);
     const primaryIsForeign = positions.some((position) => !position.isManaged && position.isPrimary);
     const effective = new Set(existing?.effectivePermissions ?? []);
@@ -236,17 +234,15 @@ function UserForm({ existing, units, roles, catalog }: UserFormProps) {
     }
 
     /**
-     * Runs an action and reports its outcome.
+     * Runs an action and reports its outcome in a notification.
      * @param action The action; returns the success message.
      */
     async function run(action: () => Promise<string>): Promise<void> {
         setBusy(true);
-        setMessage(null);
-        setError(null);
         try {
-            setMessage(await action());
+            toast(await action());
         } catch (failure) {
-            setError(describeError(failure, t`Не вдалося виконати дію. Спробуйте ще раз.`));
+            toast(describeError(failure, t`Не вдалося виконати дію. Спробуйте ще раз.`), { tone: "error" });
         } finally {
             setBusy(false);
         }
@@ -258,7 +254,7 @@ function UserForm({ existing, units, roles, catalog }: UserFormProps) {
      */
     async function save(values: z.infer<typeof schema>): Promise<void> {
         if (positions.some((position) => !position.unitId || !position.roleId)) {
-            setError(t`Для кожної посади оберіть підрозділ і роль.`);
+            toast(t`Для кожної посади оберіть підрозділ і роль.`, { tone: "warning" });
             return;
         }
 
@@ -289,7 +285,6 @@ function UserForm({ existing, units, roles, catalog }: UserFormProps) {
             const created = await adminApi.createUser(command);
             createdCredentials = created;
             await reload();
-            toast(t`Обліковий запис створено.`);
             await navigate(`/admin/users/${created.userId}`, { replace: true });
             return t`Обліковий запис створено.`;
         });
@@ -429,8 +424,6 @@ function UserForm({ existing, units, roles, catalog }: UserFormProps) {
                         </div>
                     </div>
                 )}
-                {message && <Alert tone="inverse">{message}</Alert>}
-                {error && <Alert tone="danger">{error}</Alert>}
                 {canEditPositions && !canEditAccount && (
                     <Alert tone="outline" icon={Info} title={t`Обліковий запис кількох організацій`}>
                         {t`Користувач також обіймає посади в організаціях, якими ви не керуєте. Ви можете змінювати лише його посади у своїх організаціях; особисті дані, e-mail, статус і безпеку облікового запису змінює адміністратор, що керує всіма його організаціями.`}
@@ -524,7 +517,7 @@ function UserForm({ existing, units, roles, catalog }: UserFormProps) {
                                                 className={[styles.fieldset, styles.position].join(" ")}
                                                 disabled={!canEditPositions}
                                             >
-                                                <Field label={t`Підрозділ`}>
+                                                <Field label={t`Підрозділ`} className={styles.positionUnit}>
                                                     {(ids) => (
                                                         <Select
                                                             {...ids}
@@ -535,7 +528,7 @@ function UserForm({ existing, units, roles, catalog }: UserFormProps) {
                                                         />
                                                     )}
                                                 </Field>
-                                                <Field label={t`Роль`}>
+                                                <Field label={t`Роль`} className={styles.positionRole}>
                                                     {(ids) => (
                                                         <Select
                                                             {...ids}
@@ -546,7 +539,7 @@ function UserForm({ existing, units, roles, catalog }: UserFormProps) {
                                                         />
                                                     )}
                                                 </Field>
-                                                <Field label={t`Назва посади`}>
+                                                <Field label={t`Назва посади`} className={styles.positionTitle}>
                                                     {(ids) => (
                                                         <TextInput
                                                             {...ids}
@@ -559,7 +552,7 @@ function UserForm({ existing, units, roles, catalog }: UserFormProps) {
                                                         />
                                                     )}
                                                 </Field>
-                                                <div className={styles.primaryCheck}>
+                                                <div className={styles.positionPrimary}>
                                                     <Checkbox
                                                         radio
                                                         name="primary-position"
@@ -572,6 +565,7 @@ function UserForm({ existing, units, roles, catalog }: UserFormProps) {
                                                 </div>
                                                 {canEditPositions && (
                                                     <Button
+                                                        className={styles.positionRemove}
                                                         variant="ghost"
                                                         size="sm"
                                                         iconOnly

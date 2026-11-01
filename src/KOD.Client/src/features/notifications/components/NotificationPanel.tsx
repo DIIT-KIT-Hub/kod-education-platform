@@ -92,7 +92,7 @@ export function NotificationPanel() {
             await notificationApi.markAllRead();
             await queryClient.invalidateQueries({ queryKey: notificationKeys.all });
         } catch (error) {
-            toast(describeError(error, t`Не вдалося змінити сповіщення.`), { danger: true });
+            toast(describeError(error, t`Не вдалося змінити сповіщення.`), { tone: "error" });
         }
     }
 

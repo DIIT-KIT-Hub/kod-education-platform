@@ -2,16 +2,15 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Trans, useLingui } from "@lingui/react/macro";
 import { useQueryClient } from "@tanstack/react-query";
 import { ShieldCheck, Smartphone } from "lucide-react";
-import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router";
 import { z } from "zod";
 import { ApiError, describeError } from "@/shared/api/problem";
 import layout from "@/shared/styles/layout.module.css";
-import { Alert } from "@/shared/ui/Alert";
 import { Button } from "@/shared/ui/Button";
 import { Field } from "@/shared/ui/Field";
 import { OtpInput } from "@/shared/ui/OtpInput";
+import { toast } from "@/shared/ui/Toast";
 import { authApi } from "../api";
 import { AuthHeader } from "../components/AuthHeader";
 import { completeSignIn, flowUrl, useRememberMe, useReturnUrl } from "../flow";
@@ -27,7 +26,6 @@ export function TwoFactorPage() {
     const queryClient = useQueryClient();
     const returnUrl = useReturnUrl();
     const rememberMe = useRememberMe();
-    const [error, setError] = useState<string | null>(null);
 
     const schema = z.object({ code: z.string().regex(/^\d{6}$/, t`Код містить 6 цифр.`) });
     const { control, handleSubmit, formState } = useForm({ resolver: zodResolver(schema), defaultValues: { code: "" } });
@@ -37,7 +35,6 @@ export function TwoFactorPage() {
      * @param values The form values.
      */
     async function verify(values: z.infer<typeof schema>): Promise<void> {
-        setError(null);
         try {
             await authApi.twoFactor(values.code, rememberMe);
             await completeSignIn(queryClient);
@@ -48,7 +45,7 @@ export function TwoFactorPage() {
                 return;
             }
 
-            setError(describeError(failure, t`Не вдалося зв'язатися з сервером. Спробуйте ще раз.`));
+            toast(describeError(failure, t`Не вдалося зв'язатися з сервером. Спробуйте ще раз.`), { tone: "error" });
         }
     }
 
@@ -62,8 +59,6 @@ export function TwoFactorPage() {
                 pageTitle={t`Підтвердження входу`}
                 text={t`Відкрийте застосунок-автентифікатор і введіть 6-значний код для облікового запису КОД.`}
             />
-
-            {error && <Alert tone="danger">{error}</Alert>}
 
             <form className={styles.form} noValidate onSubmit={submit}>
                 <Field label={t`Код підтвердження`} error={formState.errors.code?.message}>

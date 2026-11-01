@@ -2,16 +2,15 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useLingui } from "@lingui/react/macro";
 import { useQueryClient } from "@tanstack/react-query";
 import { KeyRound } from "lucide-react";
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
 import { z } from "zod";
 import { ApiError, describeError } from "@/shared/api/problem";
 import layout from "@/shared/styles/layout.module.css";
-import { Alert } from "@/shared/ui/Alert";
 import { Button } from "@/shared/ui/Button";
 import { Field } from "@/shared/ui/Field";
 import { TextInput } from "@/shared/ui/TextInput";
+import { toast } from "@/shared/ui/Toast";
 import { authApi } from "../api";
 import { AuthHeader } from "../components/AuthHeader";
 import { completeSignIn, useReturnUrl } from "../flow";
@@ -26,7 +25,6 @@ export function RecoveryPage() {
     const navigate = useNavigate();
     const queryClient = useQueryClient();
     const returnUrl = useReturnUrl();
-    const [error, setError] = useState<string | null>(null);
 
     const schema = z.object({
         code: z
@@ -42,7 +40,6 @@ export function RecoveryPage() {
      * @param values The form values.
      */
     async function verify(values: z.infer<typeof schema>): Promise<void> {
-        setError(null);
         try {
             await authApi.recovery(values.code);
             await completeSignIn(queryClient);
@@ -53,7 +50,7 @@ export function RecoveryPage() {
                 return;
             }
 
-            setError(describeError(failure, t`Не вдалося зв'язатися з сервером. Спробуйте ще раз.`));
+            toast(describeError(failure, t`Не вдалося зв'язатися з сервером. Спробуйте ще раз.`), { tone: "error" });
         }
     }
 
@@ -65,8 +62,6 @@ export function RecoveryPage() {
                 pageTitle={t`Резервний код`}
                 text={t`Використайте один із резервних кодів, отриманих під час підключення автентифікатора. Кожен код діє лише один раз.`}
             />
-
-            {error && <Alert tone="danger">{error}</Alert>}
 
             <form className={styles.form} noValidate onSubmit={handleSubmit(verify)}>
                 <Field label={t`Резервний код`} error={formState.errors.code?.message}>

@@ -230,11 +230,15 @@ Dependencies point inward: Web → Infrastructure → Application → Domain. Ce
 - **Forms**: react-hook-form + `zodResolver`; build the zod schema inside the component with `t` so its messages are
   translated; `<Field>` gives the control its id / `aria-describedby` / `aria-invalid` through a render prop.
 - **Pages** set the document title with `<DocumentTitle>` or `<PageHeader>` (React hoists `<title>`).
-- Global UI services are module stores read with `useSyncExternalStore`: `toast(text)`, `await confirm({...})`,
+- Global UI services are module stores read with `useSyncExternalStore`: `toast(text, { tone })` (`success` by
+  default, `error`, `warning`, `info`; a top-layer popover, so it shows above modal dialogs), `await confirm({...})`,
   `await confirmWithOption({..., option})` (a check box such as "also delete for…"; null when cancelled).
 - Loading data shows skeletons shaped like the content (`shared/ui/Skeleton`: `SkeletonTable`, `SkeletonList`,
   `SkeletonCards`, `SkeletonPage`, `SkeletonMessages`, `SkeletonText`, primitives `Skeleton` in a `SkeletonGroup`), not
   a spinner; `Spinner` stays only for a running action (a message being sent).
+- Every outcome of an action (saved, deleted, failed, a rejected file, a form-level check) is a toast, never an alert on
+  the page; inline `Alert`s are for load errors, explanations and results that are content (an import report, a
+  signature verification). Field errors stay under their fields.
 - List pages keep search, filters, sorting and paging in the address (`DataGrid` sorts by `sortBy`/`descending`,
   `Pagination` by `page`/`pageSize`; `useListParams` in `features/admin`). `DatePicker` (`shared/ui`) takes and
   returns `yyyy-MM-dd`, accepts typed dates in the day-month-year order and opens a calendar popover.

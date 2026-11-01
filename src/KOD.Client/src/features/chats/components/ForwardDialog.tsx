@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useNavigate } from "react-router";
 import { describeError } from "@/shared/api/problem";
 import { useCurrentUser } from "@/shared/session/session";
-import { Alert } from "@/shared/ui/Alert";
 import { Avatar } from "@/shared/ui/Avatar";
 import { Dialog } from "@/shared/ui/Dialog";
 import { SearchInput } from "@/shared/ui/SearchInput";
@@ -43,7 +42,6 @@ export function ForwardDialog({ open, onClose, chatId, messageIds }: ForwardDial
     const me = useCurrentUser().id;
     const [filter, setFilter] = useState("");
     const [busy, setBusy] = useState(false);
-    const [error, setError] = useState<string | null>(null);
     const chats = useQuery(chatsQuery);
     const people = useQuery(peopleQuery(filter));
 
@@ -61,7 +59,6 @@ export function ForwardDialog({ open, onClose, chatId, messageIds }: ForwardDial
      */
     async function forward(target: { readonly chatId: string } | { readonly userId: string }): Promise<void> {
         setBusy(true);
-        setError(null);
         try {
             const to = "chatId" in target ? target.chatId : (await chatApi.openDirect(target.userId)).id;
             await chatApi.forward(to, chatId, messageIds);
@@ -72,7 +69,7 @@ export function ForwardDialog({ open, onClose, chatId, messageIds }: ForwardDial
                 void navigate(`/chats/${to}`);
             }
         } catch (failure) {
-            setError(describeError(failure, t`Не вдалося переслати повідомлення.`));
+            toast(describeError(failure, t`Не вдалося переслати повідомлення.`), { tone: "error" });
         } finally {
             setBusy(false);
         }
@@ -81,7 +78,6 @@ export function ForwardDialog({ open, onClose, chatId, messageIds }: ForwardDial
     return (
         <Dialog open={open} onClose={onClose} title={t`Переслати в чат`}>
             <div className={styles.dialogBody}>
-                {error && <Alert tone="danger">{error}</Alert>}
                 <SearchInput value={filter} onSearch={setFilter} placeholder={t`Чат або людина`} autoFocus />
 
                 {chats.isPending ? (

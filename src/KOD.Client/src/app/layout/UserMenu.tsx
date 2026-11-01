@@ -39,7 +39,7 @@ export function UserMenu() {
             queryClient.removeQueries({ predicate: (query) => query.queryKey[0] !== "auth" });
             await navigate("/account/login", { replace: true });
         } catch (error) {
-            toast(describeError(error, t`Не вдалося вийти. Спробуйте ще раз.`), { danger: true });
+            toast(describeError(error, t`Не вдалося вийти. Спробуйте ще раз.`), { tone: "error" });
         }
     }
 

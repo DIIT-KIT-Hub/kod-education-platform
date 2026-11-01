@@ -16,6 +16,7 @@ import { Field } from "@/shared/ui/Field";
 import { OtpInput } from "@/shared/ui/OtpInput";
 import { PasswordInput } from "@/shared/ui/PasswordInput";
 import { Skeleton, SkeletonGroup, SkeletonText } from "@/shared/ui/Skeleton";
+import { toast } from "@/shared/ui/Toast";
 import { authApi } from "../api";
 import { AuthHeader } from "../components/AuthHeader";
 import { completeSignIn, useRememberMe, useReturnUrl } from "../flow";
@@ -83,7 +84,6 @@ function NoPendingSignIn({ error }: { readonly error: string }) {
  */
 function FirstPassword({ onDone }: { readonly onDone: () => Promise<void> }) {
     const { t } = useLingui();
-    const [error, setError] = useState<string | null>(null);
 
     const schema = z
         .object({
@@ -109,12 +109,11 @@ function FirstPassword({ onDone }: { readonly onDone: () => Promise<void> }) {
      * @param values The form values.
      */
     async function save(values: z.infer<typeof schema>): Promise<void> {
-        setError(null);
         try {
             await authApi.firstPassword(values.newPassword);
             await onDone();
         } catch (failure) {
-            setError(describeError(failure, t`Не вдалося зв'язатися з сервером. Спробуйте ще раз.`));
+            toast(describeError(failure, t`Не вдалося зв'язатися з сервером. Спробуйте ще раз.`), { tone: "error" });
         }
     }
 
@@ -126,8 +125,6 @@ function FirstPassword({ onDone }: { readonly onDone: () => Promise<void> }) {
                 pageTitle={t`Підключення автентифікатора`}
                 text={t`Тимчасовий пароль від адміністратора діє лише для першого входу. Придумайте власний — після цього підключимо автентифікатор.`}
             />
-
-            {error && <Alert tone="danger">{error}</Alert>}
 
             <form className={styles.form} noValidate onSubmit={handleSubmit(save)}>
                 <Field
@@ -169,7 +166,6 @@ function LinkAuthenticator({ step, onEnrolled }: LinkAuthenticatorProps) {
     const queryClient = useQueryClient();
     const rememberMe = useRememberMe();
     const key = useQuery({ queryKey: ["auth", "authenticator"], queryFn: authApi.authenticatorKey, retry: false, staleTime: Infinity });
-    const [error, setError] = useState<string | null>(null);
 
     const schema = z.object({ code: z.string().regex(/^\d{6}$/, t`Код містить 6 цифр.`) });
     const { control, handleSubmit, formState } = useForm({ resolver: zodResolver(schema), defaultValues: { code: "" } });
@@ -179,7 +175,6 @@ function LinkAuthenticator({ step, onEnrolled }: LinkAuthenticatorProps) {
      * @param values The form values.
      */
     async function enroll(values: z.infer<typeof schema>): Promise<void> {
-        setError(null);
         try {
             const { codes } = await authApi.enroll(values.code, rememberMe);
             await completeSignIn(queryClient);
@@ -190,7 +185,7 @@ function LinkAuthenticator({ step, onEnrolled }: LinkAuthenticatorProps) {
                 return;
             }
 
-            setError(describeError(failure, t`Не вдалося зв'язатися з сервером. Спробуйте ще раз.`));
+            toast(describeError(failure, t`Не вдалося зв'язатися з сервером. Спробуйте ще раз.`), { tone: "error" });
         }
     }
 
@@ -247,8 +242,6 @@ function LinkAuthenticator({ step, onEnrolled }: LinkAuthenticatorProps) {
                     <span>{t`Введіть 6-значний код, який показує застосунок.`}</span>
                 </li>
             </ol>
-
-            {error && <Alert tone="danger">{error}</Alert>}
 
             <form className={styles.form} noValidate onSubmit={submit}>
                 <Field label={t`Код з застосунку`} error={formState.errors.code?.message}>

@@ -34,7 +34,7 @@ export function CopyButton({ value, children, variant = "secondary", size }: Cop
                     await navigator.clipboard.writeText(value);
                     toast(t`Скопійовано`);
                 } catch {
-                    toast(t`Не вдалося скопіювати`, { danger: true });
+                    toast(t`Не вдалося скопіювати`, { tone: "error" });
                 }
             }}
         >
