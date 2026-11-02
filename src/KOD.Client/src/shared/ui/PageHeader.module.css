@@ -8,10 +8,15 @@
     animation: var(--ds-anim-fade-up);
 }
 
+/* The column never grows past the header: a long unbroken title (a request subject) wraps instead of widening the page. */
 .text {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: var(--ds-space-2);
     min-width: 0;
+}
+.text h1 {
+    overflow-wrap: anywhere;
 }
 .subtitle {
     color: var(--ds-color-text-muted);
