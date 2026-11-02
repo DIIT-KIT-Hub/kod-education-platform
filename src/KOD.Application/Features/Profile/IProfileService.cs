@@ -17,12 +17,13 @@ public interface IProfileService
     Task<Result<ProfileDto>> GetAsync(CancellationToken cancellationToken);
 
     /// <summary>
-    /// Updates the contact phone number.
+    /// Updates the personal data and contacts: the phone for everyone, the name and the e-mail for users who administer
+    /// their whole account (a system administrator always).
     /// </summary>
-    /// <param name="phoneNumber">The phone number.</param>
+    /// <param name="update">The changes.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The result.</returns>
-    Task<Result> UpdatePhoneAsync(string? phoneNumber, CancellationToken cancellationToken);
+    Task<Result> UpdateAsync(ProfileUpdate update, CancellationToken cancellationToken);
 
     /// <summary>
     /// Saves the interface language of the current user.

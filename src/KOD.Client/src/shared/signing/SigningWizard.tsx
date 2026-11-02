@@ -340,7 +340,7 @@ export function SigningWizard({ target, active, onBusyChange, onSigned }: Signin
                 if (fresh.baseSignatureId !== (session?.baseSignatureId ?? null)) {
                     await prepareSession();
                     throw new Error(
-                        t`Поки ви підписували, документ підписав інший підписант. Завантажено останню версію — натисніть «Підписати» ще раз.`,
+                        t`Поки Ви підписували, документ підписав інший підписант. Завантажено останню версію — натисніть «Підписати» ще раз.`,
                     );
                 }
 
@@ -524,7 +524,7 @@ export function SigningWizard({ target, active, onBusyChange, onSigned }: Signin
             {fixed && (
                 <p
                     className={layout.muted}
-                >{t`Формат і тип підпису визначив перший підписант: ваш підпис буде додано до того самого файлу.`}</p>
+                >{t`Формат і тип підпису визначив перший підписант: Ваш підпис буде додано до того самого файлу.`}</p>
             )}
             <Field label={t`Рівень підпису`} hint={t`B-LT містить усе для перевірки через роки (рекомендовано).`}>
                 {(control) => (
@@ -568,7 +568,7 @@ export function SigningWizard({ target, active, onBusyChange, onSigned }: Signin
                         title: documentMode ? t`Документ` : t`Файли`,
                         description: documentMode
                             ? t`Перевіряємо, що файл не змінювався після реєстрації.`
-                            : t`Файли не залишають ваш пристрій.`,
+                            : t`Файли не залишають Ваш пристрій.`,
                         content: dataStep,
                         complete: integrityOk && files.length > 0,
                     },
@@ -581,7 +581,7 @@ export function SigningWizard({ target, active, onBusyChange, onSigned }: Signin
                     {
                         id: "key",
                         title: t`Ключ і підпис`,
-                        description: t`Ключ зчитується лише у вашому браузері; пароль не передається на сервер.`,
+                        description: t`Ключ зчитується лише у Вашому браузері; пароль не передається на сервер.`,
                         content: keyStep,
                         complete: owner !== null,
                         // The private key never outlives the step it is needed for.

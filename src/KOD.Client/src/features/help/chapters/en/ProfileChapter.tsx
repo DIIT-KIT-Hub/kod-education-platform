@@ -29,13 +29,18 @@ export function ProfileChapter() {
                         see each permission with its description.
                     </li>
                     <li>
-                        <strong>Contacts</strong> — your email (cannot be changed, it is your login) and <Ui>Phone</Ui>. Enter the number in
-                        the +380… format and click <Ui>Save</Ui> — “Phone number saved.” appears.
+                        <strong>Contacts</strong> — <Ui>Email (login)</Ui> and <Ui>Phone</Ui>. Enter the number in the +380… format and
+                        click <Ui>Save</Ui> — “Changes saved.” appears.
                     </li>
                 </ul>
                 <p>
-                    Your name and positions are managed by the HR department. If the data is wrong or you lack access to a module, contact
-                    them or the system administrator.
+                    Your name, email and positions are changed by the administrator of your organization or the HR department. If the data
+                    is wrong or you lack access to a module, contact them or the system administrator.
+                </p>
+                <p>
+                    A user administrator who manages every organization of their positions (the system administrator always) sees{" "}
+                    <Ui>Personal data</Ui> instead of this card and changes their own last name, first name, middle name and email. The new
+                    email becomes the login at once. Positions are changed in the user administration.
                 </p>
                 <p>
                     <strong>Interface language.</strong> The cabinet is available in Ukrainian and English. In the{" "}

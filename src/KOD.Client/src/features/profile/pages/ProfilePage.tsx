@@ -175,15 +175,34 @@ function Modules({ profile }: ProfileCardProps) {
 }
 
 /**
- * The e-mail (read-only) and the phone number.
+ * The name, the e-mail and the phone number. Everyone changes the phone; the name and the e-mail (the login) only users
+ * who administer their whole account (a system administrator always), the others ask their administrator or HR.
  * @param props The profile.
  * @returns The card.
  */
 function Contacts({ profile }: ProfileCardProps) {
     const { t } = useLingui();
     const queryClient = useQueryClient();
+    const editable = profile.canEditPersonalData;
 
     const schema = z.object({
+        lastName: z
+            .string()
+            .trim()
+            .min(1, t`Вкажіть прізвище.`)
+            .max(64),
+        firstName: z
+            .string()
+            .trim()
+            .min(1, t`Вкажіть ім'я.`)
+            .max(64),
+        middleName: z.string().trim().max(64),
+        email: z
+            .string()
+            .trim()
+            .min(1, t`Вкажіть електронну пошту.`)
+            .max(256)
+            .pipe(z.email(t`Некоректна адреса.`)),
         phoneNumber: z
             .string()
             .trim()
@@ -193,28 +212,71 @@ function Contacts({ profile }: ProfileCardProps) {
 
     const { register, handleSubmit, formState, reset } = useForm({
         resolver: zodResolver(schema),
-        defaultValues: { phoneNumber: profile.phoneNumber ?? "" },
+        defaultValues: {
+            lastName: profile.lastName,
+            firstName: profile.firstName,
+            middleName: profile.middleName ?? "",
+            email: profile.email,
+            phoneNumber: profile.phoneNumber ?? "",
+        },
     });
 
     /**
-     * Saves the phone number.
+     * Saves the changes; the name and the e-mail are sent only when the user may change them.
      * @param values The form values.
      */
     async function save(values: z.infer<typeof schema>): Promise<void> {
         try {
-            await profileApi.phone(values.phoneNumber || null);
+            await profileApi.update(
+                editable
+                    ? { ...values, phoneNumber: values.phoneNumber || null }
+                    : { lastName: null, firstName: null, middleName: null, email: null, phoneNumber: values.phoneNumber || null },
+            );
             reset(values);
             await queryClient.invalidateQueries({ queryKey: profileKeys.all });
-            toast(t`Телефон збережено.`);
+            if (editable) {
+                // The shell shows the name from the auth context, re-issued with the new tokens.
+                await reloadAuthContext(queryClient);
+            }
+
+            toast(t`Зміни збережено.`);
         } catch (failure) {
-            toast(describeError(failure, t`Не вдалося зберегти телефон. Спробуйте ще раз.`), { tone: "error" });
+            toast(describeError(failure, t`Не вдалося зберегти зміни. Спробуйте ще раз.`), { tone: "error" });
         }
     }
 
     return (
-        <Card title={t`Контакти`}>
+        <Card title={editable ? t`Особисті дані` : t`Контакти`}>
             <form className={layout.stack} noValidate onSubmit={handleSubmit(save)}>
-                <Field label={t`Електронна пошта`}>{(ids) => <TextInput {...ids} value={profile.email} disabled readOnly />}</Field>
+                {editable && (
+                    <>
+                        <Field label={t`Прізвище`} required error={formState.errors.lastName?.message}>
+                            {(ids) => <TextInput {...ids} {...register("lastName")} autoComplete="family-name" maxLength={64} />}
+                        </Field>
+                        <Field label={t`Ім'я`} required error={formState.errors.firstName?.message}>
+                            {(ids) => <TextInput {...ids} {...register("firstName")} autoComplete="given-name" maxLength={64} />}
+                        </Field>
+                        <Field label={t`По батькові`}>
+                            {(ids) => <TextInput {...ids} {...register("middleName")} autoComplete="additional-name" maxLength={64} />}
+                        </Field>
+                    </>
+                )}
+                <Field label={t`Електронна пошта (логін)`} required={editable} error={formState.errors.email?.message}>
+                    {(ids) =>
+                        editable ? (
+                            <TextInput
+                                {...ids}
+                                {...register("email")}
+                                type="email"
+                                inputMode="email"
+                                autoComplete="email"
+                                maxLength={256}
+                            />
+                        ) : (
+                            <TextInput {...ids} value={profile.email} disabled readOnly />
+                        )
+                    }
+                </Field>
                 <Field label={t`Телефон`} error={formState.errors.phoneNumber?.message}>
                     {(ids) => (
                         <TextInput {...ids} {...register("phoneNumber")} type="tel" placeholder="+380…" autoComplete="tel" maxLength={32} />
@@ -226,7 +288,11 @@ function Contacts({ profile }: ProfileCardProps) {
                     </Button>
                 </div>
             </form>
-            <p className={[layout.textSm, layout.muted].join(" ")}>{t`ПІБ та посади змінює відділ кадрів.`}</p>
+            <p className={[layout.textSm, layout.muted].join(" ")}>
+                {editable
+                    ? t`Посади змінюються в адмініструванні користувачів.`
+                    : t`ПІБ, електронну пошту та посади змінює адміністратор Вашої організації або відділ кадрів.`}
+            </p>
         </Card>
     );
 }
@@ -273,7 +339,7 @@ function Language() {
                 />
             </fieldset>
             <p className={[layout.textSm, layout.muted].join(" ")}>
-                {t`Мова зберігається у профілі й застосовується на всіх ваших пристроях.`}
+                {t`Мова зберігається у профілі й застосовується на всіх Ваших пристроях.`}
             </p>
         </Card>
     );

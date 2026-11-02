@@ -26,7 +26,7 @@ public sealed class ProfileController(IProfileService profile, UserManager<User>
         => FromResult(await profile.GetAsync(cancellationToken));
 
     /// <summary>
-    /// Updates the contact phone number.
+    /// Updates the contact phone number and, for users who administer their whole account, the name and the e-mail.
     /// </summary>
     /// <param name="request">The changes.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
@@ -35,7 +35,17 @@ public sealed class ProfileController(IProfileService profile, UserManager<User>
     public async Task<ActionResult> Update(ProfileUpdateRequest request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        return FromResult(await profile.UpdatePhoneAsync(request.PhoneNumber, cancellationToken));
+        var result = await profile.UpdateAsync(
+            new ProfileUpdate(request.LastName, request.FirstName, request.MiddleName, request.Email, request.PhoneNumber),
+            cancellationToken);
+        if (result.IsSuccess && (request.LastName ?? request.FirstName ?? request.MiddleName ?? request.Email) is not null
+            && await userManager.GetUserAsync(User) is { } user)
+        {
+            // The access token carries the name and the e-mail: re-issue it so the cabinet shows the new ones at once.
+            await signInManager.RefreshSignInAsync(user);
+        }
+
+        return FromResult(result);
     }
 
     /// <summary>

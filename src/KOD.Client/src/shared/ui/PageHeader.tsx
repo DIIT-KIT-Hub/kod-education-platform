@@ -1,6 +1,7 @@
 import { useLingui } from "@lingui/react/macro";
 import type { ReactNode } from "react";
 import { Link } from "react-router";
+import { viewTarget } from "@/shared/lib/viewParams";
 import { DocumentTitle } from "./DocumentTitle";
 import styles from "./PageHeader.module.css";
 
@@ -46,7 +47,11 @@ export function PageHeader({ title, subtitle, breadcrumbs, actions, children }: 
                         <ol className={styles.breadcrumbs}>
                             {breadcrumbs.map((item) => (
                                 <li key={item.text}>
-                                    {item.to ? <Link to={item.to}>{item.text}</Link> : <span aria-current="page">{item.text}</span>}
+                                    {item.to ? (
+                                        <Link {...viewTarget(item.to)}>{item.text}</Link>
+                                    ) : (
+                                        <span aria-current="page">{item.text}</span>
+                                    )}
                                 </li>
                             ))}
                         </ol>

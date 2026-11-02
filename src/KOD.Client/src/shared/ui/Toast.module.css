@@ -26,43 +26,34 @@
 }
 
 /*
- * A card on the surface: the tone colours the icon badge, a stripe on the left and the line that runs out while the
- * notification stays.
+ * A monochrome card on the inverse surface (black in the light theme, white in the dark one); only the icon takes the
+ * colour of the tone. A thin line runs out while the notification stays.
  */
 .toast {
-    --_accent: var(--ds-color-success);
-    --_accent-surface: var(--ds-color-success-surface);
+    --_accent: var(--ds-color-success-on-inverse);
     position: relative;
     display: flex;
     gap: var(--ds-space-3);
     align-items: center;
     padding: var(--ds-space-3) var(--ds-space-3) var(--ds-space-3) var(--ds-space-4);
     overflow: hidden;
-    border: 1px solid var(--ds-color-border);
+    border: 1px solid color-mix(in srgb, var(--ds-color-on-inverse) 12%, transparent);
     border-radius: var(--ds-radius-md);
-    background: var(--ds-color-surface);
-    color: var(--ds-color-text);
+    background: var(--ds-color-inverse);
+    color: var(--ds-color-on-inverse);
     box-shadow: var(--ds-shadow-lg);
     font-weight: 600;
     pointer-events: auto;
     animation: var(--ds-anim-slide-up);
 }
 
-.toast::before {
-    content: "";
-    position: absolute;
-    inset: 0 auto 0 0;
-    width: 4px;
-    background: var(--_accent);
-}
-
 .toast::after {
     content: "";
     position: absolute;
     inset: auto 0 0 0;
-    height: 3px;
-    background: var(--_accent);
-    opacity: 0.35;
+    height: 2px;
+    background: var(--ds-color-on-inverse);
+    opacity: 0.25;
     transform-origin: left;
     animation: runOut var(--_duration) linear forwards;
 }
@@ -77,18 +68,15 @@
 }
 
 .toast[data-tone="error"] {
-    --_accent: var(--ds-color-danger);
-    --_accent-surface: var(--ds-color-danger-surface);
+    --_accent: var(--ds-color-danger-on-inverse);
 }
 
 .toast[data-tone="warning"] {
-    --_accent: var(--ds-color-warning);
-    --_accent-surface: var(--ds-color-warning-surface);
+    --_accent: var(--ds-color-warning-on-inverse);
 }
 
 .toast[data-tone="info"] {
-    --_accent: var(--ds-color-text);
-    --_accent-surface: var(--ds-color-surface-3);
+    --_accent: var(--ds-color-info-on-inverse);
 }
 
 .toast[data-leaving] {
@@ -102,7 +90,7 @@
     width: 2.25rem;
     height: 2.25rem;
     border-radius: 50%;
-    background: var(--_accent-surface);
+    background: color-mix(in srgb, var(--_accent) 16%, transparent);
     color: var(--_accent);
 }
 
@@ -123,7 +111,7 @@
     border: 0;
     border-radius: 50%;
     background: transparent;
-    color: var(--ds-color-text-muted);
+    color: color-mix(in srgb, var(--ds-color-on-inverse) 65%, transparent);
     cursor: pointer;
     transition:
         background-color var(--ds-duration-fast),
@@ -131,11 +119,11 @@
 }
 
 .close:hover {
-    background: var(--ds-color-surface-3);
-    color: var(--ds-color-text);
+    background: color-mix(in srgb, var(--ds-color-on-inverse) 14%, transparent);
+    color: var(--ds-color-on-inverse);
 }
 
 .close:focus-visible {
-    outline: 2px solid var(--ds-color-focus);
+    outline: 2px solid var(--ds-color-on-inverse);
     outline-offset: 1px;
 }

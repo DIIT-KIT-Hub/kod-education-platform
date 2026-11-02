@@ -1,12 +1,12 @@
 import { useLingui } from "@lingui/react/macro";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useId } from "react";
-import { Link, useSearchParams } from "react-router";
+import { Link } from "react-router";
 import { formatNumber } from "@/shared/i18n/format";
-import { inkHandlers } from "@/shared/lib/ink";
 import { Icon } from "./Icon";
 import styles from "./Pagination.module.css";
 import { Select } from "./Select";
+import { useViewParams } from "@/shared/lib/viewParams";
 
 /** The page sizes offered. */
 const defaultPageSizes: readonly number[] = [10, 20, 50, 100];
@@ -56,27 +56,28 @@ export function pageWindow(page: number, total: number): (number | null)[] {
 }
 
 /**
- * The page links and the page size of a list; both live in the address (`page`, `pageSize`).
+ * The page links and the page size of a list; both live in the view state of the page (`page`, `pageSize`, see
+ * `useViewParams`).
  * @param props The props.
  * @returns The pagination.
  */
 export function Pagination({ page, pageSize, totalCount, pageParam = "page", pageSizes = defaultPageSizes }: PaginationProps) {
     const { t } = useLingui();
     const sizeId = useId();
-    const [params, setParams] = useSearchParams();
+    const [params, setParams, link] = useViewParams();
     const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
     const first = totalCount === 0 ? 0 : (page - 1) * pageSize + 1;
     const last = Math.min(page * pageSize, totalCount);
 
     /**
-     * The address of a page.
+     * The link to a page.
      * @param target The page.
-     * @returns The query string.
+     * @returns The link target.
      */
-    function pageHref(target: number): string {
+    function pageLink(target: number) {
         const next = new URLSearchParams(params);
         next.set(pageParam, String(Math.min(Math.max(target, 1), totalPages)));
-        return `?${next.toString()}`;
+        return link(next);
     }
 
     const firstText = formatNumber(first);
@@ -92,10 +93,9 @@ export function Pagination({ page, pageSize, totalCount, pageParam = "page", pag
                     <Link
                         className={styles.page}
                         preventScrollReset={pageParam !== "page"}
-                        to={pageHref(page - 1)}
+                        {...pageLink(page - 1)}
                         aria-disabled={page <= 1 || undefined}
                         aria-label={t`Попередня сторінка`}
-                        {...inkHandlers}
                     >
                         <Icon icon={ChevronLeft} />
                     </Link>
@@ -109,10 +109,9 @@ export function Pagination({ page, pageSize, totalCount, pageParam = "page", pag
                                 key={item}
                                 className={styles.page}
                                 preventScrollReset={pageParam !== "page"}
-                                to={pageHref(item)}
+                                {...pageLink(item)}
                                 aria-current={item === page ? "page" : undefined}
                                 data-far={(Math.abs(item - page) > 1 && item !== 1 && item !== totalPages) || undefined}
-                                {...inkHandlers}
                             >
                                 {item}
                             </Link>
@@ -121,10 +120,9 @@ export function Pagination({ page, pageSize, totalCount, pageParam = "page", pag
                     <Link
                         className={styles.page}
                         preventScrollReset={pageParam !== "page"}
-                        to={pageHref(page + 1)}
+                        {...pageLink(page + 1)}
                         aria-disabled={page >= totalPages || undefined}
                         aria-label={t`Наступна сторінка`}
-                        {...inkHandlers}
                     >
                         <Icon icon={ChevronRight} />
                     </Link>

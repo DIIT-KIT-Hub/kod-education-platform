@@ -1,5 +1,4 @@
 import { useId, type ReactNode } from "react";
-import { inkHandlers } from "@/shared/lib/ink";
 import styles from "./Segmented.module.css";
 
 /**
@@ -40,7 +39,7 @@ export function Segmented<T extends string>({ label, options, value, onChange }:
     return (
         <div className={styles.segmented} role="radiogroup" aria-label={label}>
             {options.map((option) => (
-                <label key={option.value} className={styles.option} {...inkHandlers}>
+                <label key={option.value} className={styles.option}>
                     <input
                         type="radio"
                         name={name}

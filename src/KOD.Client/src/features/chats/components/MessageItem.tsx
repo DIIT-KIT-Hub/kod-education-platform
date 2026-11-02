@@ -103,7 +103,7 @@ export function MessageItem({ message, me, compact, showAuthor, seen, editing, o
         } else {
             const confirmed = await confirm({
                 title: t`Видалити повідомлення?`,
-                text: t`Повідомлення зникне лише у вас, інші учасники чату й надалі його бачитимуть.`,
+                text: t`Повідомлення зникне лише у Вас, інші учасники чату й надалі його бачитимуть.`,
                 confirmText: t`Видалити`,
                 danger: true,
             });

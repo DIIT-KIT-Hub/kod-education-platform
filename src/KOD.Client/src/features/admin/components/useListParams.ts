@@ -1,13 +1,13 @@
-import { useSearchParams } from "react-router";
 import type { ListParams } from "../api";
+import { useViewParams } from "@/shared/lib/viewParams";
 
 /**
- * The search, sorting and paging of a list page, read from the address, and a setter for its filters.
- * @param defaultPageSize The page size when the address has none.
+ * The search, sorting and paging of a list page, read from its view state, and a setter for its filters.
+ * @param defaultPageSize The page size when the view has none.
  * @returns The list parameters, a reader of other parameters and a filter setter that goes back to the first page.
  */
 export function useListParams(defaultPageSize = 20) {
-    const [params, setParams] = useSearchParams();
+    const [params, setParams] = useViewParams();
     const list: ListParams = {
         search: params.get("search") ?? undefined,
         page: Math.max(1, Number(params.get("page")) || 1),

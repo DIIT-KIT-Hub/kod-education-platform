@@ -1,7 +1,6 @@
 /*
  * The "ink" hover of button-like controls (segmented options, pagination, pickers, chips): a fill of the theme's contrast
- * colour grows from the point where the pointer entered (--_x / --_y, set by shared/lib/ink.ts) and the text flips to
- * the opposite colour. Compose it: `composes: ink from "../styles/ink.module.css";` and add the pointer handlers.
+ * colour fades in and the text turns to the opposite colour. Compose it: `composes: ink from "../styles/ink.module.css";`.
  * --_ink and --_ink-fg change the colours.
  */
 .ink {
@@ -9,8 +8,8 @@
     isolation: isolate;
     overflow: hidden;
     transition:
-        color var(--ds-ink-duration) var(--ds-ink-ease),
-        border-color var(--ds-ink-duration) var(--ds-ink-ease);
+        color var(--ds-hover-duration) var(--ds-hover-ease),
+        border-color var(--ds-hover-duration) var(--ds-hover-ease);
 }
 
 .ink::before {
@@ -20,8 +19,8 @@
     z-index: -1;
     border-radius: inherit;
     background: var(--_ink, var(--ds-color-inverse));
-    clip-path: circle(0 at var(--_x, 50%) var(--_y, 50%));
-    transition: clip-path var(--ds-ink-duration) var(--ds-ink-ease);
+    opacity: 0;
+    transition: opacity var(--ds-hover-duration) var(--ds-hover-ease);
     pointer-events: none;
 }
 
@@ -30,5 +29,5 @@
 }
 
 .ink:hover::before {
-    clip-path: circle(160% at var(--_x, 50%) var(--_y, 50%));
+    opacity: 1;
 }

@@ -2,10 +2,11 @@ import { useLingui } from "@lingui/react/macro";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, CornerDownRight, MessageSquare, Minus, Pencil, Plus, Reply, Send, Trash2 } from "lucide-react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { useLocation, useSearchParams } from "react-router";
+import { useLocation } from "react-router";
 import { describeError } from "@/shared/api/problem";
 import type { CommentSort, NewsCommentDto, NewsDiscussion, ReactionKind } from "@/shared/api/schema";
 import { formatAgo, formatDateTime } from "@/shared/i18n/format";
+import { useViewParams } from "@/shared/lib/viewParams";
 import { useLiveGroup } from "@/shared/realtime/live";
 import { useCurrentUser } from "@/shared/session/session";
 import layout from "@/shared/styles/layout.module.css";
@@ -60,7 +61,7 @@ interface DiscussionActions {
 export function Discussion({ articleId }: { readonly articleId: string }) {
     const { t } = useLingui();
     const queryClient = useQueryClient();
-    const [params, setParams] = useSearchParams();
+    const [params, setParams] = useViewParams();
     const page = Math.max(1, Number(params.get("comments")) || 1);
     const sort = sorts.find((item) => item === params.get("sort")) ?? "Best";
     const discussion = useQuery(discussionQuery(articleId, page, sort));

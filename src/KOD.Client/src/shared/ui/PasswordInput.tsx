@@ -1,7 +1,6 @@
 import { useLingui } from "@lingui/react/macro";
 import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
-import { inkHandlers } from "@/shared/lib/ink";
 import { Icon } from "./Icon";
 import styles from "./PasswordInput.module.css";
 import { TextInput, type TextInputProps } from "./TextInput";
@@ -21,7 +20,6 @@ export function PasswordInput(props: Omit<TextInputProps, "type">) {
             <TextInput {...props} type={visible ? "text" : "password"} className={styles.input} />
             <button
                 type="button"
-                {...inkHandlers}
                 className={styles.toggle}
                 aria-pressed={visible}
                 aria-label={label}

@@ -78,9 +78,9 @@ public static class EmailLayout
             <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;">
             <tr><td style="padding:0 8px 20px;">
             <table role="presentation" cellpadding="0" cellspacing="0"><tr>
-            <td width="40" height="40" align="center" valign="middle" style="width:40px;height:40px;background:#000000;border-radius:12px;color:#ffffff;font-size:20px;font-weight:800;line-height:40px;">К</td>
+            <td width="40" height="40" align="center" valign="middle" style="width:40px;height:40px;background:#000000;border-radius:12px;color:#ffffff;font-size:20px;font-weight:800;line-height:40px;">{E(Texts.In("brand", "К"))}</td>
             <td style="padding-left:12px;">
-            <div style="font-size:18px;font-weight:800;letter-spacing:0.04em;line-height:1.2;">КОД</div>
+            <div style="font-size:18px;font-weight:800;letter-spacing:0.04em;line-height:1.2;">{E(Texts.T("КОД"))}</div>
             <div style="font-size:12px;font-weight:600;color:#555555;line-height:1.4;">{E(Texts.T("Кабінет організаційних документів"))}</div>
             </td>
             </tr></table>

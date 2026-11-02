@@ -49,7 +49,7 @@ export function HomePage() {
                 <h1 tabIndex={-1}>{firstName}</h1>
                 <p
                     className={styles.lead}
-                >{t`Документи, які очікують на ваш підпис, новини організації та швидкий доступ до сервісів — в одному місці.`}</p>
+                >{t`Документи, які очікують на Ваш підпис, новини організації та швидкий доступ до сервісів — в одному місці.`}</p>
                 <div className={layout.cluster}>
                     {hasPermission(user, Permissions.documentsCreate) && (
                         <ButtonLink to="/documents/new" icon={FilePlus}>
@@ -107,7 +107,7 @@ export function HomePage() {
                         {canDocuments && (
                             <Card
                                 title={t`Очікують мого підпису`}
-                                subtitle={t`Документи, де зараз ваша черга`}
+                                subtitle={t`Документи, де зараз Ваша черга`}
                                 actions={
                                     <ButtonLink to="/documents?scope=AwaitingMe" variant="ghost" size="sm" iconEnd={ArrowRight}>
                                         {t`Усі`}

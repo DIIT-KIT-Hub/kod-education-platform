@@ -1,11 +1,11 @@
 import { useLingui } from "@lingui/react/macro";
 import { useQuery } from "@tanstack/react-query";
 import { Check, Newspaper, Pencil, Pin, Plus } from "lucide-react";
-import { useSearchParams } from "react-router";
 import { describeError } from "@/shared/api/problem";
 import type { NewsListItem } from "@/shared/api/schema";
 import { newsCategoryNames } from "@/shared/i18n/display";
 import { formatDateTime } from "@/shared/i18n/format";
+import { useViewParams } from "@/shared/lib/viewParams";
 import layout from "@/shared/styles/layout.module.css";
 import { Alert } from "@/shared/ui/Alert";
 import { Badge } from "@/shared/ui/Badge";
@@ -24,7 +24,7 @@ import styles from "./news.module.css";
  */
 export function NewsManagePage() {
     const { t } = useLingui();
-    const [params, setParams] = useSearchParams();
+    const [params, setParams] = useViewParams();
     const search = params.get("search") ?? undefined;
     const result = useQuery(
         newsListQuery({
@@ -85,7 +85,7 @@ export function NewsManagePage() {
         <>
             <PageHeader
                 title={t`Керування новинами`}
-                subtitle={t`Чернетки та опубліковані матеріали організацій, новинами яких ви керуєте.`}
+                subtitle={t`Чернетки та опубліковані матеріали організацій, новинами яких Ви керуєте.`}
                 breadcrumbs={[{ text: t`Новини`, to: "/news" }, { text: t`Керування` }]}
                 actions={
                     <ButtonLink to="/news/manage/new" icon={Plus}>

@@ -350,7 +350,7 @@ public sealed class Document : AuditableEntity
     {
         if (!IsAwaitingSignatureFrom(userId))
         {
-            throw new DomainException(Texts.T("Документ зараз не очікує вашого підпису."));
+            throw new DomainException(Texts.T("Документ зараз не очікує Вашого підпису."));
         }
 
         if (IsSigningTurnHeldByOther(userId, moment))
@@ -409,7 +409,7 @@ public sealed class Document : AuditableEntity
 
         if (!IsAwaitingSignatureFrom(userId))
         {
-            throw new DomainException(Texts.T("Документ зараз не очікує вашого підпису."));
+            throw new DomainException(Texts.T("Документ зараз не очікує Вашого підпису."));
         }
 
         if (format == SignatureFormat.PAdES && !File.IsPdf)
@@ -431,7 +431,7 @@ public sealed class Document : AuditableEntity
         var expectedBase = SignatureChain.IsCumulative(format) ? LatestSignature?.Id : null;
         if (baseSignatureId != expectedBase)
         {
-            throw new DomainException(Texts.T("Поки ви підписували, документ підписав інший підписант. Підпишіть останню версію ще раз."));
+            throw new DomainException(Texts.T("Поки Ви підписували, документ підписав інший підписант. Підпишіть останню версію ще раз."));
         }
 
         var signature = new DocumentSignature(Id, userId, format, packaging, level, keyMedia, file, certificate, signedAt, moment, baseSignatureId);
@@ -461,7 +461,7 @@ public sealed class Document : AuditableEntity
     {
         if (!IsAwaitingSignatureFrom(userId))
         {
-            throw new DomainException(Texts.T("Документ зараз не очікує вашого рішення."));
+            throw new DomainException(Texts.T("Документ зараз не очікує Вашого рішення."));
         }
 
         _signers.First(s => s.UserId == userId && s.Status == SignerStatus.Pending).MarkRejected(reason, moment);

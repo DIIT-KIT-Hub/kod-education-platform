@@ -1,11 +1,12 @@
 import { useLingui } from "@lingui/react/macro";
 import { useQuery } from "@tanstack/react-query";
 import { Eye, MessageCircle, Newspaper, Pin, Plus, Settings, SmilePlus } from "lucide-react";
-import { Link, useSearchParams } from "react-router";
+import { Link } from "react-router";
 import { describeError } from "@/shared/api/problem";
 import type { NewsCategory, NewsListItem } from "@/shared/api/schema";
 import { newsCategoryNames } from "@/shared/i18n/display";
 import { formatDate } from "@/shared/i18n/format";
+import { useViewParams } from "@/shared/lib/viewParams";
 import { hasPermission, Permissions, useCurrentUser } from "@/shared/session/session";
 import layout from "@/shared/styles/layout.module.css";
 import { Alert } from "@/shared/ui/Alert";
@@ -33,7 +34,7 @@ const categories = Object.keys(newsCategoryNames) as NewsCategory[];
 export function NewsPage() {
     const { t } = useLingui();
     const user = useCurrentUser();
-    const [params, setParams] = useSearchParams();
+    const [params, setParams] = useViewParams();
     const category = categories.find((item) => item === params.get("category"));
     const search = params.get("search") ?? undefined;
     const page = Math.max(1, Number(params.get("page")) || 1);

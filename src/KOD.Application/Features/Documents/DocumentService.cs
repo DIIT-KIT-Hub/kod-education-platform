@@ -230,7 +230,7 @@ internal sealed class DocumentService(
         var allowedUnits = await GetAuthorUnitsAsync(cancellationToken);
         if (!allowedUnits.Any(u => u.Id == command.OrganizationUnitId))
         {
-            return Error.Validation(Texts.T("Оберіть підрозділ, до якого ви належите."));
+            return Error.Validation(Texts.T("Оберіть підрозділ, до якого Ви належите."));
         }
 
         var signerIds = command.SignerIds.Distinct().ToList();
@@ -374,7 +374,7 @@ internal sealed class DocumentService(
             var allowedUnits = await GetAuthorUnitsAsync(cancellationToken);
             if (!allowedUnits.Any(u => u.Id == command.OrganizationUnitId))
             {
-                return Error.Validation(Texts.T("Оберіть підрозділ, до якого ви належите."));
+                return Error.Validation(Texts.T("Оберіть підрозділ, до якого Ви належите."));
             }
         }
 
@@ -491,7 +491,7 @@ internal sealed class DocumentService(
 
         if (!currentUser.Has(Permissions.Documents.Sign))
         {
-            return Error.Forbidden(Texts.T("У вас немає права підписувати документи."));
+            return Error.Forbidden(Texts.T("У Вас немає права підписувати документи."));
         }
 
         if (command.Signature.Length is <= 0 or > FileRules.MaxSignatureSize)
@@ -505,7 +505,7 @@ internal sealed class DocumentService(
             .FirstOrDefaultAsync(d => d.Id == command.DocumentId, cancellationToken);
         if (document is null || !document.IsAwaitingSignatureFrom(me))
         {
-            return document is null ? Error.NotFound(Texts.T("Документ не знайдено.")) : Error.Conflict(Texts.T("Документ зараз не очікує вашого підпису."));
+            return document is null ? Error.NotFound(Texts.T("Документ не знайдено.")) : Error.Conflict(Texts.T("Документ зараз не очікує Вашого підпису."));
         }
 
         var now = timeProvider.GetUtcNow();
@@ -530,7 +530,7 @@ internal sealed class DocumentService(
                 var previous = document.Signatures.FirstOrDefault(s => s.Id == command.BaseSignatureId);
                 if (previous is null)
                 {
-                    return Error.Conflict(Texts.T("Поки ви підписували, документ підписав інший підписант. Підпишіть останню версію ще раз."));
+                    return Error.Conflict(Texts.T("Поки Ви підписували, документ підписав інший підписант. Підпишіть останню версію ще раз."));
                 }
 
                 var check = await CheckAppendedAsync(previous, buffer!.GetBuffer().AsMemory(0, (int)buffer.Length), command.Format, cancellationToken);
@@ -618,7 +618,7 @@ internal sealed class DocumentService(
 
         if (!currentUser.Has(Permissions.Documents.Sign))
         {
-            return Error.Forbidden(Texts.T("У вас немає права підписувати документи."));
+            return Error.Forbidden(Texts.T("У Вас немає права підписувати документи."));
         }
 
         for (var attempt = 1; ; attempt++)
@@ -634,7 +634,7 @@ internal sealed class DocumentService(
 
             if (!document.IsAwaitingSignatureFrom(me))
             {
-                return Error.Conflict(Texts.T("Документ зараз не очікує вашого підпису."));
+                return Error.Conflict(Texts.T("Документ зараз не очікує Вашого підпису."));
             }
 
             var now = timeProvider.GetUtcNow();

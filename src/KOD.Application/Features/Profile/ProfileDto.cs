@@ -8,6 +8,9 @@ namespace KOD.Application.Features.Profile;
 /// </summary>
 /// <param name="Id">The identifier.</param>
 /// <param name="FullName">The full name.</param>
+/// <param name="LastName">The last name.</param>
+/// <param name="FirstName">The first name.</param>
+/// <param name="MiddleName">The patronymic.</param>
 /// <param name="Email">The e-mail address.</param>
 /// <param name="PhoneNumber">The phone number.</param>
 /// <param name="Positions">The positions.</param>
@@ -19,9 +22,14 @@ namespace KOD.Application.Features.Profile;
 /// <param name="LastSignInAt">The last sign-in moment.</param>
 /// <param name="Language">The chosen interface language, or <see langword="null"/> when not chosen.</param>
 /// <param name="PhotoId">The profile photo, if uploaded.</param>
+/// <param name="CanEditPersonalData">Whether the user may change own name and e-mail: an administrator of users whose
+/// scope covers the whole account (a system administrator always); the others ask their administrator or HR.</param>
 public sealed record ProfileDto(
     Guid Id,
     string FullName,
+    string LastName,
+    string FirstName,
+    string? MiddleName,
     string Email,
     string? PhoneNumber,
     IReadOnlyList<PositionDto> Positions,
@@ -32,4 +40,5 @@ public sealed record ProfileDto(
     DateTimeOffset CreatedAt,
     DateTimeOffset? LastSignInAt,
     string? Language,
-    Guid? PhotoId);
+    Guid? PhotoId,
+    bool CanEditPersonalData);

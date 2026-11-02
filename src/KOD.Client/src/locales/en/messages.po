@@ -624,7 +624,7 @@ msgid "Вилучити {0}"
 msgstr "Remove {0}"
 
 #: src/features/documents/pages/DocumentEditorPage.tsx
-msgid "Виправте його та надішліть на підпис повторно. Підписи, накладені на поточний файл, збережуться — ці підписанти не підписуватимуть знову, якщо ви не заміните файл і не приберете їх із маршруту."
+msgid "Виправте його та надішліть на підпис повторно. Підписи, накладені на поточний файл, збережуться — ці підписанти не підписуватимуть знову, якщо Ви не заміните файл і не приберете їх із маршруту."
 msgstr "Fix it and send it for signing again. Signatures on the current file are kept — those signers won't sign again unless you replace the file or remove them from the route."
 
 #: src/features/admin/pages/UsersImportPage.tsx
@@ -667,7 +667,7 @@ msgstr "Withdraw the document to drafts?"
 
 #: src/features/auth/pages/TwoFactorPage.tsx
 msgid "Відкрийте застосунок-автентифікатор і введіть 6-значний код для облікового запису КОД."
-msgstr "Open your authenticator app and enter the 6-digit code for your KOD account."
+msgstr "Open your authenticator app and enter the 6-digit code for your ODC account."
 
 #: src/features/admin/pages/UsersPage.tsx
 #: src/features/documents/pages/DocumentsPage.tsx
@@ -720,7 +720,7 @@ msgid "відповідей: {replyCount}"
 msgstr "replies: {replyCount}"
 
 #: src/features/notifications/pages/NotificationsPage.tsx
-msgid "Відповіді на ваші коментарі, документи на підпис, нові повідомлення й відповіді у зверненнях."
+msgid "Відповіді на Ваші коментарі, документи на підпис, нові повідомлення й відповіді у зверненнях."
 msgstr "Replies to your comments, documents to sign, new messages and answers in requests."
 
 #: src/features/help/contents.ts
@@ -738,7 +738,7 @@ msgid "Відповідь автору звернення…"
 msgstr "Answer to the author of the request…"
 
 #: src/features/notifications/display.ts
-msgid "Відповідь на ваш коментар"
+msgid "Відповідь на Ваш коментар"
 msgstr "Reply to your comment"
 
 #: src/features/news/components/Discussion.tsx
@@ -767,6 +767,7 @@ msgstr "Enter a summary."
 
 #: src/features/admin/pages/UserEditorPage.tsx
 #: src/features/auth/pages/LoginPage.tsx
+#: src/features/profile/pages/ProfilePage.tsx
 msgid "Вкажіть електронну пошту."
 msgstr "Enter your email."
 
@@ -775,6 +776,7 @@ msgid "Вкажіть заголовок."
 msgstr "Enter a title."
 
 #: src/features/admin/pages/UserEditorPage.tsx
+#: src/features/profile/pages/ProfilePage.tsx
 msgid "Вкажіть ім'я."
 msgstr "Enter the first name."
 
@@ -818,6 +820,7 @@ msgid "Вкажіть причину відмови."
 msgstr "Enter the reason for declining."
 
 #: src/features/admin/pages/UserEditorPage.tsx
+#: src/features/profile/pages/ProfilePage.tsx
 msgid "Вкажіть прізвище."
 msgstr "Enter the last name."
 
@@ -1003,7 +1006,7 @@ msgid "До 25 МБ кожен. Для XAdES та ASiC-E можна обрати
 msgstr "Up to 25 MB each. XAdES and ASiC-E accept multiple files; PAdES requires a PDF."
 
 #: src/features/admin/pages/UsersImportPage.tsx
-msgid "До 5 МБ, до 10 000 рядків. Наявні облікові записи оновлюються за e-mail. Посади — лише в підрозділах організацій, якими ви керуєте."
+msgid "До 5 МБ, до 10 000 рядків. Наявні облікові записи оновлюються за e-mail. Посади — лише в підрозділах організацій, якими Ви керуєте."
 msgstr "Up to 5 MB and 10,000 rows. Existing accounts are matched and updated by email. Positions only in units of organizations you manage."
 
 #: src/features/news/components/Discussion.tsx
@@ -1190,7 +1193,7 @@ msgstr "Document not found"
 
 #: src/features/documents/pages/DocumentEditorPage.tsx
 #: src/features/documents/pages/DocumentPage.tsx
-msgid "Документ не існує або у вас немає до нього доступу."
+msgid "Документ не існує або у Вас немає до нього доступу."
 msgstr "The document does not exist or you don't have access to it."
 
 #: src/features/documents/pages/DocumentEditorPage.tsx
@@ -1199,7 +1202,7 @@ msgstr "The document cannot be changed"
 
 #: src/features/documents/pages/DocumentPage.tsx
 #: src/features/notifications/display.ts
-msgid "Документ очікує вашого підпису"
+msgid "Документ очікує Вашого підпису"
 msgstr "The document is awaiting your signature"
 
 #: src/features/documents/pages/DocumentPage.tsx
@@ -1247,11 +1250,11 @@ msgid "Документи"
 msgstr "Documents"
 
 #: src/features/home/HomePage.tsx
-msgid "Документи, де зараз ваша черга"
+msgid "Документи, де зараз Ваша черга"
 msgstr "Documents where it's your turn"
 
 #: src/features/home/HomePage.tsx
-msgid "Документи, які очікують на ваш підпис, новини організації та швидкий доступ до сервісів — в одному місці."
+msgid "Документи, які очікують на Ваш підпис, новини організації та швидкий доступ до сервісів — в одному місці."
 msgstr "Documents awaiting your signature, organization news and quick access to services — all in one place."
 
 #: src/features/documents/pages/DocumentsPage.tsx
@@ -1259,7 +1262,7 @@ msgid "Документів не знайдено"
 msgstr "No documents found"
 
 #: src/features/documents/pages/DocumentsPage.tsx
-msgid "Документів, що очікують вашого підпису, немає."
+msgid "Документів, що очікують Вашого підпису, немає."
 msgstr "No documents are awaiting your signature."
 
 #: src/app/layout/navigation.ts
@@ -1280,7 +1283,7 @@ msgid "Доступні модулі"
 msgstr "Available modules"
 
 #: src/features/help/components/Manual.tsx
-msgid "Доступно вам"
+msgid "Доступно Вам"
 msgstr "Available to you"
 
 #: src/features/news/pages/NewsEditorPage.tsx
@@ -1306,12 +1309,12 @@ msgid "Експорт користувачів"
 msgstr "User export"
 
 #: src/features/auth/pages/LoginPage.tsx
-#: src/features/profile/pages/ProfilePage.tsx
 #: src/features/tickets/pages/TicketPage.tsx
 msgid "Електронна пошта"
 msgstr "Email"
 
 #: src/features/admin/pages/UserEditorPage.tsx
+#: src/features/profile/pages/ProfilePage.tsx
 msgid "Електронна пошта (логін)"
 msgstr "Email (login)"
 
@@ -1573,7 +1576,7 @@ msgid "Зберегти чернетку"
 msgstr "Save draft"
 
 #: src/features/auth/pages/SetupAuthenticatorPage.tsx
-msgid "Збережіть резервні коди в надійному місці. Вони знадобляться, якщо ви втратите доступ до телефону. Кожен код діє один раз."
+msgid "Збережіть резервні коди в надійному місці. Вони знадобляться, якщо Ви втратите доступ до телефону. Кожен код діє один раз."
 msgstr "Keep your recovery codes in a safe place. You'll need them if you lose access to your phone. Each code works only once."
 
 #: src/app/layout/navigation.ts
@@ -1608,7 +1611,7 @@ msgid "Звернення надіслано"
 msgstr "Request sent"
 
 #: src/features/tickets/pages/NewTicketPage.tsx
-msgid "Звернення побачать ті, хто опрацьовує звернення. Про відповідь ви дізнаєтеся зі сповіщення."
+msgid "Звернення побачать ті, хто опрацьовує звернення. Про відповідь Ви дізнаєтеся зі сповіщення."
 msgstr "The people who handle requests will see it. You will learn about the answer from a notification."
 
 #: src/features/tickets/pages/TicketsAdminPage.tsx
@@ -1714,11 +1717,12 @@ msgid "Зміни збережено, документ надіслано на �
 msgstr "Changes saved, document sent for signing"
 
 #: src/features/admin/pages/UserEditorPage.tsx
+#: src/features/profile/pages/ProfilePage.tsx
 msgid "Зміни збережено."
 msgstr "Changes saved."
 
 #: src/features/profile/pages/SecurityPage.tsx
-msgid "Змінили телефон? Попросіть адміністратора скинути автентифікатор — під час наступного входу ви прив'яжете новий."
+msgid "Змінили телефон? Попросіть адміністратора скинути автентифікатор — під час наступного входу Ви прив'яжете новий."
 msgstr "Changed your phone? Ask an administrator to reset the authenticator — you will link a new one at your next sign-in."
 
 #: src/features/chats/components/MessageItem.tsx
@@ -1786,6 +1790,7 @@ msgid "Іконка"
 msgstr "Icon"
 
 #: src/features/admin/pages/UserEditorPage.tsx
+#: src/features/profile/pages/ProfilePage.tsx
 msgid "Ім'я"
 msgstr "First name"
 
@@ -1865,12 +1870,12 @@ msgid "Інші пристрої втратять доступ протягом 
 msgstr "Other devices lose access within a few minutes — as soon as their access token expires."
 
 #: src/features/chats/components/MembersDialog.tsx
-msgid "Історія зникне у вас, а чат повернеться до списку з новим повідомленням."
+msgid "Історія зникне у Вас, а чат повернеться до списку з новим повідомленням."
 msgstr "The history disappears for you, and the chat comes back to your list with a new message."
 
 #: src/shared/ui/Brand.tsx
 msgid "К"
-msgstr "K"
+msgstr "C"
 
 #: src/shared/ui/Brand.tsx
 msgid "Кабінет організаційних<0/>документів"
@@ -1957,11 +1962,11 @@ msgid "Кілька організацій в одному кабінеті"
 msgstr "Several organizations in one cabinet"
 
 #: src/shared/signing/SigningWizard.tsx
-msgid "Ключ зчитується лише у вашому браузері; пароль не передається на сервер."
+msgid "Ключ зчитується лише у Вашому браузері; пароль не передається на сервер."
 msgstr "The key is read only in your browser; the password is not sent to the server."
 
 #: src/features/signing/components/SigningInfo.tsx
-msgid "Ключ і пароль обробляються лише у вашому браузері (Web Worker) і ніколи не надсилаються на сервер."
+msgid "Ключ і пароль обробляються лише у Вашому браузері (Web Worker) і ніколи не надсилаються на сервер."
 msgstr "Your key and password are processed only in your browser (Web Worker) and are never sent to the server."
 
 #: src/shared/signing/SigningWizard.tsx
@@ -1991,7 +1996,7 @@ msgstr "Code"
 #: src/features/auth/components/AuthLayout.tsx
 #: src/shared/ui/DocumentTitle.tsx
 msgid "КОД"
-msgstr "KOD"
+msgstr "ODC"
 
 #: src/features/auth/pages/TwoFactorPage.tsx
 msgid "Код з автентифікатора"
@@ -2031,7 +2036,7 @@ msgid "кодів залишилось"
 msgstr "codes left"
 
 #: src/features/auth/pages/PhotoPage.tsx
-msgid "Колеги бачать ваше фото в документах, новинах і структурі. Без фото кабінетом користуватися не можна."
+msgid "Колеги бачать Ваше фото в документах, новинах і структурі. Без фото кабінетом користуватися не можна."
 msgstr "Colleagues see your photo in documents, news and the structure. The cabinet cannot be used without a photo."
 
 #: src/features/news/components/Discussion.tsx
@@ -2092,7 +2097,7 @@ msgid "Користувач"
 msgstr "User"
 
 #: src/features/admin/pages/UserEditorPage.tsx
-msgid "Користувач також обіймає посади в організаціях, якими ви не керуєте. Ви можете змінювати лише його посади у своїх організаціях; особисті дані, e-mail, статус і безпеку облікового запису змінює адміністратор, що керує всіма його організаціями."
+msgid "Користувач також обіймає посади в організаціях, якими Ви не керуєте. Ви можете змінювати лише його посади у своїх організаціях; особисті дані, e-mail, статус і безпеку облікового запису змінює адміністратор, що керує всіма його організаціями."
 msgstr "This user also holds positions in organizations you don't manage. You can change only their positions in your organizations; personal data, email, status and account security are managed by an administrator who manages all of their organizations."
 
 #: src/features/admin/pages/AuditPage.tsx
@@ -2128,7 +2133,7 @@ msgstr "A short summary or a comment for the signers."
 
 #: src/features/help/contents.ts
 msgctxt "help"
-msgid "Короткий огляд: що чекає на вашу дію, ключові показники та свіжі новини."
+msgid "Короткий огляд: що чекає на Вашу дію, ключові показники та свіжі новини."
 msgstr "A quick overview: what awaits your action, key indicators and the latest news."
 
 #: src/shared/i18n/display.ts
@@ -2198,7 +2203,7 @@ msgid "Лише малі латинські літери, цифри та «-».
 msgstr "Only lowercase Latin letters, digits and “-”."
 
 #: src/features/admin/pages/UnitEditorPage.tsx
-msgid "Лише підрозділи організацій, структурою яких ви керуєте."
+msgid "Лише підрозділи організацій, структурою яких Ви керуєте."
 msgstr "Only units of organizations whose structure you manage."
 
 #. placeholder {0}: credentials.email
@@ -2261,7 +2266,7 @@ msgid "Мій профіль"
 msgstr "My profile"
 
 #: src/features/profile/pages/ProfilePage.tsx
-msgid "Мова зберігається у профілі й застосовується на всіх ваших пристроях."
+msgid "Мова зберігається у профілі й застосовується на всіх Ваших пристроях."
 msgstr "The language is saved in your profile and applies on all your devices."
 
 #: src/features/auth/components/LanguageSwitch.tsx
@@ -2270,7 +2275,7 @@ msgid "Мова інтерфейсу"
 msgstr "Interface language"
 
 #: src/features/chats/components/Conversation.tsx
-msgid "Можливо, вас вилучили з чату або його видалено."
+msgid "Можливо, Вас вилучили з чату або його видалено."
 msgstr "You may have been removed from the chat, or it was deleted."
 
 #: src/features/news/pages/ArticlePage.tsx
@@ -2418,7 +2423,7 @@ msgid "Назва, абревіатура або код підрозділу"
 msgstr "Unit name, abbreviation or code"
 
 #: src/features/admin/pages/UnitTypesPage.tsx
-msgid "Назви рівнів структури у словнику вашої організації: департамент, управління, відділ, сектор, філія…"
+msgid "Назви рівнів структури у словнику Вашої організації: департамент, управління, відділ, сектор, філія…"
 msgstr "Names of structure levels in your organization's vocabulary: department, directorate, division, section, branch…"
 
 #: src/features/admin/pages/AdminPage.tsx
@@ -2435,7 +2440,7 @@ msgid "Наказ"
 msgstr "Order"
 
 #: src/features/signing/pages/SigningPages.tsx
-msgid "Накладіть кваліфікований електронний підпис на будь-який файл. Підпис створюється у вашому браузері — файл і ключ нікуди не передаються."
+msgid "Накладіть кваліфікований електронний підпис на будь-який файл. Підпис створюється у Вашому браузері — файл і ключ нікуди не передаються."
 msgstr "Apply a qualified electronic signature to any file. The signature is created in your browser — the file and key are never sent anywhere."
 
 #: src/features/admin/pages/RoleEditorPage.tsx
@@ -2631,6 +2636,10 @@ msgstr "Could not load the chats."
 msgid "Не вдалося зберегти документ. Спробуйте ще раз."
 msgstr "Could not save the document. Try again."
 
+#: src/features/profile/pages/ProfilePage.tsx
+msgid "Не вдалося зберегти зміни. Спробуйте ще раз."
+msgstr "Couldn't save the changes. Please try again."
+
 #: src/shared/signing/SigningWizard.tsx
 msgid "Не вдалося зберегти підпис."
 msgstr "Couldn't save the signature."
@@ -2650,10 +2659,6 @@ msgstr "Could not save the post. Try again."
 #: src/features/admin/pages/RoleEditorPage.tsx
 msgid "Не вдалося зберегти роль. Спробуйте ще раз."
 msgstr "Could not save the role. Try again."
-
-#: src/features/profile/pages/ProfilePage.tsx
-msgid "Не вдалося зберегти телефон. Спробуйте ще раз."
-msgstr "Could not save the phone number. Try again."
 
 #: src/features/admin/pages/UnitTypeEditorPage.tsx
 msgid "Не вдалося зберегти тип підрозділу. Спробуйте ще раз."
@@ -2794,6 +2799,7 @@ msgid "Некоректна адреса електронної пошти."
 msgstr "Invalid email address."
 
 #: src/features/admin/pages/UserEditorPage.tsx
+#: src/features/profile/pages/ProfilePage.tsx
 msgid "Некоректна адреса."
 msgstr "Invalid address."
 
@@ -3156,7 +3162,7 @@ msgid "Обліковий запис створюється з тимчасов�
 msgstr "The account is created with a temporary password; at first sign-in the user changes it and links an authenticator app."
 
 #: src/features/admin/pages/UsersPage.tsx
-msgid "Облікові записи працівників і зовнішніх користувачів ваших організацій. Самостійна реєстрація вимкнена."
+msgid "Облікові записи працівників і зовнішніх користувачів Ваших організацій. Самостійна реєстрація вимкнена."
 msgstr "Accounts of employees and external users of your organizations. Self-registration is disabled."
 
 #: src/features/admin/pages/UsersPage.tsx
@@ -3272,7 +3278,7 @@ msgid "Організації, їхні підрозділи та працівн
 msgstr "Organizations, their units and staff."
 
 #: src/features/admin/pages/UnitsPage.tsx
-msgid "Організації, структурою яких ви керуєте, та їхні підрозділи."
+msgid "Організації, структурою яких Ви керуєте, та їхні підрозділи."
 msgstr "Organizations whose structure you manage, and their units."
 
 #: src/features/admin/pages/UnitEditorPage.tsx
@@ -3311,6 +3317,7 @@ msgid "Особистий чат"
 msgstr "One-to-one chat"
 
 #: src/features/admin/pages/UserEditorPage.tsx
+#: src/features/profile/pages/ProfilePage.tsx
 msgid "Особисті дані"
 msgstr "Personal data"
 
@@ -3486,7 +3493,7 @@ msgid "Перевірте підписаний файл: хто підписав
 msgstr "Check a signed file: who signed it, who issued the certificate, the signing time and data integrity."
 
 #: src/features/documents/pages/DocumentPage.tsx
-msgid "Перевірте файл і натисніть «Підписати». Ключ і пароль використовуються лише у вашому браузері."
+msgid "Перевірте файл і натисніть «Підписати». Ключ і пароль використовуються лише у Вашому браузері."
 msgstr "Review the file and click “Sign”. Your key and password are used only in your browser."
 
 #: src/shared/signing/SigningWizard.tsx
@@ -3585,8 +3592,8 @@ msgid "ПІБ або e-mail"
 msgstr "Full name or email"
 
 #: src/features/profile/pages/ProfilePage.tsx
-msgid "ПІБ та посади змінює відділ кадрів."
-msgstr "Your name and positions are changed by the HR department."
+msgid "ПІБ, електронну пошту та посади змінює адміністратор Вашої організації або відділ кадрів."
+msgstr "Your name, email and positions are changed by the administrator of your organization or the HR department."
 
 #: src/features/news/components/RichTextEditor.tsx
 msgid "Підзаголовок"
@@ -3717,7 +3724,7 @@ msgid "Підписи накладено на попередній файл. П�
 msgstr "The signatures were applied to the previous file. When you save, all {toRemove} signature(s) will be removed and the signers will sign the new file."
 
 #: src/features/documents/pages/DocumentEditorPage.tsx
-msgid "Підписи тих, кого ви прибрали з маршруту ({toRemove}), буде видалено після збереження."
+msgid "Підписи тих, кого Ви прибрали з маршруту ({toRemove}), буде видалено після збереження."
 msgstr "Signatures of the signers you removed from the route ({toRemove}) will be deleted when you save."
 
 #: src/features/documents/pages/DocumentPage.tsx
@@ -3738,7 +3745,7 @@ msgid "Підрозділ збережено"
 msgstr "Unit saved"
 
 #: src/features/admin/pages/UnitEditorPage.tsx
-msgid "Підрозділ належить організації, структурою якої ви не керуєте, тому його можна лише переглянути."
+msgid "Підрозділ належить організації, структурою якої Ви не керуєте, тому його можна лише переглянути."
 msgstr "This unit belongs to an organization whose structure you don't manage, so you can only view it."
 
 #: src/features/structure/pages/UnitPage.tsx
@@ -3796,6 +3803,7 @@ msgid "Після зміни пароля всі інші сесії буде з
 msgstr "Changing your password will sign out all your other sessions."
 
 #: src/features/admin/pages/UserEditorPage.tsx
+#: src/features/profile/pages/ProfilePage.tsx
 msgid "По батькові"
 msgstr "Middle name"
 
@@ -3832,11 +3840,11 @@ msgid "Повідомлення видалено"
 msgstr "Message deleted"
 
 #: src/features/chats/components/MessageItem.tsx
-msgid "Повідомлення зникне лише у вас, інші учасники чату й надалі його бачитимуть."
+msgid "Повідомлення зникне лише у Вас, інші учасники чату й надалі його бачитимуть."
 msgstr "The message disappears only for you; the other members of the chat still see it."
 
 #: src/features/chats/components/MembersDialog.tsx
-msgid "Повідомлення зникнуть лише у вас, інші учасники чату й надалі їх бачитимуть."
+msgid "Повідомлення зникнуть лише у Вас, інші учасники чату й надалі їх бачитимуть."
 msgstr "The messages disappear only for you; the other members of the chat still see them."
 
 #: src/features/chats/components/Composer.tsx
@@ -3940,7 +3948,7 @@ msgid "Показники документів"
 msgstr "Document indicators"
 
 #: src/shared/signing/SigningWizard.tsx
-msgid "Поки ви підписували, документ підписав інший підписант. Завантажено останню версію — натисніть «Підписати» ще раз."
+msgid "Поки Ви підписували, документ підписав інший підписант. Завантажено останню версію — натисніть «Підписати» ще раз."
 msgstr "Another signer signed the document while you were signing. The latest version is loaded — click “Sign” again."
 
 #: src/shared/i18n/display.ts
@@ -4039,6 +4047,10 @@ msgid "Посади"
 msgstr "Positions"
 
 #: src/features/profile/pages/ProfilePage.tsx
+msgid "Посади змінюються в адмініструванні користувачів."
+msgstr "Positions are changed in the user administration."
+
+#: src/features/profile/pages/ProfilePage.tsx
 msgid "Посади не призначено"
 msgstr "No positions assigned"
 
@@ -4060,7 +4072,7 @@ msgid "Поставити реакцію"
 msgstr "React"
 
 #: src/features/signing/components/SigningInfo.tsx
-msgid "Поточна версія бібліотеки підтримує лише файлові ключі. Токени (Алмаз-1К, Кристал-1), хмарні ключі та «Дія.Підпис» потребують окремих компонентів надавачів — підключіть їх, коли вони знадобляться вашій організації."
+msgid "Поточна версія бібліотеки підтримує лише файлові ключі. Токени (Алмаз-1К, Кристал-1), хмарні ключі та «Дія.Підпис» потребують окремих компонентів надавачів — підключіть їх, коли вони знадобляться Вашій організації."
 msgstr "The current library version supports file keys only. Hardware tokens (Almaz-1K, Krystal-1), cloud keys and Diia.Signature require separate provider components — connect them when your organization needs them."
 
 #: src/features/auth/pages/ChangePasswordPage.tsx
@@ -4206,6 +4218,7 @@ msgid "Причину вказано в маршруті підписання. �
 msgstr "The reason is shown in the signing route. Click “Edit” to fix the file, details or route, or “Send for signing” to resend the document unchanged. Those who have already signed the current file won't need to sign it again."
 
 #: src/features/admin/pages/UserEditorPage.tsx
+#: src/features/profile/pages/ProfilePage.tsx
 msgid "Прізвище"
 msgstr "Last name"
 
@@ -4887,10 +4900,6 @@ msgstr "Message text"
 msgid "Телефон"
 msgstr "Phone"
 
-#: src/features/profile/pages/ProfilePage.tsx
-msgid "Телефон збережено."
-msgstr "Phone number saved."
-
 #: src/shared/ui/ThemeToggle.tsx
 msgid "Тема"
 msgstr "Theme"
@@ -4988,11 +4997,11 @@ msgid "у будь-якому порядку"
 msgstr "in any order"
 
 #: src/features/help/components/RoleReference.tsx
-msgid "У вас"
+msgid "У Вас"
 msgstr "You have it"
 
 #: src/app/pages/RouteError.tsx
-msgid "У вас немає доступу до цього розділу"
+msgid "У Вас немає доступу до цього розділу"
 msgstr "You don't have access to this section"
 
 #: src/features/news/components/Discussion.tsx
@@ -5016,7 +5025,7 @@ msgid "Увесь кабінет (усі організації)"
 msgstr "Entire cabinet (all organizations)"
 
 #: src/features/auth/pages/LoginPage.tsx
-msgid "Увійдіть за обліковим записом, виданим адміністратором вашої організації."
+msgid "Увійдіть за обліковим записом, виданим адміністратором Вашої організації."
 msgstr "Sign in with the account issued by your organization's administrator."
 
 #: src/features/auth/pages/RecoveryPage.tsx
@@ -5169,7 +5178,7 @@ msgid "Файли"
 msgstr "Files"
 
 #: src/shared/signing/SigningWizard.tsx
-msgid "Файли не залишають ваш пристрій."
+msgid "Файли не залишають Ваш пристрій."
 msgstr "Files never leave your device."
 
 #: src/features/chats/components/Composer.tsx
@@ -5211,7 +5220,7 @@ msgid "Формат і рівень кваліфікованого електр�
 msgstr "Format and level of the qualified electronic signature."
 
 #: src/shared/signing/SigningWizard.tsx
-msgid "Формат і тип підпису визначив перший підписант: ваш підпис буде додано до того самого файлу."
+msgid "Формат і тип підпису визначив перший підписант: Ваш підпис буде додано до того самого файлу."
 msgstr "The first signer chose the signature format and type: your signature will be added to the same file."
 
 #: src/shared/signing/SigningWizard.tsx
@@ -5321,7 +5330,7 @@ msgid "Чат або людина"
 msgstr "Chat or person"
 
 #: src/features/chats/components/ChatSync.tsx
-msgid "Чат видалено або вас із нього вилучено."
+msgid "Чат видалено або Вас із нього вилучено."
 msgstr "The chat was deleted or you were removed from it."
 
 #: src/features/chats/components/MembersDialog.tsx
@@ -5333,7 +5342,7 @@ msgid "Чат з усіма повідомленнями й файлами бу�
 msgstr "The chat with all its messages and files will be deleted for all members. This cannot be undone."
 
 #: src/features/chats/components/MembersDialog.tsx
-msgid "Чат зникне з вашого списку. Повернутися можна, лише якщо хтось із учасників додасть вас знову."
+msgid "Чат зникне з Вашого списку. Повернутися можна, лише якщо хтось із учасників додасть Вас знову."
 msgstr "The chat will disappear from your list. You can come back only if a member adds you again."
 
 #: src/features/chats/components/Conversation.tsx
@@ -5363,7 +5372,7 @@ msgid "Чернетка"
 msgstr "Draft"
 
 #: src/features/news/pages/NewsManagePage.tsx
-msgid "Чернетки та опубліковані матеріали організацій, новинами яких ви керуєте."
+msgid "Чернетки та опубліковані матеріали організацій, новинами яких Ви керуєте."
 msgstr "Drafts and published posts of the organizations whose news you manage."
 
 #: src/features/documents/pages/DocumentEditorPage.tsx
@@ -5372,7 +5381,7 @@ msgstr "Draft saved"
 
 #: src/features/help/contents.ts
 msgctxt "help"
-msgid "Чиї документи ви бачите"
+msgid "Чиї документи Ви бачите"
 msgstr "Whose documents you see"
 
 #: src/features/help/contents.ts
@@ -5393,7 +5402,7 @@ msgid "Ще відповідей: {hidden}"
 msgstr "More replies: {hidden}"
 
 #: src/features/tickets/pages/NewTicketPage.tsx
-msgid "Що ви робили, що очікували побачити і що сталося натомість. Для помилки — кроки, щоб її повторити."
+msgid "Що Ви робили, що очікували побачити і що сталося натомість. Для помилки — кроки, щоб її повторити."
 msgstr "What you did, what you expected to see and what happened instead. For a bug, the steps to repeat it."
 
 #: src/features/help/components/RoleReference.tsx
@@ -5420,8 +5429,8 @@ msgstr "What the Organizational Documents Cabinet is"
 
 #: src/features/help/contents.ts
 msgctxt "help"
-msgid "Що таке КОД, як влаштований інтерфейс і від чого залежить, що ви бачите."
-msgstr "What KOD is, how the interface works and what determines what you see."
+msgid "Що таке КОД, як влаштований інтерфейс і від чого залежить, що Ви бачите."
+msgstr "What ODC is, how the interface works and what determines what you see."
 
 #: src/features/auth/pages/ChangePasswordPage.tsx
 msgid "Щонайменше 12 символів: великі й малі латинські літери та цифри."
@@ -5434,14 +5443,14 @@ msgstr "I'm in the route"
 #: src/features/help/contents.ts
 msgctxt "help"
 msgid "Як працює електронний підпис у КОД"
-msgstr "How electronic signatures work in KOD"
+msgstr "How electronic signatures work in ODC"
 
 #: src/features/admin/pages/UnitTypeEditorPage.tsx
-msgid "Як рівень називається у вашій організації: «Департамент», «Кафедра», «Відділення», «Цех»…"
+msgid "Як рівень називається у Вашій організації: «Департамент», «Кафедра», «Відділення», «Цех»…"
 msgstr "What the level is called in your organization: “Department”, “Faculty”, “Ward”, “Workshop”…"
 
 #: src/features/auth/pages/LoginPage.tsx
-msgid "Якщо ви не маєте облікового запису або забули пароль — зверніться до відділу кадрів чи системного адміністратора."
+msgid "Якщо Ви не маєте облікового запису або забули пароль — зверніться до відділу кадрів чи системного адміністратора."
 msgstr "If you don't have an account or forgot your password, contact the HR department or your system administrator."
 
 #: src/app/pages/RouteError.tsx

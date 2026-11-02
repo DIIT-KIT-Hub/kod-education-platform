@@ -1,10 +1,11 @@
 import { useLingui } from "@lingui/react/macro";
 import { useQuery } from "@tanstack/react-query";
 import { Network, Pencil, Plus, Users } from "lucide-react";
-import { Link, useParams, useSearchParams } from "react-router";
+import { Link, useParams } from "react-router";
 import { ApiError, describeError } from "@/shared/api/problem";
 import type { UnitDetails, UnitStaffItem } from "@/shared/api/schema";
 import { unitTypeIcon } from "@/shared/lib/unitTypeIcons";
+import { useViewParams } from "@/shared/lib/viewParams";
 import { hasPermission, Permissions, useCurrentUser } from "@/shared/session/session";
 import layout from "@/shared/styles/layout.module.css";
 import { Alert } from "@/shared/ui/Alert";
@@ -128,13 +129,13 @@ function UnitView({ unit }: { readonly unit: UnitDetails }) {
 }
 
 /**
- * The staff of a unit: search and pages in the address.
+ * The staff of a unit: search and pages in the view state.
  * @param props The unit.
  * @returns The list.
  */
 function Staff({ unitId }: { readonly unitId: string }) {
     const { t } = useLingui();
-    const [params, setParams] = useSearchParams();
+    const [params, setParams] = useViewParams();
     const search = params.get("search") ?? undefined;
     const page = Math.max(1, Number(params.get("page")) || 1);
     const pageSize = Number(params.get("pageSize")) || 20;

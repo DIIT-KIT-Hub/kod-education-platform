@@ -56,7 +56,7 @@ export const helpChapters: readonly HelpChapter[] = [
         id: "intro",
         title: msg({ message: "Початок роботи", context: "help" }),
         icon: Sparkles,
-        summary: msg({ message: "Що таке КОД, як влаштований інтерфейс і від чого залежить, що ви бачите.", context: "help" }),
+        summary: msg({ message: "Що таке КОД, як влаштований інтерфейс і від чого залежить, що Ви бачите.", context: "help" }),
         permissions: [],
         topics: [
             { id: "intro-about", title: msg({ message: "Що таке Кабінет організаційних документів", context: "help" }), permissions: [] },
@@ -86,7 +86,7 @@ export const helpChapters: readonly HelpChapter[] = [
         id: "home",
         title: msg({ message: "Головна сторінка", context: "help" }),
         icon: House,
-        summary: msg({ message: "Короткий огляд: що чекає на вашу дію, ключові показники та свіжі новини.", context: "help" }),
+        summary: msg({ message: "Короткий огляд: що чекає на Вашу дію, ключові показники та свіжі новини.", context: "help" }),
         permissions: [],
         topics: [
             { id: "home-overview", title: msg({ message: "Що показує головна сторінка", context: "help" }), permissions: [] },
@@ -127,7 +127,7 @@ export const helpChapters: readonly HelpChapter[] = [
                 title: msg({ message: "Архівування та видалення", context: "help" }),
                 permissions: ["documents.create", "documents.manage"],
             },
-            { id: "documents-visibility", title: msg({ message: "Чиї документи ви бачите", context: "help" }), permissions: [] },
+            { id: "documents-visibility", title: msg({ message: "Чиї документи Ви бачите", context: "help" }), permissions: [] },
         ],
     },
     {

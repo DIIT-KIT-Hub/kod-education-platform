@@ -11,7 +11,7 @@ export function SigningChapter() {
         <Chapter id="signing">
             <Topic id="signing-how">
                 <p>
-                    KOD applies a <strong>qualified electronic signature (QES)</strong> using IIT's official “CSK User” library — the same
+                    ODC applies a <strong>qualified electronic signature (QES)</strong> using IIT's official “CSK User” library — the same
                     one used by the Diia portal (ID.GOV.UA). The signature has the same legal force as a handwritten one.
                 </p>
                 <ul>
@@ -95,7 +95,7 @@ export function SigningChapter() {
                 </p>
                 <Alert tone="outline" icon={Info} title="Hardware tokens and cloud keys">
                     The “Hardware token” options (Almaz-1K, Krystal-1 tokens, etc.) and “Cloud / Diia.Signature” are shown as disabled: they
-                    require separate provider components (the IIT web agent or a cloud signing service) that are not connected to KOD at the
+                    require separate provider components (the IIT web agent or a cloud signing service) that are not connected to ODC at the
                     moment.
                 </Alert>
             </Topic>

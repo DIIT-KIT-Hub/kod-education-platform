@@ -1,14 +1,14 @@
-import { useSearchParams } from "react-router";
 import type { TicketCategory, TicketStatus } from "@/shared/api/schema";
 import { ticketCategoryNames, ticketStatusNames } from "@/shared/i18n/display";
 import type { TicketFilters } from "@/features/tickets/api";
+import { useViewParams } from "@/shared/lib/viewParams";
 
 /**
- * The search, filters, sorting and paging of a request list, read from the address, and a setter for its filters.
+ * The search, filters, sorting and paging of a request list, read from the view state, and a setter for its filters.
  * @returns The filters and a filter setter that goes back to the first page.
  */
 export function useTicketFilters() {
-    const [params, setParams] = useSearchParams();
+    const [params, setParams] = useViewParams();
     const status = params.get("status");
     const category = params.get("category");
     const scope = params.get("scope");

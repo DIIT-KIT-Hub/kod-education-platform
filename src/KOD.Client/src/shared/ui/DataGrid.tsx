@@ -1,11 +1,12 @@
 import { useLingui } from "@lingui/react/macro";
 import { ArrowDown, ArrowUp, ArrowUpDown, type LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
-import { Link, useSearchParams } from "react-router";
+import { Link } from "react-router";
 import styles from "./DataGrid.module.css";
 import { EmptyState } from "./EmptyState";
 import { Icon } from "./Icon";
 import { Pagination } from "./Pagination";
+import { useViewParams } from "@/shared/lib/viewParams";
 
 /**
  * A column of {@link DataGrid}.
@@ -62,28 +63,28 @@ export interface DataGridProps<T> {
 }
 
 /**
- * A table of server-side paged rows; on phones every row becomes a card. Sorting and paging live in the address
- * (`sortBy`, `descending`, `page`, `pageSize`), so links, reloads and the back button keep the view.
+ * A table of server-side paged rows; on phones every row becomes a card. Sorting and paging live in the view state of
+ * the page (`sortBy`, `descending`, `page`, `pageSize`; `useViewParams`), so reloads and the back button keep the view.
  * @param props The props.
  * @returns The grid.
  */
 export function DataGrid<T>({ columns, result, rowKey, caption, emptyIcon, emptyTitle, emptyText, paged = true }: DataGridProps<T>) {
     const { t } = useLingui();
-    const [params] = useSearchParams();
+    const [params, , link] = useViewParams();
     const sortBy = params.get("sortBy");
     const descending = params.get("descending") === "true";
 
     /**
-     * The address that sorts by a column: ascending first, then descending.
+     * The link that sorts by a column: ascending first, then descending.
      * @param key The sort key.
-     * @returns The query string.
+     * @returns The link target.
      */
-    function sortHref(key: string): string {
+    function sortLink(key: string) {
         const next = new URLSearchParams(params);
         next.set("sortBy", key);
         next.set("descending", String(sortBy === key && !descending));
         next.delete("page");
-        return `?${next.toString()}`;
+        return link(next);
     }
 
     if (result.items.length === 0) {
@@ -113,7 +114,7 @@ export function DataGrid<T>({ columns, result, rowKey, caption, emptyIcon, empty
                                         {column.actions ? (
                                             <span className={styles.caption}>{column.title}</span>
                                         ) : column.sortKey ? (
-                                            <Link to={sortHref(column.sortKey)} title={t`Сортувати`}>
+                                            <Link {...sortLink(column.sortKey)} title={t`Сортувати`}>
                                                 {column.title}
                                                 <Icon icon={sorted ? (descending ? ArrowDown : ArrowUp) : ArrowUpDown} size="sm" />
                                             </Link>

@@ -76,7 +76,7 @@ export function MembersDialog({ open, onClose, chat, me }: MembersDialogProps) {
     async function leave(): Promise<void> {
         const confirmed = await confirm({
             title: t`Вийти з чату?`,
-            text: t`Чат зникне з вашого списку. Повернутися можна, лише якщо хтось із учасників додасть вас знову.`,
+            text: t`Чат зникне з Вашого списку. Повернутися можна, лише якщо хтось із учасників додасть Вас знову.`,
             confirmText: t`Вийти`,
             danger: true,
         });
@@ -112,7 +112,7 @@ export function MembersDialog({ open, onClose, chat, me }: MembersDialogProps) {
     async function deleteDirect(): Promise<void> {
         const forBoth = await confirmWithOption({
             title: t`Видалити чат?`,
-            text: t`Історія зникне у вас, а чат повернеться до списку з новим повідомленням.`,
+            text: t`Історія зникне у Вас, а чат повернеться до списку з новим повідомленням.`,
             confirmText: t`Видалити`,
             danger: true,
             option: {
@@ -138,7 +138,7 @@ export function MembersDialog({ open, onClose, chat, me }: MembersDialogProps) {
     async function clearHistory(): Promise<void> {
         const confirmed = await confirm({
             title: t`Очистити історію?`,
-            text: t`Повідомлення зникнуть лише у вас, інші учасники чату й надалі їх бачитимуть.`,
+            text: t`Повідомлення зникнуть лише у Вас, інші учасники чату й надалі їх бачитимуть.`,
             confirmText: t`Очистити`,
             danger: true,
         });

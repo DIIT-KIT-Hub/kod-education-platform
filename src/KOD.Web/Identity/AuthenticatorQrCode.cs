@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Text;
 using System.Text.Encodings.Web;
+using KOD.Domain.Localization;
 using QRCoder;
 
 namespace KOD.Web.Identity;
@@ -11,20 +12,19 @@ namespace KOD.Web.Identity;
 internal static class AuthenticatorQrCode
 {
     /// <summary>
-    /// The issuer shown in authenticator apps.
-    /// </summary>
-    private const string Issuer = "КОД";
-
-    /// <summary>
     /// Builds the provisioning URI (RFC 6238 key URI format).
     /// </summary>
     /// <param name="email">The account name.</param>
     /// <param name="key">The Base32 shared key.</param>
     /// <returns>The URI.</returns>
     public static string BuildUri(string email, string key)
-        => string.Create(
+    {
+        // The issuer shown in authenticator apps: the short product name in the language of the user enrolling.
+        var issuer = UrlEncoder.Default.Encode(Texts.T("КОД"));
+        return string.Create(
             CultureInfo.InvariantCulture,
-            $"otpauth://totp/{UrlEncoder.Default.Encode(Issuer)}:{UrlEncoder.Default.Encode(email)}?secret={key}&issuer={UrlEncoder.Default.Encode(Issuer)}&digits=6&period=30");
+            $"otpauth://totp/{issuer}:{UrlEncoder.Default.Encode(email)}?secret={key}&issuer={issuer}&digits=6&period=30");
+    }
 
     /// <summary>
     /// Renders the URI as an inline SVG QR code (no external services involved).

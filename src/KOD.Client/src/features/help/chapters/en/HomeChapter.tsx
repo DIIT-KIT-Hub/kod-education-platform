@@ -9,7 +9,7 @@ export function HomeChapter() {
         <Chapter id="home">
             <Topic id="home-overview">
                 <p>
-                    The home page opens right after you sign in, and also via the <Ui>Home</Ui> link or the “KOD” logo. It gathers in one
+                    The home page opens right after you sign in, and also via the <Ui>Home</Ui> link or the “ODC” logo. It gathers in one
                     place everything that needs your attention.
                 </p>
                 <ul>

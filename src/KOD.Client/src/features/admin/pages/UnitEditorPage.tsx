@@ -3,10 +3,11 @@ import { useLingui } from "@lingui/react/macro";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Eye, Info, Save } from "lucide-react";
 import { Controller, useForm } from "react-hook-form";
-import { Link, useNavigate, useParams, useSearchParams } from "react-router";
+import { Link, useNavigate, useParams } from "react-router";
 import { z } from "zod";
 import { describeError } from "@/shared/api/problem";
 import type { UnitDetails, UnitOption, UnitTypeItem } from "@/shared/api/schema";
+import { useViewParams } from "@/shared/lib/viewParams";
 import { hasPermission, Permissions, useCurrentUser } from "@/shared/session/session";
 import layout from "@/shared/styles/layout.module.css";
 import { Alert } from "@/shared/ui/Alert";
@@ -63,7 +64,7 @@ function UnitForm({ existing, units, types }: UnitFormProps) {
     const { t } = useLingui();
     const navigate = useNavigate();
     const queryClient = useQueryClient();
-    const [params] = useSearchParams();
+    const [params] = useViewParams();
     const cabinetWide = hasPermission(useCurrentUser(), Permissions.administrationAll);
     const top = existing === null && params.get("top") === "true";
     const canBeTopLevel = cabinetWide || existing?.parentId === null;
@@ -72,7 +73,7 @@ function UnitForm({ existing, units, types }: UnitFormProps) {
     const notice = existing
         ? existing.canManage
             ? null
-            : t`Підрозділ належить організації, структурою якої ви не керуєте, тому його можна лише переглянути.`
+            : t`Підрозділ належить організації, структурою якої Ви не керуєте, тому його можна лише переглянути.`
         : top && !cabinetWide
           ? t`Організації верхнього рівня створює лише адміністратор усіх організацій. Ви можете додавати підрозділи й дочірні організації у своїх організаціях.`
           : null;
@@ -233,7 +234,7 @@ function UnitForm({ existing, units, types }: UnitFormProps) {
                                 hint={
                                     canBeTopLevel
                                         ? t`Без батьківського підрозділу — окрема організація верхнього рівня.`
-                                        : t`Лише підрозділи організацій, структурою яких ви керуєте.`
+                                        : t`Лише підрозділи організацій, структурою яких Ви керуєте.`
                                 }
                             >
                                 {(ids) => (

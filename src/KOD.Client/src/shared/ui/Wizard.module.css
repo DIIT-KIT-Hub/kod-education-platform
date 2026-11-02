@@ -75,6 +75,7 @@
         background-color var(--ds-duration-base) var(--ds-ease-out),
         border-color var(--ds-duration-base) var(--ds-ease-out),
         color var(--ds-duration-base) var(--ds-ease-out),
+        box-shadow var(--ds-hover-duration) var(--ds-hover-ease),
         transform var(--ds-duration-fast) var(--ds-ease-out);
 }
 

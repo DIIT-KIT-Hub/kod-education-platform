@@ -128,7 +128,7 @@ export function NewTicketPage() {
                             <Field
                                 label={t`Опис`}
                                 required
-                                hint={t`Що ви робили, що очікували побачити і що сталося натомість. Для помилки — кроки, щоб її повторити.`}
+                                hint={t`Що Ви робили, що очікували побачити і що сталося натомість. Для помилки — кроки, щоб її повторити.`}
                                 error={formState.errors.description?.message}
                                 className={styles.full}
                             >
@@ -168,7 +168,7 @@ export function NewTicketPage() {
                                 {t`Надіслати звернення`}
                             </Button>
                             <span className={[layout.textSm, layout.muted].join(" ")}>
-                                {t`Звернення побачать ті, хто опрацьовує звернення. Про відповідь ви дізнаєтеся зі сповіщення.`}
+                                {t`Звернення побачать ті, хто опрацьовує звернення. Про відповідь Ви дізнаєтеся зі сповіщення.`}
                             </span>
                         </div>
                     </Card>

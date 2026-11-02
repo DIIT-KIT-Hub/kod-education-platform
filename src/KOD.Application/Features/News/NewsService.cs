@@ -40,7 +40,7 @@ internal sealed class NewsService(
     /// <summary>
     /// The error shown when an article belongs to an organization the current user does not manage the news of.
     /// </summary>
-    private const string OutsideScopeMessage = "Ця новина належить організації, новинами якої ви не керуєте.";
+    private const string OutsideScopeMessage = "Ця новина належить організації, новинами якої Ви не керуєте.";
 
     /// <inheritdoc />
     public async Task<Result<PagedResult<NewsListItem>>> ListAsync(NewsQuery query, CancellationToken cancellationToken)

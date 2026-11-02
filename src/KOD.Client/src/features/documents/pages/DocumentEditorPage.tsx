@@ -81,7 +81,7 @@ export function DocumentEditorPage() {
                     <EmptyState
                         icon={FileX}
                         title={t`Документ не можна змінити`}
-                        text={describeError(existing.error, t`Документ не існує або у вас немає до нього доступу.`)}
+                        text={describeError(existing.error, t`Документ не існує або у Вас немає до нього доступу.`)}
                     >
                         <ButtonLink to={`/documents/${id}`} variant="secondary" icon={ArrowLeft}>
                             {t`До документа`}
@@ -268,7 +268,7 @@ function DocumentForm({ existing, units }: DocumentFormProps) {
                 <div className={layout.stackLg}>
                     {existing?.status === "Rejected" && (
                         <Alert tone="outline" icon={Info} title={t`Документ відхилено`}>
-                            {t`Виправте його та надішліть на підпис повторно. Підписи, накладені на поточний файл, збережуться — ці підписанти не підписуватимуть знову, якщо ви не заміните файл і не приберете їх із маршруту.`}
+                            {t`Виправте його та надішліть на підпис повторно. Підписи, накладені на поточний файл, збережуться — ці підписанти не підписуватимуть знову, якщо Ви не заміните файл і не приберете їх із маршруту.`}
                         </Alert>
                     )}
 
@@ -303,7 +303,7 @@ function DocumentForm({ existing, units }: DocumentFormProps) {
                             <Alert tone="danger" icon={TriangleAlert} title={t`Частину підписів буде анульовано`}>
                                 {file
                                     ? t`Підписи накладено на попередній файл. Після збереження всі ${toRemove} підписи буде видалено, а підписанти підписуватимуть новий файл.`
-                                    : t`Підписи тих, кого ви прибрали з маршруту (${toRemove}), буде видалено після збереження.`}
+                                    : t`Підписи тих, кого Ви прибрали з маршруту (${toRemove}), буде видалено після збереження.`}
                             </Alert>
                         )}
                     </Card>

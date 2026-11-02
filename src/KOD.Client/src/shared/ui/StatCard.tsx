@@ -1,5 +1,6 @@
 import { ArrowRight, type LucideIcon } from "lucide-react";
 import { Link } from "react-router";
+import { viewTarget } from "@/shared/lib/viewParams";
 import { Icon } from "./Icon";
 import styles from "./StatCard.module.css";
 
@@ -43,7 +44,7 @@ export function StatCard({ label, value, icon, to, href, inverse }: StatCardProp
 
     if (to) {
         return (
-            <Link to={to} className={className} data-inverse={inverse || undefined}>
+            <Link {...viewTarget(to)} className={className} data-inverse={inverse || undefined}>
                 {content}
             </Link>
         );

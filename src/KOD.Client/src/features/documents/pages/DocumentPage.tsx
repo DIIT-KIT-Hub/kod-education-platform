@@ -24,6 +24,7 @@ import { describeError } from "@/shared/api/problem";
 import type { DocumentDetails, DocumentSignerItem } from "@/shared/api/schema";
 import { documentKindNames, formatNames, packagingNames, signerStatusNames, signingModeNames } from "@/shared/i18n/display";
 import { formatDateTime, formatFileSize } from "@/shared/i18n/format";
+import { viewTarget } from "@/shared/lib/viewParams";
 import { SigningWizard } from "@/shared/signing/SigningWizard";
 import layout from "@/shared/styles/layout.module.css";
 import { Alert } from "@/shared/ui/Alert";
@@ -68,7 +69,7 @@ export function DocumentPage() {
                     <EmptyState
                         icon={FileX}
                         title={t`Документ не знайдено`}
-                        text={describeError(document.error, t`Документ не існує або у вас немає до нього доступу.`)}
+                        text={describeError(document.error, t`Документ не існує або у Вас немає до нього доступу.`)}
                     >
                         <ButtonLink to="/documents" icon={ArrowLeft}>
                             {t`До реєстру`}
@@ -131,7 +132,8 @@ function DocumentView({ document }: { readonly document: DocumentDetails }) {
             queryClient.removeQueries({ queryKey: documentKeys.details(document.id) });
             await queryClient.invalidateQueries({ queryKey: documentKeys.all });
             toast(t`Документ видалено`);
-            await navigate("/documents?scope=Authored", { replace: true });
+            const registry = viewTarget("/documents?scope=Authored");
+            await navigate(registry.to, { replace: true, state: registry.state });
         } catch (failure) {
             toast(describeError(failure, t`Не вдалося виконати дію. Спробуйте ще раз.`), { tone: "error" });
         }
@@ -235,8 +237,8 @@ function DocumentView({ document }: { readonly document: DocumentDetails }) {
             <div className={layout.split}>
                 <div className={[layout.stackLg, layout.stagger].join(" ")}>
                     {actions.canSign && (
-                        <Alert tone="inverse" icon={Signature} title={t`Документ очікує вашого підпису`}>
-                            {t`Перевірте файл і натисніть «Підписати». Ключ і пароль використовуються лише у вашому браузері.`}
+                        <Alert tone="inverse" icon={Signature} title={t`Документ очікує Вашого підпису`}>
+                            {t`Перевірте файл і натисніть «Підписати». Ключ і пароль використовуються лише у Вашому браузері.`}
                         </Alert>
                     )}
 

@@ -87,7 +87,9 @@
     border-radius: var(--ds-radius-md);
     color: inherit;
     text-decoration: none;
-    transition: background-color var(--ds-duration-fast);
+    transition:
+        background-color var(--ds-duration-fast),
+        box-shadow var(--ds-hover-duration) var(--ds-hover-ease);
 }
 
 .chatLink:hover {

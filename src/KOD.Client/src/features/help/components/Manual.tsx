@@ -45,7 +45,7 @@ export function Access({ permissions, onInverse = false }: AccessProps) {
     if (permissions.some(has)) {
         return (
             <Badge tone="inverse" icon={CircleCheck} className={onInverse ? styles.headerBadgeOn : styles.badge}>
-                {t`Доступно вам`}
+                {t`Доступно Вам`}
             </Badge>
         );
     }

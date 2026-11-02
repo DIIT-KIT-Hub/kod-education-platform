@@ -12,7 +12,7 @@ export function GettingStartedChapter() {
         <Chapter id="intro">
             <Topic id="intro-about">
                 <p>
-                    <strong>KOD — the Organizational Documents Cabinet</strong> — is an electronic document management system for an
+                    <strong>ODC — the Organizational Documents Cabinet</strong> — is an electronic document management system for an
                     organization of any kind: a company, a government agency, a school or university, a hospital, a non-profit. The
                     structure (organizations, their units and the names of the levels) is set up by an administrator, so the cabinet speaks
                     the language of your organization. In it, employees and external users:
@@ -116,7 +116,7 @@ export function GettingStartedChapter() {
             </Topic>
             <Topic id="intro-access">
                 <p>
-                    What you can see and do in KOD is determined by <strong>permissions</strong>. Permissions are granted by a{" "}
+                    What you can see and do in ODC is determined by <strong>permissions</strong>. Permissions are granted by a{" "}
                     <strong>role</strong>, which an administrator assigns together with a position in a unit (for example, “Lead engineer”
                     in the development department with the “Employee” role).
                 </p>

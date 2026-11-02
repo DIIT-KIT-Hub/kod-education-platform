@@ -24,7 +24,7 @@
     text-decoration: none;
     transition:
         transform var(--ds-duration-base) var(--ds-ease-out),
-        box-shadow var(--ds-duration-base) var(--ds-ease-out),
+        box-shadow var(--ds-hover-duration) var(--ds-hover-ease),
         border-color var(--ds-duration-base);
 }
 

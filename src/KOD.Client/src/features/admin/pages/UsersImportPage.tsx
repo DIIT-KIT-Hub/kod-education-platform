@@ -2,10 +2,10 @@ import { useLingui } from "@lingui/react/macro";
 import { useQuery } from "@tanstack/react-query";
 import { CircleCheck, Download, FileSpreadsheet, ListChecks, Table, Upload, UserCog, UserPlus } from "lucide-react";
 import { useState } from "react";
-import { useSearchParams } from "react-router";
 import { describeError } from "@/shared/api/problem";
 import type { ImportRowError, SpreadsheetFormat, UserImportReport } from "@/shared/api/schema";
 import { formatNumber } from "@/shared/i18n/format";
+import { useViewParams } from "@/shared/lib/viewParams";
 import { hasPermission, Permissions, useCurrentUser } from "@/shared/session/session";
 import layout from "@/shared/styles/layout.module.css";
 import { Alert } from "@/shared/ui/Alert";
@@ -101,7 +101,7 @@ export function UsersImportPage() {
                                     accept=".xlsx,.csv"
                                     disabled={busy}
                                     title={file?.name ?? t`Перетягніть файл XLSX або CSV`}
-                                    hint={t`До 5 МБ, до 10 000 рядків. Наявні облікові записи оновлюються за e-mail. Посади — лише в підрозділах організацій, якими ви керуєте.`}
+                                    hint={t`До 5 МБ, до 10 000 рядків. Наявні облікові записи оновлюються за e-mail. Посади — лише в підрозділах організацій, якими Ви керуєте.`}
                                     onFiles={(files) => {
                                         const chosen = files[0] ?? null;
                                         setReport(null);
@@ -217,7 +217,7 @@ interface ImportReportProps {
  */
 function ImportReport({ report, onDownload }: ImportReportProps) {
     const { t } = useLingui();
-    const [params] = useSearchParams();
+    const [params] = useViewParams();
     const page = Math.max(1, Number(params.get("errors")) || 1);
     const errors = report.errors.slice((page - 1) * errorPageSize, page * errorPageSize);
 

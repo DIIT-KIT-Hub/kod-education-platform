@@ -1,7 +1,6 @@
 /*
- * Hover floods the button with the contrast colour of the theme and flips the text colour: a circle grows from the point
- * where the pointer entered (--_x / --_y, see shared/lib/ink.ts; the centre without them) and shrinks back towards the
- * point where it left. The fill is a ::before layer under the content (the button is an isolated stacking context).
+ * Hover fills the button with the contrast colour of the theme and flips the text colour; both fade smoothly. The fill
+ * is a ::before layer under the content (the button is an isolated stacking context), so it covers any background.
  * Primary buttons, already in the contrast colour, take a softer shade of it.
  */
 .button {
@@ -32,11 +31,11 @@
     cursor: pointer;
     user-select: none;
     transition:
-        color var(--ds-ink-duration) var(--ds-ink-ease),
-        border-color var(--ds-ink-duration) var(--ds-ink-ease),
+        color var(--ds-hover-duration) var(--ds-hover-ease),
+        border-color var(--ds-hover-duration) var(--ds-hover-ease),
         background-color var(--ds-duration-base) var(--ds-ease-out),
         transform var(--ds-duration-fast) var(--ds-ease-out),
-        box-shadow var(--ds-duration-base) var(--ds-ease-out);
+        box-shadow var(--ds-hover-duration) var(--ds-hover-ease);
 }
 
 .button::before {
@@ -46,8 +45,8 @@
     z-index: -1;
     border-radius: inherit;
     background: var(--_fill);
-    clip-path: circle(0 at var(--_x, 50%) var(--_y, 50%));
-    transition: clip-path var(--ds-ink-duration) var(--ds-ink-ease);
+    opacity: 0;
+    transition: opacity var(--ds-hover-duration) var(--ds-hover-ease);
     pointer-events: none;
 }
 
@@ -57,7 +56,7 @@
     box-shadow: var(--ds-shadow-md);
 }
 .button:hover::before {
-    clip-path: circle(160% at var(--_x, 50%) var(--_y, 50%));
+    opacity: 1;
 }
 .button:active {
     transform: scale(0.97);

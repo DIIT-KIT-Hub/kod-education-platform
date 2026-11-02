@@ -268,7 +268,7 @@ public sealed class ChatTests : IDisposable
         Assert.True((await b.DeleteChatAsync(direct, CancellationToken.None)).IsSuccess);
         Assert.Empty(_world.Db.Chats);
         var removed = Assert.Single(_world.ChatEvents.Removed);
-        Assert.Equal([_world.EmployeeA.Id, _world.EmployeeB.Id], removed.Recipients.Order());
+        Assert.Equal(new[] { _world.EmployeeA.Id, _world.EmployeeB.Id }.Order(), removed.Recipients.Order());
 
         var group = (await a.CreateGroupAsync("Проєкт", [_world.EmployeeB.Id], CancellationToken.None)).Ok();
         Assert.Equal(ErrorType.Forbidden, (await b.DeleteChatAsync(group, CancellationToken.None)).Failure());

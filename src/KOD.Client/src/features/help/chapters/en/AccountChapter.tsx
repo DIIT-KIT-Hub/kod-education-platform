@@ -12,7 +12,7 @@ export function AccountChapter() {
         <Chapter id="account">
             <Topic id="account-first-login">
                 <p>
-                    There is no self-registration in KOD: accounts are created by the HR department or the system administrator. They give
+                    There is no self-registration in ODC: accounts are created by the HR department or the system administrator. They give
                     you an <strong>email address</strong> (your login) and a <strong>temporary password</strong>. The first sign-in has
                     three parts and takes 3–5 minutes.
                 </p>
@@ -55,7 +55,7 @@ export function AccountChapter() {
                         key shown under the QR code (the <Ui>Copy</Ui> button copies it).
                     </li>
                     <li>
-                        A “KOD” entry with a 6-digit code that changes every 30 seconds appears in the app. Enter the current code in the{" "}
+                        An “ODC” entry with a 6-digit code that changes every 30 seconds appears in the app. Enter the current code in the{" "}
                         <Ui>Code from the app</Ui> field and click <Ui>Confirm and sign in</Ui>.
                     </li>
                     <li>
@@ -155,7 +155,7 @@ export function AccountChapter() {
                 </p>
             </Topic>
             <Topic id="account-forgot">
-                <p>KOD has no password recovery by email — this way nobody can take over your access through your mailbox.</p>
+                <p>ODC has no password recovery by email — this way nobody can take over your access through your mailbox.</p>
                 <ul>
                     <li>
                         <strong>Forgot your password</strong> — contact the HR department or the system administrator. You will get a new
@@ -228,16 +228,16 @@ export function AccountChapter() {
             <Topic id="account-security-tips">
                 <ul>
                     <li>
-                        Don't use your KOD password for other services. A password manager is the most convenient way to store passwords.
+                        Don't use your ODC password for other services. A password manager is the most convenient way to store passwords.
                     </li>
-                    <li>Never share authenticator codes or recovery codes with anyone — KOD staff never ask for them.</li>
+                    <li>Never share authenticator codes or recovery codes with anyone — ODC staff never ask for them.</li>
                     <li>On shared computers, don't check “Remember me” and always sign out when you finish.</li>
                     <li>
                         Forgot to sign out on someone else's computer or lost your phone — click <Ui>Sign out on other devices</Ui> on the{" "}
                         <Ui>Security</Ui> tab of your profile.
                     </li>
                     <li>
-                        The private key of your electronic signature and its password are separate from your KOD account; they are never
+                        The private key of your electronic signature and its password are separate from your ODC account; they are never
                         sent to the server (see the “<Ref to="signing">Signing and verifying files</Ref>” chapter).
                     </li>
                 </ul>

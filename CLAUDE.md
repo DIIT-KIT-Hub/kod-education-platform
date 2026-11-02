@@ -239,8 +239,12 @@ Dependencies point inward: Web → Infrastructure → Application → Domain. Ce
 - Every outcome of an action (saved, deleted, failed, a rejected file, a form-level check) is a toast, never an alert on
   the page; inline `Alert`s are for load errors, explanations and results that are content (an import report, a
   signature verification). Field errors stay under their fields.
-- List pages keep search, filters, sorting and paging in the address (`DataGrid` sorts by `sortBy`/`descending`,
-  `Pagination` by `page`/`pageSize`; `useListParams` in `features/admin`). `DatePicker` (`shared/ui`) takes and
+- List pages keep search, filters, sorting and paging in the history entry, not in the address bar:
+  `useViewParams` (`shared/lib/viewParams.ts`, the `useSearchParams` API over `location.state.view`) survives reloads
+  and back/forward; an address that still has a query string is moved into the state once. `Tab`, `ButtonLink`,
+  `StatCard` and breadcrumbs pass `to` through `viewTarget`, so `/documents?scope=AwaitingMe` opens `/documents` with
+  that view; a plain `<Link>`/`navigate` to another page's view uses `viewTarget` too. (`DataGrid` sorts by
+  `sortBy`/`descending`, `Pagination` by `page`/`pageSize`; `useListParams` in `features/admin`.) `DatePicker` (`shared/ui`) takes and
   returns `yyyy-MM-dd`, accepts typed dates in the day-month-year order and opens a calendar popover.
 - Temporary passwords (new account, reset, import) are shown once and never put into the history state; the file of
   an import's passwords is built by `POST /api/v1/user-imports/credentials` from the report the browser holds.
@@ -349,9 +353,13 @@ API at Information, static files, images and the SignalR connection at Debug, >3
 ## Design system notes
 
 - Monochrome Diia-like style, Manrope (fonts in `shared/styles/fonts`), Lucide icons (`lucide-react` through `<Icon>`).
-- Buttons and button-like controls have the "ink" hover: a fill of the theme's contrast colour grows from the pointer
-  (`shared/lib/ink.ts` sets `--_x/--_y`; compose `ink` from `shared/styles/ink.module.css`). Inverse surfaces flip the
-  fill colours (`data-inverse`). Inputs show focus with the border only.
+- Buttons and button-like controls have the "ink" hover: a `::before` fill of the theme's contrast colour fades in
+  (opacity, `--ds-hover-duration`/`--ds-hover-ease`; compose `ink` from `shared/styles/ink.module.css`). Hover shadows
+  transition with the same tokens — add `box-shadow` to the `transition` of anything that gains a shadow. Inverse
+  surfaces flip the fill colours (`data-inverse`). Inputs show focus with the border only.
+- Toasts are monochrome cards on the inverse surface; only the icon takes the tone colour (`--ds-color-*-on-inverse`).
+- Brand: the mark is the message `К` (English "C") and the short name `КОД` (English "ODC"), on the server too (e-mail header,
+  authenticator issuer).
 - Popovers (`Select`, `DatePicker`) are `popover="manual"` panels in the top layer, placed next to their control, so
   they also open above modal dialogs.
 - Scrollbars of dialogs, listboxes and the manual's contents are styled; in Chromium do not set `scrollbar-width`

@@ -1,6 +1,7 @@
 import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 import { Link } from "react-router";
+import { viewTarget } from "@/shared/lib/viewParams";
 import { Icon } from "./Icon";
 import styles from "./Tabs.module.css";
 
@@ -31,7 +32,7 @@ export function Tabs({ label, children }: TabsProps) {
  * Props of {@link Tab}.
  */
 export interface TabProps {
-    /** The application route. */
+    /** The application route; a query string is the view of the page (kept out of the address bar). */
     readonly to: string;
     /** Whether this tab is the current section. */
     readonly active: boolean;
@@ -48,7 +49,7 @@ export interface TabProps {
  */
 export function Tab({ to, active, icon, children }: TabProps) {
     return (
-        <Link to={to} className={styles.tab} aria-current={active ? "page" : undefined}>
+        <Link {...viewTarget(to)} className={styles.tab} aria-current={active ? "page" : undefined}>
             {icon && <Icon icon={icon} />}
             {children}
         </Link>

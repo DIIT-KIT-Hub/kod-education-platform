@@ -289,7 +289,7 @@ function RecoveryCodes({ codes }: { readonly codes: readonly string[] }) {
             <AuthHeader
                 bigIcon={ShieldCheck}
                 title={t`Автентифікатор підключено`}
-                text={t`Збережіть резервні коди в надійному місці. Вони знадобляться, якщо ви втратите доступ до телефону. Кожен код діє один раз.`}
+                text={t`Збережіть резервні коди в надійному місці. Вони знадобляться, якщо Ви втратите доступ до телефону. Кожен код діє один раз.`}
             />
             <ul className={[styles.codes, layout.stagger].join(" ")}>
                 {codes.map((code) => (

@@ -43,7 +43,7 @@ export function Conversation({ chatId }: ConversationProps) {
 
     if (details.error instanceof ApiError && details.error.status === 404) {
         return (
-            <EmptyState icon={MessageSquareOff} title={t`Чат не знайдено`} text={t`Можливо, вас вилучили з чату або його видалено.`}>
+            <EmptyState icon={MessageSquareOff} title={t`Чат не знайдено`} text={t`Можливо, Вас вилучили з чату або його видалено.`}>
                 <ButtonLink to="/chats" variant="secondary">
                     {t`До чатів`}
                 </ButtonLink>

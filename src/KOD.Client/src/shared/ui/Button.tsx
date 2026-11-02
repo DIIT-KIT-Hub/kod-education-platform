@@ -1,7 +1,7 @@
 import type { LucideIcon } from "lucide-react";
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 import { Link } from "react-router";
-import { inkHandlers } from "@/shared/lib/ink";
+import { viewTarget } from "@/shared/lib/viewParams";
 import styles from "./Button.module.css";
 import { Icon } from "./Icon";
 
@@ -104,7 +104,6 @@ export function Button({
     return (
         <button
             {...rest}
-            {...inkHandlers}
             type={type}
             disabled={disabled === true || busy === true}
             aria-busy={busy || undefined}
@@ -130,9 +129,9 @@ export function ButtonLink({ to, href, download, variant, size, block, icon, ico
             {children}
         </Content>
     );
-    const props = { ...inkHandlers, className: classes({ variant, size, block, iconOnly, className, children }) };
+    const props = { className: classes({ variant, size, block, iconOnly, className, children }) };
     return to ? (
-        <Link to={to} {...props}>
+        <Link {...viewTarget(to)} {...props}>
             {content}
         </Link>
     ) : (

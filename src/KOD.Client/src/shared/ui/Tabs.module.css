@@ -30,7 +30,7 @@
     transition:
         background-color var(--ds-duration-base) var(--ds-ease-out),
         color var(--ds-duration-base) var(--ds-ease-out),
-        box-shadow var(--ds-duration-base);
+        box-shadow var(--ds-hover-duration) var(--ds-hover-ease);
 }
 
 .tab:hover {

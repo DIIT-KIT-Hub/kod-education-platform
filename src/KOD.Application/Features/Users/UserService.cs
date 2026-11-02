@@ -1,4 +1,3 @@
-using System.Net.Mail;
 using KOD.Application.Abstractions;
 using KOD.Application.Common.Access;
 using KOD.Application.Common.Errors;
@@ -50,7 +49,7 @@ internal sealed class UserService(
     /// <summary>
     /// The error shown when an account also has positions in organizations the current user does not manage.
     /// </summary>
-    private const string SharedAccountMessage = "Користувач також обіймає посади в організаціях, якими ви не керуєте. Особисті дані, e-mail, статус і безпеку такого облікового запису змінює адміністратор, що керує всіма його організаціями; ви можете змінювати лише посади у своїх організаціях.";
+    private const string SharedAccountMessage = "Користувач також обіймає посади в організаціях, якими Ви не керуєте. Особисті дані, e-mail, статус і безпеку такого облікового запису змінює адміністратор, що керує всіма його організаціями; Ви можете змінювати лише посади у своїх організаціях.";
 
     /// <summary>
     /// Accepted values of the «Статус» column meaning a blocked account.
@@ -173,7 +172,7 @@ internal sealed class UserService(
             return Error.Forbidden();
         }
 
-        var email = NormalizeEmail(command.Email);
+        var email = EmailAddress.Normalize(command.Email);
         if (email is null)
         {
             return Error.Validation(Texts.T("Вкажіть коректну адресу електронної пошти."));
@@ -240,7 +239,7 @@ internal sealed class UserService(
             return user.Error;
         }
 
-        var email = NormalizeEmail(command.Email);
+        var email = EmailAddress.Normalize(command.Email);
         if (email is null)
         {
             return Error.Validation(Texts.T("Вкажіть коректну адресу електронної пошти."));
@@ -448,7 +447,7 @@ internal sealed class UserService(
         foreach (var group in rows.GroupBy(static r => r.Email.Trim().ToLowerInvariant()))
         {
             var first = group.First();
-            var email = NormalizeEmail(first.Email);
+            var email = EmailAddress.Normalize(first.Email);
             if (email is null)
             {
                 errors.Add(new ImportRowError(first.RowNumber, first.Email, Texts.T("Некоректна електронна пошта.")));
@@ -473,7 +472,7 @@ internal sealed class UserService(
 
                 if (!scope.Contains(unitId))
                 {
-                    errors.Add(new ImportRowError(row.RowNumber, email, Texts.T("Підрозділ «{0}» належить організації, якою ви не керуєте: імпорт призначає посади лише у ваших організаціях.", row.UnitCode)));
+                    errors.Add(new ImportRowError(row.RowNumber, email, Texts.T("Підрозділ «{0}» належить організації, якою Ви не керуєте: імпорт призначає посади лише у Ваших організаціях.", row.UnitCode)));
                     continue;
                 }
 
@@ -517,7 +516,7 @@ internal sealed class UserService(
             // Import replaces the personal data and positions, so it may change only accounts that belong entirely to the importer's organizations.
             if (!scope.Covers([.. user.Positions.Select(static p => p.OrganizationUnitId)]))
             {
-                errors.Add(new ImportRowError(plan.Row, plan.Email, Texts.T("Обліковий запис із цією поштою вже існує й має посади в організаціях, якими ви не керуєте, тому імпорт не може його змінювати.")));
+                errors.Add(new ImportRowError(plan.Row, plan.Email, Texts.T("Обліковий запис із цією поштою вже існує й має посади в організаціях, якими Ви не керуєте, тому імпорт не може його змінювати.")));
                 continue;
             }
 
@@ -535,7 +534,7 @@ internal sealed class UserService(
             var target = await permissions.GetEffectivePermissionsAsync(user.Id, cancellationToken);
             if (target.Any(p => !currentUser.Has(p)))
             {
-                errors.Add(new ImportRowError(plan.Row, plan.Email, Texts.T("Цей обліковий запис має більше прав, ніж ви, тому імпорт не може його змінювати.")));
+                errors.Add(new ImportRowError(plan.Row, plan.Email, Texts.T("Цей обліковий запис має більше прав, ніж Ви, тому імпорт не може його змінювати.")));
             }
         }
 
@@ -700,19 +699,6 @@ internal sealed class UserService(
         : new DownloadableFile(new MemoryStream(content), $"{baseName}.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
 
     /// <summary>
-    /// Validates and normalizes an e-mail address.
-    /// </summary>
-    /// <param name="email">The raw value.</param>
-    /// <returns>The lower-case address or <see langword="null"/> when invalid.</returns>
-    private static string? NormalizeEmail(string? email)
-    {
-        var value = email?.Trim().ToLowerInvariant();
-        return !string.IsNullOrEmpty(value) && value.Length <= User.EmailMaxLength && MailAddress.TryCreate(value, out var address) && address.Address == value
-            ? value
-            : null;
-    }
-
-    /// <summary>
     /// Restricts a query to the accounts with at least one position in the scope.
     /// </summary>
     /// <param name="users">The query.</param>
@@ -832,7 +818,7 @@ internal sealed class UserService(
         var forbidden = roles.Find(r => !CanAssign(r));
         return forbidden is null
             ? null
-            : Error.Forbidden(Texts.T("Ви не можете призначати роль «{0}», оскільки вона надає більше прав, ніж маєте ви.", Texts.T(forbidden.Name)));
+            : Error.Forbidden(Texts.T("Ви не можете призначати роль «{0}», оскільки вона надає більше прав, ніж маєте Ви.", Texts.T(forbidden.Name)));
     }
 
     /// <summary>
@@ -896,7 +882,7 @@ internal sealed class UserService(
             var target = await permissions.GetEffectivePermissionsAsync(id, cancellationToken);
             if (target.Any(p => !currentUser.Has(p)))
             {
-                return Error.Forbidden(Texts.T("Цей обліковий запис має більше прав, ніж ви, тому ви не можете ним керувати."));
+                return Error.Forbidden(Texts.T("Цей обліковий запис має більше прав, ніж Ви, тому Ви не можете ним керувати."));
             }
         }
 

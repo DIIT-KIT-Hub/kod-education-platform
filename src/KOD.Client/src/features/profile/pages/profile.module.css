@@ -42,6 +42,19 @@
     overflow-wrap: anywhere;
 }
 
+/* Security: four cards, two per row from tablet widths (the cards of a row share its height). ----------------------- */
+
+.security {
+    display: grid;
+    gap: var(--ds-space-4);
+}
+
+@media (min-width: 768px) {
+    .security {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
 /* Modules and permissions ------------------------------------------------------------------------------------------ */
 
 .modules {

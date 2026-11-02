@@ -3194,7 +3194,7 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        /** Updates the contact phone number. */
+        /** Updates the contact phone number and, for users who administer their whole account, the name and the e-mail. */
         patch: {
             parameters: {
                 query?: never;
@@ -6307,6 +6307,12 @@ export interface components {
             id: string;
             /** @description The full name. */
             fullName: string;
+            /** @description The last name. */
+            lastName: string;
+            /** @description The first name. */
+            firstName: string;
+            /** @description The patronymic. */
+            middleName: null | string;
             /** @description The e-mail address. */
             email: string;
             /** @description The phone number. */
@@ -6341,9 +6347,25 @@ export interface components {
              * @description The profile photo, if uploaded.
              */
             photoId: null | string;
+            /**
+             * @description Whether the user may change own name and e-mail: an administrator of users whose
+             *                 scope covers the whole account (a system administrator always); the others ask their administrator or HR.
+             */
+            canEditPersonalData: boolean;
         };
-        /** @description Body of `PATCH /api/v1/profile`. */
+        /**
+         * @description Body of `PATCH /api/v1/profile`. The name and the e-mail are optional: only users who administer their whole
+         *     account may change them (omitted values stay as they are).
+         */
         ProfileUpdateRequest: {
+            /** @description The last name. */
+            lastName: null | string;
+            /** @description The first name. */
+            firstName: null | string;
+            /** @description The patronymic (empty to remove it). */
+            middleName: null | string;
+            /** @description The e-mail address (login). */
+            email: null | string;
             /** @description The contact phone number. */
             phoneNumber: null | string;
         };

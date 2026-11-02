@@ -25,7 +25,7 @@ internal sealed class OrganizationService(IApplicationDbContext db, ICurrentUser
     /// <summary>
     /// The error shown when a unit is outside the organizations the current user manages.
     /// </summary>
-    private const string OutsideScopeMessage = "Підрозділ належить організації, структурою якої ви не керуєте.";
+    private const string OutsideScopeMessage = "Підрозділ належить організації, структурою якої Ви не керуєте.";
 
     /// <summary>
     /// The error shown when an organization administrator tries to create or move a top-level organization.

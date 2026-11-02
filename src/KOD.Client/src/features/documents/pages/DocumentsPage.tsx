@@ -1,11 +1,11 @@
 import { useLingui } from "@lingui/react/macro";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowRight, BadgeCheck, FilePlus, FileText, Layers, PenLine, Signature, Users } from "lucide-react";
-import { useSearchParams } from "react-router";
 import type { DocumentKind, DocumentListItem, DocumentScope, DocumentStatus } from "@/shared/api/schema";
 import { describeError } from "@/shared/api/problem";
 import { documentKindNames, documentStatusNames } from "@/shared/i18n/display";
 import { formatDateTime } from "@/shared/i18n/format";
+import { useViewParams } from "@/shared/lib/viewParams";
 import { hasPermission, Permissions, useCurrentUser } from "@/shared/session/session";
 import layout from "@/shared/styles/layout.module.css";
 import { Alert } from "@/shared/ui/Alert";
@@ -32,7 +32,7 @@ const statuses: readonly DocumentStatus[] = ["Draft", "InSigning", "Signed", "Re
 const kinds = Object.keys(documentKindNames) as DocumentKind[];
 
 /**
- * Reads an allowed value from the address.
+ * Reads an allowed value from the view state.
  * @param value The value.
  * @param allowed The allowed values.
  * @returns The value, or undefined.
@@ -42,7 +42,7 @@ function oneOf<T extends string>(value: string | null, allowed: readonly T[]): T
 }
 
 /**
- * Reads a positive number from the address.
+ * Reads a positive number from the view state.
  * @param value The value.
  * @param fallback The default.
  * @returns The number.
@@ -53,13 +53,13 @@ function positive(value: string | null, fallback: number): number {
 }
 
 /**
- * The document registry: sections, search, filters, sorting and pages, all kept in the address.
+ * The document registry: sections, search, filters, sorting and pages, all kept in the view state of the page.
  * @returns The page.
  */
 export function DocumentsPage() {
     const { t } = useLingui();
     const user = useCurrentUser();
-    const [params, setParams] = useSearchParams();
+    const [params, setParams] = useViewParams();
     const filters: DocumentFilters = {
         scope: oneOf(params.get("scope"), scopes) ?? "AwaitingMe",
         status: oneOf(params.get("status"), statuses),
@@ -211,7 +211,7 @@ export function DocumentsPage() {
                     emptyTitle={t`Документів не знайдено`}
                     emptyText={
                         filters.scope === "AwaitingMe" && !filters.search
-                            ? t`Документів, що очікують вашого підпису, немає.`
+                            ? t`Документів, що очікують Вашого підпису, немає.`
                             : t`Спробуйте змінити параметри пошуку або фільтри.`
                     }
                 />

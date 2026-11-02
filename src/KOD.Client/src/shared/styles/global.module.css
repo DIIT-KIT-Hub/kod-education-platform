@@ -109,9 +109,9 @@
     --ds-duration-base: 250ms;
     --ds-duration-slow: 450ms;
 
-    /* Hover fill of buttons ("ink"): long and soft, so the colour flows in rather than snapping. */
-    --ds-ink-duration: 700ms;
-    --ds-ink-ease: cubic-bezier(0.45, 0, 0.15, 1);
+    /* Hover of buttons and cards: the fill colour and the shadow fade in and out smoothly. */
+    --ds-hover-duration: 300ms;
+    --ds-hover-ease: ease;
 
     /* Shared animations (the keyframes below are global). */
     --ds-anim-fade-in: ds-fade-in var(--ds-duration-base) both;
@@ -174,6 +174,11 @@
     --ds-color-success-surface: var(--ds-green-50);
     --ds-color-warning: var(--ds-amber-600);
     --ds-color-warning-surface: var(--ds-amber-50);
+    /* Signal colours readable on the inverse surface (toasts). */
+    --ds-color-success-on-inverse: #4cc77a;
+    --ds-color-danger-on-inverse: #ff6b63;
+    --ds-color-warning-on-inverse: #f0b14a;
+    --ds-color-info-on-inverse: #6cb2ff;
     --ds-color-focus: var(--ds-black);
     --ds-color-overlay: rgb(0 0 0 / 0.45);
     --ds-shadow-sm: 0 1px 2px rgb(0 0 0 / 0.04), 0 1px 1px rgb(0 0 0 / 0.03);
@@ -203,6 +208,10 @@
     --ds-color-success-surface: #0e2a18;
     --ds-color-warning: #f0b14a;
     --ds-color-warning-surface: #2e2208;
+    --ds-color-success-on-inverse: var(--ds-green-600);
+    --ds-color-danger-on-inverse: var(--ds-red-600);
+    --ds-color-warning-on-inverse: var(--ds-amber-600);
+    --ds-color-info-on-inverse: #1f6feb;
     --ds-color-focus: var(--ds-white);
     --ds-color-overlay: rgb(0 0 0 / 0.7);
     --ds-shadow-sm: 0 1px 2px rgb(0 0 0 / 0.6);

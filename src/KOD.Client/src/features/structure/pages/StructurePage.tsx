@@ -1,8 +1,8 @@
 import { useLingui } from "@lingui/react/macro";
 import { useQuery } from "@tanstack/react-query";
 import { Network, Plus, SearchX, Settings } from "lucide-react";
-import { useSearchParams } from "react-router";
 import { describeError } from "@/shared/api/problem";
+import { useViewParams } from "@/shared/lib/viewParams";
 import { hasPermission, Permissions, useCurrentUser } from "@/shared/session/session";
 import { Alert } from "@/shared/ui/Alert";
 import { ButtonLink } from "@/shared/ui/Button";
@@ -22,7 +22,7 @@ import styles from "./structure.module.css";
 export function StructurePage() {
     const { t } = useLingui();
     const user = useCurrentUser();
-    const [params, setParams] = useSearchParams();
+    const [params, setParams] = useViewParams();
     const search = params.get("search") ?? "";
     const tree = useQuery(unitTreeQuery);
     const canManage = hasPermission(user, Permissions.structureManage);

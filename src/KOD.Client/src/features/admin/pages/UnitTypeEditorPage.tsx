@@ -165,7 +165,7 @@ function UnitTypeForm({ existing }: { readonly existing: UnitTypeItem | null }) 
                             <Field
                                 label={t`Назва`}
                                 required
-                                hint={t`Як рівень називається у вашій організації: «Департамент», «Кафедра», «Відділення», «Цех»…`}
+                                hint={t`Як рівень називається у Вашій організації: «Департамент», «Кафедра», «Відділення», «Цех»…`}
                                 error={formState.errors.name?.message}
                             >
                                 {(ids) => <TextInput {...ids} {...register("name")} maxLength={128} />}

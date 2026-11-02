@@ -23,8 +23,8 @@ export const notificationIcons: Record<NotificationKind, LucideIcon> = {
  * The titles of the notification kinds (the chat and the state change build their own).
  */
 const titles = {
-    NewsReply: msg`Відповідь на ваш коментар`,
-    DocumentToSign: msg`Документ очікує вашого підпису`,
+    NewsReply: msg`Відповідь на Ваш коментар`,
+    DocumentToSign: msg`Документ очікує Вашого підпису`,
     DocumentSigned: msg`Документ підписали всі підписанти`,
     DocumentRejected: msg`Документ відхилено`,
     TicketCreated: msg`Нове звернення`,

@@ -33,16 +33,16 @@
     font-weight: 500;
     color: var(--ds-color-text-muted);
     font-size: var(--ds-fs-xs);
-    transition: color var(--ds-ink-duration) var(--ds-ink-ease);
+    transition: color var(--ds-hover-duration) var(--ds-hover-ease);
 }
 
-/* The ink follows the pointer over the whole option (the input lies on top of the label). */
+/* The whole option takes the hover (the input lies on top of the label). */
 .option:hover .label {
     color: var(--ds-color-on-inverse);
     border-color: var(--ds-color-inverse);
 }
 .option:hover .label::before {
-    clip-path: circle(160% at var(--_x, 50%) var(--_y, 50%));
+    opacity: 1;
 }
 .option:hover .label small {
     color: inherit;

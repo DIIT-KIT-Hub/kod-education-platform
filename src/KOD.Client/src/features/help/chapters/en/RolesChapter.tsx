@@ -23,7 +23,7 @@ export function RolesChapter() {
             </Topic>
             <Topic id="roles-system">
                 <p>
-                    When KOD is deployed, it creates standard roles common to most organizations. The system administrator can change their
+                    When ODC is deployed, it creates standard roles common to most organizations. The system administrator can change their
                     names and permissions and create custom roles for their domain — the current set of roles in your cabinet is shown in{" "}
                     <Ui>Administration</Ui> → <Ui>Roles</Ui> (if you have access).
                 </p>

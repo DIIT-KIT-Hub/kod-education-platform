@@ -1,6 +1,7 @@
 import { queryOptions } from "@tanstack/react-query";
 import { api } from "@/shared/api/client";
 import { unwrap } from "@/shared/api/problem";
+import type { ProfileUpdateRequest } from "@/shared/api/schema";
 
 /**
  * The keys of the profile queries.
@@ -21,7 +22,7 @@ export const profileQuery = queryOptions({
  * Changes of the profile.
  */
 export const profileApi = {
-    phone: (phoneNumber: string | null) => unwrap(api.PATCH("/api/v1/profile", { body: { phoneNumber } })),
+    update: (body: ProfileUpdateRequest) => unwrap(api.PATCH("/api/v1/profile", { body })),
     language: (language: string) => unwrap(api.PUT("/api/v1/auth/language", { body: { language } })),
     recoveryCodes: (code: string) => unwrap(api.POST("/api/v1/profile/recovery-codes", { body: { code } })),
     signOutEverywhere: () => unwrap(api.POST("/api/v1/profile/sign-out-everywhere")),

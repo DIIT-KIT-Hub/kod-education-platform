@@ -39,7 +39,7 @@ export function PermissionReference() {
                     <tr>
                         <th>{t`Дозвіл`}</th>
                         <th>{t`Що дає`}</th>
-                        <th>{t`У вас`}</th>
+                        <th>{t`У Вас`}</th>
                     </tr>
                 </thead>
                 <tbody>

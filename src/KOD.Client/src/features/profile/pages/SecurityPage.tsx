@@ -35,7 +35,7 @@ export function SecurityPage() {
             {profile.isPending && <SkeletonPage header={false} />}
             {profile.isError && <Alert tone="danger">{describeError(profile.error, t`Не вдалося завантажити профіль.`)}</Alert>}
             {profile.data && (
-                <div className={[layout.cols, layout.stagger].join(" ")}>
+                <div className={[styles.security, layout.stagger].join(" ")}>
                     <Card title={t`Пароль`} subtitle={t`Регулярно змінюйте пароль і не використовуйте його в інших сервісах.`}>
                         <div>
                             <ButtonLink to="/account/change-password" icon={KeyRound}>
@@ -57,7 +57,7 @@ export function SecurityPage() {
                             )}
                         </div>
                         <p className={[layout.textSm, layout.muted].join(" ")}>
-                            {t`Змінили телефон? Попросіть адміністратора скинути автентифікатор — під час наступного входу ви прив'яжете новий.`}
+                            {t`Змінили телефон? Попросіть адміністратора скинути автентифікатор — під час наступного входу Ви прив'яжете новий.`}
                         </p>
                     </Card>
 

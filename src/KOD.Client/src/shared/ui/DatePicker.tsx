@@ -2,7 +2,6 @@ import { useLingui } from "@lingui/react/macro";
 import { CalendarDays, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
 import { useEffect, useEffectEvent, useId, useRef, useState, type KeyboardEvent, type RefObject } from "react";
 import { formattingLocale } from "@/shared/i18n/format";
-import { inkHandlers } from "@/shared/lib/ink";
 import { Button } from "./Button";
 import styles from "./DatePicker.module.css";
 import { Icon } from "./Icon";
@@ -236,7 +235,6 @@ export function DatePicker({ value, onChange, min, max, placeholder, compact, id
                 aria-haspopup="dialog"
                 title={t`Оберіть дату`}
                 onClick={() => setOpen((current) => !current)}
-                {...inkHandlers}
             >
                 <Icon icon={CalendarDays} />
             </button>
@@ -414,7 +412,7 @@ function Calendar({ anchor, selected, start, outOfRange, onPick, onClose }: Cale
      * @returns The button.
      */
     const nav = (icon: typeof ChevronLeft, label: string, months: number) => (
-        <button type="button" className={styles.nav} aria-label={label} title={label} onClick={() => shift(months, false)} {...inkHandlers}>
+        <button type="button" className={styles.nav} aria-label={label} title={label} onClick={() => shift(months, false)}>
             <Icon icon={icon} />
         </button>
     );

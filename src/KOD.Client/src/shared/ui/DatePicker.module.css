@@ -57,7 +57,7 @@
     color: var(--ds-color-on-inverse);
 }
 .picker[data-open] .toggle::before {
-    clip-path: circle(160% at var(--_x, 50%) var(--_y, 50%));
+    opacity: 1;
 }
 .toggle:focus-visible {
     outline: 2px solid var(--ds-color-focus);

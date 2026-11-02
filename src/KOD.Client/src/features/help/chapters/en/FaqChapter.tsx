@@ -10,7 +10,7 @@ export function FaqChapter() {
             <Topic id="faq-common">
                 <Faq>
                     <details>
-                        <summary>How do I get access to KOD?</summary>
+                        <summary>How do I get access to ODC?</summary>
                         <div>
                             <p>
                                 There is no self-registration. Contact the HR department or the system administrator — they will create an
@@ -27,7 +27,7 @@ export function FaqChapter() {
                                 <li>the time on your phone is inaccurate — turn on automatic date and time;</li>
                                 <li>the code has already been used — each code works once, wait for the next one (up to 30 seconds);</li>
                                 <li>
-                                    the app has several “KOD” entries — use the newest one (after setting up the authenticator again, the
+                                    the app has several “ODC” entries — use the newest one (after setting up the authenticator again, the
                                     old entries can be deleted).
                                 </li>
                             </ul>
@@ -119,7 +119,7 @@ export function FaqChapter() {
                         <summary>My key is on a token (Almaz, Crystal) or in the cloud (Diia.Signature). Can I sign?</summary>
                         <div>
                             <p>
-                                Not yet: KOD supports file keys (Key-6.dat, PFX, JKS, etc.). Most providers, including Diia and the State
+                                Not yet: ODC supports file keys (Key-6.dat, PFX, JKS, etc.). Most providers, including Diia and the State
                                 Tax Service, also issue file keys free of charge.
                             </p>
                         </div>
@@ -157,7 +157,7 @@ export function FaqChapter() {
                     </li>
                     <li>
                         <strong>Electronic signature key, its password, validity period, revocation</strong> — your trust service provider
-                        (for example, the State Tax Service, Diia or a bank). KOD does not store and cannot recover your key.
+                        (for example, the State Tax Service, Diia or a bank). ODC does not store and cannot recover your key.
                     </li>
                 </ul>
                 <p>
