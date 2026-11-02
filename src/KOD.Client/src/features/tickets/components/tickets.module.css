@@ -307,6 +307,8 @@
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
+    /* The event and its smaller author · time share one text line. */
+    align-items: baseline;
     gap: 0 var(--ds-space-2);
     padding: 0 var(--ds-space-4);
     color: var(--ds-color-text-muted);
