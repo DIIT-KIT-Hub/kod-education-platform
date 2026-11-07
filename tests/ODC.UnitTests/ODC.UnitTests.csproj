@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>ODC.UnitTests</RootNamespace>
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\ODC.Domain\ODC.Domain.csproj" />
+    <ProjectReference Include="..\..\src\ODC.Application\ODC.Application.csproj" />
+    <ProjectReference Include="..\..\src\ODC.Infrastructure\ODC.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\ODC.Web\ODC.Web.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\src\ODC.Web\wwwroot\lib\eusign\data\*" Link="TrustList\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" />
+    <PackageReference Include="xunit.v3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+</Project>

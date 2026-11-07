@@ -1,0 +1,90 @@
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useLingui } from "@lingui/react/macro";
+import { useQueryClient } from "@tanstack/react-query";
+import { ArrowLeft, KeyRound } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router";
+import { z } from "zod";
+import { describeError } from "@/shared/api/problem";
+import { reloadAuthContext } from "@/shared/session/session";
+import { Button, ButtonLink } from "@/shared/ui/Button";
+import { Field } from "@/shared/ui/Field";
+import { PasswordInput } from "@/shared/ui/PasswordInput";
+import { toast } from "@/shared/ui/Toast";
+import { authApi } from "../api";
+import { AuthHeader } from "../components/AuthHeader";
+import styles from "./auth.module.css";
+
+/**
+ * Changes the password of the signed-in user. The other sign-ins of the user end, this browser gets new tokens.
+ * @returns The page.
+ */
+export function ChangePasswordPage() {
+    const { t } = useLingui();
+    const navigate = useNavigate();
+    const queryClient = useQueryClient();
+
+    const schema = z
+        .object({
+            currentPassword: z.string().min(1, t`Вкажіть поточний пароль.`),
+            newPassword: z
+                .string()
+                .min(1, t`Вкажіть новий пароль.`)
+                .min(12, t`Пароль має містити від 12 до 128 символів.`)
+                .max(128, t`Пароль має містити від 12 до 128 символів.`),
+            confirmPassword: z.string(),
+        })
+        .refine((values) => values.newPassword === values.confirmPassword, {
+            message: t`Паролі не збігаються.`,
+            path: ["confirmPassword"],
+        });
+
+    const { register, handleSubmit, formState } = useForm({
+        resolver: zodResolver(schema),
+        defaultValues: { currentPassword: "", newPassword: "", confirmPassword: "" },
+    });
+
+    /**
+     * Saves the new password.
+     * @param values The form values.
+     */
+    async function change(values: z.infer<typeof schema>): Promise<void> {
+        try {
+            await authApi.changePassword(values.currentPassword, values.newPassword);
+            await reloadAuthContext(queryClient);
+            toast(t`Пароль змінено.`);
+            await navigate("/profile/security", { replace: true });
+        } catch (failure) {
+            toast(describeError(failure, t`Не вдалося зв'язатися з сервером. Спробуйте ще раз.`), { tone: "error" });
+        }
+    }
+
+    return (
+        <>
+            <AuthHeader icon={KeyRound} title={t`Зміна пароля`} text={t`Після зміни пароля всі інші сесії буде завершено.`} />
+
+            <form className={styles.form} noValidate onSubmit={handleSubmit(change)}>
+                <Field label={t`Поточний пароль`} error={formState.errors.currentPassword?.message}>
+                    {(control) => <PasswordInput {...control} {...register("currentPassword")} autoComplete="current-password" autoFocus />}
+                </Field>
+                <Field
+                    label={t`Новий пароль`}
+                    hint={t`Щонайменше 12 символів: великі й малі латинські літери та цифри.`}
+                    error={formState.errors.newPassword?.message}
+                >
+                    {(control) => <PasswordInput {...control} {...register("newPassword")} autoComplete="new-password" />}
+                </Field>
+                <Field label={t`Повторіть новий пароль`} error={formState.errors.confirmPassword?.message}>
+                    {(control) => <PasswordInput {...control} {...register("confirmPassword")} autoComplete="new-password" />}
+                </Field>
+                <Button type="submit" size="lg" block busy={formState.isSubmitting}>
+                    {t`Зберегти пароль`}
+                </Button>
+            </form>
+
+            <ButtonLink to="/profile/security" variant="ghost" icon={ArrowLeft}>
+                {t`Повернутися`}
+            </ButtonLink>
+        </>
+    );
+}

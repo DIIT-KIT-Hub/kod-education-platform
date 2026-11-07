@@ -1,37 +1,47 @@
-# CLAUDE.md — KOD (Кабінет організаційних документів)
+# CLAUDE.md — ODC / КОД (Organizational Documents Cabinet, Кабінет організаційних документів)
 
 Electronic document management for any organization: documents with signing routes and a **qualified electronic
 signature (QES) made in the browser**, several organizations with arbitrary unit trees, roles and permissions per
 position, news, profile, admin panel, user manual. The UI is Ukrainian with a full English translation.
 `README.md` (Ukrainian) is the user/operator documentation; this file is the working guide for changing the code.
+Every project has its own `CLAUDE.md` with its layout, rules and pitfalls — read the one of the project you touch:
+`src/ODC.Domain`, `src/ODC.Application`, `src/ODC.Infrastructure`, `src/ODC.Web`, `src/ODC.Client`,
+`tests/ODC.UnitTests`.
 
-KOD.Web is an ASP.NET Core Web API (REST under `/api/v1`, a SignalR hub, image and signing endpoints) that also serves
-the React single-page application (`src/KOD.Client`) at the root of the site. There are no server-rendered pages.
+Naming: the solution is `OrganizationalDocumentsCabinet.slnx` (the English expansion of the logo), projects are `ODC.*`
+(namespaces too), and every runtime identifier uses the same prefix: cookies `__Host-odc.*`, claim types `odc:*`, JWT
+issuer `urn:odc`, Data Protection application `ODC` and purposes `ODC.*`, the embedded translation prefix `odc-i18n:`,
+the user-secrets id `odc-web-…`, log files `odc-*.log`, the database `odc`, demo accounts `@odc.local`. The old `kod`
+names are gone (only the git branch `KOD/full-refactoring` and the repository folder keep them). Changing any of these
+identifiers signs everyone out or makes stored keys unreadable — acceptable during development, not after a release.
+
+ODC.Web is an ASP.NET Core Web API (REST under `/api/v1`, a SignalR hub, image and signing endpoints) that also serves
+the React single-page application (`src/ODC.Client`) at the root of the site. There are no server-rendered pages.
 
 ## Commands
 
 ```bash
 # Build everything with tests. Use your own configuration name (Lead, Release, …): the user often runs the app
 # from bin/Debug, which locks the Debug output. Warnings are errors (StyleCop + .NET analyzers).
-dotnet build tests/KOD.UnitTests/KOD.UnitTests.csproj -c Lead -v q -nologo -p:SkipClientBuild=true 2>&1 | grep -E "error|warn" | sort -u
+dotnet build tests/ODC.UnitTests/ODC.UnitTests.csproj -c Lead -v q -nologo -p:SkipClientBuild=true 2>&1 | grep -E "error|warn" | sort -u
 
-# Tests (xUnit v3 on Microsoft Testing Platform; ~140 tests, a few seconds)
-dotnet test tests/KOD.UnitTests -c Lead --no-build
+# Tests (xUnit v3 on Microsoft Testing Platform; ~160 tests, ~30 seconds)
+dotnet test tests/ODC.UnitTests -c Lead --no-build
 
 # Run (migrations and seeding run at startup). The user's own instance is usually on https://localhost:7180;
-# for your own verification use the launch config "kod-web-verify" (port 7181, -c Lead) in .claude/launch.json.
-dotnet run --project src/KOD.Web --launch-profile https
+# for your own verification use the launch config "odc-web-verify" (port 7181, -c Lead) in .claude/launch.json.
+dotnet run --project src/ODC.Web --launch-profile https
 
 # Migrations (local tool). Build with a non-Debug configuration if the app is running.
 dotnet tool restore
-dotnet ef migrations add <Name> --project src/KOD.Infrastructure --startup-project src/KOD.Web --configuration Release --output-dir Persistence/Migrations
+dotnet ef migrations add <Name> --project src/ODC.Infrastructure --startup-project src/ODC.Web --configuration Release --output-dir Persistence/Migrations
 ```
 
 ```bash
-# React client (src/KOD.Client; Node 24+, pnpm). In development KOD.Web serves its dist/ (Spa:Root). Building KOD.Web
+# React client (src/ODC.Client; Node 24+, pnpm). In development ODC.Web serves its dist/ (Spa:Root). Building ODC.Web
 # (F5 in Visual Studio, dotnet run/build) runs pnpm install/build itself when the lockfile or client sources are newer
-# than the last result (incremental targets in KOD.Web.csproj); -p:SkipClientBuild=true skips that.
-cd src/KOD.Client
+# than the last result (incremental targets in ODC.Web.csproj); -p:SkipClientBuild=true skips that.
+cd src/ODC.Client
 pnpm install
 pnpm build                  # tsc -b + vite build (production; fails on a missing English translation)
 pnpm dev                    # vite build --watch in development mode (sourcemaps); reload the page after a rebuild
@@ -42,12 +52,16 @@ pnpm api:types              # regenerate src/shared/api/schema.d.ts from a runni
                             # (the script points at 7180; for your own server run the same command with 7181)
 ```
 
-Publishing KOD.Web runs `pnpm install --frozen-lockfile && pnpm build` and copies `dist` (without source maps) into
+Publishing ODC.Web runs `pnpm install --frozen-lockfile && pnpm build` and copies `dist` (without source maps) into
 `ClientApp` next to the app (`Spa:Root`); `-p:SkipClientBuild=true` skips the client build.
 
-Secrets live in user-secrets of `src/KOD.Web` (`ConnectionStrings:Database`, `Seed:AdminPassword`, `Seed:DemoPassword`).
-Never print or commit them. The seeded admin password is used only when the admin is created; the first sign-in
-replaces it and enrolls 2FA (TOTP), so it does not keep working afterwards.
+Secrets live in user-secrets of `src/ODC.Web` (`ConnectionStrings:Database`, `Seed:DemoPassword`, `Email:*`). Never print
+or commit them. There is no admin password anywhere: the first administrator (`Seed:AdminEmail`) is created without a
+password and activates the account by e-mail like everyone else. For your own runs set `Email:PickupDirectory` so
+codes land in `.eml` files instead of real mailboxes (the user's secrets contain a real SMTP server).
+
+There is one migration (`InitialCreate`, history squashed on 2026-11-07). An existing database created from the old
+history cannot be migrated: it has to be dropped and recreated (ask the user first — it is their data).
 
 Tooling on this machine: Windows, Git Bash + PowerShell, Node.js available (use it for scripts), `python` is only the
 Store stub. Bash heredocs with Ukrainian text and quotes sometimes break — write scripts to the scratchpad with the
@@ -56,40 +70,41 @@ Write tool and run them with `node`. `/tmp` in Git Bash is not visible to Window
 ## Architecture (Clean Architecture, .NET 10 / C# 14 + React)
 
 ```
-src/KOD.Domain          Entities + invariants (User, Role, StaffPosition, OrganizationUnit, UnitType, Document with
+src/ODC.Domain          Entities + invariants (User, Role, StaffPosition, OrganizationUnit, UnitType, Document with
                         signers and signatures, NewsArticle with NewsComment/NewsReaction/NewsView, Chat with ChatMember/
                         ChatMessage/ChatAttachment/ChatReaction, Ticket with TicketMessage/TicketAttachment,
                         Notification, MediaFile, AuditEntry),
                         permission catalog, system roles, Guard, DomainException, localization catalog
                         (Localization/Texts.cs, Languages.cs).
-src/KOD.Application     Use-case services (DocumentService, UserService, OrganizationService, UnitTypeService, RoleService,
+src/ODC.Application     Use-case services (DocumentService, UserService, OrganizationService, UnitTypeService, RoleService,
                         NewsService, NewsDiscussionService, ChatService, TicketService, NotificationService + Notifier,
                         AttachmentStore, MediaService + MediaLibrary, ProfileService, DashboardService,
                         AuditService, SigningJournal), DTOs, Result<T>/Error, paging, access rules (IPermissionResolver,
                         IAccessScope, AdministrationScope), abstractions.
-src/KOD.Infrastructure  EF Core + PostgreSQL (snake_case, citext, xmin concurrency), migrations, seeding, Identity
+src/ODC.Infrastructure  EF Core + PostgreSQL (snake_case, citext, xmin concurrency), migrations, seeding, Identity
                         (full Identity schema, SignInManager with mandatory 2FA, claims factory, ES256 key + JWT service
-                        in Identity/Tokens), file storage,
+                        in Identity/Tokens, account activation codes in
+                        Identity/Activation), file storage, e-mail outbox (SMTP or pickup folder),
                         images (libvips/NetVips → AVIF, media storage, cleanup job), HTML sanitizer, XLSX/CSV, Markdig,
                         CMS signature inspector, audit logger.
-src/KOD.Web             Host: REST API (Api/, /api/v1), SignalR hub (Realtime/), JWT authentication handlers (Identity/),
+src/ODC.Web             Host: REST API (Api/, /api/v1), SignalR hub (Realtime/), JWT authentication handlers (Identity/),
                         security middleware (Security/), images (Media/), signing proxy and trust list (Signing/),
                         localization provider (Localization/), logging and SPA hosting (Hosting/). wwwroot holds only
                         the IIT signing library (lib/eusign).
-src/KOD.Client          React SPA at / (see "React client").
-tests/KOD.UnitTests     Domain rules, access, scoped administration (EF InMemory), JWT tokens, localization coverage,
+src/ODC.Client          React SPA at / (see "React client").
+tests/ODC.UnitTests     Domain rules, access, scoped administration (EF InMemory), JWT tokens, localization coverage,
                         API contracts, trust list.
 ```
 
 ### Hosting
 
-- `SpaHostingExtensions`: static files of `Spa:Root` (`../KOD.Client/dist` in development, `ClientApp` when published;
+- `SpaHostingExtensions`: static files of `Spa:Root` (`../ODC.Client/dist` in development, `ClientApp` when published;
   `/assets/*` cached for a year, the rest revalidated) and `index.html` as the fallback of every route without a file
   extension. Unknown `/api/*` addresses answer 404 problem details; the former `/app/*` addresses redirect to the root.
 - Errors answer with problem details (`ApiExceptionHandler`, RFC 9457). Strict CSP (`SecurityHeadersMiddleware`): no
   inline scripts, no `eval`, `connect-src` allows the own origin and its WebSocket for SignalR.
-- `AccountSetupMiddleware`: until the temporary password is replaced and a profile photo uploaded, the API answers 403
-  (except `/api/v1/auth` and `/api/v1/profile/photo`); the client's guards lead the user through the same steps.
+- `AccountSetupMiddleware`: until a profile photo is uploaded, the API answers 403 (except `/api/v1/auth` and
+  `/api/v1/profile/photo`); the client's guards lead the user to the same step.
 
 ### Identity tables and authentication
 
@@ -98,7 +113,7 @@ tests/KOD.UnitTests     Domain rules, access, scoped administration (EF InMemory
   `user_claims`, `user_logins`, `user_tokens` (snake_case names of the AspNet* tables). Domain types are the Identity types:
   `Role : IdentityRole` (`Name` = unique display name, `NormalizedName` via `Role.NormalizeName`; `Code` stays the stable
   key), `RolePermission : IdentityRoleClaim` and `UserPermissionOverride : IdentityUserClaim` (claim types in
-  `PermissionClaimTypes`: `kod:permission` granted, `kod:permission.denied`), `StaffPosition : IdentityUserRole` with its
+  `PermissionClaimTypes`: `odc:permission` granted, `odc:permission.denied`), `StaffPosition : IdentityUserRole` with its
   own `Id` key and the unit (a user may hold one role in several units). Query permissions through `ClaimType`/`ClaimValue`
   in LINQ. Positions change only through `User.SetPositions` (`UserManager.AddToRoleAsync` cannot choose a unit).
 - **Stateless JWT access tokens + rotating refresh tokens (RFC 9700 §4.14.2).** `JwtTokenService` issues ES256 JWTs (key:
@@ -109,8 +124,8 @@ tests/KOD.UnitTests     Domain rules, access, scoped administration (EF InMemory
   the next generation, any older authentic generation revokes the family (except the previous one within
   `RefreshTokenReuseInterval` = 30 s, for parallel requests: it gets the current token, no rotation). Families end on
   sign-out, idle 1 h / absolute 12 h (NIST SP 800-63B-4 AAL2), or a security stamp mismatch.
-  `JwtAuthenticationHandler` (scheme `Jwt`, `AppSignInManager.AuthenticationScheme`) reads `__Host-kod.at`, falls back to
-  `__Host-kod.rt` (rotates, re-reads the user: active + stamp, rebuilds claims) only when the response can still set
+  `JwtAuthenticationHandler` (scheme `Jwt`, `AppSignInManager.AuthenticationScheme`) reads `__Host-odc.at`, falls back to
+  `__Host-odc.rt` (rotates, re-reads the user: active + stamp, rebuilds claims) only when the response can still set
   cookies, and answers 401 / 403 (never redirects: the client handles sign-in). `TwoFactorJwtHandler` is registered
   under `IdentityConstants.TwoFactorUserIdScheme`. Claim types are JWT names (`AppClaimTypes`); the security stamp never
   goes into a token.
@@ -122,6 +137,29 @@ tests/KOD.UnitTests     Domain rules, access, scoped administration (EF InMemory
 Dependencies point inward: Web → Infrastructure → Application → Domain. Central Package Management
 (`Directory.Packages.props`); check new package versions on NuGet and prefer ones published more than two weeks ago.
 
+### Account activation (no temporary passwords)
+
+Nobody hands out passwords. Accounts are created (UI, import, seeding of the first admin) **without a password**:
+`User.AwaitsActivation` ⇔ `PasswordHash == null`. An admin "password reset" (`IIdentityService.RemovePasswordAsync`)
+removes the password and changes the security stamp; the authenticator stays and is asked for after the reset.
+Invitations / reset notices: `AccountEmails` (Application/Common/Email), sent by `UserService` when e-mail is configured.
+
+- Flow (`AccountActivationService` in Infrastructure/Identity/Activation, `AccountActivationController` at
+  `/api/v1/auth/activation`, client `features/auth/pages/ActivationPage.tsx` at `/account/activate`):
+  `POST` e-mail → a 6-digit code by e-mail → `POST /code` → `POST /password` (Identity validators, `EmailConfirmed`)
+  → `PasswordSignInAsync` opens the usual 2FA step (`login/authenticator` enrolment or `login/two-factor`) → photo.
+- State: `ActivationChallenge` rows (`activation_challenges`: SHA-256 of the address, nullable user, code encrypted with
+  Data Protection, expiry, failed attempts, `VerifiedAt`, `xmin`), bound to the browser by the encrypted cookie
+  `__Host-odc.activation` (time-limited protector, 30 min, `SameSite=Strict`). Only the newest row of an address is valid;
+  rows go away after the password is set and, at the latest, a day later (`RefreshTokenCleanupService`).
+- No enumeration: a row is written for **every** valid address (no e-mail and no matching code when there is no active
+  account awaiting activation), so answers, limits and timing match (`MinimumRequestDuration` pads the request).
+- Limits in `ActivationOptions` (`Authentication:Activation`): code 10 min, password step 15 min, 5 wrong codes, 60 s
+  between codes, 5 codes per address per hour; plus the `activation` rate limit policy (30 requests / 10 min per IP).
+- Error codes the client relies on: `activation_invalid`, `activation_expired`, `no_activation`, `too_many_codes` (429),
+  `email_unavailable` (503). Audit: `auth.activation-code-sent`, `auth.activation-failed`, `auth.account-activated`.
+- There is no self-service "forgot password": the admin resets it and the user goes through the activation again.
+
 ### Images, news editor, discussion
 
 - **Images** (`MediaFile`): every upload goes through `MediaLibrary` → `IImageProcessor` (`VipsImageProcessor`: loader
@@ -130,7 +168,7 @@ Dependencies point inward: Web → Infrastructure → Application → Domain. Ce
   `.thumb.avif`). Served by `GET /media/{id}` and `/media/{id}/thumb` to signed-in users, `immutable` cache.
   `MediaLibrary.SaveChangesAsync` deletes files of removed images only after the database save. `MediaCleanupService`
   removes unattached images after a day.
-- **Profile photo is mandatory**: claim `kod:photo` (claims factory) → `AccountSetupMiddleware` (API 403) and the client
+- **Profile photo is mandatory**: claim `odc:photo` (claims factory) → `AccountSetupMiddleware` (API 403) and the client
   guard `requireReadyUser` (→ `/account/photo`). The photo goes to `PUT /api/v1/profile/photo` (multipart, crop fractions
   from `PhotoPicker`), which re-issues the JWT cookies (`RefreshSignInAsync`). User DTOs carry `PhotoId`.
 - **News body** is HTML from the Tiptap editor (`features/news/components/RichTextEditor.tsx`, `@tiptap/react`; images
@@ -197,76 +235,11 @@ Dependencies point inward: Web → Infrastructure → Application → Domain. Ce
   for chats). The bell (`NotificationTrigger`) opens `NotificationPanel` (a `popover="auto"` inside the shell, so it
   reads `--_sidebar-current`). News reply links end with `#comment-{id}` (`Discussion` scrolls there, `:target` marks it).
 
-## React client (`src/KOD.Client`)
+## React client (`src/ODC.Client`)
 
-- **Stack** (latest versions; the user allowed the newest npm releases, the two-week rule is for NuGet): React 19 +
-  React Compiler (`@rolldown/plugin-babel` + `reactCompilerPreset`), Vite 8, TypeScript 6 (strict,
-  `noUncheckedIndexedAccess`; `exactOptionalPropertyTypes` is off — it fights CSS-module classes and React props),
-  React Router (data mode, `createBrowserRouter`, lazy routes), TanStack Query, openapi-fetch + openapi-typescript,
-  react-hook-form + zod, Lingui, lucide-react, Vitest + happy-dom + Testing Library.
-  Pinned on purpose: `typescript` 6.0.3 (typescript-eslint does not support 7 yet), `@rolldown/plugin-babel` 0.2.4
-  (0.3 breaks `@vitejs/plugin-react` 6).
-- **No UI libraries**: every component is written by hand (the design system lives in `shared/ui` and
-  `shared/styles`). Add libraries only for real infrastructure, never for trivial cases.
-- **Structure** (bulletproof-react, enforced by `no-restricted-imports` in `eslint.config.js`): `src/shared` (api, i18n,
-  lib, realtime, session, signing, styles, ui) ← `src/features/<feature>` (api, components, pages; a feature never
-  imports another feature) ← `src/app` (router, guards, layout, query client). Cross-feature state (the auth context,
-  permissions) lives in `shared/session`.
-- **CSS Modules only** (`*.module.css` next to the component, `localsConvention: camelCaseOnly`). Tokens, themes, base
-  styles and fonts are `:global` in `shared/styles/global.module.css`; reusable layout/text utilities are in
-  `shared/styles/layout.module.css`. Shared keyframes are global (`ds-*`) and used **only** through the `--ds-anim-*`
-  custom properties: a keyframe name written in a module's `animation` is renamed to a local one. Local keyframes
-  (`@keyframes settle`) are fine. Global selectors on `<html>` state: `:global([data-sidebar="collapsed"]) .x`.
-  Inverse surfaces set `data-inverse`, buttons read it for the ink colours.
-- **Data**: `shared/api/client.ts` (`api`, typed by `schema.d.ts`) adds `X-CSRF-TOKEN` to state-changing requests and
-  reports 401s; `unwrap()` turns a failed call into `ApiError(status, code, detail)` (`detail` is already translated);
-  `describeError(error, fallback)` for messages. The JWTs stay in HttpOnly cookies — scripts never see them.
-- **Session**: `authContextQuery` (`GET /api/v1/auth/context`: language, antiforgery token, user with permissions) is
-  loaded by the root route. The antiforgery token is bound to the identity, so **after every sign-in, sign-out,
-  password, photo or language change call `reloadAuthContext(queryClient)`**. Guards in `app/guards.ts`
-  (`requireReadyUser`: signed in, own password, photo; `requireUser`, `requirePasswordSet`, `requireAnonymous`;
-  `requirePermission(a, b, …)` lets a route through with any of the permissions, `adminPermissions` for `/admin`).
-  Return addresses go through `safeReturnUrl`.
-- **Forms**: react-hook-form + `zodResolver`; build the zod schema inside the component with `t` so its messages are
-  translated; `<Field>` gives the control its id / `aria-describedby` / `aria-invalid` through a render prop.
-- **Pages** set the document title with `<DocumentTitle>` or `<PageHeader>` (React hoists `<title>`).
-- Global UI services are module stores read with `useSyncExternalStore`: `toast(text, { tone })` (`success` by
-  default, `error`, `warning`, `info`; a top-layer popover, so it shows above modal dialogs), `await confirm({...})`,
-  `await confirmWithOption({..., option})` (a check box such as "also delete for…"; null when cancelled).
-- Loading data shows skeletons shaped like the content (`shared/ui/Skeleton`: `SkeletonTable`, `SkeletonList`,
-  `SkeletonCards`, `SkeletonPage`, `SkeletonMessages`, `SkeletonText`, primitives `Skeleton` in a `SkeletonGroup`), not
-  a spinner; `Spinner` stays only for a running action (a message being sent).
-- Every outcome of an action (saved, deleted, failed, a rejected file, a form-level check) is a toast, never an alert on
-  the page; inline `Alert`s are for load errors, explanations and results that are content (an import report, a
-  signature verification). Field errors stay under their fields.
-- List pages keep search, filters, sorting and paging in the history entry, not in the address bar:
-  `useViewParams` (`shared/lib/viewParams.ts`, the `useSearchParams` API over `location.state.view`) survives reloads
-  and back/forward; an address that still has a query string is moved into the state once. `Tab`, `ButtonLink`,
-  `StatCard` and breadcrumbs pass `to` through `viewTarget`, so `/documents?scope=AwaitingMe` opens `/documents` with
-  that view; a plain `<Link>`/`navigate` to another page's view uses `viewTarget` too. (`DataGrid` sorts by
-  `sortBy`/`descending`, `Pagination` by `page`/`pageSize`; `useListParams` in `features/admin`.) `DatePicker` (`shared/ui`) takes and
-  returns `yyyy-MM-dd`, accepts typed dates in the day-month-year order and opens a calendar popover.
-- Temporary passwords (new account, reset, import) are shown once and never put into the history state; the file of
-  an import's passwords is built by `POST /api/v1/user-imports/credentials` from the report the browser holds.
-- **Main menu** (`app/layout/navigation.ts`): `home` + sections (`NavigationGroup`) rendered by `NavGroups` as an
-  accordion — the section of the current page is open until the user opens another (the choice is kept per pathname,
-  no effects); a one-item section renders as a plain link; folded sections are `inert`; on the collapsed rail every
-  entry shows. The tab bar of phones takes `navigation.items` with `tabBar`.
-- Unit type icons are stored as Lucide names (`UnitType.Icons` on the server); the client maps them to components in
-  `shared/lib/unitTypeIcons.ts` — add a new icon in both places. Module names: `moduleNames` in `shared/i18n/display.ts`.
-- After a language change, queries other than the auth context are invalidated: some data comes translated by the
-  server (permission titles, role and unit type names).
-- **Signing** (`shared/signing`): `SigningClient` (typed worker client; worker messages are Ukrainian and translated
-  through a table in `client.ts`), `SigningWizard` (document or local files), `KeyPanel`, format rules in `formats.ts`.
-  The worker (`eusign.worker.js`, plain JS) is bundled by Vite (`new Worker(new URL(...))`); the IIT library stays in
-  `KOD.Web/wwwroot/lib/eusign` (16 MB, served compressed by `MapStaticAssets`; the trust list fallback lives there too).
-  Keep the order: key read only on the last step, released after signing / going back / closing / leaving.
-- **Manual** (`features/help`): the table of contents (anchors, titles, icons, permissions) is `contents.ts`; the text is
-  `chapters/uk/<X>Chapter.tsx` and its English twin `chapters/en/<X>Chapter.tsx` with the same anchors (only the
-  reader's language is loaded). Building blocks from `components/Manual.tsx`: `<Chapter id>`, `<Topic id>`, `<Ui>` (an
-  interface label written exactly as on screen), `<Steps>`, `<Ref to>` (link to a topic), `<Table>`, `<Faq>`, `<Code>`.
-  The roles chapter is built from `GET /api/v1/permissions` and `/permissions/system-roles`. Update both languages when
-  a feature changes; `contents.test.ts` checks that both use every anchor and that every `<Ref>` points to a topic.
+React 19 + React Compiler, Vite, TypeScript, CSS Modules only, no UI libraries, Lingui, TanStack Query, openapi-fetch.
+**Everything about the client — stack, structure, data, session and guards, forms, toasts, list views, the manual, the
+design system and client gotchas — is in `src/ODC.Client/CLAUDE.md`.** Read it before changing the client.
 
 ## Conventions
 
@@ -290,20 +263,20 @@ Dependencies point inward: Web → Infrastructure → Application → Domain. Ce
   (e.g. `In("document-kind", "Довідка")` = Certificate, plain `T("Довідка")` = Help; `audit|…` for audit event names;
   the manual titles use the `help` context in the client).
 - Server translations: `src/<Project>/Localization/en/*.json` (flat `{ "uk": "en" }`, embedded automatically by
-  `Directory.Build.props`; KOD.Web keeps its few texts in `web.json`).
+  `Directory.Build.props`; ODC.Web keeps its few texts in `web.json`).
 - Data-annotation `ErrorMessage` stays a Ukrainian constant (translated when shown).
 - `Guard.Text(value, max, "Назва")` translates the field name itself — add the name to a catalog.
 - `PermissionDefinition.Title/Description` and `SystemRoleDefinition.Name/Description` are translated properties; the
   Ukrainian source is `Source*` (used for seeding). Seeded role and unit-type names are translated in display-only DTOs
   via `StoredText.Display` (never in edit models — a translated name must not be saved back).
 - Database data (audit details, user-entered names, seed data) is not translated.
-- Culture: `LanguageCultureProvider` (claim `kod:lang` from the profile, then cookie `__Host-kod.lang`, else uk-UA);
+- Culture: `LanguageCultureProvider` (claim `odc:lang` from the profile, then cookie `__Host-odc.lang`, else uk-UA);
   `UseRequestLocalization` runs **after** authentication. Language switch: `PUT /api/v1/auth/language` (saves the
   profile, sets the cookie, re-issues the tokens).
 - **React client**: Lingui with Ukrainian source texts — ``t`Зберегти` `` / `<Trans>` from `@lingui/react/macro`,
   ``msg`…` `` for module-level descriptors (shown with `t(descriptor)`), `msg({ message, context })` for the same word
   with different meanings (the context matches the server's `In("context", …)`). Catalogs:
-  `src/KOD.Client/src/locales/{uk,en}/messages.po`; after changing texts run `pnpm i18n:extract` and fill every English
+  `src/ODC.Client/src/locales/{uk,en}/messages.po`; after changing texts run `pnpm i18n:extract` and fill every English
   `msgstr`. The production build fails on a missing translation. Dates in Kyiv time through `shared/i18n/format.ts`,
   enum names through `shared/i18n/display.ts`.
 - `LocalizationTests` fails for any `T(…)`, `In(…)`, `ErrorMessage` or Guard field name literal in the C# sources without
@@ -312,7 +285,7 @@ Dependencies point inward: Web → Infrastructure → Application → Domain. Ce
 ## Security invariants (do not break)
 
 - The private key and its password never leave the browser: they go only to the Web Worker
-  (`src/KOD.Client/src/shared/signing/eusign.worker.js`, IIT EUSignCP-JS). The server receives the finished signature + certificate data,
+  (`src/ODC.Client/src/shared/signing/eusign.worker.js`, IIT EUSignCP-JS). The server receives the finished signature + certificate data,
   public OCSP/TSP/CMP messages through `/api/v1/eusign/proxy` (host allowlist; only hosts are logged), and for the file
   signing tool only file names and parameters (`POST /api/v1/signing/journal` → audit `signing.files-signed`).
 - Before signing a document the browser checks the file's SHA-256 against the registered one.
@@ -345,64 +318,52 @@ Dependencies point inward: Web → Infrastructure → Application → Domain. Ce
 
 ## Logging
 
-Serilog (`Hosting/LoggingExtensions.cs`, `LoggingOptions`): console, daily rolling file `App_Data/logs/kod-YYYYMMDD.log`
+Serilog (`Hosting/LoggingExtensions.cs`, `LoggingOptions`): console, daily rolling file `App_Data/logs/odc-YYYYMMDD.log`
 (31 files), PostgreSQL table `logs` (auto-created, 90-day retention). One line per request (`UseRequestLogging`): pages and
 API at Information, static files, images and the SignalR connection at Debug, >3 s Warning, failures Error. Levels in
 `Serilog:MinimumLevel`. Use `[LoggerMessage]` partial methods for new log statements.
 
-## Design system notes
-
-- Monochrome Diia-like style, Manrope (fonts in `shared/styles/fonts`), Lucide icons (`lucide-react` through `<Icon>`).
-- Buttons and button-like controls have the "ink" hover: a `::before` fill of the theme's contrast colour fades in
-  (opacity, `--ds-hover-duration`/`--ds-hover-ease`; compose `ink` from `shared/styles/ink.module.css`). Hover shadows
-  transition with the same tokens — add `box-shadow` to the `transition` of anything that gains a shadow. Inverse
-  surfaces flip the fill colours (`data-inverse`). Inputs show focus with the border only.
-- Toasts are monochrome cards on the inverse surface; only the icon takes the tone colour (`--ds-color-*-on-inverse`).
-- Brand: the mark is the message `К` (English "C") and the short name `КОД` (English "ODC"), on the server too (e-mail header,
-  authenticator issuer).
-- Popovers (`Select`, `DatePicker`) are `popover="manual"` panels in the top layer, placed next to their control, so
-  they also open above modal dialogs.
-- Scrollbars of dialogs, listboxes and the manual's contents are styled; in Chromium do not set `scrollbar-width`
-  on them (it disables the `::-webkit-scrollbar` styles).
-
 ## Gotchas learned the hard way
+
+Client-only gotchas (CSS modules, CSP and Vite, Vitest cache, the manual) are in `src/ODC.Client/CLAUDE.md`.
+
 
 - **EF Core:** filter before projecting into a record (`Where` on a projected record's property cannot be translated).
   Calling .NET methods (e.g. `Texts.T`, `StoredText.Display`) is fine only in the final projection. The InMemory test
   provider does not catch untranslatable queries — check new queries against PostgreSQL in the browser.
-- Manual performance: topics use `content-visibility: auto`; `HelpPage` renders them once (`data-help-measuring`) to
-  remember real heights so anchors land exactly. Keep that when changing the manual's layout. Its scroll, search
-  highlight and contents tracking run in animation frames, which a hidden browser tab pauses.
 - PAdES has no signing-time attribute; verification shows the signature time-stamp, else the PDF `/M` time.
 - Cumulative signing could only be checked structurally here: producing real signatures needs a qualified key, so test
   append flows with the user (CAdES detached/enveloped, PAdES, ASiC-S/E, sequential and parallel routes).
   A PDF without `/ByteRange` has no signatures (the library would report "damaged data").
 - The audit log category filter uses the address parameter `category` (the API's `Action` prefix), not `action`.
-- **CSS module without a used class is dropped**: importing a `.module.css` only for its side effects emits no CSS —
-  use at least one of its classes (`global.root` on the root element keeps the global styles).
-- **CSP and Vite**: `script-src 'self'` and `font-src 'self'` forbid `data:` URLs, so `build.assetsInlineLimit` is 0
-  (Vite would inline small fonts). `img-src` allows `data:` (the authenticator QR code is an `<img>` with an SVG data URL).
 - **Record contracts**: validation attributes go on the primary constructor parameters (`[Required] string Body`), never
   `[property: Required]` — MVC throws (500) for the latter. `ApiContractTests` checks every contract.
 - **API JSON**: enums are serialized as names and numbers strictly as numbers, for controllers and the OpenAPI document
   alike (`ConfigureJson` in `WebServiceCollectionExtensions`); otherwise the generated types say `number | string`.
   A computed form property needs `[BindNever]` or it shows up in the OpenAPI request body.
+- **React Compiler runs before the Lingui macro** (`vite.config.ts`): a static element inside `<Trans>` (e.g.
+  `<strong>Microsoft Authenticator</strong>`) can be hoisted into a memoized value, so the runtime message id no longer
+  matches the catalog and the page shows an id like `OFoRj4`. Keep `<Trans>` children dynamic or use a plain `t`.
+- **Bash heredocs** with Ukrainian text and backticks break in this shell (a TypeScript template literal is executed as
+  a command substitution): write edit scripts with the Write tool and run them with `node`.
 - **Antiforgery tokens are bound to the `sub` claim and its `Issuer`.** Every identity of a signed-in user (validated
-  JWT, the one issued during a refresh) must carry the token issuer (`urn:kod`), or a token issued in one request fails
+  JWT, the one issued during a refresh) must carry the token issuer (`urn:odc`), or a token issued in one request fails
   with 400 in the next. Testing token refresh: run the app with
   `--Authentication:Jwt:AccessTokenLifetime=00:00:10 --Authentication:Jwt:ClockSkew=00:00:01` after `--`.
-- **Vitest transform cache**: `import.meta.glob` results are cached in `node_modules/.vitest-cache`; after adding a
-  file a glob should find (e.g. a manual chapter) delete that folder if a test still sees the old list.
 - **JWT clock skew and SignalR**: a token past its expiry but within the skew is renewed on requests that can set
   cookies (`JwtAuthenticationHandler`); otherwise a SignalR connection opened with it closes at once and reconnects in
   a loop until the skew runs out.
-- Navigating the browser to the same address with another `#hash` does not reload the page (the client keeps its
-  language and state); reload explicitly when a test needs a fresh start.
 
 ## Verifying changes
 
 1. Build + tests with your configuration; for the client `pnpm typecheck && pnpm lint && pnpm test && pnpm build`.
-2. For UI changes start `kod-web-verify` (7181) via the preview tools; the JWT cookies are shared with 7180 (same host, same signing key in `App_Data/keys`).
+2. For UI changes start `odc-web-verify` (7181) via the preview tools; the JWT cookies are shared with 7180 (same host, same signing key in `App_Data/keys`).
    If the pane is signed out, ask the user to sign in in the Browser pane (2FA) — do not use their credentials.
+   To test sign-in or activation end to end without touching the user's data, run against a separate database with
+   its own key: `ConnectionStrings__Database` (same server, another database name), `Authentication__Jwt__SigningKeyPath`
+   (a throwaway P-256 PEM — a different database means different Data Protection keys, and without a PEM the app would
+   regenerate and overwrite `App_Data/keys/jwt-signing-key.bin` shared with 7180), `Email__PickupDirectory`,
+   `Seed__DemoData=false`. Activate the seeded admin with the code from the `.eml` file and compute TOTP codes from the key
+   shown on the setup page. Never print the connection string.
 3. Check console/server errors (`preview_logs`), use `javascript_tool` for computed state and `find`/refs for clicks.
 4. Report what was and was not verified; restore emulated viewports; stop your verification server.

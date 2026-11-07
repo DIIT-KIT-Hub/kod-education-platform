@@ -1,3 +1,0 @@
-# Build output (served by KOD.Web from here in development, copied into ClientApp on publish).
-dist/
-*.tsbuildinfo

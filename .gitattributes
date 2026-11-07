@@ -14,4 +14,4 @@
 *.xlsx    binary
 
 # The official signing library is vendored as-is.
-src/KOD.Web/wwwroot/lib/eusign/** -text -diff linguist-vendored
+src/ODC.Web/wwwroot/lib/eusign/** -text -diff linguist-vendored

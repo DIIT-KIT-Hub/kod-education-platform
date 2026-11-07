@@ -13,7 +13,7 @@
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
 
     <Company>DIIT KIT Hub</Company>
-    <Product>KOD — Organizational Documents Cabinet</Product>
+    <Product>ODC — Organizational Documents Cabinet</Product>
     <Copyright>© DIIT KIT Hub</Copyright>
     <NeutralLanguage>en</NeutralLanguage>
   </PropertyGroup>
@@ -22,8 +22,8 @@
     <AdditionalFiles Include="$(MSBuildThisFileDirectory)stylecop.json" Link="stylecop.json" />
   </ItemGroup>
 
-  <!-- Interface translations (KOD.Domain.Localization.Texts): Localization/<language>/*.json, keyed by the Ukrainian text. -->
+  <!-- Interface translations (ODC.Domain.Localization.Texts): Localization/<language>/*.json, keyed by the Ukrainian text. -->
   <ItemGroup>
-    <EmbeddedResource Include="Localization\**\*.json" LogicalName="kod-i18n:%(RecursiveDir)%(Filename)%(Extension)" WithCulture="false" />
+    <EmbeddedResource Include="Localization\**\*.json" LogicalName="odc-i18n:%(RecursiveDir)%(Filename)%(Extension)" WithCulture="false" />
   </ItemGroup>
 </Project>
