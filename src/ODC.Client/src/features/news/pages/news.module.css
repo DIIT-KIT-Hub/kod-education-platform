@@ -13,6 +13,13 @@
     grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr));
 }
 
+/* Wide screens: one more column instead of ever larger cards. */
+@media (min-width: 1600px) {
+    .grid {
+        grid-template-columns: repeat(auto-fill, minmax(min(100%, 16rem), 1fr));
+    }
+}
+
 .card {
     display: flex;
     flex-direction: column;

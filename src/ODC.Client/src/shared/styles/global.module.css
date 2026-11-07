@@ -4,7 +4,13 @@
  * controls, bold geometric typography and calm, always-on motion (animations ignore prefers-reduced-motion by product
  * decision). Everything else is styled by CSS Modules next to the components.
  *
- * Breakpoints (mobile-first): sm ≥ 480, md ≥ 768, lg ≥ 1024, xl ≥ 1280, 2xl ≥ 1536.
+ * Breakpoints (mobile-first): sm ≥ 480, md ≥ 768, lg ≥ 1024, xl ≥ 1280, 2xl ≥ 1536, wide ≥ 1600 (Material 3
+ * "extra-large": more columns and wider side panels, not only bigger type).
+ * Fluid scale: the root font size grows from 16 px at a 1280 px wide viewport to 20 px at 2560 px, and every rem-based
+ * size (type, space, radii, controls, panels, the container) grows with it. Media queries are not affected (em/px in
+ * media queries follow the browser's initial font size, not the root). Bounds are in % so the user's font setting and
+ * browser zoom still apply. Keep max/min small (1.25 here, ≤ 2.5 is the usual WCAG 1.4.4 bound): the browser font-size
+ * setting scales text fully; browser zoom reaches 2× text at 200 % below 1280 px and at 250 % on 2560 px screens.
  * Shared keyframes are global (ds-*) and used through the --ds-anim-* tokens, so every module animates the same way.
  */
 
@@ -127,7 +133,7 @@
     --ds-anim-spin: ds-spin 0.8s linear infinite;
     --ds-anim-pulse: ds-pulse 1.6s var(--ds-ease-in-out) infinite;
 
-    --ds-container: 1360px;
+    --ds-container: 85rem;
     --ds-control-height: 3rem;
     --ds-control-height-sm: 2.25rem;
     --ds-control-height-lg: 3.5rem;
@@ -146,6 +152,14 @@
 @media (min-width: 1280px) {
     :global(:root) {
         --ds-gutter: 2rem;
+    }
+}
+
+/* Wide screens: the page takes more of the width; card grids (auto-fill) gain columns. */
+@media (min-width: 1600px) {
+    :global(:root) {
+        --ds-container: 96rem;
+        --ds-gutter: 2.5rem;
     }
 }
 
@@ -233,6 +247,8 @@
 }
 
 :global(html) {
+    /* 16 px up to a 1280 px viewport, then linear to 20 px at 2560 px (see the header). */
+    font-size: clamp(100%, 75% + 0.3125vw, 125%);
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
     scroll-behavior: smooth;

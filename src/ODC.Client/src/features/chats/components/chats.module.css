@@ -41,6 +41,13 @@
     }
 }
 
+/* Wide screens: a roomier chat list next to the conversation. */
+@media (min-width: 1600px) {
+    .page {
+        grid-template-columns: minmax(20rem, 26rem) minmax(0, 1fr);
+    }
+}
+
 /* List of chats */
 
 .sidebar {

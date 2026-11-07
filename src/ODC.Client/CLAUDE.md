@@ -131,6 +131,12 @@ there is none, `GET login/pending` (password already set → the authenticator s
   they also open above modal dialogs.
 - Scrollbars of dialogs, listboxes and the manual's contents are styled; in Chromium do not set `scrollbar-width`
   on them (it disables the `::-webkit-scrollbar` styles).
+- **Fluid scale** (`global.module.css`): the root font size is `clamp(100%, 75% + 0.3125vw, 125%)` — 16 px up to a
+  1280 px viewport, 20 px at 2560 px. Write every size in `rem` (never `px` for layout, type, space or panels) so it
+  scales; `px` stays for hairlines, shadows, blur and media-query breakpoints (media queries ignore the root size).
+  `--ds-container` is 85rem, 96rem from 1600 px. Wide layouts (`@media (min-width: 1600px)`, Material 3
+  "extra-large") add columns or widen side panels (news grid 16rem cards, chat list 20–26rem) instead of only growing.
+  Do not use CSS `zoom`, `transform: scale` or `vw`-only font sizes; check new layouts at 1366, 1920 and 2560 px.
 - Steppers: `Wizard` (`shared/ui`) for forms the user moves through freely (Back / Next); `StepProgress` for flows the
   server drives one step at a time (activation). Both share the same look.
 
