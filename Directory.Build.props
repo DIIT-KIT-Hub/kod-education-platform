@@ -22,8 +22,9 @@
     <AdditionalFiles Include="$(MSBuildThisFileDirectory)stylecop.json" Link="stylecop.json" />
   </ItemGroup>
 
-  <!-- Interface translations (ODC.Domain.Localization.Texts): Localization/<language>/*.json, keyed by the Ukrainian text. -->
+  <!-- Interface translations (ODC.Web.Shared.Localization.Texts): Shared/Localization/<language>/*.json, keyed by the
+       Ukrainian text. -->
   <ItemGroup>
-    <EmbeddedResource Include="Localization\**\*.json" LogicalName="odc-i18n:%(RecursiveDir)%(Filename)%(Extension)" WithCulture="false" />
+    <EmbeddedResource Include="Shared\Localization\**\*.json" LogicalName="odc-i18n:%(RecursiveDir)%(Filename)%(Extension)" WithCulture="false" />
   </ItemGroup>
 </Project>

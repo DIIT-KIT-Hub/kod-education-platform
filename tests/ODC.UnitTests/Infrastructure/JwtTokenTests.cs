@@ -9,8 +9,8 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
-using ODC.Infrastructure.Identity;
-using ODC.Infrastructure.Identity.Tokens;
+using ODC.Web.Infrastructure.Identity;
+using ODC.Web.Infrastructure.Identity.Tokens;
 
 namespace ODC.UnitTests.Infrastructure;
 

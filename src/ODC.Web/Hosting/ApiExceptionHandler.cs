@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using ODC.Domain.Common;
-using ODC.Domain.Localization;
+using ODC.Web.Shared.Kernel;
+using ODC.Web.Shared.Localization;
 
 namespace ODC.Web.Hosting;
 
@@ -27,6 +27,7 @@ internal sealed partial class ApiExceptionHandler(IProblemDetailsService problem
         {
             DomainException domain => (StatusCodes.Status400BadRequest, domain.Message),
             BadHttpRequestException bad => (bad.StatusCode, Texts.T("Некоректний запит.")),
+            UnauthorizedAccessException => (StatusCodes.Status403Forbidden, Texts.T("Недостатньо прав для виконання дії.")),
             _ => (StatusCodes.Status500InternalServerError, Texts.T("Сталася внутрішня помилка. Спробуйте пізніше.")),
         };
 

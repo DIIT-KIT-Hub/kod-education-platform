@@ -1,9 +1,9 @@
 using System.Text;
 using Microsoft.Extensions.Logging.Abstractions;
 using NetVips;
-using ODC.Application.Abstractions;
-using ODC.Domain.Media;
-using ODC.Infrastructure.Media;
+using ODC.Web.Infrastructure.Media;
+using ODC.Web.Shared.Domain.Media;
+using ODC.Web.Shared.Media;
 
 namespace ODC.UnitTests.Infrastructure;
 

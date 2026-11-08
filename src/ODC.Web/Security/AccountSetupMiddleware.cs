@@ -1,4 +1,4 @@
-using ODC.Domain.Localization;
+using ODC.Web.Shared.Localization;
 
 namespace ODC.Web.Security;
 

@@ -1,7 +1,7 @@
-using ODC.Domain.Access;
-using ODC.Domain.Common;
-using ODC.Domain.Organization;
-using ODC.Domain.Users;
+using ODC.Web.Shared.Domain.Access;
+using ODC.Web.Shared.Domain.Organization;
+using ODC.Web.Shared.Domain.Users;
+using ODC.Web.Shared.Kernel;
 
 namespace ODC.UnitTests.Domain;
 

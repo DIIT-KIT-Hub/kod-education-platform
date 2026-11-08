@@ -7,18 +7,18 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SignalR;
-using ODC.Application.Abstractions;
-using ODC.Application.Features.Chats;
-using ODC.Application.Features.News.Discussion;
-using ODC.Application.Features.Notifications;
-using ODC.Domain.Localization;
-using ODC.Infrastructure.Identity.Tokens;
-using ODC.Web.Api;
-using ODC.Web.Identity;
-using ODC.Web.Localization;
+using ODC.Web.Endpoints;
+using ODC.Web.Features.Auth.Activation;
+using ODC.Web.Features.Chats;
+using ODC.Web.Features.News.Discussion;
+using ODC.Web.Features.Notifications;
+using ODC.Web.Features.Signing;
+using ODC.Web.Infrastructure.Identity.Authentication;
+using ODC.Web.Infrastructure.Identity.Tokens;
 using ODC.Web.Realtime;
 using ODC.Web.Security;
-using ODC.Web.Signing;
+using ODC.Web.Shared.Identity;
+using ODC.Web.Shared.Localization;
 
 namespace ODC.Web.Hosting;
 
@@ -37,15 +37,15 @@ internal static class WebServiceCollectionExtensions
         /// <returns>The service collection.</returns>
         public IServiceCollection AddWebServices(IConfiguration configuration)
         {
-            services.AddControllers(static options => options.Filters.Add<ODC.Web.Api.ApiAntiforgeryFilter>())
-                .AddJsonOptions(static options => ConfigureJson(options.JsonSerializerOptions));
-
-            // The OpenAPI document describes types with these options: keep them equal to the controllers' ones, so the
-            // generated client types match the real payloads (enums as names, numbers as numbers).
+            // The REST API (minimal APIs) and the OpenAPI document share these options, so the generated client types
+            // match the real payloads (enums as names, numbers as numbers).
             services.ConfigureHttpJsonOptions(static options => ConfigureJson(options.SerializerOptions));
             services.AddProblemDetails();
+
+            // Minimal API validation (.NET 10, source generated): the data annotations of request records answer 400.
+            services.AddValidation();
             services.AddExceptionHandler<ApiExceptionHandler>();
-            services.AddOpenApi();
+            services.AddOpenApi(static options => options.AddSchemaTransformer<NonNullableEnumSchemaTransformer>());
 
             // Hub messages carry the same DTOs as the REST API: the same JSON conventions.
             services.AddSignalR().AddJsonProtocol(static options => ConfigureJson(options.PayloadSerializerOptions));
@@ -199,7 +199,7 @@ internal static class WebServiceCollectionExtensions
                 });
 
                 // Activation codes: per address the database limits them; per client this stops sweeps over many addresses.
-                options.AddPolicy(AccountActivationController.RateLimitPolicy, static context =>
+                options.AddPolicy(ActivationApi.RateLimitPolicy, static context =>
                     RateLimitPartition.GetFixedWindowLimiter(
                         $"activation:{context.Connection.RemoteIpAddress}",
                         static _ => new FixedWindowRateLimiterOptions { PermitLimit = 30, Window = TimeSpan.FromMinutes(10) }));

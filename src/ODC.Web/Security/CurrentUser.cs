@@ -1,7 +1,7 @@
 using System.Collections.Frozen;
 using System.Security.Claims;
-using ODC.Application.Abstractions;
-using ODC.Infrastructure.Identity;
+using ODC.Web.Infrastructure.Identity;
+using ODC.Web.Shared.Identity;
 
 namespace ODC.Web.Security;
 

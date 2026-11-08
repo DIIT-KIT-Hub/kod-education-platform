@@ -1,7 +1,7 @@
-using ODC.Application.Common.Access;
-using ODC.Application.Common.Paging;
-using ODC.Application.Common.Text;
-using ODC.Infrastructure.Text;
+using ODC.Web.Infrastructure.Text;
+using ODC.Web.Shared.Access;
+using ODC.Web.Shared.Paging;
+using ODC.Web.Shared.Text;
 
 namespace ODC.UnitTests.Application;
 

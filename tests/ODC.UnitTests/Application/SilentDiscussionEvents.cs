@@ -1,4 +1,4 @@
-using ODC.Application.Features.News.Discussion;
+using ODC.Web.Features.News.Discussion;
 
 namespace ODC.UnitTests.Application;
 

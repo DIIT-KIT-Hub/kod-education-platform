@@ -8,9 +8,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\ODC.Domain\ODC.Domain.csproj" />
-    <ProjectReference Include="..\..\src\ODC.Application\ODC.Application.csproj" />
-    <ProjectReference Include="..\..\src\ODC.Infrastructure\ODC.Infrastructure.csproj" />
     <ProjectReference Include="..\..\src\ODC.Web\ODC.Web.csproj" />
   </ItemGroup>
 

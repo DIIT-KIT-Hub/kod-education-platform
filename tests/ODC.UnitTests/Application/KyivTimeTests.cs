@@ -1,4 +1,4 @@
-using ODC.Application.Common.Text;
+using ODC.Web.Shared.Text;
 
 namespace ODC.UnitTests.Application;
 

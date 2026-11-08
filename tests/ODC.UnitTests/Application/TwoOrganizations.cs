@@ -1,27 +1,28 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using ODC.Application.Abstractions;
-using ODC.Application.Common.Access;
-using ODC.Application.Common.Email;
-using ODC.Application.Common.Files;
-using ODC.Application.Common.Results;
-using ODC.Application.Features.Chats;
-using ODC.Application.Features.Media;
-using ODC.Application.Features.News;
-using ODC.Application.Features.News.Discussion;
-using ODC.Application.Features.Notifications;
-using ODC.Application.Features.Organization;
-using ODC.Application.Features.Tickets;
-using ODC.Application.Features.Users;
-using ODC.Domain.Access;
-using ODC.Domain.Media;
-using ODC.Domain.News;
-using ODC.Domain.Organization;
-using ODC.Domain.Users;
-using ODC.Infrastructure.Persistence;
-using ODC.Infrastructure.Text;
+using ODC.Web.Features;
+using ODC.Web.Features.Admin.Users;
+using ODC.Web.Features.Chats;
+using ODC.Web.Features.News.Discussion;
+using ODC.Web.Features.News.Domain;
+using ODC.Web.Features.Notifications;
+using ODC.Web.Infrastructure.Persistence;
+using ODC.Web.Infrastructure.Text;
+using ODC.Web.Messaging;
+using ODC.Web.Shared.Access;
+using ODC.Web.Shared.Auditing;
+using ODC.Web.Shared.Domain.Access;
+using ODC.Web.Shared.Domain.Media;
+using ODC.Web.Shared.Domain.Organization;
+using ODC.Web.Shared.Domain.Users;
+using ODC.Web.Shared.Email;
+using ODC.Web.Shared.Files;
+using ODC.Web.Shared.Identity;
+using ODC.Web.Shared.Kernel;
+using ODC.Web.Shared.Media;
+using ODC.Web.Shared.Text;
 
 namespace ODC.UnitTests.Application;
 
@@ -172,22 +173,31 @@ internal sealed class TwoOrganizations : IDisposable
     public Services As(User user)
     {
         var permissions = new PermissionResolver(Db).GetEffectivePermissionsAsync(user.Id, CancellationToken.None).GetAwaiter().GetResult();
-        var currentUser = new FakeCurrentUser(user.Id, permissions);
-        var scope = new AccessScope(Db, currentUser);
-        var audit = new FakeAudit();
-        var media = new MediaLibrary(Db, new FakeImageProcessor(), Storage);
-        var notifier = new Notifier(Db, NotificationEvents, TimeProvider.System, NullLogger<Notifier>.Instance);
-        var attachments = new AttachmentStore(new FakeImageProcessor(), Files);
-        return new Services(
-            scope,
-            new UserService(Db, currentUser, new FakeIdentity(Db), new PermissionResolver(Db), scope, new FakeSpreadsheet(this), audit, Emails, Options.Create(new EmailOptions { SiteUrl = "https://odc.test/" }), TimeProvider.System),
-            new OrganizationService(Db, currentUser, scope, audit),
-            new NewsService(Db, currentUser, scope, new FakeMarkdown(), new RichTextSanitizer(), media, audit, TimeProvider.System),
-            new NewsDiscussionService(Db, currentUser, scope, new SilentDiscussionEvents(), audit, notifier, TimeProvider.System),
-            new MediaService(currentUser, media),
-            new ChatService(Db, currentUser, new RichTextSanitizer(), attachments, Files, ChatEvents, notifier, TimeProvider.System),
-            new TicketService(Db, currentUser, attachments, Files, notifier, new TicketMail(Db, Emails, Options.Create(new EmailOptions { SiteUrl = "https://odc.test/" })), TimeProvider.System),
-            new NotificationService(Db, currentUser, NotificationEvents, TimeProvider.System));
+        var services = new ServiceCollection()
+            .AddLogging()
+            .AddApplication();
+
+        // The infrastructure of production (AddInfrastructure) is replaced by the shared in-memory database and fakes.
+        services.AddSingleton(Db);
+        services.AddSingleton<IDomainEventSource>(Db);
+        services.AddSingleton<ICurrentUser>(new FakeCurrentUser(user.Id, permissions));
+        services.AddSingleton(TimeProvider.System);
+        services.AddSingleton<IImageProcessor, FakeImageProcessor>();
+        services.AddSingleton<IMediaStorage>(Storage);
+        services.AddSingleton<IFileStorage>(Files);
+        services.AddSingleton<IChatEvents>(ChatEvents);
+        services.AddSingleton<INotificationEvents>(NotificationEvents);
+        services.AddSingleton<INewsDiscussionEvents, SilentDiscussionEvents>();
+        services.AddSingleton<IEmailOutbox>(Emails);
+        services.AddSingleton<IIdentityService>(new FakeIdentity(Db));
+        services.AddSingleton<IUserSpreadsheet>(new FakeSpreadsheet(this));
+        services.AddSingleton<IAuditLogger, FakeAudit>();
+        services.AddSingleton<IMarkdownRenderer, FakeMarkdown>();
+        services.AddSingleton<IRichTextSanitizer, RichTextSanitizer>();
+        services.AddSingleton(Options.Create(new EmailOptions { SiteUrl = "https://odc.test/" }));
+
+        var provider = services.BuildServiceProvider();
+        return new Services(provider);
     }
 
     /// <summary>
@@ -249,27 +259,31 @@ internal sealed class TwoOrganizations : IDisposable
     }
 
     /// <summary>
-    /// The services of one user.
+    /// The services of one user, resolved from a container built like production's (handlers wrapped in the pipeline).
     /// </summary>
-    /// <param name="Scope">The access scope.</param>
-    /// <param name="Users">The user service.</param>
-    /// <param name="Organization">The organization service.</param>
-    /// <param name="News">The news service.</param>
-    /// <param name="Discussion">The news discussion service.</param>
-    /// <param name="Media">The image upload service.</param>
-    /// <param name="Chats">The chat service.</param>
-    /// <param name="Tickets">The request service.</param>
-    /// <param name="Notifications">The notification service.</param>
-    internal sealed record Services(
-        IAccessScope Scope,
-        IUserService Users,
-        IOrganizationService Organization,
-        INewsService News,
-        INewsDiscussionService Discussion,
-        IMediaService Media,
-        IChatService Chats,
-        ITicketService Tickets,
-        INotificationService Notifications);
+    /// <param name="provider">The container.</param>
+    internal sealed class Services(IServiceProvider provider)
+    {
+        /// <summary>Gets the access scope.</summary>
+        public IAccessScope Scope => provider.GetRequiredService<IAccessScope>();
+
+        /// <summary>Gets the chat slices as this user calls them.</summary>
+        public ChatClient Chats => new(this);
+
+        /// <summary>
+        /// Sends a request through its handler and the pipeline, as an endpoint would.
+        /// </summary>
+        /// <typeparam name="TResponse">The answer type.</typeparam>
+        /// <param name="request">The request.</param>
+        /// <returns>The answer.</returns>
+        public Task<TResponse> SendAsync<TResponse>(IRequest<TResponse> request)
+        {
+            ArgumentNullException.ThrowIfNull(request);
+            var contract = typeof(IRequestHandler<,>).MakeGenericType(request.GetType(), typeof(TResponse));
+            var handler = provider.GetRequiredService(contract);
+            return (Task<TResponse>)contract.GetMethod(nameof(IRequestHandler<,>.HandleAsync))!.Invoke(handler, [request, CancellationToken.None])!;
+        }
+    }
 
     /// <summary>
     /// An in-memory image storage.

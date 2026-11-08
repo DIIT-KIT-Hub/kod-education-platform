@@ -1,8 +1,8 @@
 using System.Globalization;
-using ODC.Application;
-using ODC.Domain.Localization;
-using ODC.Infrastructure;
+using ODC.Web.Features;
 using ODC.Web.Hosting;
+using ODC.Web.Infrastructure;
+using ODC.Web.Shared.Localization;
 using Serilog;
 
 // Ukrainian outside of requests too (background services, startup), whatever the server OS language is.

@@ -6,25 +6,35 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ODC.Application\ODC.Application.csproj" />
-    <ProjectReference Include="..\ODC.Infrastructure\ODC.Infrastructure.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
+    <PackageReference Include="ClosedXML" />
+    <PackageReference Include="CsvHelper" />
+    <PackageReference Include="EFCore.NamingConventions" />
+    <PackageReference Include="HtmlSanitizer" />
+    <PackageReference Include="MailKit" />
+    <PackageReference Include="Markdig" />
+    <!-- libvips: fast, low-memory image processing with an AVIF (AV1) encoder; native binaries for Windows, Linux and macOS. -->
+    <PackageReference Include="NetVips" />
+    <PackageReference Include="NetVips.Native" />
+    <PackageReference Include="Microsoft.AspNetCore.DataProtection.EntityFrameworkCore" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <!-- JWT access tokens (ES256): the token handler used by ASP.NET Core JwtBearer. -->
+    <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
     <PackageReference Include="QRCoder" />
     <PackageReference Include="Scalar.AspNetCore" />
     <PackageReference Include="Serilog.AspNetCore" />
     <PackageReference Include="Serilog.Sinks.Postgresql.Alternative" />
+    <PackageReference Include="System.Security.Cryptography.Pkcs" />
   </ItemGroup>
 
   <ItemGroup>
     <!-- Translations are embedded resources (Directory.Build.props), not published content. -->
-    <Content Remove="Localization\**" />
+    <Content Remove="Shared\Localization\**" />
   </ItemGroup>
 
   <ItemGroup>

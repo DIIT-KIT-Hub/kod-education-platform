@@ -1,5 +1,5 @@
-using ODC.Domain.Common;
-using ODC.Domain.Documents;
+using ODC.Web.Features.Documents.Domain;
+using ODC.Web.Shared.Kernel;
 
 namespace ODC.UnitTests.Domain;
 

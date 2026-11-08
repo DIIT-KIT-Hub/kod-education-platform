@@ -1,7 +1,7 @@
-using ODC.Application.Common.Files;
-using ODC.Application.Common.Results;
-using ODC.Application.Features.Chats;
-using ODC.Domain.Chats;
+using ODC.Web.Features.Chats;
+using ODC.Web.Features.Chats.Domain;
+using ODC.Web.Shared.Files;
+using ODC.Web.Shared.Kernel;
 
 namespace ODC.UnitTests.Application;
 

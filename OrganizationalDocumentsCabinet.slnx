@@ -10,9 +10,6 @@
     <File Path="stylecop.json" />
   </Folder>
   <Folder Name="/src/">
-    <Project Path="src/ODC.Domain/ODC.Domain.csproj" />
-    <Project Path="src/ODC.Application/ODC.Application.csproj" />
-    <Project Path="src/ODC.Infrastructure/ODC.Infrastructure.csproj" />
     <Project Path="src/ODC.Web/ODC.Web.csproj" />
   </Folder>
   <Folder Name="/tests/">

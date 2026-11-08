@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.SignalR;
-using ODC.Application.Features.Chats;
+using ODC.Web.Features.Chats;
 
 namespace ODC.Web.Realtime;
 

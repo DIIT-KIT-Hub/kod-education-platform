@@ -1,9 +1,10 @@
-using ODC.Domain.Localization;
-using ODC.Infrastructure.Persistence.Seeding;
-using ODC.Web.Media;
+using ODC.Web.Endpoints;
+using ODC.Web.Features.Media;
+using ODC.Web.Features.Signing;
+using ODC.Web.Infrastructure.Persistence.Seeding;
 using ODC.Web.Realtime;
 using ODC.Web.Security;
-using ODC.Web.Signing;
+using ODC.Web.Shared.Localization;
 using Scalar.AspNetCore;
 
 namespace ODC.Web.Hosting;
@@ -57,7 +58,7 @@ internal static class WebApplicationExtensions
             app.UseMiddleware<AccountSetupMiddleware>();
 
             app.MapStaticAssets().AllowAnonymous();
-            app.MapControllers();
+            app.MapApiEndpoints(typeof(IEndpoint).Assembly);
 
             // SignalR checks the user only when connecting: closing at the token expiry makes the client reconnect with
             // a fresh token, so a blocked user or an ended sign-in stops receiving chat messages.

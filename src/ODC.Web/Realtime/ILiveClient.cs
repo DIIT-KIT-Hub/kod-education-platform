@@ -1,6 +1,6 @@
-using ODC.Application.Common.Models;
-using ODC.Application.Features.Chats;
-using ODC.Application.Features.Notifications;
+using ODC.Web.Features.Chats;
+using ODC.Web.Features.Notifications;
+using ODC.Web.Shared.Models;
 
 namespace ODC.Web.Realtime;
 

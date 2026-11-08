@@ -1,12 +1,12 @@
-using ODC.Application.Common.Access;
-using ODC.Application.Common.Files;
-using ODC.Application.Common.Results;
-using ODC.Application.Features.News;
-using ODC.Application.Features.Organization;
-using ODC.Application.Features.Users;
-using ODC.Domain.Access;
-using ODC.Domain.News;
-using ODC.Domain.Users;
+using ODC.Web.Features.Admin.Users;
+using ODC.Web.Features.News;
+using ODC.Web.Features.News.Domain;
+using ODC.Web.Features.Structure.Units;
+using ODC.Web.Shared.Access;
+using ODC.Web.Shared.Domain.Access;
+using ODC.Web.Shared.Domain.Users;
+using ODC.Web.Shared.Files;
+using ODC.Web.Shared.Kernel;
 
 namespace ODC.UnitTests.Application;
 
@@ -53,7 +53,7 @@ public sealed class ScopedAdministrationTests : IDisposable
         var services = _world.As(_world.Admin);
 
         var scope = await services.Scope.GetAdministrationScopeAsync(Permissions.Users.Manage, CancellationToken.None);
-        var users = await services.Users.ListAsync(new UserQuery { PageSize = 100 }, CancellationToken.None);
+        var users = await services.SendAsync(new ListUsers.Query { PageSize = 100 });
 
         Assert.True(scope.IsCabinetWide);
         Assert.Contains(users.Ok().Items, u => u.Id == _world.EmployeeB.Id);
@@ -70,7 +70,7 @@ public sealed class ScopedAdministrationTests : IDisposable
     [Fact]
     public async Task Hr_of_one_organization_lists_only_its_accounts()
     {
-        var result = await _world.As(_world.HrA).Users.ListAsync(new UserQuery { PageSize = 100 }, CancellationToken.None);
+        var result = await _world.As(_world.HrA).SendAsync(new ListUsers.Query { PageSize = 100 });
 
         var ids = result.Ok().Items.Select(static u => u.Id).ToHashSet();
         Assert.Contains(_world.EmployeeA.Id, ids);
@@ -82,7 +82,7 @@ public sealed class ScopedAdministrationTests : IDisposable
     [Fact]
     public async Task Shared_accounts_show_the_position_in_the_administrators_organization()
     {
-        var result = await _world.As(_world.HrA).Users.ListAsync(new UserQuery { Search = "shared" }, CancellationToken.None);
+        var result = await _world.As(_world.HrA).SendAsync(new ListUsers.Query { Search = "shared" });
 
         Assert.Equal(_world.AHr.Name, Assert.Single(result.Ok().Items).Unit);
     }
@@ -90,7 +90,7 @@ public sealed class ScopedAdministrationTests : IDisposable
     [Fact]
     public async Task Unit_filter_includes_nested_units()
     {
-        var result = await _world.As(_world.Admin).Users.ListAsync(new UserQuery { UnitId = _world.S.Id }, CancellationToken.None);
+        var result = await _world.As(_world.Admin).SendAsync(new ListUsers.Query { UnitId = _world.S.Id });
 
         Assert.Equal(_world.EmployeeS.Id, Assert.Single(result.Ok().Items).Id);
     }
@@ -98,12 +98,12 @@ public sealed class ScopedAdministrationTests : IDisposable
     [Fact]
     public async Task Hr_of_one_organization_cannot_open_or_change_accounts_of_another()
     {
-        var users = _world.As(_world.HrA).Users;
+        var users = _world.As(_world.HrA);
 
-        var details = await users.GetAsync(_world.EmployeeB.Id, CancellationToken.None);
-        var update = await users.UpdateAsync(_world.EmployeeB.Id, Command(_world.EmployeeB, new PositionInput(_world.BProj.Id, _world.Employee.Id, "Змінено", true)), CancellationToken.None);
-        var block = await users.SetActiveAsync(_world.EmployeeB.Id, isActive: false, CancellationToken.None);
-        var password = await users.ResetPasswordAsync(_world.EmployeeB.Id, CancellationToken.None);
+        var details = await users.SendAsync(new GetUser.Query(_world.EmployeeB.Id));
+        var update = await users.SendAsync(new UpdateUser.Command(_world.EmployeeB.Id, Command(_world.EmployeeB, new PositionInput(_world.BProj.Id, _world.Employee.Id, "Змінено", true))));
+        var block = await users.SendAsync(new SetUserStatus.Command(_world.EmployeeB.Id, false));
+        var password = await users.SendAsync(new ResetUserPassword.Command(_world.EmployeeB.Id));
 
         Assert.Equal(ErrorType.NotFound, details.Failure());
         Assert.Equal(ErrorType.NotFound, update.Failure());
@@ -114,11 +114,11 @@ public sealed class ScopedAdministrationTests : IDisposable
     [Fact]
     public async Task Positions_can_be_assigned_only_in_own_organizations()
     {
-        var users = _world.As(_world.HrA).Users;
+        var users = _world.As(_world.HrA);
 
-        var foreign = await users.CreateAsync(NewUser("new.b@example.com", new PositionInput(_world.BProj.Id, _world.Employee.Id, null, true)), CancellationToken.None);
-        var none = await users.CreateAsync(NewUser("new.none@example.com"), CancellationToken.None);
-        var own = await users.CreateAsync(NewUser("new.s@example.com", new PositionInput(_world.SDev.Id, _world.Employee.Id, null, true)), CancellationToken.None);
+        var foreign = await users.SendAsync(new CreateUser.Command(NewUser("new.b@example.com", new PositionInput(_world.BProj.Id, _world.Employee.Id, null, true))));
+        var none = await users.SendAsync(new CreateUser.Command(NewUser("new.none@example.com")));
+        var own = await users.SendAsync(new CreateUser.Command(NewUser("new.s@example.com", new PositionInput(_world.SDev.Id, _world.Employee.Id, null, true))));
 
         Assert.Equal(ErrorType.Forbidden, foreign.Failure());
         Assert.Equal(ErrorType.Validation, none.Failure());
@@ -128,10 +128,10 @@ public sealed class ScopedAdministrationTests : IDisposable
     [Fact]
     public async Task Details_say_what_the_administrator_may_change()
     {
-        var users = _world.As(_world.HrA).Users;
+        var users = _world.As(_world.HrA);
 
-        var own = (await users.GetAsync(_world.EmployeeA.Id, CancellationToken.None)).Ok();
-        var shared = (await users.GetAsync(_world.Shared.Id, CancellationToken.None)).Ok();
+        var own = (await users.SendAsync(new GetUser.Query(_world.EmployeeA.Id))).Ok();
+        var shared = (await users.SendAsync(new GetUser.Query(_world.Shared.Id))).Ok();
 
         Assert.True(own.CanEditAccount && own.CanEditPositions && own.CanManageSecurity);
         Assert.False(shared.CanEditAccount);
@@ -143,16 +143,16 @@ public sealed class ScopedAdministrationTests : IDisposable
     [Fact]
     public async Task Shared_accounts_keep_their_foreign_positions_and_personal_data()
     {
-        var users = _world.As(_world.HrA).Users;
+        var users = _world.As(_world.HrA);
         var positions = new[]
         {
             new PositionInput(_world.AHr.Id, _world.Employee.Id, "Інспектор", false),
             new PositionInput(_world.BProj.Id, _world.Employee.Id, null, true),
         };
 
-        var renamed = await users.UpdateAsync(_world.Shared.Id, Command(_world.Shared, positions) with { LastName = "Інше" }, CancellationToken.None);
-        var moved = await users.UpdateAsync(_world.Shared.Id, Command(_world.Shared, positions[0]), CancellationToken.None);
-        var blocked = await users.SetActiveAsync(_world.Shared.Id, isActive: false, CancellationToken.None);
+        var renamed = await users.SendAsync(new UpdateUser.Command(_world.Shared.Id, Command(_world.Shared, positions) with { LastName = "Інше" }));
+        var moved = await users.SendAsync(new UpdateUser.Command(_world.Shared.Id, Command(_world.Shared, positions[0])));
+        var blocked = await users.SendAsync(new SetUserStatus.Command(_world.Shared.Id, false));
 
         Assert.Equal(ErrorType.Forbidden, renamed.Failure());
         Assert.True(moved.IsSuccess);
@@ -164,10 +164,9 @@ public sealed class ScopedAdministrationTests : IDisposable
     [Fact]
     public async Task Positions_outside_own_organizations_cannot_be_added_to_shared_accounts()
     {
-        var result = await _world.As(_world.HrA).Users.UpdateAsync(
+        var result = await _world.As(_world.HrA).SendAsync(new UpdateUser.Command(
             _world.EmployeeA.Id,
-            Command(_world.EmployeeA, new PositionInput(_world.AHr.Id, _world.Employee.Id, null, true), new PositionInput(_world.BProj.Id, _world.Employee.Id, null, false)),
-            CancellationToken.None);
+            Command(_world.EmployeeA, new PositionInput(_world.AHr.Id, _world.Employee.Id, null, true), new PositionInput(_world.BProj.Id, _world.Employee.Id, null, false))));
 
         Assert.Equal(ErrorType.Forbidden, result.Failure());
     }
@@ -184,7 +183,7 @@ public sealed class ScopedAdministrationTests : IDisposable
             Row(6, "new.none@example.com", null),
         ];
 
-        var report = (await _world.As(_world.HrA).Users.ImportAsync(File(), dryRun: true, CancellationToken.None)).Ok();
+        var report = (await _world.As(_world.HrA).SendAsync(new ImportUsers.Command(File(), true))).Ok();
 
         Assert.Equal([3, 4, 5, 6], report.Errors.Select(static e => e.Row).Order());
     }
@@ -194,7 +193,7 @@ public sealed class ScopedAdministrationTests : IDisposable
     {
         _world.SheetRows = [Row(2, "new.a@example.com", "A-HR"), Row(3, _world.EmployeeA.Email!, "S-DEV")];
 
-        var report = (await _world.As(_world.HrA).Users.ImportAsync(File(), dryRun: false, CancellationToken.None)).Ok();
+        var report = (await _world.As(_world.HrA).SendAsync(new ImportUsers.Command(File(), false))).Ok();
 
         Assert.True(report.Applied);
         Assert.Equal((1, 1), (report.UsersToCreate, report.UsersToUpdate));
@@ -204,15 +203,15 @@ public sealed class ScopedAdministrationTests : IDisposable
     [Fact]
     public async Task Structure_managers_change_only_their_organizations()
     {
-        var organization = _world.As(_world.StewardA).Organization;
+        var organization = _world.As(_world.StewardA);
 
-        var topLevel = await organization.CreateAsync(Unit("NEW-ORG", _world.OrganizationType.Id, null), CancellationToken.None);
-        var inForeign = await organization.CreateAsync(Unit("NEW-B", _world.DivisionType.Id, _world.B.Id), CancellationToken.None);
-        var inOwn = await organization.CreateAsync(Unit("NEW-A", _world.DivisionType.Id, _world.A.Id), CancellationToken.None);
-        var editForeign = await organization.UpdateAsync(_world.BProj.Id, Unit("B-PROJ", _world.DivisionType.Id, _world.B.Id), CancellationToken.None);
-        var moveOut = await organization.UpdateAsync(_world.AHr.Id, Unit("A-HR", _world.DivisionType.Id, _world.B.Id), CancellationToken.None);
-        var demote = await organization.UpdateAsync(_world.S.Id, Unit("S", _world.DivisionType.Id, _world.A.Id), CancellationToken.None);
-        var rename = await organization.UpdateAsync(_world.A.Id, Unit("A", _world.OrganizationType.Id, null) with { Name = "Нова назва" }, CancellationToken.None);
+        var topLevel = await organization.SendAsync(new CreateUnit.Command(Unit("NEW-ORG", _world.OrganizationType.Id, null)));
+        var inForeign = await organization.SendAsync(new CreateUnit.Command(Unit("NEW-B", _world.DivisionType.Id, _world.B.Id)));
+        var inOwn = await organization.SendAsync(new CreateUnit.Command(Unit("NEW-A", _world.DivisionType.Id, _world.A.Id)));
+        var editForeign = await organization.SendAsync(new UpdateUnit.Command(_world.BProj.Id, Unit("B-PROJ", _world.DivisionType.Id, _world.B.Id)));
+        var moveOut = await organization.SendAsync(new UpdateUnit.Command(_world.AHr.Id, Unit("A-HR", _world.DivisionType.Id, _world.B.Id)));
+        var demote = await organization.SendAsync(new UpdateUnit.Command(_world.S.Id, Unit("S", _world.DivisionType.Id, _world.A.Id)));
+        var rename = await organization.SendAsync(new UpdateUnit.Command(_world.A.Id, Unit("A", _world.OrganizationType.Id, null) with { Name = "Нова назва" }));
 
         Assert.Equal(ErrorType.Forbidden, topLevel.Failure());
         Assert.Equal(ErrorType.Forbidden, inForeign.Failure());
@@ -226,7 +225,7 @@ public sealed class ScopedAdministrationTests : IDisposable
     [Fact]
     public async Task Cabinet_wide_administrators_create_top_level_organizations()
     {
-        var result = await _world.As(_world.Admin).Organization.CreateAsync(Unit("NEW-ORG", _world.OrganizationType.Id, null), CancellationToken.None);
+        var result = await _world.As(_world.Admin).SendAsync(new CreateUnit.Command(Unit("NEW-ORG", _world.OrganizationType.Id, null)));
 
         Assert.True(result.IsSuccess);
     }
@@ -234,11 +233,11 @@ public sealed class ScopedAdministrationTests : IDisposable
     [Fact]
     public async Task Structure_grid_and_options_are_limited_to_own_organizations()
     {
-        var organization = _world.As(_world.StewardA).Organization;
+        var organization = _world.As(_world.StewardA);
 
-        var list = await organization.ListAsync(new UnitQuery { PageSize = 100 }, CancellationToken.None);
-        var options = await organization.GetOptionsAsync(Permissions.Structure.Manage, CancellationToken.None);
-        var details = await organization.GetAsync(_world.BProj.Id, CancellationToken.None);
+        var list = await organization.SendAsync(new ListUnits.Query { PageSize = 100 });
+        var options = await organization.SendAsync(new ListUnitOptions.Query(Permissions.Structure.Manage));
+        var details = await organization.SendAsync(new GetUnit.Query(_world.BProj.Id));
 
         Assert.DoesNotContain(list.Ok().Items, u => u.Id == _world.B.Id || u.Id == _world.BProj.Id);
         Assert.Equal([_world.A.Id], options.Where(static o => o.Depth == 0).Select(static o => o.Id));
@@ -251,15 +250,15 @@ public sealed class ScopedAdministrationTests : IDisposable
         var foreign = _world.News("Новина B", _world.B);
         var cabinet = _world.News("Новина кабінету", null);
         var own = _world.News("Новина A", _world.A);
-        var news = _world.As(_world.StewardA).News;
+        var news = _world.As(_world.StewardA);
 
-        var created = await news.CreateAsync(Article(_world.S.Id), CancellationToken.None);
-        var forCabinet = await news.CreateAsync(Article(null), CancellationToken.None);
-        var forB = await news.CreateAsync(Article(_world.B.Id), CancellationToken.None);
-        var editForeign = await news.UpdateAsync(foreign.Id, Article(_world.A.Id), CancellationToken.None);
-        var deleteCabinet = await news.DeleteAsync(cabinet.Id, CancellationToken.None);
-        var managed = await news.ListAsync(new NewsQuery { IncludeDrafts = true, PageSize = 100 }, CancellationToken.None);
-        var read = await news.GetBySlugAsync(foreign.Slug, CancellationToken.None);
+        var created = await news.SendAsync(new CreateNewsArticle.Command(Article(_world.S.Id)));
+        var forCabinet = await news.SendAsync(new CreateNewsArticle.Command(Article(null)));
+        var forB = await news.SendAsync(new CreateNewsArticle.Command(Article(_world.B.Id)));
+        var editForeign = await news.SendAsync(new UpdateNewsArticle.Command(foreign.Id, Article(_world.A.Id)));
+        var deleteCabinet = await news.SendAsync(new DeleteNewsArticle.Command(cabinet.Id));
+        var managed = await news.SendAsync(new ListNews.Query { IncludeDrafts = true, PageSize = 100 });
+        var read = await news.SendAsync(new GetNewsArticle.BySlugQuery(foreign.Slug));
 
         Assert.True(created.IsSuccess);
         Assert.Equal(ErrorType.Forbidden, forCabinet.Failure());

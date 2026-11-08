@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.SignalR;
-using ODC.Application.Features.Notifications;
+using ODC.Web.Features.Notifications;
 
 namespace ODC.Web.Realtime;
 

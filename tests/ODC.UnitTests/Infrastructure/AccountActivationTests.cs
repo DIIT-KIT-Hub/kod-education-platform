@@ -4,13 +4,13 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
-using ODC.Application.Abstractions;
-using ODC.Application.Common.Email;
-using ODC.Domain.Access;
-using ODC.Domain.Users;
-using ODC.Infrastructure.Identity.Activation;
-using ODC.Infrastructure.Persistence;
 using ODC.UnitTests.Application;
+using ODC.Web.Features.Auth.Activation;
+using ODC.Web.Infrastructure.Persistence;
+using ODC.Web.Shared.Auditing;
+using ODC.Web.Shared.Domain.Access;
+using ODC.Web.Shared.Domain.Users;
+using ODC.Web.Shared.Email;
 
 namespace ODC.UnitTests.Infrastructure;
 

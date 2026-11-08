@@ -3,9 +3,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
-using ODC.Infrastructure.Identity;
-using ODC.Infrastructure.Identity.Tokens;
-using ODC.Infrastructure.Persistence;
+using ODC.Web.Infrastructure.Identity;
+using ODC.Web.Infrastructure.Identity.Tokens;
+using ODC.Web.Infrastructure.Persistence;
 
 namespace ODC.UnitTests.Infrastructure;
 

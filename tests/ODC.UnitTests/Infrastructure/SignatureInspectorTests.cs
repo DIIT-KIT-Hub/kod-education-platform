@@ -1,6 +1,6 @@
 using System.Text;
-using ODC.Domain.Documents;
-using ODC.Infrastructure.Signatures;
+using ODC.Web.Features.Documents.Domain;
+using ODC.Web.Infrastructure.Signatures;
 
 namespace ODC.UnitTests.Infrastructure;
 

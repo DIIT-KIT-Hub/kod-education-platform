@@ -1,7 +1,7 @@
 using System.Security.Cryptography;
 using System.Text;
 using Microsoft.AspNetCore.DataProtection;
-using ODC.Infrastructure.Identity;
+using ODC.Web.Infrastructure.Identity;
 
 namespace ODC.UnitTests.Infrastructure;
 

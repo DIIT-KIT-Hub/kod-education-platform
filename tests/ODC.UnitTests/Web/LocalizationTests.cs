@@ -1,6 +1,6 @@
 using System.Globalization;
 using System.Text.RegularExpressions;
-using ODC.Domain.Localization;
+using ODC.Web.Shared.Localization;
 
 namespace ODC.UnitTests.Web;
 
@@ -12,13 +12,11 @@ public sealed partial class LocalizationTests
     /// <summary>
     /// Source folders scanned for interface texts.
     /// </summary>
-    private static readonly string[] SourceProjects = ["ODC.Domain", "ODC.Application", "ODC.Infrastructure", "ODC.Web"];
+    private static readonly string[] SourceProjects = ["ODC.Web"];
 
     static LocalizationTests()
     {
-        Texts.Register(typeof(ODC.Application.DependencyInjection).Assembly);
-        Texts.Register(typeof(ODC.Infrastructure.DependencyInjection).Assembly);
-        Texts.Register(typeof(ODC.Web.Api.ApiControllerBase).Assembly);
+        Texts.Register(typeof(ODC.Web.Endpoints.IEndpoint).Assembly);
     }
 
     [Fact]

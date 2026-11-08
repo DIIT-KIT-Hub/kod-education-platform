@@ -5,8 +5,7 @@ signature (QES) made in the browser**, several organizations with arbitrary unit
 position, news, profile, admin panel, user manual. The UI is Ukrainian with a full English translation.
 `README.md` (Ukrainian) is the user/operator documentation; this file is the working guide for changing the code.
 Every project has its own `CLAUDE.md` with its layout, rules and pitfalls — read the one of the project you touch:
-`src/ODC.Domain`, `src/ODC.Application`, `src/ODC.Infrastructure`, `src/ODC.Web`, `src/ODC.Client`,
-`tests/ODC.UnitTests`.
+`src/ODC.Web` (the whole server: vertical slices, mediator, domain events), `src/ODC.Client`, `tests/ODC.UnitTests`.
 
 Naming: the solution is `OrganizationalDocumentsCabinet.slnx` (the English expansion of the logo), projects are `ODC.*`
 (namespaces too), and every runtime identifier uses the same prefix: cookies `__Host-odc.*`, claim types `odc:*`, JWT
@@ -34,7 +33,8 @@ dotnet run --project src/ODC.Web --launch-profile https
 
 # Migrations (local tool). Build with a non-Debug configuration if the app is running.
 dotnet tool restore
-dotnet ef migrations add <Name> --project src/ODC.Infrastructure --startup-project src/ODC.Web --configuration Release --output-dir Persistence/Migrations
+# (environment variable SkipClientBuild=true: -p: is not passed through dotnet ef)
+dotnet ef migrations add <Name> --project src/ODC.Web --configuration Lead --output-dir Infrastructure/Persistence/Migrations
 ```
 
 ```bash
@@ -67,34 +67,37 @@ Tooling on this machine: Windows, Git Bash + PowerShell, Node.js available (use 
 Store stub. Bash heredocs with Ukrainian text and quotes sometimes break — write scripts to the scratchpad with the
 Write tool and run them with `node`. `/tmp` in Git Bash is not visible to Windows Node: pass `$(cygpath -w /tmp/x.js)`.
 
-## Architecture (Clean Architecture, .NET 10 / C# 14 + React)
+## Architecture (vertical slices, .NET 10 / C# 14 + React)
+
+The server is **one project organized by feature** (vertical slice architecture): a use case is one file with its
+request, handler and minimal API endpoint, and a feature folder holds its slices, contracts, entities and EF Core
+configurations. The client is sliced by feature the same way. Details and rules: `src/ODC.Web/CLAUDE.md`.
 
 ```
-src/ODC.Domain          Entities + invariants (User, Role, StaffPosition, OrganizationUnit, UnitType, Document with
-                        signers and signatures, NewsArticle with NewsComment/NewsReaction/NewsView, Chat with ChatMember/
-                        ChatMessage/ChatAttachment/ChatReaction, Ticket with TicketMessage/TicketAttachment,
-                        Notification, MediaFile, AuditEntry),
-                        permission catalog, system roles, Guard, DomainException, localization catalog
-                        (Localization/Texts.cs, Languages.cs).
-src/ODC.Application     Use-case services (DocumentService, UserService, OrganizationService, UnitTypeService, RoleService,
-                        NewsService, NewsDiscussionService, ChatService, TicketService, NotificationService + Notifier,
-                        AttachmentStore, MediaService + MediaLibrary, ProfileService, DashboardService,
-                        AuditService, SigningJournal), DTOs, Result<T>/Error, paging, access rules (IPermissionResolver,
-                        IAccessScope, AdministrationScope), abstractions.
-src/ODC.Infrastructure  EF Core + PostgreSQL (snake_case, citext, xmin concurrency), migrations, seeding, Identity
-                        (full Identity schema, SignInManager with mandatory 2FA, claims factory, ES256 key + JWT service
-                        in Identity/Tokens, account activation codes in
-                        Identity/Activation), file storage, e-mail outbox (SMTP or pickup folder),
-                        images (libvips/NetVips → AVIF, media storage, cleanup job), HTML sanitizer, XLSX/CSV, Markdig,
-                        CMS signature inspector, audit logger.
-src/ODC.Web             Host: REST API (Api/, /api/v1), SignalR hub (Realtime/), JWT authentication handlers (Identity/),
-                        security middleware (Security/), images (Media/), signing proxy and trust list (Signing/),
-                        localization provider (Localization/), logging and SPA hosting (Hosting/). wwwroot holds only
-                        the IIT signing library (lib/eusign).
+src/ODC.Web             The server.
+  Features/<Area>/      Slices (Documents, Chats, Tickets, News (+ Discussion), Notifications, Admin (Users, Roles,
+                        Audit), Structure (Units, UnitTypes), Auth (+ Activation), Profile, Media, Signing, Home);
+                        Domain/ = the feature's entities and domain events, Persistence/ = their configurations.
+  Shared/               Kernel (Entity, Result/Error, Guard, IDomainEvent), Domain/ (entities several features use:
+                        User, Role and the permission catalog, OrganizationUnit, UnitType, MediaFile, AuditEntry),
+                        access rules (IAccessScope, AdministrationScope), e-mail layout, files, media, paging, texts.
+  Messaging/            Our own mediator: IRequestHandler<,> injected directly, decorators
+                        Logging(Authorization(DomainEvents(handler))), domain event delivery. No MediatR.
+  Endpoints/            IEndpoint, the secure /api/v1 group (signed-in + antiforgery by default), Result → HTTP.
+  Infrastructure/       EF Core + PostgreSQL (ApplicationDbContext, the migration, seeding), Identity + JWT,
+                        e-mail outbox, file/media storage (libvips → AVIF), CMS signatures, sanitizer, audit.
+  Security/, Hosting/,  Middleware and permission policies; DI, pipeline, SPA hosting, logging; SignalR hub.
+  Realtime/
 src/ODC.Client          React SPA at / (see "React client").
-tests/ODC.UnitTests     Domain rules, access, scoped administration (EF InMemory), JWT tokens, localization coverage,
-                        API contracts, trust list.
+tests/ODC.UnitTests     Domain rules, slices through the real pipeline (EF InMemory), domain events, architecture
+                        rules (slice boundaries, endpoint security), JWT, activation, localization, API contracts.
 ```
+
+- Features meet only along the edges listed in `tests/ODC.UnitTests/Architecture/SliceArchitectureTests.cs`; side
+  effects in other features go through **domain events** (e.g. notifications react to `DocumentSigningProgressed`,
+  `TicketSubmitted`, `ChatMessagesPosted`, `NewsCommentPosted`, `ItemSeen`), delivered after the request succeeded.
+- Pragmatic DDD: aggregates with invariants and domain events; no repositories (slices use `ApplicationDbContext`),
+  no separate bounded-context projects, no outbox.
 
 ### Hosting
 
@@ -134,7 +137,7 @@ tests/ODC.UnitTests     Domain rules, access, scoped administration (EF InMemory
   old stamp, while `RefreshSignInAsync` rebinds the current browser's family. Issued access tokens live until expiry
   (≤ 5 min).
 
-Dependencies point inward: Web → Infrastructure → Application → Domain. Central Package Management
+Central Package Management
 (`Directory.Packages.props`); check new package versions on NuGet and prefer ones published more than two weeks ago.
 
 ### Account activation (no temporary passwords)
@@ -142,10 +145,11 @@ Dependencies point inward: Web → Infrastructure → Application → Domain. Ce
 Nobody hands out passwords. Accounts are created (UI, import, seeding of the first admin) **without a password**:
 `User.AwaitsActivation` ⇔ `PasswordHash == null`. An admin "password reset" (`IIdentityService.RemovePasswordAsync`)
 removes the password and changes the security stamp; the authenticator stays and is asked for after the reset.
-Invitations / reset notices: `AccountEmails` (Application/Common/Email), sent by `UserService` when e-mail is configured.
+Invitations / reset notices: `AccountEmails` (`Shared/Email`), sent by the user administration slices (`UserDirectory`) when
+e-mail is configured.
 
-- Flow (`AccountActivationService` in Infrastructure/Identity/Activation, `AccountActivationController` at
-  `/api/v1/auth/activation`, client `features/auth/pages/ActivationPage.tsx` at `/account/activate`):
+- Flow (`AccountActivationService` in `Features/Auth/Activation`, slices `StartActivation`, `VerifyActivationCode`,
+  `SetActivationPassword` at `/api/v1/auth/activation`, client `features/auth/pages/ActivationPage.tsx` at `/account/activate`):
   `POST` e-mail → a 6-digit code by e-mail → `POST /code` → `POST /password` (Identity validators, `EmailConfirmed`)
   → `PasswordSignInAsync` opens the usual 2FA step (`login/authenticator` enrolment or `login/two-factor`) → photo.
 - State: `ActivationChallenge` rows (`activation_challenges`: SHA-256 of the address, nullable user, code encrypted with
@@ -174,7 +178,7 @@ Invitations / reset notices: `AccountEmails` (Application/Common/Email), sent by
 - **News body** is HTML from the Tiptap editor (`features/news/components/RichTextEditor.tsx`, `@tiptap/react`; images
   are uploaded at once through `POST /api/v1/media`). The server sanitizes it (`IRichTextSanitizer`, allow-list; images
   must be `/media/…`) and the client inserts only that HTML (`ArticleBody`). Older articles keep
-  `NewsBodyFormat.Markdown` until edited. `NewsService.SyncImagesAsync` attaches the images an article uses and removes
+  `NewsBodyFormat.Markdown` until edited. `NewsDesk.SyncImagesAsync` attaches the images an article uses and removes
   the dropped ones. Galleries are `<div data-type="gallery">` of thumbnails with `data-full`; `ArticleBody` opens them
   in a full-screen viewer.
 - **Discussion** (Reddit-like): a comment answers the article or any comment; `NewsComment` keeps `ParentId`, `RootId`
@@ -193,15 +197,15 @@ Invitations / reset notices: `AccountEmails` (Application/Common/Email), sent by
   token subject) with the full `ChatMessageDto`; the members are read from the database for every change, never from
   SignalR groups. Hub JSON uses the API conventions (enums as names). With several servers add a SignalR backplane
   (Redis).
-- **Chats** (`ChatService`, `features/chats`): one-to-one (`Chat.DirectKey`, unique per pair) and group chats (owner
+- **Chats** (`Features/Chats` slices + `ChatRoom`, client `features/chats`): one-to-one (`Chat.DirectKey`, unique per pair) and group chats (owner
   removes people, anyone renames/adds/leaves; the last member leaving deletes the chat with its files). Every message
   takes the next `Chat.LastSequence` (xmin concurrency, retried), so numbers have no gaps: the client detects a gap in a
   live message and fetches `?after=`; members keep `LastReadSequence` (unread = newer text messages of others).
-  Deleting works like Telegram: an own message for everyone (`DeleteAsync`, placeholder) or any message for oneself
-  (`HideAsync` → `HiddenChatMessage`; the reader gets an empty `IsHidden` placeholder, so numbering keeps no gaps,
-  and the client keeps it hidden in `mergeMessages`); `ClearHistoryAsync` sets `ChatMember.ClearedSequence` (older
-  messages are not returned, a cleared one-to-one chat leaves the list until a newer message); `DeleteChatAsync`
-  removes a chat for everyone (either person of a one-to-one chat, the owner of a group). `ForwardAsync` copies messages
+  Deleting works like Telegram: an own message for everyone (`DeleteChatMessage`, placeholder) or any message for oneself
+  (`HideChatMessage` → `HiddenChatMessage`; the reader gets an empty `IsHidden` placeholder, so numbering keeps no gaps,
+  and the client keeps it hidden in `mergeMessages`); `ClearChatHistory` sets `ChatMember.ClearedSequence` (older
+  messages are not returned, a cleared one-to-one chat leaves the list until a newer message); `DeleteChat`
+  removes a chat for everyone (either person of a one-to-one chat, the owner of a group). `ForwardChatMessages` copies messages
   into another chat as the user's new messages with `ForwardedFromId` (the first author) and copies their files (a
   forwarded message cannot be edited); the client picks the chat or a person in `ForwardDialog`.
   `ClientId` (unique per chat and author) makes a resend idempotent; the client shows the message at once as pending
@@ -211,7 +215,7 @@ Invitations / reset notices: `AccountEmails` (Application/Common/Email), sent by
   are served by `GET /api/v1/chats/{id}/attachments/{attachmentId}` to members only, as downloads. The client keeps
   each open conversation in the query cache (`threadQuery`, merged by `mergeMessages`), and `ChatSync` (mounted in the
   shell for users with `chats.use`) applies live events everywhere, including the unread badge of the menu.
-- **Requests** (`Ticket`, `TicketService`, `features/tickets`, routes `/requests`, `/requests/new`, `/requests/:id`,
+- **Requests** (`Ticket`, `Features/Tickets` slices + `TicketDesk`, client `features/tickets`, routes `/requests`, `/requests/new`, `/requests/:id`,
   `/admin/requests`; API `/api/v1/tickets`): every user submits requests and writes in their own; `tickets.manage`
   (cabinet-wide, module `Tickets`) sees all, answers, assigns (`PermissionHolders.UsersWith` lists the handlers; a
   system administrator always holds every permission), changes state/category/priority. `Ticket.Comment` makes the
@@ -223,11 +227,13 @@ Invitations / reset notices: `AccountEmails` (Application/Common/Email), sent by
   `Email:*` in `EmailOptions`, password only in user secrets): requests never wait for SMTP; nothing is sent without
   `Email:Host` and `Email:FromAddress`. Bodies are built by `EmailLayout` (inline-styled tables in the cabinet's
   style, plain text twin) inside `EmailLayout.InLanguage(user.Language, …)` so `Texts.T` follows the recipient. New
-  requests: `TicketMail.NewTicketAsync` writes to every `tickets.manage` holder except the author.
-- **Notifications** (`Notification`, `INotifier` for other services, `INotificationService` for the user,
-  `features/notifications`): services call `notifier.NotifyAsync(draft, recipients)` **after** their own save (it saves
-  separately, skips the actor and inactive accounts, logs failures instead of throwing) and `MarkReadAsync(user,
-  entityId)` when the user has seen the thing (document/ticket opened, chat read to the end). `Collect` folds chat
+  requests: `TicketMail` (a reaction to the domain event `TicketSubmitted`) writes to every `tickets.manage` holder
+  except the author.
+- **Notifications** (`Notification`, `Features/Notifications`, client `features/notifications`): other features never call
+  them. They raise domain events and `Features/Notifications/Reactions` turns them into notifications through the
+  internal `INotifier` (`NotifyAsync(draft, recipients)`: saves separately, skips the actor and inactive accounts, logs
+  failures instead of throwing) after the request succeeded; `ItemSeen` (document/ticket opened, chat read to the end
+  or gone) marks the user's notifications about it read. `Collect` folds chat
   messages into one unread notification per chat (`Count`); `OnceSince` tells a signer once per submission. Titles are
   built on the client from `Kind` (`features/notifications/display.ts`); `Code` carries a machine value (the new ticket
   state). Live: `LiveNotificationEvents` → `NotificationReceived(dto, unreadCount)` / `NotificationsChanged(unreadCount)`
@@ -262,8 +268,9 @@ design system and client gotchas — is in `src/ODC.Client/CLAUDE.md`.** Read it
 - Same Ukrainian word, different English: `Texts.In("context", "…")` looks up `"context|…"` first
   (e.g. `In("document-kind", "Довідка")` = Certificate, plain `T("Довідка")` = Help; `audit|…` for audit event names;
   the manual titles use the `help` context in the client).
-- Server translations: `src/<Project>/Localization/en/*.json` (flat `{ "uk": "en" }`, embedded automatically by
-  `Directory.Build.props`; ODC.Web keeps its few texts in `web.json`).
+- Server translations: `src/ODC.Web/Shared/Localization/en/*.json` (flat `{ "uk": "en" }`, embedded automatically by
+  `Directory.Build.props`; the file names `domain`, `application`, `infrastructure`, `web`, `common` follow the former
+  projects — any of them works).
 - Data-annotation `ErrorMessage` stays a Ukrainian constant (translated when shown).
 - `Guard.Text(value, max, "Назва")` translates the field name itself — add the name to a catalog.
 - `PermissionDefinition.Title/Description` and `SystemRoleDefinition.Name/Description` are translated properties; the
@@ -300,7 +307,7 @@ design system and client gotchas — is in `src/ODC.Client/CLAUDE.md`.** Read it
 - **Signing turn** (`Document.BeginSigning`, `SignatureChain.TurnDuration` = 10 min): the browser takes it when the signing
   window opens (`POST /api/v1/documents/{id}/signing-session`, 409 code `signing_turn` while someone else holds it — the
   window polls every 5 s), renews it right before signing, and gives it up on close (`DELETE`). `Document` also has an
-  `xmin` concurrency token; `AddSignatureAsync` reloads on `DbUpdateConcurrencyException`, and a stale base is rejected
+  `xmin` concurrency token; the `AddSignature` slice reloads on `DbUpdateConcurrencyException`, and a stale base is rejected
   ("sign the latest version again").
 - 2FA is mandatory; TOTP codes are single-use; secrets are encrypted with Data Protection. Authentication is JWT access
   tokens + rotating refresh tokens (see "Identity tables and authentication"): only ES256 with server-fixed
@@ -309,7 +316,7 @@ design system and client gotchas — is in `src/ODC.Client/CLAUDE.md`.** Read it
   rotation (RFC 9700 §2.2.2 MUST for browser-held refresh tokens). Re-issuing the tokens of the current browser:
   `SignInManager.RefreshSignInAsync(user)` (password, language, photo, sign-out elsewhere) — it keeps `auth_time`, so it
   never extends the absolute lifetime.
-- State-changing API requests need the `X-CSRF-TOKEN` header (`ApiAntiforgeryFilter`; the token comes with the auth
+- State-changing API requests need the `X-CSRF-TOKEN` header (`AntiforgeryEndpointFilter` via `RequireAntiforgeryToken` on the `/api/v1` group; the token comes with the auth
   context and is bound to the identity).
 - Private files (documents, signatures) live outside `wwwroot` (`App_Data/storage`) and are served only through the API
   after an access check.
@@ -337,10 +344,12 @@ Client-only gotchas (CSS modules, CSP and Vite, Vitest cache, the manual) are in
   A PDF without `/ByteRange` has no signatures (the library would report "damaged data").
 - The audit log category filter uses the address parameter `category` (the API's `Action` prefix), not `action`.
 - **Record contracts**: validation attributes go on the primary constructor parameters (`[Required] string Body`), never
-  `[property: Required]` — MVC throws (500) for the latter. `ApiContractTests` checks every contract.
-- **API JSON**: enums are serialized as names and numbers strictly as numbers, for controllers and the OpenAPI document
-  alike (`ConfigureJson` in `WebServiceCollectionExtensions`); otherwise the generated types say `number | string`.
-  A computed form property needs `[BindNever]` or it shows up in the OpenAPI request body.
+  `[property: Required]`. `ApiContractTests` checks every contract.
+- **API JSON**: enums are serialized as names and numbers strictly as numbers, for endpoints, SignalR and
+  the OpenAPI document alike (`ConfigureJson` in `WebServiceCollectionExtensions`); otherwise the generated types say
+  `number | string`. Minimal APIs bind (and document) every public property of `[AsParameters]`/`[FromForm]` types: a
+  computed value is a method, an optional filter is nullable (a non-nullable value type would be required), and enum
+  schemas stay free of `null` (`NonNullableEnumSchemaTransformer`).
 - **React Compiler runs before the Lingui macro** (`vite.config.ts`): a static element inside `<Trans>` (e.g.
   `<strong>Microsoft Authenticator</strong>`) can be hoisted into a memoized value, so the runtime message id no longer
   matches the catalog and the page shows an id like `OFoRj4`. Keep `<Trans>` children dynamic or use a plain `t`.

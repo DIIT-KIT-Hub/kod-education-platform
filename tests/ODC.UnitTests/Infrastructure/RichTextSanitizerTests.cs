@@ -1,5 +1,5 @@
-using ODC.Application.Common.Media;
-using ODC.Infrastructure.Text;
+using ODC.Web.Infrastructure.Text;
+using ODC.Web.Shared.Media;
 
 namespace ODC.UnitTests.Infrastructure;
 

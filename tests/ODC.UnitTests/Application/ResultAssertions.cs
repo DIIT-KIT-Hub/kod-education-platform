@@ -1,4 +1,4 @@
-using ODC.Application.Common.Results;
+using ODC.Web.Shared.Kernel;
 
 namespace ODC.UnitTests.Application;
 

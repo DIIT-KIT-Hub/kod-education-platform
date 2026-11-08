@@ -1,5 +1,5 @@
 using System.Security.Claims;
-using ODC.Infrastructure.Identity;
+using ODC.Web.Infrastructure.Identity;
 
 namespace ODC.Web.Security;
 
