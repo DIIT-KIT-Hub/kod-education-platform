@@ -2,3 +2,9 @@
 
 # Exact versions in package.json; upgrades are deliberate.
 savePrefix: ""
+
+# Install scripts of dependencies run only when listed here (pnpm 10+ refuses a frozen install with an unlisted one,
+# which breaks the client build of ODC.Web). msw's script only copies its browser service worker into a public
+# folder; the tests use msw/node, so it stays off.
+allowBuilds:
+  msw: false
