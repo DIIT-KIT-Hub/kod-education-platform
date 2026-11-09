@@ -62,4 +62,5 @@ output for `error` (analyzer ids such as `xUnit2017` are lower-case and easy to 
   the handler otherwise.
 - A new anonymous endpoint or a state-changing one without the antiforgery token must be added to the lists in
   `EndpointSecurityTests` on purpose; a new dependency between features to `SliceArchitectureTests.AllowedEdges`.
-- Sign-in, 2FA, sign-out and the activation endpoints (cookies, the sign-in manager) are left to the integration tests.
+- Sign-in, 2FA, sign-out and the activation endpoints (cookies, the sign-in manager) are covered by
+  `tests/ODC.IntegrationTests` (the real host over HTTP).

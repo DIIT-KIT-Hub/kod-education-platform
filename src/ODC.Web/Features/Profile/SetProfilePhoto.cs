@@ -90,7 +90,7 @@ public static class SetProfilePhoto
         /// <returns>The identifier of the new photo (its URL is <c>/media/{id}</c>).</returns>
         private static async Task<Results<Ok<Guid>, ProblemHttpResult>> HandleAsync(
             IFormFile? file,
-            [FromForm] PhotoCropForm crop,
+            [FromForm] PhotoCropForm? crop,
             IRequestHandler<Command, Result<Guid>> handler,
             ClaimsPrincipal principal,
             UserManager<User> userManager,
@@ -103,7 +103,7 @@ public static class SetProfilePhoto
             }
 
             await using var content = file.OpenReadStream();
-            var result = await handler.HandleAsync(new Command(new FileUpload(content, file.FileName, file.ContentType, file.Length), crop.ToCrop()), cancellationToken);
+            var result = await handler.HandleAsync(new Command(new FileUpload(content, file.FileName, file.ContentType, file.Length), crop?.ToCrop()), cancellationToken);
             if (result.IsSuccess)
             {
                 // The access token carries the photo: without a new one the cabinet would keep asking for it.

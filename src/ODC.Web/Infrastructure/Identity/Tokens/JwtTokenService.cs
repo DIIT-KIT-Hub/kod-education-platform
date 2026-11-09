@@ -84,17 +84,19 @@ public sealed class JwtTokenService
     /// <param name="key">The signing key.</param>
     /// <param name="options">The token options.</param>
     /// <param name="identityOptions">The Identity options (claim types).</param>
-    public JwtTokenService(JwtSigningKey key, IOptions<JwtOptions> options, IOptions<IdentityOptions> identityOptions)
+    /// <param name="timeProvider">The clock lifetimes are checked against: the one tokens are issued with.</param>
+    public JwtTokenService(JwtSigningKey key, IOptions<JwtOptions> options, IOptions<IdentityOptions> identityOptions, TimeProvider timeProvider)
     {
         ArgumentNullException.ThrowIfNull(key);
         ArgumentNullException.ThrowIfNull(options);
         ArgumentNullException.ThrowIfNull(identityOptions);
+        ArgumentNullException.ThrowIfNull(timeProvider);
 
         _key = key;
         _options = options.Value;
         _securityStampClaimType = identityOptions.Value.ClaimsIdentity.SecurityStampClaimType;
-        _accessRules = Rules(JwtDefaults.AccessTokenType, _options.Audience, JwtDefaults.AuthenticationScheme, AppClaimTypes.Name);
-        _twoFactorRules = Rules(JwtDefaults.TwoFactorTokenType, TwoFactorAudience, IdentityConstants.TwoFactorUserIdScheme, ClaimTypes.Name);
+        _accessRules = Rules(JwtDefaults.AccessTokenType, _options.Audience, JwtDefaults.AuthenticationScheme, AppClaimTypes.Name, timeProvider);
+        _twoFactorRules = Rules(JwtDefaults.TwoFactorTokenType, TwoFactorAudience, IdentityConstants.TwoFactorUserIdScheme, ClaimTypes.Name, timeProvider);
     }
 
     /// <summary>
@@ -213,15 +215,45 @@ public sealed class JwtTokenService
     public Task<TokenValidationResult> ValidateTwoFactorTokenAsync(string token) => _handler.ValidateTokenAsync(token, _twoFactorRules);
 
     /// <summary>
+    /// The lifetime check on the clock tokens are issued with (the handler's own check reads the system clock). It throws
+    /// the handler's usual exceptions, so an expired token is still told apart from a forged one.
+    /// </summary>
+    /// <param name="timeProvider">The clock.</param>
+    /// <returns>The validator.</returns>
+    private static LifetimeValidator LifetimeOn(TimeProvider timeProvider)
+        => (notBefore, expires, _, parameters) =>
+        {
+            var now = timeProvider.GetUtcNow().UtcDateTime;
+            if (expires is null)
+            {
+                throw new SecurityTokenNoExpirationException("The token has no expiry.");
+            }
+
+            if (notBefore is { } start && start > now + parameters.ClockSkew)
+            {
+                throw new SecurityTokenNotYetValidException("The token is not valid yet.") { NotBefore = start };
+            }
+
+            if (expires.Value < now - parameters.ClockSkew)
+            {
+                throw new SecurityTokenExpiredException("The token has expired.") { Expires = expires.Value };
+            }
+
+            return true;
+        };
+
+    /// <summary>
     /// Builds the validation rules of one token kind.
     /// </summary>
     /// <param name="type">The required <c>typ</c>.</param>
     /// <param name="audience">The required audience.</param>
     /// <param name="authenticationType">The authentication type of the resulting identity.</param>
     /// <param name="nameClaimType">The name claim type of the resulting identity.</param>
+    /// <param name="timeProvider">The clock of the lifetime checks.</param>
     /// <returns>The rules.</returns>
-    private TokenValidationParameters Rules(string type, string audience, string authenticationType, string nameClaimType) => new()
+    private TokenValidationParameters Rules(string type, string audience, string authenticationType, string nameClaimType, TimeProvider timeProvider) => new()
     {
+        LifetimeValidator = LifetimeOn(timeProvider),
         ValidIssuer = _options.Issuer,
         ValidAudience = audience,
         IssuerSigningKey = _key.SecurityKey,

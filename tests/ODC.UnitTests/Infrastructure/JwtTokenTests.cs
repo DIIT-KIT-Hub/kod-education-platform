@@ -146,6 +146,24 @@ public sealed class JwtTokenTests : IDisposable
     }
 
     [Fact]
+    public async Task Lifetimes_are_checked_on_the_clock_the_tokens_are_issued_with()
+    {
+        var clock = new ShiftedClock(TimeSpan.FromHours(2));
+        var tokens = NewService(_key, clock);
+        var now = clock.GetUtcNow();
+
+        // Issued two hours "ahead" of the system clock: valid on its own clock, not yet valid on the system one.
+        var issued = tokens.IssueAccessToken(Claims(), SignIn(now), now.AddHours(1), now);
+        Assert.True((await tokens.ValidateAccessTokenAsync(issued.Token)).IsValid);
+        var early = await _tokens.ValidateAccessTokenAsync(issued.Token);
+        Assert.IsType<SecurityTokenNotYetValidException>(early.Exception, exactMatch: false);
+
+        // A token of the system clock has expired by the shifted one, and says so (not a forgery).
+        var expired = await tokens.ValidateAccessTokenAsync(Issue(DateTimeOffset.UtcNow).Token);
+        Assert.IsType<SecurityTokenExpiredException>(expired.Exception, exactMatch: false);
+    }
+
+    [Fact]
     public void The_generated_key_is_kept_encrypted_and_reused()
     {
         var file = Path.Combine(_root, "App_Data", "keys", "jwt-signing-key.bin");
@@ -196,12 +214,14 @@ public sealed class JwtTokenTests : IDisposable
     /// Creates a token service.
     /// </summary>
     /// <param name="key">The signing key.</param>
+    /// <param name="clock">The clock lifetimes are checked against (the system clock when omitted).</param>
     /// <returns>The service.</returns>
-    private static JwtTokenService NewService(JwtSigningKey key)
-        => new(key, Options.Create(new JwtOptions()), Options.Create(new IdentityOptions
-        {
-            ClaimsIdentity = { UserIdClaimType = AppClaimTypes.Subject, UserNameClaimType = AppClaimTypes.Name },
-        }));
+    private static JwtTokenService NewService(JwtSigningKey key, TimeProvider? clock = null)
+        => new(
+            key,
+            Options.Create(new JwtOptions()),
+            Options.Create(new IdentityOptions { ClaimsIdentity = { UserIdClaimType = AppClaimTypes.Subject, UserNameClaimType = AppClaimTypes.Name } }),
+            clock ?? TimeProvider.System);
 
     /// <summary>
     /// Creates a sign-in that happened at a moment.
@@ -248,5 +268,15 @@ public sealed class JwtTokenTests : IDisposable
 
         /// <inheritdoc />
         public IFileProvider ContentRootFileProvider { get; set; } = new NullFileProvider();
+    }
+
+    /// <summary>
+    /// A clock a fixed time ahead of the system clock.
+    /// </summary>
+    /// <param name="shift">How far ahead.</param>
+    private sealed class ShiftedClock(TimeSpan shift) : TimeProvider
+    {
+        /// <inheritdoc />
+        public override DateTimeOffset GetUtcNow() => System.GetUtcNow() + shift;
     }
 }

@@ -5,7 +5,8 @@ signature (QES) made in the browser**, several organizations with arbitrary unit
 position, news, profile, admin panel, user manual. The UI is Ukrainian with a full English translation.
 `README.md` (Ukrainian) is the user/operator documentation; this file is the working guide for changing the code.
 Every project has its own `CLAUDE.md` with its layout, rules and pitfalls — read the one of the project you touch:
-`src/ODC.Web` (the whole server: vertical slices, mediator, domain events), `src/ODC.Client`, `tests/ODC.UnitTests`.
+`src/ODC.Web` (the whole server: vertical slices, mediator, domain events), `src/ODC.Client`, `tests/ODC.UnitTests`,
+`tests/ODC.IntegrationTests`.
 
 Naming: the solution is `OrganizationalDocumentsCabinet.slnx` (the English expansion of the logo), projects are `ODC.*`
 (namespaces too), and every runtime identifier uses the same prefix: cookies `__Host-odc.*`, claim types `odc:*`, JWT
@@ -26,6 +27,10 @@ dotnet build tests/ODC.UnitTests/ODC.UnitTests.csproj -c Lead -v q -nologo -p:Sk
 
 # Tests (xUnit v3 on Microsoft Testing Platform; ~500 tests, ~75 seconds; the document tests need PostgreSQL, see tests/ODC.UnitTests/CLAUDE.md)
 dotnet test tests/ODC.UnitTests -c Lead --no-build
+
+# Integration tests: the whole app in memory on a throwaway PostgreSQL database, through HTTP (~22 tests, ~65 seconds)
+dotnet build tests/ODC.IntegrationTests/ODC.IntegrationTests.csproj -c Lead -v q -nologo -p:SkipClientBuild=true
+dotnet test tests/ODC.IntegrationTests -c Lead --no-build
 
 # Run (migrations and seeding run at startup). The user's own instance is usually on https://localhost:7180;
 # for your own verification use the launch config "odc-web-verify" (port 7181, -c Lead) in .claude/launch.json.
@@ -91,6 +96,9 @@ src/ODC.Web             The server.
 src/ODC.Client          React SPA at / (see "React client").
 tests/ODC.UnitTests     Domain rules, slices through the real pipeline (EF InMemory), domain events, architecture
                         rules (slice boundaries, endpoint security), JWT, activation, localization, API contracts.
+tests/ODC.IntegrationTests  The real host over HTTP (WebApplicationFactory) on a throwaway PostgreSQL database: sign-in
+                        with the authenticator, activation by e-mail, sessions, administration, documents, chats,
+                        requests, and what one organization must not see of another.
 ```
 
 - Features meet only along the edges listed in `tests/ODC.UnitTests/Architecture/SliceArchitectureTests.cs`; side
@@ -361,6 +369,9 @@ Client-only gotchas (CSS modules, CSP and Vite, Vitest cache, the manual) are in
   JWT, the one issued during a refresh) must carry the token issuer (`urn:odc`), or a token issued in one request fails
   with 400 in the next. Testing token refresh: run the app with
   `--Authentication:Jwt:AccessTokenLifetime=00:00:10 --Authentication:Jwt:ClockSkew=00:00:01` after `--`.
+- **One clock for tokens**: `JwtTokenService` issues with the injected `TimeProvider` and checks lifetimes with the same
+  one (its own `LifetimeValidator`; the IdentityModel handler would read the system clock). Identity's lockout still
+  counts real time.
 - **JWT clock skew and SignalR**: a token past its expiry but within the skew is renewed on requests that can set
   cookies (`JwtAuthenticationHandler`); otherwise a SignalR connection opened with it closes at once and reconnects in
   a loop until the skew runs out.

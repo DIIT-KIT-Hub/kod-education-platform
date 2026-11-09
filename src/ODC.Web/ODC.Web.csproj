@@ -39,6 +39,7 @@
 
   <ItemGroup>
     <InternalsVisibleTo Include="ODC.UnitTests" />
+    <InternalsVisibleTo Include="ODC.IntegrationTests" />
   </ItemGroup>
 
   <!-- Publishing builds the single-page application (src/ODC.Client, pnpm) and ships it as ClientApp (served at /).
