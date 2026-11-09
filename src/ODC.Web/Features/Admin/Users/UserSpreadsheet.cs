@@ -3,7 +3,6 @@ using System.Globalization;
 using System.Text;
 using ClosedXML.Excel;
 using CsvHelper;
-using CsvHelper.Configuration;
 using ODC.Web.Shared.Localization;
 
 namespace ODC.Web.Features.Admin.Users;
@@ -132,26 +131,25 @@ internal sealed class UserSpreadsheet : IUserSpreadsheet
     }
 
     /// <summary>
-    /// Reads all records of a CSV file (delimiter is detected automatically).
+    /// Reads all records of a CSV file. The separator (comma, semicolon, tab or vertical bar) is detected from the start
+    /// of the file, UTF-8 is read with or without a byte order mark (UTF-16 is detected from its mark), and badly quoted
+    /// fields are recovered instead of failing the import.
     /// </summary>
     /// <param name="content">The CSV stream.</param>
     /// <returns>The rows.</returns>
     private static List<List<string>> ReadCsv(Stream content)
     {
-        var configuration = new CsvConfiguration(CultureInfo.InvariantCulture)
-        {
-            DetectDelimiter = true,
-            HasHeaderRecord = false,
-            BadDataFound = null,
-            MissingFieldFound = null,
-        };
-
-        using var reader = new StreamReader(content, Encoding.UTF8, detectEncodingFromByteOrderMarks: true);
-        using var csv = new CsvReader(reader, configuration);
+        using var csv = CsvReader.Create(content, CsvReaderOptions.Default with { HasHeader = false }, leaveOpen: true);
         var rows = new List<List<string>>();
         while (csv.Read())
         {
-            rows.Add([.. csv.Parser.Record ?? []]);
+            var row = new List<string>(csv.FieldCount);
+            for (var i = 0; i < csv.FieldCount; i++)
+            {
+                row.Add(csv.GetString(i));
+            }
+
+            rows.Add(row);
             if (rows.Count > MaxRows + 1)
             {
                 throw new InvalidDataException(Texts.T("Файл містить більше {0} рядків.", MaxRows));
@@ -170,23 +168,23 @@ internal sealed class UserSpreadsheet : IUserSpreadsheet
     private static byte[] WriteCsv(string[] headers, IEnumerable<string?[]> rows)
     {
         using var stream = new MemoryStream();
-        using (var writer = new StreamWriter(stream, new UTF8Encoding(encoderShouldEmitUTF8Identifier: true), leaveOpen: true))
-        using (var csv = new CsvWriter(writer, new CsvConfiguration(CultureInfo.InvariantCulture) { Delimiter = ";" }))
+        var options = CsvWriterOptions.Default with { Separator = ';', WriteByteOrderMark = true };
+        using (var csv = CsvWriter.Create(stream, options, leaveOpen: true))
         {
             foreach (var header in headers)
             {
                 csv.WriteField(header);
             }
 
-            csv.NextRecord();
+            csv.EndRecord();
             foreach (var row in rows)
             {
                 foreach (var cell in row)
                 {
-                    csv.WriteField(Neutralize(cell));
+                    csv.WriteField(Neutralize(cell) ?? string.Empty);
                 }
 
-                csv.NextRecord();
+                csv.EndRecord();
             }
         }
 

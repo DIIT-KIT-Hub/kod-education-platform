@@ -7,7 +7,7 @@ import { clearToasts } from "@/shared/ui/Toast";
 import { server } from "./server";
 
 // Listen before any test module is imported: openapi-fetch keeps the fetch it found when the API client was created.
-server.listen({ onUnhandledRequest: "error" });
+server.listen({ onUnhandledFrame: "error" });
 
 // The whole suite runs files in parallel, and a page can take more than the default second to settle under that
 // load: findBy*/waitFor wait up to 5 s (a passing test still finishes as soon as its element appears).

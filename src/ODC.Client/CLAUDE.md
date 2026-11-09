@@ -19,12 +19,16 @@ verifying, but run `pnpm build` before finishing.
 
 ## Stack
 
-Latest versions (the user allowed the newest npm releases; the two-week rule is for NuGet): React 19 + React Compiler
-(`@rolldown/plugin-babel` + `reactCompilerPreset`), Vite 8, TypeScript 6 (strict, `noUncheckedIndexedAccess`;
+Always the newest versions (`pnpm up --latest`; exact versions, `savePrefix: ""`): React 19 + React Compiler
+(`@rolldown/plugin-babel` + `reactCompilerPreset`), Vite 8, TypeScript 7 (strict, `noUncheckedIndexedAccess`;
 `exactOptionalPropertyTypes` is off — it fights CSS-module classes and React props), React Router (data mode,
 `createBrowserRouter`, lazy routes), TanStack Query, openapi-fetch + openapi-typescript, react-hook-form + zod, Lingui,
-lucide-react, Vitest + happy-dom + Testing Library. Pinned on purpose: `typescript` 6.0.3 (typescript-eslint does not
-support 7 yet), `@rolldown/plugin-babel` 0.2.4 (0.3 breaks `@vitejs/plugin-react` 6).
+lucide-react, Vitest + happy-dom + Testing Library + MSW.
+
+TypeScript 7 (the native compiler) has no programmatic API yet, so it runs side by side with TypeScript 6 as the
+TypeScript team recommends: `@typescript/native` is an alias of `typescript@7` and provides `tsc` (typecheck, build),
+while `typescript` is an alias of `@typescript/typescript6` for the tools that import the compiler (typescript-eslint,
+openapi-typescript). Update both aliases together; drop the TS 6 alias once typescript-eslint supports TypeScript 7.
 
 **No UI libraries**: every component is written by hand (the design system lives in `shared/ui` and `shared/styles`).
 Add libraries only for real infrastructure, never for trivial cases.
@@ -193,7 +197,7 @@ rule that keeps features apart):
   `renderPage` (or an `I18nProvider`), not a bare `render`.
 - MSW matches handlers newest first: register `/api/v1/x/{id}` before fixed paths such as `/api/v1/x/options`.
 - Timing under the full parallel run: `findBy*`/`waitFor` wait up to 5 s (`configure` in `setup.ts`), a test up to
-  20 s (`vite.config.ts`); the manual's search builds its index from every page, so its tests wait up to 15 s. A
+  20 s (`vite.config.ts`); the manual's search builds its index from every page, so its tests wait up to 30 s (45 s per test). A
   success toast leaves after 4.5 s: assert it **before** the navigation that follows it, never after.
 
 ## Gotchas

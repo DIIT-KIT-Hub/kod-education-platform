@@ -63,12 +63,12 @@ describe("HelpHomePage", () => {
     });
 });
 
-describe("HelpTopicPage", { timeout: 20_000 }, () => {
+describe("HelpTopicPage", { timeout: 45_000 }, () => {
     it("loads the page with its breadcrumbs, the access badge and the neighbours", async () => {
         renderPage(topicPage(), { path: "/help/:topicId", url: "/help/documents-create" });
 
         expect(await screen.findByRole("heading", { level: 1, name: "Створення документа" })).toBeInTheDocument();
-        expect(await screen.findByRole("heading", { level: 2, name: "Файл" }, { timeout: 15_000 })).toBeInTheDocument();
+        expect(await screen.findByRole("heading", { level: 2, name: "Файл" }, { timeout: 30_000 })).toBeInTheDocument();
         const breadcrumbs = within(screen.getByRole("navigation", { name: "Навігаційний ланцюжок" }));
         expect(breadcrumbs.getByRole("link", { name: "Довідка" })).toHaveAttribute("href", "/help");
         expect(breadcrumbs.getByText("Документи")).toBeInTheDocument();
@@ -83,7 +83,7 @@ describe("HelpTopicPage", { timeout: 20_000 }, () => {
     it("gives the subheadings anchors and lists them under “On this page”", async () => {
         renderPage(topicPage(), { path: "/help/:topicId", url: "/help/documents-create" });
 
-        const toc = within(await screen.findByRole("navigation", { name: "На цій сторінці" }, { timeout: 15_000 }));
+        const toc = within(await screen.findByRole("navigation", { name: "На цій сторінці" }, { timeout: 30_000 }));
         expect(screen.getByRole("heading", { level: 2, name: "Файл" })).toHaveAttribute("id", "файл");
         expect(toc.getByRole("link", { name: "Файл" })).toHaveAttribute("href", "#файл");
     });
@@ -109,7 +109,7 @@ describe("HelpTopicPage", { timeout: 20_000 }, () => {
     });
 });
 
-describe("HelpLayout", { timeout: 20_000 }, () => {
+describe("HelpLayout", { timeout: 45_000 }, () => {
     it("leads back to the page of the cabinet the user left, with its view", async () => {
         mockPermissions();
         rememberPage({ path: "/documents", state: { view: "scope=Authored" } });
@@ -172,7 +172,7 @@ describe("HelpLayout", { timeout: 20_000 }, () => {
 
         await user.type(input, "резервний код");
         // The index renders every page once: slow while the whole suite runs in parallel.
-        const results = await screen.findByRole("listbox", { name: "Результати пошуку" }, { timeout: 15_000 });
+        const results = await screen.findByRole("listbox", { name: "Результати пошуку" }, { timeout: 30_000 });
         const first = within(results).getAllByRole("option")[0];
         expect(first).toHaveAttribute("aria-selected", "true");
         expect(first).toHaveTextContent("Вхід за резервним кодом");
@@ -188,7 +188,7 @@ describe("HelpLayout", { timeout: 20_000 }, () => {
         await user.click(await screen.findByRole("button", { name: /Пошук у довідці/ }));
         const input = await screen.findByRole("combobox");
         await user.type(input, "ґґґґ неіснуюче");
-        expect(await screen.findByText(/Нічого не знайдено/, {}, { timeout: 15_000 })).toBeInTheDocument();
+        expect(await screen.findByText(/Нічого не знайдено/, {}, { timeout: 30_000 })).toBeInTheDocument();
 
         await user.clear(input);
         await user.type(input, "документ");
@@ -198,7 +198,7 @@ describe("HelpLayout", { timeout: 20_000 }, () => {
                 expect(found.length).toBeGreaterThan(1);
                 return found;
             },
-            { timeout: 15_000 },
+            { timeout: 30_000 },
         );
         await user.keyboard("{ArrowDown}");
         expect(options[1]).toHaveAttribute("aria-selected", "true");

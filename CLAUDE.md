@@ -137,8 +137,10 @@ tests/ODC.UnitTests     Domain rules, slices through the real pipeline (EF InMem
   old stamp, while `RefreshSignInAsync` rebinds the current browser's family. Issued access tokens live until expiry
   (≤ 5 min).
 
-Central Package Management
-(`Directory.Packages.props`); check new package versions on NuGet and prefer ones published more than two weeks ago.
+Central Package Management (`Directory.Packages.props`). Keep every dependency on its newest version — NuGet
+packages, the dotnet tools (`dotnet-tools.json`), pnpm (`packageManager`) and the client packages — including releases
+published only days ago. Prereleases only where no stable release exists (StyleCop.Analyzers is beta-only); a major
+version that needs a newer SDK than the installed one (a .NET release candidate) waits for that SDK.
 
 ### Account activation (no temporary passwords)
 
