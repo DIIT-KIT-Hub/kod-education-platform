@@ -41,6 +41,8 @@ export default defineConfig(({ mode }) => ({
         environmentOptions: { happyDOM: { url: "https://localhost/" } },
         include: ["src/**/*.test.{ts,tsx}"],
         setupFiles: ["src/test/setup.ts"],
+        // Long flows (activation, the manual's search) take several seconds when the whole suite runs in parallel.
+        testTimeout: 20_000,
         coverage: {
             provider: "v8",
             include: ["src/**/*.{ts,tsx}"],

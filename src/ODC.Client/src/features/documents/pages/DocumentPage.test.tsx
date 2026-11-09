@@ -281,10 +281,15 @@ describe("DocumentPage", () => {
         await loaded();
         expect(screen.getByText("КОВАЛЕНКО МАРІЯ АНДРІЇВНА")).toBeInTheDocument();
         expect(screen.getByText("CAdES B-LT · окремо від даних (зовнішній) · 03.11.2026, 12:00")).toBeInTheDocument();
-        expect(screen.getAllByText(/КНЕДП ДПС · сертифікат №/)[0]).toHaveTextContent("КНЕДП ДПС · сертифікат № 58E2D9E7F900DD6E · 1234567890");
+        expect(screen.getAllByText(/КНЕДП ДПС · сертифікат №/)[0]).toHaveTextContent(
+            "КНЕДП ДПС · сертифікат № 58E2D9E7F900DD6E · 1234567890",
+        );
         expect(screen.getByText("PAdES · з даними (внутрішній) · 03.11.2026, 12:00")).toBeInTheDocument();
         expect(screen.getByRole("link", { name: "Файл підпису" })).toHaveAttribute("href", "/api/v1/documents/doc-1/signatures/sig-1/file");
-        expect(screen.getByRole("link", { name: "Підписаний PDF" })).toHaveAttribute("href", "/api/v1/documents/doc-1/signatures/sig-2/file");
+        expect(screen.getByRole("link", { name: "Підписаний PDF" })).toHaveAttribute(
+            "href",
+            "/api/v1/documents/doc-1/signatures/sig-2/file",
+        );
         expect(screen.getByText("Це оригінал без підписів. Підписані файли завантажуйте в розділі «Підписи».")).toBeInTheDocument();
         expect(screen.getByRole("link", { name: "«Перевірка підпису»" })).toHaveAttribute("href", "/signing/verify");
     });
@@ -426,7 +431,9 @@ describe("DocumentPage", () => {
             await user.click(screen.getByRole("button", { name: "На підписання" }));
             await user.click((await dialog("Надіслати документ на підписання?")).getByRole("button", { name: "Скасувати" }));
 
-            await waitFor(() => expect(screen.queryByRole("heading", { name: "Надіслати документ на підписання?" })).not.toBeInTheDocument());
+            await waitFor(() =>
+                expect(screen.queryByRole("heading", { name: "Надіслати документ на підписання?" })).not.toBeInTheDocument(),
+            );
             expect(calls).toHaveLength(0);
         });
 
@@ -466,12 +473,12 @@ describe("DocumentPage", () => {
             const confirmation = await dialog("Видалити документ остаточно?");
             await user.click(confirmation.getByRole("button", { name: "Видалити" }));
 
+            expect(await screen.findByText("Документ видалено")).toBeInTheDocument();
             expect(await navigatedTo()).toBe("/documents");
             expect(router.state.location.state).toMatchObject({ view: "scope=Authored" });
             expect(calls).toHaveLength(1);
             expect(calls[0]?.path).toBe("/api/v1/documents/doc-1");
             expect(calls[0]?.headers.get("X-CSRF-TOKEN")).toBe("csrf-test-token");
-            expect(await screen.findByText("Документ видалено")).toBeInTheDocument();
         });
 
         it("keeps the document when the deletion is cancelled", async () => {

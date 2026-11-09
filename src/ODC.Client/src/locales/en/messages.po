@@ -3301,8 +3301,8 @@ msgid "Обліковий запис створено. Користувач от
 msgstr "The account has been created. The user will get an invitation e-mail and activate it."
 
 #: src/features/admin/pages/UserEditorPage.tsx
-msgid "Обліковий запис створюється з тимчасовим паролем; під час першого входу користувач змінить його та прив'яже автентифікатор."
-msgstr "The account is created with a temporary password; at first sign-in the user changes it and links an authenticator app."
+msgid "Обліковий запис створюється без пароля: користувач отримає лист-запрошення, сам задасть пароль і прив'яже автентифікатор."
+msgstr "The account is created without a password: the user gets an invitation e-mail, sets a password and links an authenticator app."
 
 #: src/features/admin/pages/UsersPage.tsx
 msgid "Облікові записи працівників і зовнішніх користувачів Ваших організацій. Самостійна реєстрація вимкнена."

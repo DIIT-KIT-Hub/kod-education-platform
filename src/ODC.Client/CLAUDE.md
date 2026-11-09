@@ -186,6 +186,15 @@ rule that keeps features apart):
   `emitLive("NotificationReceived", dto, 3)` / `reconnectLive()`.
 - `ButtonLink`, `StatCard` and breadcrumbs move a target's query string into the history state (`viewTarget`), so
   their `href` is the bare path.
+- happy-dom quirks met so far: a `user.click` into a Tiptap editor may leave an empty paragraph before the typed one;
+  pointer moves fire a stray `mouseleave` (a hover-closed picker needs `fireEvent.click`); multipart parsing drops
+  empty fields and reads non-ASCII file names as Latin-1 (use ASCII names when asserting `FormData`); `user-event`
+  installs its own `navigator.clipboard` on setup, so stub the clipboard after `renderPage`. Lingui components need
+  `renderPage` (or an `I18nProvider`), not a bare `render`.
+- MSW matches handlers newest first: register `/api/v1/x/{id}` before fixed paths such as `/api/v1/x/options`.
+- Timing under the full parallel run: `findBy*`/`waitFor` wait up to 5 s (`configure` in `setup.ts`), a test up to
+  20 s (`vite.config.ts`); the manual's search builds its index from every page, so its tests wait up to 15 s. A
+  success toast leaves after 4.5 s: assert it **before** the navigation that follows it, never after.
 
 ## Gotchas
 

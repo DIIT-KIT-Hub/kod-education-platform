@@ -28,7 +28,7 @@ export interface PaginationProps {
 }
 
 /**
- * The pages to show: the first, the last and two around the current one; null marks a gap.
+ * The pages to show: the first, the last and two around the current one; null marks a gap of two pages or more.
  * @param page The current page.
  * @param total The number of pages.
  * @returns The page numbers.
@@ -44,7 +44,10 @@ export function pageWindow(page: number, total: number): (number | null)[] {
     const result: (number | null)[] = [];
     let previous = 0;
     for (const p of [...pages].sort((a, b) => a - b)) {
-        if (p - previous > 1) {
+        if (p - previous === 2) {
+            // A gap of one page shows that page: the ellipsis would take the same room.
+            result.push(p - 1);
+        } else if (p - previous > 2) {
             result.push(null);
         }
 

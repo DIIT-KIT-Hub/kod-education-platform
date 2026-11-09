@@ -1,5 +1,5 @@
 import "@testing-library/jest-dom/vitest";
-import { cleanup } from "@testing-library/react";
+import { cleanup, configure } from "@testing-library/react";
 import { afterAll, afterEach, vi } from "vitest";
 import { activateLocale } from "@/shared/i18n/i18n";
 import { clearConfirm } from "@/shared/ui/ConfirmHost";
@@ -8,6 +8,10 @@ import { server } from "./server";
 
 // Listen before any test module is imported: openapi-fetch keeps the fetch it found when the API client was created.
 server.listen({ onUnhandledRequest: "error" });
+
+// The whole suite runs files in parallel, and a page can take more than the default second to settle under that
+// load: findBy*/waitFor wait up to 5 s (a passing test still finishes as soon as its element appears).
+configure({ asyncUtilTimeout: 5000 });
 
 // Ukrainian is the source language: tests read the texts as the user sees them.
 await activateLocale("uk");

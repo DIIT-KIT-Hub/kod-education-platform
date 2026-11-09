@@ -46,6 +46,7 @@ describe("NewTicketPage", () => {
         expect(screen.getByText("screen.png")).toBeInTheDocument();
         await page.user.click(screen.getByRole("button", { name: "Надіслати звернення" }));
 
+        expect(await screen.findByText("Звернення надіслано")).toBeInTheDocument();
         expect(await navigatedTo()).toBe("/requests/ticket-7");
         const form = calls[0]?.body as FormData;
         expect(form.get("Category")).toBe("Access");
@@ -54,7 +55,6 @@ describe("NewTicketPage", () => {
         expect(form.get("Description")).toBe("Після входу розділ «Документи» порожній.");
         expect((form.getAll("Files") as File[]).map((file) => file.name)).toEqual(["screen.png"]);
         expect(calls[0]?.headers.get("X-CSRF-TOKEN")).toBe("csrf-test-token");
-        expect(await screen.findByText("Звернення надіслано")).toBeInTheDocument();
     });
 
     it("starts with a bug of normal priority", () => {

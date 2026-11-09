@@ -68,7 +68,7 @@ describe("HelpTopicPage", { timeout: 20_000 }, () => {
         renderPage(topicPage(), { path: "/help/:topicId", url: "/help/documents-create" });
 
         expect(await screen.findByRole("heading", { level: 1, name: "Створення документа" })).toBeInTheDocument();
-        expect(await screen.findByRole("heading", { level: 2, name: "Файл" }, { timeout: 5000 })).toBeInTheDocument();
+        expect(await screen.findByRole("heading", { level: 2, name: "Файл" }, { timeout: 15_000 })).toBeInTheDocument();
         const breadcrumbs = within(screen.getByRole("navigation", { name: "Навігаційний ланцюжок" }));
         expect(breadcrumbs.getByRole("link", { name: "Довідка" })).toHaveAttribute("href", "/help");
         expect(breadcrumbs.getByText("Документи")).toBeInTheDocument();
@@ -171,7 +171,8 @@ describe("HelpLayout", { timeout: 20_000 }, () => {
         expect(screen.getByText(/Введіть щонайменше два символи/)).toBeInTheDocument();
 
         await user.type(input, "резервний код");
-        const results = await screen.findByRole("listbox", { name: "Результати пошуку" }, { timeout: 5000 });
+        // The index renders every page once: slow while the whole suite runs in parallel.
+        const results = await screen.findByRole("listbox", { name: "Результати пошуку" }, { timeout: 15_000 });
         const first = within(results).getAllByRole("option")[0];
         expect(first).toHaveAttribute("aria-selected", "true");
         expect(first).toHaveTextContent("Вхід за резервним кодом");
@@ -187,15 +188,18 @@ describe("HelpLayout", { timeout: 20_000 }, () => {
         await user.click(await screen.findByRole("button", { name: /Пошук у довідці/ }));
         const input = await screen.findByRole("combobox");
         await user.type(input, "ґґґґ неіснуюче");
-        expect(await screen.findByText(/Нічого не знайдено/, {}, { timeout: 5000 })).toBeInTheDocument();
+        expect(await screen.findByText(/Нічого не знайдено/, {}, { timeout: 15_000 })).toBeInTheDocument();
 
         await user.clear(input);
         await user.type(input, "документ");
-        const options = await waitFor(() => {
-            const found = screen.getAllByRole("option");
-            expect(found.length).toBeGreaterThan(1);
-            return found;
-        });
+        const options = await waitFor(
+            () => {
+                const found = screen.getAllByRole("option");
+                expect(found.length).toBeGreaterThan(1);
+                return found;
+            },
+            { timeout: 15_000 },
+        );
         await user.keyboard("{ArrowDown}");
         expect(options[1]).toHaveAttribute("aria-selected", "true");
         await user.keyboard("{ArrowUp}{ArrowUp}");

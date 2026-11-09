@@ -37,7 +37,7 @@ export function AuditPage() {
             title: t`Подія`,
             primary: true,
             render: (entry) => {
-                const name = auditActionNames[entry.action];
+                const name = Object.hasOwn(auditActionNames, entry.action) ? auditActionNames[entry.action] : undefined;
                 return (
                     <span className={layout.stackSm}>
                         <span className={layout.strong}>{name ? t(name) : entry.action}</span>
