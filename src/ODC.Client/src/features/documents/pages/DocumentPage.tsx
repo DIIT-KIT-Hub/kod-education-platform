@@ -20,6 +20,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate, useParams } from "react-router";
 import { z } from "zod";
+import { isRefusal } from "@/shared/api/loadErrors";
 import { describeError } from "@/shared/api/problem";
 import type { DocumentDetails, DocumentSignerItem } from "@/shared/api/schema";
 import { documentKindNames, formatNames, packagingNames, signerStatusNames, signingModeNames } from "@/shared/i18n/display";
@@ -55,7 +56,8 @@ import styles from "./documents.module.css";
 export function DocumentPage() {
     const { t } = useLingui();
     const { id = "" } = useParams();
-    const document = useQuery(documentQuery(id));
+    // A document that does not exist (or is not the user's) is the page's own state; other failures are a toast.
+    const document = useQuery({ ...documentQuery(id), meta: { loadErrors: "refusal-is-content" } });
 
     if (document.isPending) {
         return <SkeletonPage />;
@@ -65,17 +67,19 @@ export function DocumentPage() {
         return (
             <>
                 <PageHeader title={t`Документ`} breadcrumbs={[{ text: t`Документи`, to: "/documents" }, { text: t`Документ` }]} />
-                <Card>
-                    <EmptyState
-                        icon={FileX}
-                        title={t`Документ не знайдено`}
-                        text={describeError(document.error, t`Документ не існує або у Вас немає до нього доступу.`)}
-                    >
-                        <ButtonLink to="/documents" icon={ArrowLeft}>
-                            {t`До реєстру`}
-                        </ButtonLink>
-                    </EmptyState>
-                </Card>
+                {isRefusal(document.error) && (
+                    <Card>
+                        <EmptyState
+                            icon={FileX}
+                            title={t`Документ не знайдено`}
+                            text={t`Документ не існує або у Вас немає до нього доступу.`}
+                        >
+                            <ButtonLink to="/documents" icon={ArrowLeft}>
+                                {t`До реєстру`}
+                            </ButtonLink>
+                        </EmptyState>
+                    </Card>
+                )}
             </>
         );
     }

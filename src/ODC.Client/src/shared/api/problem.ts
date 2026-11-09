@@ -8,11 +8,13 @@ export class ApiError extends Error {
      * @param status The HTTP status.
      * @param code The application error code.
      * @param detail The message for the user.
+     * @param path The API path that answered (empty when unknown).
      */
     constructor(
         readonly status: number,
         readonly code: string,
         readonly detail: string,
+        readonly path = "",
     ) {
         super(detail);
         this.name = "ApiError";
@@ -62,7 +64,9 @@ export async function unwrap<T>(result: Promise<FetchResult<T>>): Promise<T> {
     throw new ApiError(
         response.status,
         problem?.code ?? problem?.title ?? String(response.status),
-        problem?.detail ?? problem?.title ?? response.statusText,
+        // Without a problem body (a proxy, a dropped connection) there is no message for the user: callers fall back.
+        problem?.detail ?? problem?.title ?? "",
+        response.url ? new URL(response.url).pathname : "",
     );
 }
 
@@ -74,4 +78,15 @@ export async function unwrap<T>(result: Promise<FetchResult<T>>): Promise<T> {
  */
 export function describeError(error: unknown, fallback: string): string {
     return error instanceof ApiError && error.detail ? error.detail : fallback;
+}
+
+/**
+ * Tells whether an answer ended the sign-in: a 401 outside the sign-in steps (`/api/v1/auth/*` answer 401 as part of
+ * the flow, with a message). The API client then leads to the sign-in page, so nothing else needs to report it.
+ * @param status The HTTP status.
+ * @param path The API path.
+ * @returns True when the sign-in ended.
+ */
+export function endsSignIn(status: number, path: string): boolean {
+    return status === 401 && !path.startsWith("/api/v1/auth/");
 }

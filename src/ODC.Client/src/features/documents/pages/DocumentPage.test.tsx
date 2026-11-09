@@ -185,7 +185,9 @@ describe("DocumentPage", () => {
         const { user } = renderDocument();
 
         expect(await screen.findByText("Документ не знайдено")).toBeInTheDocument();
-        expect(screen.getByText("Документ не знайдено або видалено.")).toBeInTheDocument();
+        expect(screen.getByText("Документ не існує або у Вас немає до нього доступу.")).toBeInTheDocument();
+        // The answer is the page's own state, not a failure: no toast.
+        expect(screen.queryByRole("alert")).not.toBeInTheDocument();
         await user.click(screen.getByRole("link", { name: "До реєстру" }));
         expect(await navigatedTo()).toBe("/documents");
     });

@@ -2,14 +2,12 @@ import { useLingui } from "@lingui/react/macro";
 import { useQuery } from "@tanstack/react-query";
 import { Eye, MessageCircle, Newspaper, Pin, Plus, Settings, SmilePlus } from "lucide-react";
 import { Link } from "react-router";
-import { describeError } from "@/shared/api/problem";
 import type { NewsCategory, NewsListItem } from "@/shared/api/schema";
 import { newsCategoryNames } from "@/shared/i18n/display";
 import { formatDate } from "@/shared/i18n/format";
 import { useViewParams } from "@/shared/lib/viewParams";
 import { hasPermission, Permissions, useCurrentUser } from "@/shared/session/session";
 import layout from "@/shared/styles/layout.module.css";
-import { Alert } from "@/shared/ui/Alert";
 import { Badge } from "@/shared/ui/Badge";
 import { ButtonLink } from "@/shared/ui/Button";
 import { Card } from "@/shared/ui/Card";
@@ -91,7 +89,6 @@ export function NewsPage() {
             </div>
 
             {result.isPending && <SkeletonCards />}
-            {result.isError && <Alert tone="danger">{describeError(result.error, t`Не вдалося завантажити новини.`)}</Alert>}
             {result.data &&
                 (result.data.items.length === 0 ? (
                     <Card>

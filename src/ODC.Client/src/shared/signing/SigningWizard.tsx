@@ -81,7 +81,8 @@ type DataState =
     | { readonly kind: "loading" }
     | { readonly kind: "waiting"; readonly detail: string }
     | { readonly kind: "ready"; readonly signatures: number | null }
-    | { readonly kind: "error"; readonly message: string };
+    | { readonly kind: "error"; readonly message: string }
+    | { readonly kind: "failed" };
 
 /**
  * A signature of local files, offered for download.
@@ -99,6 +100,24 @@ interface FilesResult {
  */
 function delay(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/**
+ * A failure of the document step with a message of its own. A file the browser refuses to sign (too large, another
+ * checksum) is a check result shown in the step; a failed load is a toast like every other failed load.
+ */
+class DataStepError extends Error {
+    /**
+     * Creates the error.
+     * @param message The message for the user (translated).
+     * @param rejected Whether the file was refused (shown in the step) rather than not loaded.
+     */
+    constructor(
+        message: string,
+        readonly rejected: boolean,
+    ) {
+        super(message);
+    }
 }
 
 /**
@@ -143,7 +162,6 @@ export function SigningWizard({ target, active, onBusyChange, onSigned }: Signin
     const [level, setLevel] = useState<SignLevel>("B-LT");
     const [owner, setOwner] = useState<KeyOwner | null>(null);
     const [keyRound, setKeyRound] = useState(0);
-    const [libraryError, setLibraryError] = useState<string | null>(null);
     const [filesResult, setFilesResult] = useState<FilesResult | null>(null);
     const [documentSigned, setDocumentSigned] = useState(false);
 
@@ -248,16 +266,24 @@ export function SigningWizard({ target, active, onBusyChange, onSigned }: Signin
      */
     const activate = useEffectEvent(() => {
         shown.current = true;
-        client.init().catch((failure: unknown) => setLibraryError(describeError(failure, t`Не вдалося завантажити бібліотеку підпису.`)));
+        client
+            .init()
+            .catch((failure: unknown) => toast(describeError(failure, t`Не вдалося завантажити бібліотеку підпису.`), { tone: "error" }));
         if (target.kind !== "document" || documentSigned) {
             return;
         }
 
-        const fail = (failure: unknown) =>
-            setData({
-                kind: "error",
-                message: failure instanceof Error && failure.message ? failure.message : t`Не вдалося розпочати підписання.`,
-            });
+        const fail = (failure: unknown) => {
+            if (failure instanceof DataStepError && failure.rejected) {
+                setData({ kind: "error", message: failure.message });
+                return;
+            }
+
+            setData({ kind: "failed" });
+            const message =
+                failure instanceof DataStepError ? failure.message : describeError(failure, t`Не вдалося розпочати підписання.`);
+            toast(message, { tone: "error" });
+        };
         if (files.length > 0) {
             prepareSession().catch(fail);
             return;
@@ -265,15 +291,15 @@ export function SigningWizard({ target, active, onBusyChange, onSigned }: Signin
 
         download(`/api/v1/documents/${target.documentId}/file`)
             .catch(() => {
-                throw new Error(t`Не вдалося завантажити файл документа.`);
+                throw new DataStepError(t`Не вдалося завантажити файл документа.`, false);
             })
             .then(async (buffer) => {
                 if (buffer.byteLength > maxDataBytes) {
-                    throw new Error(t`Файл завеликий для підписання у браузері (понад 25 МБ).`);
+                    throw new DataStepError(t`Файл завеликий для підписання у браузері (понад 25 МБ).`, true);
                 }
 
                 if ((await sha256(buffer)) !== target.sha256.toLowerCase()) {
-                    throw new Error(t`Контрольна сума файлу не збігається з зареєстрованою. Підписання заборонено.`);
+                    throw new DataStepError(t`Контрольна сума файлу не збігається з зареєстрованою. Підписання заборонено.`, true);
                 }
 
                 setFiles([{ name: target.fileName, size: buffer.byteLength, buffer }]);
@@ -556,7 +582,6 @@ export function SigningWizard({ target, active, onBusyChange, onSigned }: Signin
 
     return (
         <div className={layout.stack}>
-            {libraryError && <Alert tone="danger">{libraryError}</Alert>}
             <Wizard
                 key={round}
                 label={documentMode ? t`Підписання документа` : t`Підписання файлів`}

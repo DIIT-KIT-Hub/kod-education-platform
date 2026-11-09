@@ -280,6 +280,9 @@ describe("UserEditorPage — an existing account", () => {
         mockChoices();
         renderPage(<UserEditorPage />, { path: "/admin/users/:id", url: "/admin/users/missing" });
 
-        expect(await screen.findByText("Користувача не знайдено.")).toBeInTheDocument();
+        expect(await screen.findByRole("alert")).toHaveTextContent("Користувача не знайдено.");
+        expect(screen.getByRole("heading", { level: 1, name: "Обліковий запис" })).toBeInTheDocument();
+        expect(screen.getByRole("link", { name: "Користувачі" })).toHaveAttribute("href", "/admin/users");
+        expect(screen.queryByRole("button", { name: "Зберегти" })).not.toBeInTheDocument();
     });
 });

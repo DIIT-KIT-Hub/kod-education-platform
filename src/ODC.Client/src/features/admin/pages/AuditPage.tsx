@@ -1,12 +1,10 @@
 import { useLingui } from "@lingui/react/macro";
 import { useQuery } from "@tanstack/react-query";
 import { History } from "lucide-react";
-import { describeError } from "@/shared/api/problem";
 import type { AuditEntryDto } from "@/shared/api/schema";
 import { auditActionNames, auditCategories } from "@/shared/i18n/display";
 import { formatDateTime } from "@/shared/i18n/format";
 import layout from "@/shared/styles/layout.module.css";
-import { Alert } from "@/shared/ui/Alert";
 import { DataGrid, type GridColumn } from "@/shared/ui/DataGrid";
 import { DatePicker } from "@/shared/ui/DatePicker";
 import { PageHeader } from "@/shared/ui/PageHeader";
@@ -103,7 +101,6 @@ export function AuditPage() {
             </div>
 
             {entries.isPending && <SkeletonTable rows={8} columns={3} />}
-            {entries.isError && <Alert tone="danger">{describeError(entries.error, t`Не вдалося завантажити журнал.`)}</Alert>}
             {entries.data && (
                 <DataGrid
                     columns={columns}

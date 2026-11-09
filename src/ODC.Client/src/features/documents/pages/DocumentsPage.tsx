@@ -2,13 +2,11 @@ import { useLingui } from "@lingui/react/macro";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowRight, BadgeCheck, FilePlus, FileText, Layers, PenLine, Signature, Users } from "lucide-react";
 import type { DocumentKind, DocumentListItem, DocumentScope, DocumentStatus } from "@/shared/api/schema";
-import { describeError } from "@/shared/api/problem";
 import { documentKindNames, documentStatusNames } from "@/shared/i18n/display";
 import { formatDateTime } from "@/shared/i18n/format";
 import { useViewParams } from "@/shared/lib/viewParams";
 import { hasPermission, Permissions, useCurrentUser } from "@/shared/session/session";
 import layout from "@/shared/styles/layout.module.css";
-import { Alert } from "@/shared/ui/Alert";
 import { Badge } from "@/shared/ui/Badge";
 import { ButtonLink } from "@/shared/ui/Button";
 import { DataGrid, GridPrimary, type GridColumn } from "@/shared/ui/DataGrid";
@@ -200,7 +198,6 @@ export function DocumentsPage() {
             </div>
 
             {result.isPending && <SkeletonTable rows={8} columns={3} />}
-            {result.isError && <Alert tone="danger">{describeError(result.error, t`Не вдалося завантажити документи.`)}</Alert>}
             {result.data && (
                 <DataGrid
                     columns={columns}

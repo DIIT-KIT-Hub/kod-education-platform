@@ -1346,6 +1346,10 @@ msgstr "Дочекайтеся, поки завантажаться фото."
 msgid "Експорт"
 msgstr "Експорт"
 
+#: src/features/admin/components/UserExportButtons.tsx
+msgid "Експорт завершено: файл {fileName} завантажено."
+msgstr "Експорт завершено: файл {fileName} завантажено."
+
 #: src/shared/i18n/display.ts
 msgctxt "audit"
 msgid "Експорт користувачів"
@@ -1355,6 +1359,10 @@ msgstr "Експорт користувачів"
 msgctxt "help"
 msgid "Експорт користувачів"
 msgstr "Експорт користувачів"
+
+#: src/features/admin/components/UserExportButtons.tsx
+msgid "Експорт користувачів розпочато. Файл завантажиться, щойно буде готовий."
+msgstr "Експорт користувачів розпочато. Файл завантажиться, щойно буде готовий."
 
 #: src/features/auth/pages/ActivationPage.tsx
 #: src/features/auth/pages/LoginPage.tsx
@@ -1869,6 +1877,12 @@ msgstr "Ім'я, прізвище або e-mail"
 msgid "Імпорт"
 msgstr "Імпорт"
 
+#. placeholder {0}: result.usersToCreate
+#. placeholder {1}: result.usersToUpdate
+#: src/features/admin/pages/UsersImportPage.tsx
+msgid "Імпорт завершено. Створено: {0}, оновлено: {1}."
+msgstr "Імпорт завершено. Створено: {0}, оновлено: {1}."
+
 #: src/features/admin/pages/AdminPage.tsx
 #: src/features/admin/pages/UsersImportPage.tsx
 msgid "Імпорт і експорт"
@@ -1887,6 +1901,14 @@ msgstr "Імпорт користувачів"
 msgctxt "help"
 msgid "Імпорт користувачів"
 msgstr "Імпорт користувачів"
+
+#: src/features/admin/pages/UsersImportPage.tsx
+msgid "Імпорт користувачів розпочато. Це може тривати кілька хвилин."
+msgstr "Імпорт користувачів розпочато. Це може тривати кілька хвилин."
+
+#: src/features/admin/pages/UsersImportPage.tsx
+msgid "Імпорт не виконано. Знайдено помилок: {errors}."
+msgstr "Імпорт не виконано. Знайдено помилок: {errors}."
 
 #: src/features/admin/pages/UsersImportPage.tsx
 msgid "Імпортувати"
@@ -2641,6 +2663,10 @@ msgstr "Не вдалося додати людей."
 msgid "Не вдалося додати реакцію."
 msgstr "Не вдалося додати реакцію."
 
+#: src/features/admin/components/UserExportButtons.tsx
+msgid "Не вдалося експортувати користувачів. Спробуйте ще раз."
+msgstr "Не вдалося експортувати користувачів. Спробуйте ще раз."
+
 #: src/shared/signing/client.ts
 msgid "Не вдалося завантажити {0} ({1})."
 msgstr "Не вдалося завантажити {0} ({1})."
@@ -2650,87 +2676,13 @@ msgstr "Не вдалося завантажити {0} ({1})."
 msgid "Не вдалося завантажити бібліотеку підпису."
 msgstr "Не вдалося завантажити бібліотеку підпису."
 
-#: src/features/documents/pages/DocumentsPage.tsx
-msgid "Не вдалося завантажити документи."
-msgstr "Не вдалося завантажити документи."
-
-#: src/features/admin/pages/AuditPage.tsx
-msgid "Не вдалося завантажити журнал."
-msgstr "Не вдалося завантажити журнал."
-
-#: src/features/home/HomePage.tsx
-msgid "Не вдалося завантажити зведення."
-msgstr "Не вдалося завантажити зведення."
-
-#: src/features/tickets/pages/TicketPage.tsx
-#: src/features/tickets/pages/TicketsAdminPage.tsx
-#: src/features/tickets/pages/TicketsPage.tsx
-msgid "Не вдалося завантажити звернення."
-msgstr "Не вдалося завантажити звернення."
-
-#: src/features/news/components/Discussion.tsx
-msgid "Не вдалося завантажити коментарі."
-msgstr "Не вдалося завантажити коментарі."
-
-#: src/features/admin/pages/UsersPage.tsx
-msgid "Не вдалося завантажити користувачів."
-msgstr "Не вдалося завантажити користувачів."
-
-#: src/features/news/pages/NewsManagePage.tsx
-#: src/features/news/pages/NewsPage.tsx
-msgid "Не вдалося завантажити новини."
-msgstr "Не вдалося завантажити новини."
-
-#: src/features/admin/pages/UserEditorPage.tsx
-msgid "Не вдалося завантажити обліковий запис."
-msgstr "Не вдалося завантажити обліковий запис."
+#: src/shared/api/loadErrors.ts
+msgid "Не вдалося завантажити дані. Спробуйте ще раз."
+msgstr "Не вдалося завантажити дані. Спробуйте ще раз."
 
 #: src/shared/signing/SigningWizard.tsx
 msgid "Не вдалося завантажити останню підписану версію документа."
 msgstr "Не вдалося завантажити останню підписану версію документа."
-
-#: src/features/admin/pages/UnitEditorPage.tsx
-#: src/features/structure/pages/UnitPage.tsx
-msgid "Не вдалося завантажити підрозділ."
-msgstr "Не вдалося завантажити підрозділ."
-
-#: src/features/admin/pages/UnitsPage.tsx
-msgid "Не вдалося завантажити підрозділи."
-msgstr "Не вдалося завантажити підрозділи."
-
-#: src/features/structure/pages/UnitPage.tsx
-msgid "Не вдалося завантажити працівників."
-msgstr "Не вдалося завантажити працівників."
-
-#: src/features/profile/pages/ProfilePage.tsx
-#: src/features/profile/pages/SecurityPage.tsx
-msgid "Не вдалося завантажити профіль."
-msgstr "Не вдалося завантажити профіль."
-
-#: src/features/admin/pages/RolesPage.tsx
-msgid "Не вдалося завантажити ролі."
-msgstr "Не вдалося завантажити ролі."
-
-#: src/features/admin/pages/RoleEditorPage.tsx
-msgid "Не вдалося завантажити роль."
-msgstr "Не вдалося завантажити роль."
-
-#: src/features/notifications/components/NotificationPanel.tsx
-#: src/features/notifications/pages/NotificationsPage.tsx
-msgid "Не вдалося завантажити сповіщення."
-msgstr "Не вдалося завантажити сповіщення."
-
-#: src/features/structure/pages/StructurePage.tsx
-msgid "Не вдалося завантажити структуру."
-msgstr "Не вдалося завантажити структуру."
-
-#: src/features/admin/pages/UnitTypeEditorPage.tsx
-msgid "Не вдалося завантажити тип підрозділу."
-msgstr "Не вдалося завантажити тип підрозділу."
-
-#: src/features/admin/pages/UnitTypesPage.tsx
-msgid "Не вдалося завантажити типи підрозділів."
-msgstr "Не вдалося завантажити типи підрозділів."
 
 #: src/shared/signing/SigningWizard.tsx
 msgid "Не вдалося завантажити файл документа."
@@ -2740,9 +2692,9 @@ msgstr "Не вдалося завантажити файл документа."
 msgid "Не вдалося завантажити фото."
 msgstr "Не вдалося завантажити фото."
 
-#: src/features/chats/components/ChatList.tsx
-msgid "Не вдалося завантажити чати."
-msgstr "Не вдалося завантажити чати."
+#: src/features/admin/pages/UsersImportPage.tsx
+msgid "Не вдалося завантажити шаблон. Спробуйте ще раз."
+msgstr "Не вдалося завантажити шаблон. Спробуйте ще раз."
 
 #: src/features/documents/pages/DocumentEditorPage.tsx
 msgid "Не вдалося зберегти документ. Спробуйте ще раз."
@@ -2780,12 +2732,15 @@ msgstr "Не вдалося зберегти тип підрозділу. Спр
 msgid "Не вдалося зберегти фото. Спробуйте ще раз."
 msgstr "Не вдалося зберегти фото. Спробуйте ще раз."
 
+#: src/shared/api/loadErrors.ts
+msgid "Не вдалося зв'язатися з сервером. Перевірте з'єднання й спробуйте ще раз."
+msgstr "Не вдалося зв'язатися з сервером. Перевірте з'єднання й спробуйте ще раз."
+
 #: src/features/auth/components/AuthenticatorEnrollment.tsx
 #: src/features/auth/pages/ActivationPage.tsx
 #: src/features/auth/pages/ChangePasswordPage.tsx
 #: src/features/auth/pages/LoginPage.tsx
 #: src/features/auth/pages/RecoveryPage.tsx
-#: src/features/auth/pages/SetupAuthenticatorPage.tsx
 msgid "Не вдалося зв'язатися з сервером. Спробуйте ще раз."
 msgstr "Не вдалося зв'язатися з сервером. Спробуйте ще раз."
 
@@ -3645,9 +3600,21 @@ msgctxt "help"
 msgid "Перевірка підпису"
 msgstr "Перевірка підпису"
 
+#: src/features/admin/pages/UsersImportPage.tsx
+msgid "Перевірку завершено: помилок не знайдено."
+msgstr "Перевірку завершено: помилок не знайдено."
+
+#: src/features/admin/pages/UsersImportPage.tsx
+msgid "Перевірку завершено. Знайдено помилок: {errors}."
+msgstr "Перевірку завершено. Знайдено помилок: {errors}."
+
 #: src/features/signing/components/VerifyPanel.tsx
 msgid "Перевірку не пройдено"
 msgstr "Перевірку не пройдено"
+
+#: src/features/admin/pages/UsersImportPage.tsx
+msgid "Перевірку файлу розпочато."
+msgstr "Перевірку файлу розпочато."
 
 #: src/features/signing/pages/SigningPages.tsx
 msgid "Перевірте підписаний файл: хто підписав, ким виданий сертифікат, час підпису та цілісність даних."
@@ -3883,6 +3850,7 @@ msgstr "Підписи тих, кого Ви прибрали з маршрут�
 msgid "Підписів ще немає"
 msgstr "Підписів ще немає"
 
+#: src/features/admin/pages/UnitEditorPage.tsx
 #: src/features/admin/pages/UnitTypesPage.tsx
 #: src/features/admin/pages/UserEditorPage.tsx
 #: src/features/admin/pages/UsersPage.tsx
@@ -5146,6 +5114,10 @@ msgid "Тип підпису"
 msgstr "Тип підпису"
 
 #: src/features/admin/pages/UnitTypeEditorPage.tsx
+msgid "Тип підрозділу"
+msgstr "Тип підрозділу"
+
+#: src/features/admin/pages/UnitTypeEditorPage.tsx
 msgid "Тип підрозділу видалено"
 msgstr "Тип підрозділу видалено"
 
@@ -5591,6 +5563,14 @@ msgstr "Читання новин"
 #: src/features/admin/pages/UsersImportPage.tsx
 msgid "Шаблон"
 msgstr "Шаблон"
+
+#: src/features/admin/pages/UsersImportPage.tsx
+msgid "Шаблон {fileName} завантажено."
+msgstr "Шаблон {fileName} завантажено."
+
+#: src/features/admin/pages/UsersImportPage.tsx
+msgid "Шаблон готується до завантаження."
+msgstr "Шаблон готується до завантаження."
 
 #: src/app/layout/AppShell.tsx
 msgid "Швидка навігація"

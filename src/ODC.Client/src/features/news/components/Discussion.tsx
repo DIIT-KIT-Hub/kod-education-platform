@@ -10,7 +10,6 @@ import { useViewParams } from "@/shared/lib/viewParams";
 import { useLiveGroup } from "@/shared/realtime/live";
 import { useCurrentUser } from "@/shared/session/session";
 import layout from "@/shared/styles/layout.module.css";
-import { Alert } from "@/shared/ui/Alert";
 import { Avatar } from "@/shared/ui/Avatar";
 import { Button } from "@/shared/ui/Button";
 import { confirm } from "@/shared/ui/ConfirmHost";
@@ -111,7 +110,8 @@ export function Discussion({ articleId }: { readonly articleId: string }) {
     }
 
     if (discussion.isError) {
-        return <Alert tone="danger">{describeError(discussion.error, t`Не вдалося завантажити коментарі.`)}</Alert>;
+        // The reason is a toast (the query cache).
+        return null;
     }
 
     const data = discussion.data;

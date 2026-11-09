@@ -123,7 +123,7 @@ describe("StructurePage", () => {
         mockApi("get", "/api/v1/organization-units", () => problem(500, "error", "Сервер недоступний."));
         renderPage(<StructurePage />, { path: "/structure" });
 
-        expect(await screen.findByText("Сервер недоступний.")).toBeInTheDocument();
+        expect(await screen.findByRole("alert")).toHaveTextContent("Сервер недоступний.");
     });
 });
 
@@ -277,6 +277,8 @@ describe("UnitPage", () => {
         renderPage(<UnitPage />, { path: "/structure/:id", url: "/structure/missing" });
 
         expect(await screen.findByText("Підрозділ не знайдено")).toBeInTheDocument();
+        // A unit that does not exist is the page's own state, not a failure: no toast.
+        expect(screen.queryByRole("alert")).not.toBeInTheDocument();
     });
 
     it("shows the server's message for other failures", async () => {

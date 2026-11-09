@@ -2,13 +2,12 @@ import { useLingui } from "@lingui/react/macro";
 import { useQuery } from "@tanstack/react-query";
 import { Network, Pencil, Plus, Users } from "lucide-react";
 import { Link, useParams } from "react-router";
-import { ApiError, describeError } from "@/shared/api/problem";
+import { isRefusal } from "@/shared/api/loadErrors";
 import type { UnitDetails, UnitStaffItem } from "@/shared/api/schema";
 import { unitTypeIcon } from "@/shared/lib/unitTypeIcons";
 import { useViewParams } from "@/shared/lib/viewParams";
 import { hasPermission, Permissions, useCurrentUser } from "@/shared/session/session";
 import layout from "@/shared/styles/layout.module.css";
-import { Alert } from "@/shared/ui/Alert";
 import { Badge } from "@/shared/ui/Badge";
 import { ButtonLink } from "@/shared/ui/Button";
 import { Card } from "@/shared/ui/Card";
@@ -29,23 +28,21 @@ import styles from "./structure.module.css";
 export function UnitPage() {
     const { t } = useLingui();
     const { id = "" } = useParams();
-    const unit = useQuery(unitQuery(id));
+    // A unit that does not exist is the page's own state; other failures are a toast.
+    const unit = useQuery({ ...unitQuery(id), meta: { loadErrors: "refusal-is-content" } });
 
     if (unit.isPending) {
         return <SkeletonPage />;
     }
 
     if (unit.isError) {
-        const missing = unit.error instanceof ApiError && unit.error.status === 404;
         return (
             <>
                 <PageHeader title={t`Підрозділ`} breadcrumbs={[{ text: t`Структура`, to: "/structure" }, { text: t`Підрозділ` }]} />
-                {missing ? (
+                {isRefusal(unit.error) && (
                     <Card>
                         <EmptyState icon={Network} title={t`Підрозділ не знайдено`} />
                     </Card>
-                ) : (
-                    <Alert tone="danger">{describeError(unit.error, t`Не вдалося завантажити підрозділ.`)}</Alert>
                 )}
             </>
         );
@@ -207,7 +204,6 @@ function Staff({ unitId }: { readonly unitId: string }) {
                 />
             </div>
             {staff.isPending && <SkeletonTable columns={2} avatar />}
-            {staff.isError && <Alert tone="danger">{describeError(staff.error, t`Не вдалося завантажити працівників.`)}</Alert>}
             {staff.data && (
                 <DataGrid
                     columns={columns}

@@ -5,7 +5,6 @@ import { useState } from "react";
 import { NavLink } from "react-router";
 import { formatShortMoment } from "@/shared/i18n/format";
 import { useCurrentUser } from "@/shared/session/session";
-import { Alert } from "@/shared/ui/Alert";
 import { Button } from "@/shared/ui/Button";
 import { EmptyState } from "@/shared/ui/EmptyState";
 import { SearchInput } from "@/shared/ui/SearchInput";
@@ -51,9 +50,7 @@ export function ChatList({ onNew }: ChatListProps) {
 
             {isPending ? (
                 <SkeletonList rows={7} />
-            ) : error ? (
-                <Alert tone="danger">{t`Не вдалося завантажити чати.`}</Alert>
-            ) : shown.length === 0 ? (
+            ) : error ? null : shown.length === 0 ? (
                 filter ? (
                     <p className={styles.pickerHint}>{t`Нічого не знайдено.`}</p>
                 ) : (

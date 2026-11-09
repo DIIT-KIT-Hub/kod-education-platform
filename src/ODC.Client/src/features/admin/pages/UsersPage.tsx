@@ -1,14 +1,12 @@
 import { useLingui } from "@lingui/react/macro";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowRight, Ban, Download, MailQuestion, Timer, Upload, UserPlus, Users } from "lucide-react";
+import { ArrowRight, Ban, MailQuestion, Timer, Upload, UserPlus, Users } from "lucide-react";
 import { Link } from "react-router";
-import { describeError } from "@/shared/api/problem";
 import type { SpreadsheetFormat, UserListItem, UserStatusFilter } from "@/shared/api/schema";
 import { userStatusNames } from "@/shared/i18n/display";
 import { formatDateTime } from "@/shared/i18n/format";
 import { hasPermission, Permissions, useCurrentUser } from "@/shared/session/session";
 import layout from "@/shared/styles/layout.module.css";
-import { Alert } from "@/shared/ui/Alert";
 import { Avatar } from "@/shared/ui/Avatar";
 import { Badge } from "@/shared/ui/Badge";
 import { ButtonLink } from "@/shared/ui/Button";
@@ -19,6 +17,7 @@ import { Select } from "@/shared/ui/Select";
 import { SkeletonTable } from "@/shared/ui/Skeleton";
 import { userListQuery, userRolesQuery, userUnitsQuery, type UserFilters } from "../api";
 import { useListParams } from "../components/useListParams";
+import { UserExportButtons } from "../components/UserExportButtons";
 import styles from "./admin.module.css";
 
 /** The account states, in the order of the filter. */
@@ -153,14 +152,7 @@ export function UsersPage() {
                 actions={
                     <>
                         {hasPermission(user, Permissions.usersExport) && (
-                            <>
-                                <ButtonLink href={exportHref(filters, "Xlsx")} download="" variant="secondary" icon={Download}>
-                                    XLSX
-                                </ButtonLink>
-                                <ButtonLink href={exportHref(filters, "Csv")} download="" variant="secondary" icon={Download}>
-                                    CSV
-                                </ButtonLink>
-                            </>
+                            <UserExportButtons href={(format) => exportHref(filters, format)} />
                         )}
                         {hasPermission(user, Permissions.usersImport) && (
                             <ButtonLink to="/admin/users/import" variant="secondary" icon={Upload}>
@@ -214,7 +206,6 @@ export function UsersPage() {
             </div>
 
             {users.isPending && <SkeletonTable rows={8} columns={3} avatar />}
-            {users.isError && <Alert tone="danger">{describeError(users.error, t`Не вдалося завантажити користувачів.`)}</Alert>}
             {users.data && (
                 <DataGrid
                     columns={columns}

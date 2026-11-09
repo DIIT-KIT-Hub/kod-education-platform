@@ -2,7 +2,7 @@ import { useLingui } from "@lingui/react/macro";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, Eye, Newspaper, Pencil } from "lucide-react";
 import { useParams } from "react-router";
-import { describeError } from "@/shared/api/problem";
+import { isRefusal } from "@/shared/api/loadErrors";
 import { newsCategoryNames } from "@/shared/i18n/display";
 import { formatDate } from "@/shared/i18n/format";
 import { Badge } from "@/shared/ui/Badge";
@@ -25,7 +25,8 @@ import styles from "./news.module.css";
 export function ArticlePage() {
     const { t } = useLingui();
     const { slug = "" } = useParams();
-    const article = useQuery(articleQuery(slug));
+    // An article that was deleted or unpublished is the page's own state; other failures are a toast.
+    const article = useQuery({ ...articleQuery(slug), meta: { loadErrors: "refusal-is-content" } });
 
     if (article.isPending) {
         return <SkeletonPage variant="article" />;
@@ -34,18 +35,23 @@ export function ArticlePage() {
     if (article.isError) {
         return (
             <>
-                <PageHeader title={t`Новину не знайдено`} breadcrumbs={[{ text: t`Новини`, to: "/news" }, { text: t`Новина` }]} />
-                <Card>
-                    <EmptyState
-                        icon={Newspaper}
-                        title={t`Новину не знайдено`}
-                        text={describeError(article.error, t`Можливо, її було видалено або знято з публікації.`)}
-                    >
-                        <ButtonLink to="/news" icon={ArrowLeft}>
-                            {t`До новин`}
-                        </ButtonLink>
-                    </EmptyState>
-                </Card>
+                <PageHeader
+                    title={isRefusal(article.error) ? t`Новину не знайдено` : t`Новина`}
+                    breadcrumbs={[{ text: t`Новини`, to: "/news" }, { text: t`Новина` }]}
+                />
+                {isRefusal(article.error) && (
+                    <Card>
+                        <EmptyState
+                            icon={Newspaper}
+                            title={t`Новину не знайдено`}
+                            text={t`Можливо, її було видалено або знято з публікації.`}
+                        >
+                            <ButtonLink to="/news" icon={ArrowLeft}>
+                                {t`До новин`}
+                            </ButtonLink>
+                        </EmptyState>
+                    </Card>
+                )}
             </>
         );
     }

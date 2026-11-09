@@ -66,8 +66,20 @@ describe("ArticlePage", () => {
         mockApi("get", "/api/v1/news/{slug}", () => problem(404, "not_found", "Новину не знайдено або знято з публікації."));
         renderPage(<ArticlePage />, { path: "/news/:slug", url: "/news/missing" });
 
-        expect(await screen.findByText("Новину не знайдено або знято з публікації.")).toBeInTheDocument();
+        expect(await screen.findByText("Можливо, її було видалено або знято з публікації.")).toBeInTheDocument();
         expect(screen.getByRole("link", { name: "До новин" })).toHaveAttribute("href", "/news");
+        expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+    });
+
+    it("keeps the frame and says in a toast when the article cannot be loaded", async () => {
+        mockApi("get", "/api/v1/news/{slug}", () => Response.error());
+        renderPage(<ArticlePage />, { path: "/news/:slug", url: "/news/any" });
+
+        expect(await screen.findByRole("alert")).toHaveTextContent(
+            "Не вдалося зв'язатися з сервером. Перевірте з'єднання й спробуйте ще раз.",
+        );
+        expect(screen.getByRole("heading", { level: 1, name: "Новина" })).toBeInTheDocument();
+        expect(screen.queryByText("Новину не знайдено")).not.toBeInTheDocument();
     });
 });
 

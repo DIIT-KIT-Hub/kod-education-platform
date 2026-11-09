@@ -1,10 +1,8 @@
 import { useLingui } from "@lingui/react/macro";
 import { useQuery } from "@tanstack/react-query";
 import { Plus, Settings2, Shield } from "lucide-react";
-import { describeError } from "@/shared/api/problem";
 import type { RoleListItem } from "@/shared/api/schema";
 import layout from "@/shared/styles/layout.module.css";
-import { Alert } from "@/shared/ui/Alert";
 import { Badge } from "@/shared/ui/Badge";
 import { ButtonLink } from "@/shared/ui/Button";
 import { DataGrid, GridPrimary, type GridColumn } from "@/shared/ui/DataGrid";
@@ -83,7 +81,6 @@ export function RolesPage() {
             </div>
 
             {roles.isPending && <SkeletonTable columns={2} />}
-            {roles.isError && <Alert tone="danger">{describeError(roles.error, t`Не вдалося завантажити ролі.`)}</Alert>}
             {roles.data && (
                 <DataGrid
                     columns={columns}

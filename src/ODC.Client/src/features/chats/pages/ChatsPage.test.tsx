@@ -99,11 +99,12 @@ describe("ChatsPage", () => {
         expect(await screen.findByRole("heading", { name: "Новий чат" })).toBeInTheDocument();
     });
 
-    it("says when the chats cannot be loaded", async () => {
+    it("says in a toast when the chats cannot be loaded", async () => {
         mockApi("get", "/api/v1/chats", () => problem(500, "error"));
         renderChats();
 
-        expect(await screen.findByText("Не вдалося завантажити чати.")).toBeInTheDocument();
+        expect(await screen.findByRole("alert")).toHaveTextContent("Помилка сервера.");
+        expect(screen.queryByText("Чатів ще немає")).not.toBeInTheDocument();
     });
 
     it("opens a conversation with its title, the colleague's position and the messages", async () => {

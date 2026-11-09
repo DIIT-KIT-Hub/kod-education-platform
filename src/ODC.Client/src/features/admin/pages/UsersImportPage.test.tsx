@@ -1,9 +1,10 @@
-import { fireEvent, screen, waitFor } from "@testing-library/react";
+import { fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { Permissions } from "@/shared/session/session";
 import type { Schemas } from "@/test/factories";
 import { renderPage } from "@/test/render";
-import { mockApi, problem } from "@/test/server";
+import { captureDownloads } from "@/test/downloads";
+import { file, mockApi, problem } from "@/test/server";
 import { clearToastsAfterEach, findToast, makeRoleOptions, userWith } from "../testing";
 import { UsersImportPage } from "./UsersImportPage";
 
@@ -36,6 +37,15 @@ function pick(file: File) {
     fireEvent.change(document.querySelector('input[type="file"]') as HTMLInputElement, { target: { files: [file] } });
 }
 
+/**
+ * A card of the page by its title.
+ * @param title The title.
+ * @returns The card.
+ */
+function card(title: string): HTMLElement {
+    return screen.getByRole("heading", { name: title }).closest("section, article, div[class]") as HTMLElement;
+}
+
 /** A small import file. */
 const sheet = new File(["email;lastName"], "users.csv", { type: "text/csv" });
 
@@ -57,12 +67,16 @@ describe("UsersImportPage", () => {
         expect(screen.getByRole("button", { name: "Імпортувати" })).toBeDisabled();
 
         await page.user.click(screen.getByRole("button", { name: "Перевірити" }));
+        await findToast("Перевірку файлу розпочато.");
+        await findToast("Перевірку завершено: помилок не знайдено.");
         expect(await screen.findByRole("heading", { name: "2. Результат перевірки" })).toBeInTheDocument();
         expect(screen.getByText("Помилок не знайдено. Натисніть «Імпортувати», щоб зберегти зміни.")).toBeInTheDocument();
         expect(calls[0]?.query.get("dryRun")).toBe("true");
         expect((calls[0]?.body as FormData).get("file")).toBeInstanceOf(File);
 
         await page.user.click(screen.getByRole("button", { name: "Імпортувати" }));
+        await findToast("Імпорт користувачів розпочато. Це може тривати кілька хвилин.");
+        await findToast("Імпорт завершено. Створено: 3, оновлено: 5.");
         expect(await screen.findByRole("heading", { name: "2. Імпорт виконано" })).toBeInTheDocument();
         expect(calls[1]?.query.get("dryRun")).toBe("false");
         expect(
@@ -87,10 +101,31 @@ describe("UsersImportPage", () => {
         pick(sheet);
         await page.user.click(await screen.findByRole("button", { name: "Перевірити" }));
 
+        await findToast("Перевірку завершено. Знайдено помилок: 2.");
         expect(await screen.findByText("Знайдено помилок: 2")).toBeInTheDocument();
         expect(screen.getByText("Некоректна адреса.")).toBeInTheDocument();
         expect(screen.getByText("Невідома роль «boss».")).toBeInTheDocument();
         expect(screen.getByRole("button", { name: "Імпортувати" })).toBeDisabled();
+    });
+
+    it("says the import was not done when the file got errors since the check", async () => {
+        mockApi("post", "/api/v1/user-imports", ({ query }) =>
+            Response.json(
+                query.get("dryRun") === "true"
+                    ? makeReport()
+                    : makeReport({ errors: [{ row: 2, email: "maria@odc.local", message: "Обліковий запис уже існує." }] }),
+            ),
+        );
+        const page = renderImport();
+
+        pick(sheet);
+        await page.user.click(await screen.findByRole("button", { name: "Перевірити" }));
+        await findToast("Перевірку завершено: помилок не знайдено.");
+        await page.user.click(screen.getByRole("button", { name: "Імпортувати" }));
+
+        await findToast("Імпорт не виконано. Знайдено помилок: 1.");
+        expect(screen.queryByText(/Імпорт завершено/)).not.toBeInTheDocument();
+        expect(screen.getByText("Обліковий запис уже існує.")).toBeInTheDocument();
     });
 
     it("tells to warn the users when e-mail is not configured", async () => {
@@ -121,23 +156,68 @@ describe("UsersImportPage", () => {
         pick(sheet);
         await page.user.click(await screen.findByRole("button", { name: "Перевірити" }));
 
+        await findToast("Перевірку файлу розпочато.");
         await findToast("Файл пошкоджено.");
+        expect(screen.queryByText(/Перевірку завершено/)).not.toBeInTheDocument();
     });
 
     it("offers the templates, the role codes and the export", async () => {
         renderImport();
 
         expect(await screen.findByText("Коди ролей")).toBeInTheDocument();
-        expect(document.querySelector('a[href="/api/v1/user-imports/template?format=Xlsx"]')).not.toBeNull();
         expect(screen.getByText("employee")).toBeInTheDocument();
-        expect(document.querySelector('a[href="/api/v1/user-imports/template?format=Csv"]')).not.toBeNull();
-        expect(document.querySelector('a[href="/api/v1/user-exports?format=Xlsx"]')).not.toBeNull();
+        expect(
+            within(card("Шаблон"))
+                .getAllByRole("button")
+                .map((button) => button.textContent),
+        ).toEqual(["XLSX", "CSV"]);
+        expect(
+            within(card("Експорт"))
+                .getAllByRole("button")
+                .map((button) => button.textContent),
+        ).toEqual(["XLSX", "CSV"]);
+    });
+
+    it("downloads the template in the chosen format with toasts", async () => {
+        const saved = captureDownloads();
+        const templates = mockApi("get", "/api/v1/user-imports/template", () => file("users-import-template.csv"));
+        const page = renderImport();
+
+        await page.user.click(within(card("Шаблон")).getByRole("button", { name: "CSV" }));
+
+        await findToast("Шаблон готується до завантаження.");
+        await findToast("Шаблон users-import-template.csv завантажено.");
+        expect(templates[0]?.query.get("format")).toBe("Csv");
+        expect(saved.map(({ name }) => name)).toEqual(["users-import-template.csv"]);
+    });
+
+    it("says when the template cannot be downloaded", async () => {
+        captureDownloads();
+        mockApi("get", "/api/v1/user-imports/template", 500);
+        const page = renderImport();
+
+        await page.user.click(within(card("Шаблон")).getByRole("button", { name: "XLSX" }));
+
+        await findToast("Не вдалося завантажити шаблон. Спробуйте ще раз.");
+    });
+
+    it("exports every user with toasts for the start and the end", async () => {
+        const saved = captureDownloads();
+        const exports = mockApi("get", "/api/v1/user-exports", () => file("users-20261109-1000.xlsx"));
+        const page = renderImport();
+
+        await page.user.click(within(card("Експорт")).getByRole("button", { name: "XLSX" }));
+
+        await findToast("Експорт користувачів розпочато. Файл завантажиться, щойно буде готовий.");
+        await findToast("Експорт завершено: файл users-20261109-1000.xlsx завантажено.");
+        expect(Object.fromEntries(exports[0]?.query ?? [])).toEqual({ format: "Xlsx" });
+        expect(saved.map(({ name }) => name)).toEqual(["users-20261109-1000.xlsx"]);
     });
 
     it("hides the export from someone without the export permission", async () => {
         renderImport(userWith(Permissions.usersImport));
 
         await waitFor(() => expect(screen.getByText("Коди ролей")).toBeInTheDocument());
-        expect(document.querySelector('a[href^="/api/v1/user-exports"]')).toBeNull();
+        expect(screen.queryByRole("heading", { name: "Експорт" })).not.toBeInTheDocument();
     });
 });

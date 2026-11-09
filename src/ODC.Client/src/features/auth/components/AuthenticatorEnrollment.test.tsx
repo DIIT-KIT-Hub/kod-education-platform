@@ -80,7 +80,9 @@ describe("LinkAuthenticator", () => {
         mockApi("get", "/api/v1/auth/login/authenticator", () => Response.error());
         renderLink();
 
-        expect(await screen.findByRole("alert")).toHaveTextContent("Не вдалося зв'язатися з сервером. Спробуйте ще раз.");
+        expect(await screen.findByRole("alert")).toHaveTextContent(
+            "Не вдалося зв'язатися з сервером. Перевірте з'єднання й спробуйте ще раз.",
+        );
     });
 
     it("asks for six digits before calling the server", async () => {

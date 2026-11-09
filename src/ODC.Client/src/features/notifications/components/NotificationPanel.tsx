@@ -123,7 +123,6 @@ export function NotificationPanel() {
             </div>
             <div className={styles.panelBody}>
                 {list.isPending && <SkeletonList rows={5} media="icon" />}
-                {list.isError && <p className={styles.panelError}>{describeError(list.error, t`Не вдалося завантажити сповіщення.`)}</p>}
                 {list.data && list.data.items.length === 0 && (
                     <EmptyState
                         icon={Bell}

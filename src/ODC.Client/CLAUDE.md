@@ -64,8 +64,21 @@ there is none, `GET login/pending` (password already set → the authenticator s
   (`@keyframes settle`) are fine. Global selectors on `<html>` state: `:global([data-sidebar="collapsed"]) .x`.
   Inverse surfaces set `data-inverse`, buttons read it for the ink colours.
 - **Data**: `shared/api/client.ts` (`api`, typed by `schema.d.ts`) adds `X-CSRF-TOKEN` to state-changing requests and
-  reports 401s; `unwrap()` turns a failed call into `ApiError(status, code, detail)` (`detail` is already translated);
-  `describeError(error, fallback)` for messages. The JWTs stay in HttpOnly cookies — scripts never see them.
+  reports 401s; `unwrap()` turns a failed call into `ApiError(status, code, detail, path)` (`detail` is already
+  translated, empty without a problem body); `describeError(error, fallback)` for messages. The JWTs stay in HttpOnly
+  cookies — scripts never see them.
+- **Failed loads are toasts, never blocks on the page.** The query cache (`createQueryCache` in
+  `shared/api/loadErrors.ts`, used by the app and by `createTestQueryClient`) shows every query that still fails after
+  its retries as an error toast: the server's message, else "could not reach the server" (network) or "could not load
+  the data". Identical visible toasts are not stacked. A 401 that ended the sign-in is skipped (the client leads to the
+  sign-in page); a 401 of a sign-in step is shown. Pages do not render `isError` alerts: they keep their frame (header,
+  breadcrumbs, filters) and leave the content empty. Query `meta.loadErrors`: `"refusal-is-content"` when the page
+  shows a 4xx answer as its own state (`isRefusal(error)`: document / article / unit / chat not found, a document that
+  cannot be edited), `"quiet"` when the page reports it itself (the auth context → route error page).
+- **Downloads the server prepares** (exports, templates) go through `downloadFile(url, fallbackName)`
+  (`shared/lib/download.ts`: fetch, `Content-Disposition` name, a temporary link) so the page knows when the file is
+  ready; `DownloadButton` (`features/admin/components`) toasts the start and the end and stays busy meanwhile. Tests
+  answer with `file(name)` (`test/server.ts`) and record saved files with `captureDownloads()` (`test/downloads.ts`).
 - **Session**: `authContextQuery` (`GET /api/v1/auth/context`: language, antiforgery token, user with permissions) is
   loaded by the root route. The antiforgery token is bound to the identity, so **after every sign-in, sign-out,
   password, photo or language change call `reloadAuthContext(queryClient)`**. Guards in `app/guards.ts`
@@ -82,8 +95,9 @@ there is none, `GET login/pending` (password already set → the authenticator s
   `SkeletonCards`, `SkeletonPage`, `SkeletonMessages`, `SkeletonText`, primitives `Skeleton` in a `SkeletonGroup`), not
   a spinner; `Spinner` stays only for a running action (a message being sent).
 - Every outcome of an action (saved, deleted, failed, a rejected file, a form-level check) is a toast, never an alert on
-  the page; inline `Alert`s are for load errors, explanations and results that are content (an import report, a
-  signature verification). Field errors stay under their fields.
+  the page; inline `Alert`s are for explanations and results that are content (an import report, a
+  signature verification, a file the signing wizard refuses to sign: too large or another checksum). Import and export
+  report their start and end with toasts. Field errors stay under their fields.
 - List pages keep search, filters, sorting and paging in the history entry, not in the address bar: `useViewParams`
   (`shared/lib/viewParams.ts`, the `useSearchParams` API over `location.state.view`) survives reloads and back/forward;
   an address that still has a query string is moved into the state once. `Tab`, `ButtonLink`, `StatCard` and
@@ -114,22 +128,22 @@ there is none, `GET login/pending` (password already set → the authenticator s
   `requireReadyUser`, so only signed-in users see it. `HelpLayout` has the chapter navigation (`HelpNav`), the search
   (`HelpSearch`, Ctrl + K) and "Повернутися до системи", which opens the last cabinet page with its view
   (`shared/lib/lastPage.ts`: `AppShell` remembers it in sessionStorage; unsafe or unknown addresses fall back to `/`).
-  - `contents.ts`: chapters → topics (id, title, icon, required permissions); `topicPath`, `neighboursOf`, `findEntry`.
-  - One page per topic: `content/uk/<topic-id>.tsx` and its English twin `content/en/<topic-id>.tsx`, each exporting
-    `Content`. `content/pages.ts` loads them lazily (`import.meta.glob`), only in the reader's language; `HelpTopicPage`
-    shows one page with breadcrumbs, the access badge, "On this page" (from its `h2`s) and previous / next.
-  - Building blocks from `components/Manual.tsx`: `<Ui>` (an interface label exactly as on screen), `<Steps>`,
-    `<Ref to>` (link to a topic), `<Table>`, `<Faq>`, `<Kbd>`, `<Code>`, `<Tip>` / `<Note>` / `<Warning>`,
-    `<Figure src alt caption>` (screenshots from `images/<language>/<name>.webp`), `<Access permissions>`. Subheadings
-    are `h2` only (the topic title is the `h1`). The roles page is built from `GET /api/v1/permissions` and
-    `/permissions/system-roles` (`RoleReference`).
-  - Search (`search.ts`) indexes the pages by rendering them hidden once and matches words with Ukrainian/English
-    normalization; a hit opens the page at its section.
-  - Screenshots: `scripts/help-screenshots.mjs` drives headless Edge/Chrome over the DevTools protocol against a running
-    verification instance with demo data (both languages, 1440 × 900, light theme, WebP). Run it only against your own
-    instance: `ODC_URL`, `ODC_EMAIL`, `ODC_PASSWORD`, `ODC_TOTP_KEY` (see the comment at its top).
-  - Update both languages when a feature changes. `contents.test.ts` checks unique ids, chapter order, that every
-    `<Ref>` points to a topic and the `h2`-only structure; `help.test.tsx` covers the layout, navigation and search.
+    - `contents.ts`: chapters → topics (id, title, icon, required permissions); `topicPath`, `neighboursOf`, `findEntry`.
+    - One page per topic: `content/uk/<topic-id>.tsx` and its English twin `content/en/<topic-id>.tsx`, each exporting
+      `Content`. `content/pages.ts` loads them lazily (`import.meta.glob`), only in the reader's language; `HelpTopicPage`
+      shows one page with breadcrumbs, the access badge, "On this page" (from its `h2`s) and previous / next.
+    - Building blocks from `components/Manual.tsx`: `<Ui>` (an interface label exactly as on screen), `<Steps>`,
+      `<Ref to>` (link to a topic), `<Table>`, `<Faq>`, `<Kbd>`, `<Code>`, `<Tip>` / `<Note>` / `<Warning>`,
+      `<Figure src alt caption>` (screenshots from `images/<language>/<name>.webp`), `<Access permissions>`. Subheadings
+      are `h2` only (the topic title is the `h1`). The roles page is built from `GET /api/v1/permissions` and
+      `/permissions/system-roles` (`RoleReference`).
+    - Search (`search.ts`) indexes the pages by rendering them hidden once and matches words with Ukrainian/English
+      normalization; a hit opens the page at its section.
+    - Screenshots: `scripts/help-screenshots.mjs` drives headless Edge/Chrome over the DevTools protocol against a running
+      verification instance with demo data (both languages, 1440 × 900, light theme, WebP). Run it only against your own
+      instance: `ODC_URL`, `ODC_EMAIL`, `ODC_PASSWORD`, `ODC_TOTP_KEY` (see the comment at its top).
+    - Update both languages when a feature changes. `contents.test.ts` checks unique ids, chapter order, that every
+      `<Ref>` points to a topic and the `h2`-only structure; `help.test.tsx` covers the layout, navigation and search.
 - Texts: Lingui with Ukrainian source texts — ``t`Зберегти` `` / `<Trans>` from `@lingui/react/macro`, ``msg`…` `` for
   module-level descriptors, `msg({ message, context })` for the same word with different meanings. Dates in Kyiv time
   through `shared/i18n/format.ts`, enum names through `shared/i18n/display.ts`.
@@ -203,7 +217,7 @@ rule that keeps features apart):
 ## Gotchas
 
 - **React Compiler runs before the Lingui macro**: a static element inside `<Trans>` (`<strong>Microsoft
-  Authenticator</strong>`) can be hoisted into a memoized value; the runtime message id then misses the catalog and the
+Authenticator</strong>`) can be hoisted into a memoized value; the runtime message id then misses the catalog and the
   page shows an id like `OFoRj4`. Keep `<Trans>` children dynamic (`<strong>{email}</strong>`, `<Link to>`) or use `t`.
 - `react-hooks/purity` flags `Date.now()` even inside async handlers of a component; read the clock through a small
   module-level helper called only from handlers (see `answeredAt` in `ActivationPage`).

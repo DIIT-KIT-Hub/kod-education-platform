@@ -1,12 +1,10 @@
 import { useLingui } from "@lingui/react/macro";
 import { useQuery } from "@tanstack/react-query";
 import { Building2, Layers, Network, Pencil, Plus } from "lucide-react";
-import { describeError } from "@/shared/api/problem";
 import type { UnitListItem } from "@/shared/api/schema";
 import { unitTypeIcon } from "@/shared/lib/unitTypeIcons";
 import { hasPermission, Permissions, useCurrentUser } from "@/shared/session/session";
 import layout from "@/shared/styles/layout.module.css";
-import { Alert } from "@/shared/ui/Alert";
 import { Badge } from "@/shared/ui/Badge";
 import { ButtonLink } from "@/shared/ui/Button";
 import { DataGrid, GridPrimary, type GridColumn } from "@/shared/ui/DataGrid";
@@ -138,7 +136,6 @@ export function UnitsPage() {
             </div>
 
             {units.isPending && <SkeletonTable rows={8} columns={3} />}
-            {units.isError && <Alert tone="danger">{describeError(units.error, t`Не вдалося завантажити підрозділи.`)}</Alert>}
             {units.data && (
                 <DataGrid
                     columns={columns}

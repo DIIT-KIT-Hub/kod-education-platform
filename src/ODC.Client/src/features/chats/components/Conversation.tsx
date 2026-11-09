@@ -2,7 +2,7 @@ import { useLingui } from "@lingui/react/macro";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, MessageSquareOff, Users } from "lucide-react";
 import { useRef, useState } from "react";
-import { ApiError } from "@/shared/api/problem";
+import { isRefusal } from "@/shared/api/loadErrors";
 import { useCurrentUser } from "@/shared/session/session";
 import { Button, ButtonLink } from "@/shared/ui/Button";
 import { DocumentTitle } from "@/shared/ui/DocumentTitle";
@@ -35,13 +35,14 @@ export function Conversation({ chatId }: ConversationProps) {
     const { t } = useLingui();
     const queryClient = useQueryClient();
     const me = useCurrentUser().id;
-    const details = useQuery(chatQuery(chatId));
+    // A chat the user left or that was deleted is the page's own state; other failures are a toast.
+    const details = useQuery({ ...chatQuery(chatId), meta: { loadErrors: "refusal-is-content" } });
     const thread = useQuery(threadQuery(chatId));
     const typing = useTyping(chatId).filter((user) => user.id !== me);
     const [membersOpen, setMembersOpen] = useState(false);
     const reported = useRef(0);
 
-    if (details.error instanceof ApiError && details.error.status === 404) {
+    if (isRefusal(details.error)) {
         return (
             <EmptyState icon={MessageSquareOff} title={t`Чат не знайдено`} text={t`Можливо, Вас вилучили з чату або його видалено.`}>
                 <ButtonLink to="/chats" variant="secondary">

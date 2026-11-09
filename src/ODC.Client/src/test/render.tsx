@@ -5,6 +5,7 @@ import userEvent, { type UserEvent } from "@testing-library/user-event";
 import { Suspense, type ReactNode } from "react";
 import { createMemoryRouter, RouterProvider, useLocation, type RouteObject } from "react-router";
 import { setAntiforgeryToken } from "@/shared/api/client";
+import { createQueryCache } from "@/shared/api/loadErrors";
 import { ApiError } from "@/shared/api/problem";
 import { i18n } from "@/shared/i18n/i18n";
 import { authContextQuery } from "@/shared/session/session";
@@ -46,6 +47,7 @@ export interface RenderedPage extends RenderResult {
  */
 export function createTestQueryClient(): QueryClient {
     return new QueryClient({
+        queryCache: createQueryCache(),
         defaultOptions: {
             queries: { retry: false, staleTime: Infinity, gcTime: Infinity },
             mutations: { retry: false },

@@ -238,10 +238,12 @@ describe("TicketPage", () => {
         expect(status).toHaveLength(0);
     });
 
-    it("shows the server's message when the request cannot be loaded", async () => {
+    it("shows the server's message as a toast when the request cannot be loaded and keeps the way back", async () => {
         mockApi("get", "/api/v1/tickets/{id}", () => problem(404, "not_found", "Звернення не знайдено."));
         renderPage(<TicketPage />, { path: "/requests/:id", url: "/requests/missing" });
 
-        expect(await screen.findByText("Звернення не знайдено.")).toBeInTheDocument();
+        expect(await screen.findByRole("alert")).toHaveTextContent("Звернення не знайдено.");
+        expect(screen.getByRole("heading", { level: 1, name: "Звернення" })).toBeInTheDocument();
+        expect(screen.getByRole("link", { name: "Звернення" })).toHaveAttribute("href", "/requests");
     });
 });

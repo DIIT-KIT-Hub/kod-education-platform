@@ -65,7 +65,16 @@ export function UserEditorPage() {
 
     const error = existing.error ?? units.error ?? roles.error ?? permissions.error;
     if (error) {
-        return <Alert tone="danger">{describeError(error, t`Не вдалося завантажити обліковий запис.`)}</Alert>;
+        // The reason is a toast (the query cache); the page keeps its frame.
+        return (
+            <PageHeader
+                title={t`Обліковий запис`}
+                breadcrumbs={[
+                    { text: t`Адміністрування`, to: "/admin" },
+                    { text: t`Користувачі`, to: "/admin/users" },
+                ]}
+            />
+        );
     }
 
     return (

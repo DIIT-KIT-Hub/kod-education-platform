@@ -2,7 +2,8 @@ import { screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { makePage, type Schemas } from "@/test/factories";
 import { renderPage, type RenderOptions } from "@/test/render";
-import { mockApi, problem, type RecordedRequest } from "@/test/server";
+import { captureDownloads } from "@/test/downloads";
+import { file, mockApi, problem, type RecordedRequest } from "@/test/server";
 import { formatDateTime } from "@/shared/i18n/format";
 import { choose, ids, makeRoleOptions, makeUnitOptions, makeUserListItem, optionsOf, userWith, viewOf } from "../testing";
 import { UsersPage } from "./UsersPage";
@@ -137,11 +138,33 @@ describe("UsersPage", () => {
         expect(await screen.findByRole("alert")).toHaveTextContent("Недостатньо прав для перегляду користувачів.");
     });
 
-    it("shows a general message when the server cannot be reached", async () => {
+    it("shows a general message as a toast when the server cannot be reached and keeps the page", async () => {
         mockUsers(() => Response.error());
         renderUsers();
 
-        expect(await screen.findByRole("alert")).toHaveTextContent("Не вдалося завантажити користувачів.");
+        expect(await screen.findByRole("alert")).toHaveTextContent(
+            "Не вдалося зв'язатися з сервером. Перевірте з'єднання й спробуйте ще раз.",
+        );
+        expect(screen.getByRole("heading", { name: "Користувачі" })).toBeInTheDocument();
+        expect(screen.getByRole("searchbox", { name: "ПІБ або e-mail" })).toBeInTheDocument();
+        expect(screen.queryByRole("table")).not.toBeInTheDocument();
+    });
+
+    it("shows the server's message as a toast when the list fails", async () => {
+        mockUsers(() => problem(500, "server_error", "Сервер тимчасово недоступний."));
+        renderUsers();
+
+        expect(await screen.findByRole("alert")).toHaveTextContent("Сервер тимчасово недоступний.");
+    });
+
+    it("shows one toast when several loads fail for the same reason", async () => {
+        mockApi("get", "/api/v1/users", () => Response.error());
+        mockApi("get", "/api/v1/users/units", () => Response.error());
+        mockApi("get", "/api/v1/users/roles", () => Response.error());
+        renderUsers();
+
+        await screen.findByRole("alert");
+        await waitFor(() => expect(screen.getAllByRole("alert")).toHaveLength(1));
     });
 
     it("searches by name or e-mail and keeps the search in the history entry", async () => {
@@ -292,41 +315,96 @@ describe("UsersPage", () => {
         expect(viewOf(router).has("page")).toBe(false);
     });
 
-    it("exports with the current filters", async () => {
+    it("exports with the current filters and reports the start and the end with toasts", async () => {
         mockUsers();
-        renderUsers({ state: { view: `search=ivan&status=Blocked&unit=${ids.department}&role=${ids.role}&page=2` } });
+        const saved = captureDownloads();
+        const exports = mockApi("get", "/api/v1/user-exports", () => file("users-20261109-1000.xlsx"));
+        const { user } = renderUsers({ state: { view: `search=ivan&status=Blocked&unit=${ids.department}&role=${ids.role}&page=2` } });
 
-        const xlsx = await screen.findByRole("link", { name: "XLSX" });
-        expect(xlsx).toHaveAttribute(
-            "href",
-            `/api/v1/user-exports?format=Xlsx&Status=Blocked&Search=ivan&UnitId=${ids.department}&RoleId=${ids.role}`,
-        );
-        expect(xlsx).toHaveAttribute("download", "");
-        expect(screen.getByRole("link", { name: "CSV" })).toHaveAttribute(
-            "href",
-            `/api/v1/user-exports?format=Csv&Status=Blocked&Search=ivan&UnitId=${ids.department}&RoleId=${ids.role}`,
-        );
+        await user.click(await screen.findByRole("button", { name: "XLSX" }));
+
+        expect(await screen.findByText("Експорт користувачів розпочато. Файл завантажиться, щойно буде готовий.")).toBeInTheDocument();
+        expect(await screen.findByText("Експорт завершено: файл users-20261109-1000.xlsx завантажено.")).toBeInTheDocument();
+        expect(Object.fromEntries(exports[0]?.query ?? [])).toEqual({
+            format: "Xlsx",
+            Status: "Blocked",
+            Search: "ivan",
+            UnitId: ids.department,
+            RoleId: ids.role,
+        });
+        expect(saved).toEqual([{ name: "users-20261109-1000.xlsx", href: expect.stringMatching(/^blob:/) as unknown }]);
+        expect(screen.getByRole("button", { name: "XLSX" })).toBeEnabled();
     });
 
-    it("exports every user without filters", async () => {
+    it("exports every user as CSV without filters", async () => {
         mockUsers();
-        renderUsers();
+        const saved = captureDownloads();
+        const exports = mockApi("get", "/api/v1/user-exports", () => file("users-20261109-1000.csv"));
+        const { user } = renderUsers();
 
-        expect(await screen.findByRole("link", { name: "XLSX" })).toHaveAttribute("href", "/api/v1/user-exports?format=Xlsx&Status=All");
-        expect(screen.getByRole("link", { name: "CSV" })).toHaveAttribute("href", "/api/v1/user-exports?format=Csv&Status=All");
+        await user.click(await screen.findByRole("button", { name: "CSV" }));
+
+        expect(await screen.findByText("Експорт завершено: файл users-20261109-1000.csv завантажено.")).toBeInTheDocument();
+        expect(Object.fromEntries(exports[0]?.query ?? [])).toEqual({ format: "Csv", Status: "All" });
+        expect(saved.map(({ name }) => name)).toEqual(["users-20261109-1000.csv"]);
     });
 
     it("exports the awaiting accounts when that filter is chosen", async () => {
         mockUsers();
+        captureDownloads();
+        const exports = mockApi("get", "/api/v1/user-exports", () => file("users.csv"));
         const { user } = renderUsers();
 
         await choose(user, await screen.findByRole("combobox", { name: "Статус" }), "Очікують активації");
-        await waitFor(() =>
-            expect(screen.getByRole("link", { name: "CSV" })).toHaveAttribute(
-                "href",
-                "/api/v1/user-exports?format=Csv&Status=AwaitingActivation",
-            ),
-        );
+        await user.click(screen.getByRole("button", { name: "CSV" }));
+
+        await waitFor(() => expect(exports[0]?.query.get("Status")).toBe("AwaitingActivation"));
+    });
+
+    it("keeps the button busy while the export is prepared", async () => {
+        mockUsers();
+        captureDownloads();
+        let finish: () => void = () => undefined;
+        const ready = new Promise<void>((resolve) => {
+            finish = resolve;
+        });
+        mockApi("get", "/api/v1/user-exports", async () => {
+            await ready;
+            return file("users.xlsx");
+        });
+        const { user } = renderUsers();
+
+        await user.click(await screen.findByRole("button", { name: "XLSX" }));
+        await waitFor(() => expect(screen.getByRole("button", { name: "XLSX" })).toBeDisabled());
+        expect(screen.queryByText(/Експорт завершено/)).not.toBeInTheDocument();
+
+        finish();
+        expect(await screen.findByText("Експорт завершено: файл users.xlsx завантажено.")).toBeInTheDocument();
+        expect(screen.getByRole("button", { name: "XLSX" })).toBeEnabled();
+    });
+
+    it("says why the export failed and saves nothing", async () => {
+        mockUsers();
+        const saved = captureDownloads();
+        mockApi("get", "/api/v1/user-exports", () => problem(403, "forbidden", "Недостатньо прав для експорту."));
+        const { user } = renderUsers();
+
+        await user.click(await screen.findByRole("button", { name: "XLSX" }));
+
+        expect(await screen.findByRole("alert")).toHaveTextContent("Недостатньо прав для експорту.");
+        expect(screen.queryByText(/Експорт завершено/)).not.toBeInTheDocument();
+        expect(saved).toEqual([]);
+    });
+
+    it("falls back to a general message when the export cannot be reached", async () => {
+        mockUsers();
+        captureDownloads();
+        mockApi("get", "/api/v1/user-exports", () => Response.error());
+        const { user } = renderUsers();
+
+        await user.click(await screen.findByRole("button", { name: "CSV" }));
+
+        expect(await screen.findByRole("alert")).toHaveTextContent("Не вдалося експортувати користувачів. Спробуйте ще раз.");
     });
 
     it("offers export, import and creation to a user with every permission", async () => {
@@ -335,13 +413,16 @@ describe("UsersPage", () => {
 
         expect(await screen.findByRole("link", { name: "Імпорт" })).toHaveAttribute("href", "/admin/users/import");
         expect(screen.getByRole("link", { name: "Додати" })).toHaveAttribute("href", "/admin/users/new");
-        expect(screen.getByRole("link", { name: "XLSX" })).toBeInTheDocument();
+        expect(screen.getByRole("button", { name: "XLSX" })).toBeInTheDocument();
         expect(screen.getByRole("link", { name: "Адміністрування" })).toHaveAttribute("href", "/admin");
     });
 
     it.each([
         [["users.view"], []],
-        [["users.view", "users.export"], ["XLSX", "CSV"]],
+        [
+            ["users.view", "users.export"],
+            ["XLSX", "CSV"],
+        ],
         [["users.view", "users.import"], ["Імпорт"]],
         [["users.view", "users.manage"], ["Додати"]],
         [["users.view", "users.security", "roles.manage"], []],
@@ -350,11 +431,16 @@ describe("UsersPage", () => {
         renderUsers({ user: userWith(...permissions) });
 
         await screen.findByRole("link", { name: "Коваленко Марія Андріївна" });
-        for (const name of ["XLSX", "CSV", "Імпорт", "Додати"]) {
+        for (const [name, role] of [
+            ["XLSX", "button"],
+            ["CSV", "button"],
+            ["Імпорт", "link"],
+            ["Додати", "link"],
+        ] as const) {
             if (expected.includes(name)) {
-                expect(screen.getByRole("link", { name })).toBeInTheDocument();
+                expect(screen.getByRole(role, { name })).toBeInTheDocument();
             } else {
-                expect(screen.queryByRole("link", { name })).not.toBeInTheDocument();
+                expect(screen.queryByRole(role, { name })).not.toBeInTheDocument();
             }
         }
     });

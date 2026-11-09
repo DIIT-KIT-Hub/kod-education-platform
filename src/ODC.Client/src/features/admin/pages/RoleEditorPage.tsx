@@ -9,7 +9,6 @@ import { z } from "zod";
 import { describeError } from "@/shared/api/problem";
 import type { PermissionDefinition, RoleDetails } from "@/shared/api/schema";
 import layout from "@/shared/styles/layout.module.css";
-import { Alert } from "@/shared/ui/Alert";
 import { Badge } from "@/shared/ui/Badge";
 import { Button } from "@/shared/ui/Button";
 import { Card } from "@/shared/ui/Card";
@@ -41,7 +40,16 @@ export function RoleEditorPage() {
 
     const error = existing.error ?? permissions.error;
     if (error) {
-        return <Alert tone="danger">{describeError(error, t`Не вдалося завантажити роль.`)}</Alert>;
+        // The reason is a toast (the query cache); the page keeps its frame.
+        return (
+            <PageHeader
+                title={t`Роль`}
+                breadcrumbs={[
+                    { text: t`Адміністрування`, to: "/admin" },
+                    { text: t`Ролі`, to: "/admin/roles" },
+                ]}
+            />
+        );
     }
 
     return <RoleForm key={id ?? "new"} existing={existing.data ?? null} catalog={permissions.data ?? []} />;

@@ -40,7 +40,16 @@ export function UnitEditorPage() {
 
     const error = existing.error ?? options.error ?? types.error;
     if (error) {
-        return <Alert tone="danger">{describeError(error, t`Не вдалося завантажити підрозділ.`)}</Alert>;
+        // The reason is a toast (the query cache); the page keeps its frame.
+        return (
+            <PageHeader
+                title={t`Підрозділ`}
+                breadcrumbs={[
+                    { text: t`Адміністрування`, to: "/admin" },
+                    { text: t`Структура`, to: "/admin/units" },
+                ]}
+            />
+        );
     }
 
     return <UnitForm key={id ?? "new"} existing={existing.data ?? null} units={options.data ?? []} types={types.data ?? []} />;

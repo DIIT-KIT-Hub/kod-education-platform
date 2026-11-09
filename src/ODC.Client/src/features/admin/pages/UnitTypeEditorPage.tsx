@@ -41,7 +41,17 @@ export function UnitTypeEditorPage() {
     }
 
     if (existing.isError) {
-        return <Alert tone="danger">{describeError(existing.error, t`Не вдалося завантажити тип підрозділу.`)}</Alert>;
+        // The reason is a toast (the query cache); the page keeps its frame.
+        return (
+            <PageHeader
+                title={t`Тип підрозділу`}
+                breadcrumbs={[
+                    { text: t`Адміністрування`, to: "/admin" },
+                    { text: t`Структура`, to: "/admin/units" },
+                    { text: t`Типи підрозділів`, to: "/admin/unit-types" },
+                ]}
+            />
+        );
     }
 
     return <UnitTypeForm key={id ?? "new"} existing={existing.data ?? null} />;

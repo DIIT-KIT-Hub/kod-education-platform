@@ -2,8 +2,6 @@ import { useLingui } from "@lingui/react/macro";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { useState } from "react";
-import { describeError } from "@/shared/api/problem";
-import { Alert } from "@/shared/ui/Alert";
 import { ButtonLink } from "@/shared/ui/Button";
 import { SkeletonText } from "@/shared/ui/Skeleton";
 import { authApi } from "../api";
@@ -46,7 +44,6 @@ export function SetupAuthenticatorPage() {
         return (
             <>
                 <AuthHeader title={t`Захистіть вхід`} pageTitle={t`Підключення автентифікатора`} />
-                <Alert tone="danger">{describeError(pending.error, t`Не вдалося зв'язатися з сервером. Спробуйте ще раз.`)}</Alert>
                 <ButtonLink to="/account/login" variant="secondary" icon={ArrowLeft}>
                     {t`До сторінки входу`}
                 </ButtonLink>

@@ -1,10 +1,8 @@
 import { useLingui } from "@lingui/react/macro";
 import { useQuery } from "@tanstack/react-query";
 import { Network, Plus, SearchX, Settings } from "lucide-react";
-import { describeError } from "@/shared/api/problem";
 import { useViewParams } from "@/shared/lib/viewParams";
 import { hasPermission, Permissions, useCurrentUser } from "@/shared/session/session";
-import { Alert } from "@/shared/ui/Alert";
 import { ButtonLink } from "@/shared/ui/Button";
 import { Card } from "@/shared/ui/Card";
 import { EmptyState } from "@/shared/ui/EmptyState";
@@ -71,7 +69,6 @@ export function StructurePage() {
             )}
 
             {tree.isPending && <SkeletonList rows={10} media="icon" lines={1} nested framed />}
-            {tree.isError && <Alert tone="danger">{describeError(tree.error, t`Не вдалося завантажити структуру.`)}</Alert>}
             {tree.data && (
                 <Card>
                     {tree.data.length === 0 ? (

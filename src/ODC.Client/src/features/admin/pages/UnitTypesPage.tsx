@@ -1,7 +1,6 @@
 import { useLingui } from "@lingui/react/macro";
 import { useQuery } from "@tanstack/react-query";
 import { Eye, Info, Layers, Pencil, Plus } from "lucide-react";
-import { describeError } from "@/shared/api/problem";
 import type { UnitTypeItem } from "@/shared/api/schema";
 import { unitTypeIcon } from "@/shared/lib/unitTypeIcons";
 import { hasPermission, Permissions, useCurrentUser } from "@/shared/session/session";
@@ -84,7 +83,6 @@ export function UnitTypesPage() {
                     </Alert>
                 )}
                 {types.isPending && <SkeletonTable columns={2} />}
-                {types.isError && <Alert tone="danger">{describeError(types.error, t`Не вдалося завантажити типи підрозділів.`)}</Alert>}
                 {types.data && (
                     <DataGrid
                         columns={columns}

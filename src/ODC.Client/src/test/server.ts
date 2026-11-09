@@ -113,3 +113,18 @@ export function problem(status: number, code: string, detail = "Помилка �
 export function json(body: JsonBodyType, status = 200): Response {
     return HttpResponse.json(body, { status });
 }
+
+/**
+ * Answers with a file as the server sends a download (`Content-Disposition` with the plain and the UTF-8 name).
+ * @param name The file name.
+ * @param body The content.
+ * @returns The response.
+ */
+export function file(name: string, body = "file"): Response {
+    return new HttpResponse(body, {
+        headers: {
+            "Content-Type": "application/octet-stream",
+            "Content-Disposition": `attachment; filename=${name}; filename*=UTF-8''${encodeURIComponent(name)}`,
+        },
+    });
+}

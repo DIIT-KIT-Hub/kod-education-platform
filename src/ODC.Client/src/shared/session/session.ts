@@ -22,6 +22,8 @@ export const authContextQuery = queryOptions({
         return context;
     },
     staleTime: Infinity,
+    // Without the context no page can show: its failure is the route error page, not a toast.
+    meta: { loadErrors: "quiet" },
 });
 
 /**

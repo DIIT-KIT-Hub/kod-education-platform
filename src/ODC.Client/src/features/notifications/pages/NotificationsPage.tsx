@@ -4,7 +4,6 @@ import { Bell, CheckCheck, Trash2 } from "lucide-react";
 import { describeError } from "@/shared/api/problem";
 import { useViewParams } from "@/shared/lib/viewParams";
 import layout from "@/shared/styles/layout.module.css";
-import { Alert } from "@/shared/ui/Alert";
 import { Button } from "@/shared/ui/Button";
 import { confirm } from "@/shared/ui/ConfirmHost";
 import { EmptyState } from "@/shared/ui/EmptyState";
@@ -90,7 +89,6 @@ export function NotificationsPage() {
             </div>
 
             {list.isPending && <SkeletonList rows={8} media="icon" framed />}
-            {list.isError && <Alert tone="danger">{describeError(list.error, t`Не вдалося завантажити сповіщення.`)}</Alert>}
             {list.data && list.data.items.length === 0 && (
                 <EmptyState
                     icon={Bell}

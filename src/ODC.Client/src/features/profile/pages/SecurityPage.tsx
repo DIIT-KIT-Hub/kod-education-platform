@@ -5,7 +5,6 @@ import { useState } from "react";
 import { describeError } from "@/shared/api/problem";
 import type { ProfileDto } from "@/shared/api/schema";
 import layout from "@/shared/styles/layout.module.css";
-import { Alert } from "@/shared/ui/Alert";
 import { Badge } from "@/shared/ui/Badge";
 import { Button, ButtonLink } from "@/shared/ui/Button";
 import { Card } from "@/shared/ui/Card";
@@ -33,7 +32,6 @@ export function SecurityPage() {
             <PageHeader title={t`Безпека`} subtitle={t`Пароль, двофакторна автентифікація, резервні коди та входи на інших пристроях.`} />
             <ProfileTabs current="security" />
             {profile.isPending && <SkeletonPage header={false} />}
-            {profile.isError && <Alert tone="danger">{describeError(profile.error, t`Не вдалося завантажити профіль.`)}</Alert>}
             {profile.data && (
                 <div className={[styles.security, layout.stagger].join(" ")}>
                     <Card title={t`Пароль`} subtitle={t`Регулярно змінюйте пароль і не використовуйте його в інших сервісах.`}>

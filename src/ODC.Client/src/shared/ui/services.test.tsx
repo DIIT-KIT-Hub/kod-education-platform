@@ -48,6 +48,21 @@ describe("toast", () => {
         act(() => vi.advanceTimersByTime(3000));
         expect(screen.queryByText("Помилка")).not.toBeInTheDocument();
     });
+
+    it("does not stack a message that is already shown, but shows it again once it has gone", async () => {
+        vi.useFakeTimers();
+        renderPage(<p>page</p>);
+
+        act(() => toast("Немає з'єднання", { tone: "error" }));
+        act(() => toast("Немає з'єднання", { tone: "error" }));
+        act(() => toast("Немає з'єднання", { tone: "warning" }));
+        expect(screen.getAllByText("Немає з'єднання")).toHaveLength(2);
+
+        act(() => vi.advanceTimersByTime(8000));
+        expect(screen.queryByText("Немає з'єднання")).not.toBeInTheDocument();
+        act(() => toast("Немає з'єднання", { tone: "error" }));
+        expect(screen.getAllByText("Немає з'єднання")).toHaveLength(1);
+    });
 });
 
 describe("confirm", () => {

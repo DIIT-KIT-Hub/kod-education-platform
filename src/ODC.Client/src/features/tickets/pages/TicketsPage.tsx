@@ -2,12 +2,10 @@ import { useLingui } from "@lingui/react/macro";
 import { useQuery } from "@tanstack/react-query";
 import { LifeBuoy, Plus } from "lucide-react";
 import { Link } from "react-router";
-import { describeError } from "@/shared/api/problem";
 import type { TicketListItem } from "@/shared/api/schema";
 import { ticketCategoryNames, ticketStatusNames } from "@/shared/i18n/display";
 import { formatAgo, formatDateTime } from "@/shared/i18n/format";
 import layout from "@/shared/styles/layout.module.css";
-import { Alert } from "@/shared/ui/Alert";
 import { ButtonLink } from "@/shared/ui/Button";
 import { DataGrid, type GridColumn } from "@/shared/ui/DataGrid";
 import { PageHeader } from "@/shared/ui/PageHeader";
@@ -85,7 +83,6 @@ export function TicketsPage() {
             </div>
 
             {tickets.isPending && <SkeletonTable columns={3} />}
-            {tickets.isError && <Alert tone="danger">{describeError(tickets.error, t`Не вдалося завантажити звернення.`)}</Alert>}
             {tickets.data && (
                 <DataGrid
                     columns={columns}

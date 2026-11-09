@@ -1,4 +1,5 @@
 import createClient, { type Middleware } from "openapi-fetch";
+import { endsSignIn } from "./problem";
 import type { paths } from "./schema";
 
 /**
@@ -43,7 +44,7 @@ const security: Middleware = {
         return request;
     },
     onResponse({ request, response }) {
-        if (response.status === 401 && !new URL(request.url).pathname.startsWith("/api/v1/auth/")) {
+        if (endsSignIn(response.status, new URL(request.url).pathname)) {
             unauthorizedListeners.forEach((listener) => listener());
         }
 

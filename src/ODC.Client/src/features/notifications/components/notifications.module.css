@@ -73,11 +73,6 @@
     padding: var(--ds-space-2);
 }
 
-.panelError {
-    margin: var(--ds-space-4);
-    color: var(--ds-color-danger);
-}
-
 .panelFooter {
     display: block;
     padding: var(--ds-space-3);

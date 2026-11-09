@@ -70,13 +70,19 @@ function dismiss(id: number): void {
 
 /**
  * Shows a notification at the bottom of the screen for a few seconds. Every outcome of an action (saved, deleted,
- * failed) is reported this way, not by a message on the page.
+ * failed) and every failed load is reported this way, not by a message on the page. A message that is already shown is
+ * not shown twice.
  * @param text The text (already translated).
  * @param options What it reports.
  */
 export function toast(text: string, options: ToastOptions = {}): void {
-    const id = nextId++;
     const tone = options.tone ?? "success";
+    // The same message is not stacked (several loads failing at once for the same reason).
+    if (toasts.some((item) => item.text === text && item.tone === tone && !item.leaving)) {
+        return;
+    }
+
+    const id = nextId++;
     const duration = durations[tone];
     update([...toasts, { id, text, tone, duration, leaving: false }]);
     setTimeout(() => dismiss(id), duration);

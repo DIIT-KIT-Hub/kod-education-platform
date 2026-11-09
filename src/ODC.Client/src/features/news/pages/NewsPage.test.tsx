@@ -114,7 +114,7 @@ describe("NewsPage", () => {
         mockApi("get", "/api/v1/news", () => problem(500, "server_error", ""));
         renderNews();
 
-        expect(await screen.findByText("Не вдалося завантажити новини.")).toBeInTheDocument();
+        expect(await screen.findByRole("alert")).toHaveTextContent("Не вдалося завантажити дані. Спробуйте ще раз.");
     });
 
     it("filters by the category tab", async () => {
@@ -123,14 +123,11 @@ describe("NewsPage", () => {
 
         const tabs = await screen.findByRole("navigation", { name: "Категорії" });
         expect(within(tabs).getByRole("link", { name: "Усі" })).toHaveAttribute("aria-current", "page");
-        expect(within(tabs).getAllByRole("link").map((link) => link.textContent)).toEqual([
-            "Усі",
-            "Новини",
-            "Оголошення",
-            "Подія",
-            "Навчання та розвиток",
-            "Проєкти та досягнення",
-        ]);
+        expect(
+            within(tabs)
+                .getAllByRole("link")
+                .map((link) => link.textContent),
+        ).toEqual(["Усі", "Новини", "Оголошення", "Подія", "Навчання та розвиток", "Проєкти та досягнення"]);
 
         await user.click(within(tabs).getByRole("link", { name: "Подія" }));
 

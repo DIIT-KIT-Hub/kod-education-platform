@@ -8,7 +8,6 @@ import { useNavigate } from "react-router";
 import { z } from "zod";
 import { ApiError, describeError } from "@/shared/api/problem";
 import layout from "@/shared/styles/layout.module.css";
-import { Alert } from "@/shared/ui/Alert";
 import { Button } from "@/shared/ui/Button";
 import { CopyButton } from "@/shared/ui/CopyButton";
 import { Field } from "@/shared/ui/Field";
@@ -94,9 +93,6 @@ export function LinkAuthenticator({ badge, rememberMe, onEnrolled }: LinkAuthent
                             <SkeletonGroup>
                                 <Skeleton shape="block" width="15rem" height="15rem" />
                             </SkeletonGroup>
-                        )}
-                        {key.isError && (
-                            <Alert tone="danger">{describeError(key.error, t`Не вдалося зв'язатися з сервером. Спробуйте ще раз.`)}</Alert>
                         )}
                         {key.data && (
                             <>

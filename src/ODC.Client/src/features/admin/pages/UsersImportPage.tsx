@@ -1,15 +1,15 @@
 import { useLingui } from "@lingui/react/macro";
 import { useQuery } from "@tanstack/react-query";
-import { CircleCheck, Download, FileSpreadsheet, ListChecks, MailCheck, Table, Upload, UserCog, UserPlus } from "lucide-react";
+import { CircleCheck, FileSpreadsheet, ListChecks, MailCheck, Table, Upload, UserCog, UserPlus } from "lucide-react";
 import { useState } from "react";
 import { describeError } from "@/shared/api/problem";
-import type { ImportRowError, UserImportReport } from "@/shared/api/schema";
+import type { ImportRowError, SpreadsheetFormat, UserImportReport } from "@/shared/api/schema";
 import { formatNumber } from "@/shared/i18n/format";
 import { useViewParams } from "@/shared/lib/viewParams";
 import { hasPermission, Permissions, useCurrentUser } from "@/shared/session/session";
 import layout from "@/shared/styles/layout.module.css";
 import { Alert } from "@/shared/ui/Alert";
-import { Button, ButtonLink } from "@/shared/ui/Button";
+import { Button } from "@/shared/ui/Button";
 import { Card } from "@/shared/ui/Card";
 import { DataGrid, type GridColumn } from "@/shared/ui/DataGrid";
 import { FileDrop } from "@/shared/ui/FileDrop";
@@ -19,6 +19,8 @@ import { Progress } from "@/shared/ui/Progress";
 import { StatCard } from "@/shared/ui/StatCard";
 import { toast } from "@/shared/ui/Toast";
 import { adminApi, importRolesQuery } from "../api";
+import { DownloadButton, type DownloadMessages } from "../components/DownloadButton";
+import { UserExportButtons } from "../components/UserExportButtons";
 import styles from "./admin.module.css";
 
 /** The largest import file (matches FileRules.MaxImportSize). */
@@ -29,6 +31,9 @@ const importColumns = "Email, Прізвище, Ім'я, По батькові, 
 
 /** Errors per page of the report. */
 const errorPageSize = 10;
+
+/** The formats of the template, in the order of the buttons. */
+const templateFormats: readonly SpreadsheetFormat[] = ["Xlsx", "Csv"];
 
 /**
  * Bulk creation and update of accounts from XLSX or CSV (checked first, applied only without errors) and the export.
@@ -43,9 +48,14 @@ export function UsersImportPage() {
     const [file, setFile] = useState<File | null>(null);
     const [report, setReport] = useState<UserImportReport | null>(null);
     const [busy, setBusy] = useState(false);
+    const templateMessages: DownloadMessages = {
+        started: t`Шаблон готується до завантаження.`,
+        done: (fileName) => t`Шаблон ${fileName} завантажено.`,
+        failed: t`Не вдалося завантажити шаблон. Спробуйте ще раз.`,
+    };
 
     /**
-     * Checks the file (dry run) or applies it.
+     * Checks the file (dry run) or applies it; toasts say when it started and how it ended.
      * @param dryRun Whether only to check.
      */
     async function run(dryRun: boolean): Promise<void> {
@@ -54,8 +64,22 @@ export function UsersImportPage() {
         }
 
         setBusy(true);
+        toast(dryRun ? t`Перевірку файлу розпочато.` : t`Імпорт користувачів розпочато. Це може тривати кілька хвилин.`, {
+            tone: "info",
+        });
         try {
-            setReport(await adminApi.importUsers(file, dryRun));
+            const result = await adminApi.importUsers(file, dryRun);
+            setReport(result);
+            const errors = result.errors.length;
+            if (errors > 0) {
+                toast(dryRun ? t`Перевірку завершено. Знайдено помилок: ${errors}.` : t`Імпорт не виконано. Знайдено помилок: ${errors}.`, {
+                    tone: "warning",
+                });
+            } else if (dryRun) {
+                toast(t`Перевірку завершено: помилок не знайдено.`);
+            } else {
+                toast(t`Імпорт завершено. Створено: ${result.usersToCreate}, оновлено: ${result.usersToUpdate}.`);
+            }
         } catch (failure) {
             setReport(null);
             toast(describeError(failure, t`Не вдалося обробити файл. Спробуйте ще раз.`), { tone: "error" });
@@ -128,24 +152,18 @@ export function UsersImportPage() {
                         <Card title={t`Шаблон`} variant="muted">
                             <p className={[layout.textSm, layout.muted].join(" ")}>{t`Стовпці: ${importColumns}.`}</p>
                             <div className={layout.cluster}>
-                                <ButtonLink
-                                    href="/api/v1/user-imports/template?format=Xlsx"
-                                    download=""
-                                    variant="secondary"
-                                    size="sm"
-                                    icon={Download}
-                                >
-                                    XLSX
-                                </ButtonLink>
-                                <ButtonLink
-                                    href="/api/v1/user-imports/template?format=Csv"
-                                    download=""
-                                    variant="secondary"
-                                    size="sm"
-                                    icon={Download}
-                                >
-                                    CSV
-                                </ButtonLink>
+                                {templateFormats.map((format) => (
+                                    <DownloadButton
+                                        key={format}
+                                        href={`/api/v1/user-imports/template?format=${format}`}
+                                        fileName={`users-import-template.${format.toLowerCase()}`}
+                                        messages={templateMessages}
+                                        variant="secondary"
+                                        size="sm"
+                                    >
+                                        {format.toUpperCase()}
+                                    </DownloadButton>
+                                ))}
                             </div>
                             {roles.data && roles.data.length > 0 && (
                                 <details className={styles.details}>
@@ -168,18 +186,7 @@ export function UsersImportPage() {
                                 {t`Вивантажує всіх користувачів у форматі, сумісному з імпортом (без паролів).`}
                             </p>
                             <div className={layout.cluster}>
-                                <ButtonLink href="/api/v1/user-exports?format=Xlsx" download="" size="sm" icon={Download}>
-                                    XLSX
-                                </ButtonLink>
-                                <ButtonLink
-                                    href="/api/v1/user-exports?format=Csv"
-                                    download=""
-                                    variant="secondary"
-                                    size="sm"
-                                    icon={Download}
-                                >
-                                    CSV
-                                </ButtonLink>
+                                <UserExportButtons href={(format) => `/api/v1/user-exports?format=${format}`} size="sm" primaryFirst />
                             </div>
                         </Card>
                     )}

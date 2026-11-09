@@ -20,6 +20,7 @@ import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useNavigate, useParams } from "react-router";
 import { z } from "zod";
+import { isRefusal } from "@/shared/api/loadErrors";
 import { describeError } from "@/shared/api/problem";
 import type { DocumentEditModel, DocumentKind, SigningMode, UnitOption, UserLookupItem } from "@/shared/api/schema";
 import { documentKindNames, signingModeNames } from "@/shared/i18n/display";
@@ -64,7 +65,8 @@ export function DocumentEditorPage() {
     const { t } = useLingui();
     const { id } = useParams();
     const units = useQuery(authorUnitsQuery);
-    const existing = useQuery({ ...documentEditQuery(id ?? ""), enabled: id !== undefined });
+    // A document that cannot be changed (missing, not the user's) is the page's own state; other failures are a toast.
+    const existing = useQuery({ ...documentEditQuery(id ?? ""), enabled: id !== undefined, meta: { loadErrors: "refusal-is-content" } });
 
     if (units.isPending || (id !== undefined && existing.isPending)) {
         return <SkeletonPage variant="form" />;
@@ -77,17 +79,19 @@ export function DocumentEditorPage() {
                     title={t`Редагування документа`}
                     breadcrumbs={[{ text: t`Документи`, to: "/documents" }, { text: t`Редагування` }]}
                 />
-                <Card>
-                    <EmptyState
-                        icon={FileX}
-                        title={t`Документ не можна змінити`}
-                        text={describeError(existing.error, t`Документ не існує або у Вас немає до нього доступу.`)}
-                    >
-                        <ButtonLink to={`/documents/${id}`} variant="secondary" icon={ArrowLeft}>
-                            {t`До документа`}
-                        </ButtonLink>
-                    </EmptyState>
-                </Card>
+                {isRefusal(existing.error) && (
+                    <Card>
+                        <EmptyState
+                            icon={FileX}
+                            title={t`Документ не можна змінити`}
+                            text={describeError(existing.error, t`Документ не існує або у Вас немає до нього доступу.`)}
+                        >
+                            <ButtonLink to={`/documents/${id}`} variant="secondary" icon={ArrowLeft}>
+                                {t`До документа`}
+                            </ButtonLink>
+                        </EmptyState>
+                    </Card>
+                )}
             </>
         );
     }

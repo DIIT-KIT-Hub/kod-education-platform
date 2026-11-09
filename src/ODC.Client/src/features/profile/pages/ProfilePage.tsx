@@ -14,7 +14,6 @@ import { localeNames, locales, type Locale } from "@/shared/i18n/i18n";
 import { moduleIcons } from "@/shared/lib/moduleIcons";
 import { reloadAuthContext } from "@/shared/session/session";
 import layout from "@/shared/styles/layout.module.css";
-import { Alert } from "@/shared/ui/Alert";
 import { Avatar } from "@/shared/ui/Avatar";
 import { Badge } from "@/shared/ui/Badge";
 import { Button } from "@/shared/ui/Button";
@@ -45,7 +44,6 @@ export function ProfilePage() {
             <PageHeader title={t`Мій профіль`} subtitle={t`Особисті дані, посади та доступні можливості.`} />
             <ProfileTabs current="overview" />
             {profile.isPending && <SkeletonPage header={false} />}
-            {profile.isError && <Alert tone="danger">{describeError(profile.error, t`Не вдалося завантажити профіль.`)}</Alert>}
             {profile.data && (
                 <div className={layout.split}>
                     <div className={[layout.stackLg, layout.stagger].join(" ")}>

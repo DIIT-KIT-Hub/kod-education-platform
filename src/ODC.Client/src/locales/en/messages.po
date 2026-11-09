@@ -1346,6 +1346,10 @@ msgstr "Wait until the photos are uploaded."
 msgid "Експорт"
 msgstr "Export"
 
+#: src/features/admin/components/UserExportButtons.tsx
+msgid "Експорт завершено: файл {fileName} завантажено."
+msgstr "Export finished: {fileName} downloaded."
+
 #: src/shared/i18n/display.ts
 msgctxt "audit"
 msgid "Експорт користувачів"
@@ -1355,6 +1359,10 @@ msgstr "Users exported"
 msgctxt "help"
 msgid "Експорт користувачів"
 msgstr "User export"
+
+#: src/features/admin/components/UserExportButtons.tsx
+msgid "Експорт користувачів розпочато. Файл завантажиться, щойно буде готовий."
+msgstr "User export started. The file will download as soon as it is ready."
 
 #: src/features/auth/pages/ActivationPage.tsx
 #: src/features/auth/pages/LoginPage.tsx
@@ -1869,6 +1877,12 @@ msgstr "Name or e-mail"
 msgid "Імпорт"
 msgstr "Import"
 
+#. placeholder {0}: result.usersToCreate
+#. placeholder {1}: result.usersToUpdate
+#: src/features/admin/pages/UsersImportPage.tsx
+msgid "Імпорт завершено. Створено: {0}, оновлено: {1}."
+msgstr "Import finished. Created: {0}, updated: {1}."
+
 #: src/features/admin/pages/AdminPage.tsx
 #: src/features/admin/pages/UsersImportPage.tsx
 msgid "Імпорт і експорт"
@@ -1887,6 +1901,14 @@ msgstr "Users imported"
 msgctxt "help"
 msgid "Імпорт користувачів"
 msgstr "User import"
+
+#: src/features/admin/pages/UsersImportPage.tsx
+msgid "Імпорт користувачів розпочато. Це може тривати кілька хвилин."
+msgstr "User import started. It may take a few minutes."
+
+#: src/features/admin/pages/UsersImportPage.tsx
+msgid "Імпорт не виконано. Знайдено помилок: {errors}."
+msgstr "Nothing was imported. Errors found: {errors}."
 
 #: src/features/admin/pages/UsersImportPage.tsx
 msgid "Імпортувати"
@@ -2641,6 +2663,10 @@ msgstr "Could not add the people."
 msgid "Не вдалося додати реакцію."
 msgstr "Could not add the reaction."
 
+#: src/features/admin/components/UserExportButtons.tsx
+msgid "Не вдалося експортувати користувачів. Спробуйте ще раз."
+msgstr "Could not export the users. Please try again."
+
 #: src/shared/signing/client.ts
 msgid "Не вдалося завантажити {0} ({1})."
 msgstr "Couldn't load {0} ({1})."
@@ -2650,87 +2676,13 @@ msgstr "Couldn't load {0} ({1})."
 msgid "Не вдалося завантажити бібліотеку підпису."
 msgstr "Couldn't load the signing library."
 
-#: src/features/documents/pages/DocumentsPage.tsx
-msgid "Не вдалося завантажити документи."
-msgstr "Could not load the documents."
-
-#: src/features/admin/pages/AuditPage.tsx
-msgid "Не вдалося завантажити журнал."
-msgstr "Could not load the log."
-
-#: src/features/home/HomePage.tsx
-msgid "Не вдалося завантажити зведення."
-msgstr "Could not load the summary."
-
-#: src/features/tickets/pages/TicketPage.tsx
-#: src/features/tickets/pages/TicketsAdminPage.tsx
-#: src/features/tickets/pages/TicketsPage.tsx
-msgid "Не вдалося завантажити звернення."
-msgstr "Could not load the requests."
-
-#: src/features/news/components/Discussion.tsx
-msgid "Не вдалося завантажити коментарі."
-msgstr "Could not load the comments."
-
-#: src/features/admin/pages/UsersPage.tsx
-msgid "Не вдалося завантажити користувачів."
-msgstr "Could not load the users."
-
-#: src/features/news/pages/NewsManagePage.tsx
-#: src/features/news/pages/NewsPage.tsx
-msgid "Не вдалося завантажити новини."
-msgstr "Could not load the news."
-
-#: src/features/admin/pages/UserEditorPage.tsx
-msgid "Не вдалося завантажити обліковий запис."
-msgstr "Could not load the account."
+#: src/shared/api/loadErrors.ts
+msgid "Не вдалося завантажити дані. Спробуйте ще раз."
+msgstr "Could not load the data. Please try again."
 
 #: src/shared/signing/SigningWizard.tsx
 msgid "Не вдалося завантажити останню підписану версію документа."
 msgstr "Could not download the latest signed version of the document."
-
-#: src/features/admin/pages/UnitEditorPage.tsx
-#: src/features/structure/pages/UnitPage.tsx
-msgid "Не вдалося завантажити підрозділ."
-msgstr "Could not load the unit."
-
-#: src/features/admin/pages/UnitsPage.tsx
-msgid "Не вдалося завантажити підрозділи."
-msgstr "Could not load the units."
-
-#: src/features/structure/pages/UnitPage.tsx
-msgid "Не вдалося завантажити працівників."
-msgstr "Could not load the staff."
-
-#: src/features/profile/pages/ProfilePage.tsx
-#: src/features/profile/pages/SecurityPage.tsx
-msgid "Не вдалося завантажити профіль."
-msgstr "Could not load the profile."
-
-#: src/features/admin/pages/RolesPage.tsx
-msgid "Не вдалося завантажити ролі."
-msgstr "Could not load the roles."
-
-#: src/features/admin/pages/RoleEditorPage.tsx
-msgid "Не вдалося завантажити роль."
-msgstr "Could not load the role."
-
-#: src/features/notifications/components/NotificationPanel.tsx
-#: src/features/notifications/pages/NotificationsPage.tsx
-msgid "Не вдалося завантажити сповіщення."
-msgstr "Could not load the notifications."
-
-#: src/features/structure/pages/StructurePage.tsx
-msgid "Не вдалося завантажити структуру."
-msgstr "Could not load the structure."
-
-#: src/features/admin/pages/UnitTypeEditorPage.tsx
-msgid "Не вдалося завантажити тип підрозділу."
-msgstr "Could not load the unit type."
-
-#: src/features/admin/pages/UnitTypesPage.tsx
-msgid "Не вдалося завантажити типи підрозділів."
-msgstr "Could not load the unit types."
 
 #: src/shared/signing/SigningWizard.tsx
 msgid "Не вдалося завантажити файл документа."
@@ -2740,9 +2692,9 @@ msgstr "Couldn't download the document file."
 msgid "Не вдалося завантажити фото."
 msgstr "Could not upload the photo."
 
-#: src/features/chats/components/ChatList.tsx
-msgid "Не вдалося завантажити чати."
-msgstr "Could not load the chats."
+#: src/features/admin/pages/UsersImportPage.tsx
+msgid "Не вдалося завантажити шаблон. Спробуйте ще раз."
+msgstr "Could not download the template. Please try again."
 
 #: src/features/documents/pages/DocumentEditorPage.tsx
 msgid "Не вдалося зберегти документ. Спробуйте ще раз."
@@ -2780,12 +2732,15 @@ msgstr "Could not save the unit type. Try again."
 msgid "Не вдалося зберегти фото. Спробуйте ще раз."
 msgstr "Could not save the photo. Try again."
 
+#: src/shared/api/loadErrors.ts
+msgid "Не вдалося зв'язатися з сервером. Перевірте з'єднання й спробуйте ще раз."
+msgstr "Could not reach the server. Check your connection and try again."
+
 #: src/features/auth/components/AuthenticatorEnrollment.tsx
 #: src/features/auth/pages/ActivationPage.tsx
 #: src/features/auth/pages/ChangePasswordPage.tsx
 #: src/features/auth/pages/LoginPage.tsx
 #: src/features/auth/pages/RecoveryPage.tsx
-#: src/features/auth/pages/SetupAuthenticatorPage.tsx
 msgid "Не вдалося зв'язатися з сервером. Спробуйте ще раз."
 msgstr "Could not reach the server. Try again."
 
@@ -3645,9 +3600,21 @@ msgctxt "help"
 msgid "Перевірка підпису"
 msgstr "Verifying a signature"
 
+#: src/features/admin/pages/UsersImportPage.tsx
+msgid "Перевірку завершено: помилок не знайдено."
+msgstr "Check finished: no errors found."
+
+#: src/features/admin/pages/UsersImportPage.tsx
+msgid "Перевірку завершено. Знайдено помилок: {errors}."
+msgstr "Check finished. Errors found: {errors}."
+
 #: src/features/signing/components/VerifyPanel.tsx
 msgid "Перевірку не пройдено"
 msgstr "Verification failed"
+
+#: src/features/admin/pages/UsersImportPage.tsx
+msgid "Перевірку файлу розпочато."
+msgstr "File check started."
 
 #: src/features/signing/pages/SigningPages.tsx
 msgid "Перевірте підписаний файл: хто підписав, ким виданий сертифікат, час підпису та цілісність даних."
@@ -3883,6 +3850,7 @@ msgstr "Signatures of the signers you removed from the route ({toRemove}) will b
 msgid "Підписів ще немає"
 msgstr "No signatures yet"
 
+#: src/features/admin/pages/UnitEditorPage.tsx
 #: src/features/admin/pages/UnitTypesPage.tsx
 #: src/features/admin/pages/UserEditorPage.tsx
 #: src/features/admin/pages/UsersPage.tsx
@@ -5146,6 +5114,10 @@ msgid "Тип підпису"
 msgstr "Signature type"
 
 #: src/features/admin/pages/UnitTypeEditorPage.tsx
+msgid "Тип підрозділу"
+msgstr "Unit type"
+
+#: src/features/admin/pages/UnitTypeEditorPage.tsx
 msgid "Тип підрозділу видалено"
 msgstr "Unit type deleted"
 
@@ -5591,6 +5563,14 @@ msgstr "Reading news"
 #: src/features/admin/pages/UsersImportPage.tsx
 msgid "Шаблон"
 msgstr "Template"
+
+#: src/features/admin/pages/UsersImportPage.tsx
+msgid "Шаблон {fileName} завантажено."
+msgstr "Template {fileName} downloaded."
+
+#: src/features/admin/pages/UsersImportPage.tsx
+msgid "Шаблон готується до завантаження."
+msgstr "Preparing the template for download."
 
 #: src/app/layout/AppShell.tsx
 msgid "Швидка навігація"

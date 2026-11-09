@@ -38,7 +38,8 @@ export function TicketPage() {
     }
 
     if (ticket.isError) {
-        return <Alert tone="danger">{describeError(ticket.error, t`Не вдалося завантажити звернення.`)}</Alert>;
+        // The reason is a toast (the query cache); the page keeps its frame.
+        return <PageHeader title={t`Звернення`} breadcrumbs={[{ text: t`Звернення`, to: "/requests" }]} />;
     }
 
     const data = ticket.data;
