@@ -26,7 +26,7 @@ export const notificationKeys = {
  */
 export const unreadCountQuery = queryOptions({
     queryKey: notificationKeys.unread,
-    queryFn: async () => (await unwrap(api.GET("/api/v1/notifications/unread-count"))).count,
+    queryFn: async ({ signal }) => (await unwrap(api.GET("/api/v1/notifications/unread-count", { signal }))).count,
     staleTime: 5 * 60_000,
 });
 
@@ -38,9 +38,10 @@ export const unreadCountQuery = queryOptions({
 export function notificationListQuery(filters: NotificationFilters) {
     return queryOptions({
         queryKey: notificationKeys.list(filters),
-        queryFn: () =>
+        queryFn: ({ signal }) =>
             unwrap(
                 api.GET("/api/v1/notifications", {
+                    signal,
                     params: { query: { Page: filters.page, PageSize: filters.pageSize, UnreadOnly: filters.unreadOnly } },
                 }),
             ),

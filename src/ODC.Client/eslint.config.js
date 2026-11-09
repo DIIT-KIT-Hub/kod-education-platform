@@ -1,3 +1,4 @@
+import { readdirSync } from "node:fs";
 import js from "@eslint/js";
 import reactHooks from "eslint-plugin-react-hooks";
 import globals from "globals";
@@ -5,15 +6,21 @@ import tseslint from "typescript-eslint";
 
 /**
  * Unidirectional architecture: shared → features → app. Shared code knows no feature, a feature knows no other
- * feature and nothing of the app.
+ * feature and nothing of the app. Every folder of src/features is a feature, so a new one is covered at once.
  */
-const features = ["admin", "auth", "documents", "help", "home", "news", "profile", "signing", "structure"];
+const features = readdirSync(new URL("./src/features", import.meta.url), { withFileTypes: true })
+    .filter((entry) => entry.isDirectory())
+    .map((entry) => entry.name);
 
 export default tseslint.config(
     { ignores: ["dist", "node_modules", "src/locales/**/*.ts", "src/shared/api/schema.d.ts"] },
     js.configs.recommended,
     tseslint.configs.strict,
     reactHooks.configs.flat.recommended,
+    {
+        files: ["scripts/**"],
+        languageOptions: { globals: globals.node },
+    },
     {
         languageOptions: { globals: globals.browser },
         rules: {

@@ -38,6 +38,14 @@ export default defineConfig(({ mode }) => ({
     },
     test: {
         environment: "happy-dom",
+        environmentOptions: { happyDOM: { url: "https://localhost/" } },
         include: ["src/**/*.test.{ts,tsx}"],
+        setupFiles: ["src/test/setup.ts"],
+        coverage: {
+            provider: "v8",
+            include: ["src/**/*.{ts,tsx}"],
+            exclude: ["src/**/*.test.{ts,tsx}", "src/test/**", "src/**/*.d.ts", "src/locales/**", "src/main.tsx"],
+            reporter: ["text-summary", "json-summary", "html"],
+        },
     },
 }));

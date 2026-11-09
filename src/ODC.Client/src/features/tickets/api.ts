@@ -67,7 +67,7 @@ function listQuery(filters: TicketFilters) {
 export function myTicketsQuery(filters: TicketFilters) {
     return queryOptions({
         queryKey: ticketKeys.mine(filters),
-        queryFn: () => unwrap(api.GET("/api/v1/tickets/mine", { params: { query: listQuery(filters) } })),
+        queryFn: ({ signal }) => unwrap(api.GET("/api/v1/tickets/mine", { signal, params: { query: listQuery(filters) } })),
         placeholderData: (previous) => previous,
     });
 }
@@ -80,7 +80,7 @@ export function myTicketsQuery(filters: TicketFilters) {
 export function allTicketsQuery(filters: TicketFilters) {
     return queryOptions({
         queryKey: ticketKeys.list(filters),
-        queryFn: () => unwrap(api.GET("/api/v1/tickets", { params: { query: listQuery(filters) } })),
+        queryFn: ({ signal }) => unwrap(api.GET("/api/v1/tickets", { signal, params: { query: listQuery(filters) } })),
         placeholderData: (previous) => previous,
     });
 }
@@ -93,7 +93,7 @@ export function allTicketsQuery(filters: TicketFilters) {
 export function ticketQuery(id: string) {
     return queryOptions({
         queryKey: ticketKeys.details(id),
-        queryFn: () => unwrap(api.GET("/api/v1/tickets/{id}", { params: { path: { id } } })),
+        queryFn: ({ signal }) => unwrap(api.GET("/api/v1/tickets/{id}", { signal, params: { path: { id } } })),
     });
 }
 
@@ -102,7 +102,7 @@ export function ticketQuery(id: string) {
  */
 export const handlersQuery = queryOptions({
     queryKey: ticketKeys.handlers,
-    queryFn: () => unwrap(api.GET("/api/v1/tickets/handlers")),
+    queryFn: ({ signal }) => unwrap(api.GET("/api/v1/tickets/handlers", { signal })),
     staleTime: 5 * 60_000,
 });
 

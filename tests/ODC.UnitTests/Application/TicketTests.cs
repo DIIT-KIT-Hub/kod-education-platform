@@ -155,6 +155,40 @@ public sealed class TicketTests : IDisposable
         Assert.Equal(ErrorType.NotFound, (await _world.As(_world.EmployeeB).SendAsync(new DownloadTicketAttachment.Query(id, file.Id, false))).Failure());
     }
 
+    [Fact]
+    public async Task A_handler_changes_the_category_and_priority_of_a_request()
+    {
+        var id = await SubmitAsync();
+
+        Assert.True((await _world.As(_world.HelpDeskB).SendAsync(new ClassifyTicket.Command(id, TicketCategory.Access, TicketPriority.Critical))).IsSuccess);
+        Assert.True((await _world.As(_world.HelpDeskB).SendAsync(new ClassifyTicket.Command(id, TicketCategory.Access, TicketPriority.Critical))).IsSuccess);
+
+        var ticket = _world.Db.Tickets.Single(t => t.Id == id);
+        Assert.Equal(TicketCategory.Access, ticket.Category);
+        Assert.Equal(TicketPriority.Critical, ticket.Priority);
+    }
+
+    [Fact]
+    public async Task Unknown_categories_or_priorities_are_refused()
+    {
+        var id = await SubmitAsync();
+        var handler = _world.As(_world.HelpDeskB);
+
+        Assert.Equal(ErrorType.Validation, (await handler.SendAsync(new ClassifyTicket.Command(id, (TicketCategory)42, TicketPriority.Low))).Failure());
+        Assert.Equal(ErrorType.Validation, (await handler.SendAsync(new ClassifyTicket.Command(id, TicketCategory.Bug, (TicketPriority)(-1)))).Failure());
+        Assert.Equal(TicketPriority.High, _world.Db.Tickets.Single(t => t.Id == id).Priority);
+    }
+
+    [Fact]
+    public async Task Only_handlers_classify_requests_and_an_unknown_one_is_not_found()
+    {
+        var id = await SubmitAsync();
+
+        Assert.Equal(ErrorType.Forbidden, (await _world.As(_world.EmployeeA).SendAsync(new ClassifyTicket.Command(id, TicketCategory.Other, TicketPriority.Low))).Failure());
+        Assert.Equal(ErrorType.NotFound, (await _world.As(_world.HelpDeskB).SendAsync(new ClassifyTicket.Command(Guid.NewGuid(), TicketCategory.Other, TicketPriority.Low))).Failure());
+        Assert.Equal(TicketCategory.Bug, _world.Db.Tickets.Single(t => t.Id == id).Category);
+    }
+
     /// <summary>
     /// Builds a request.
     /// </summary>

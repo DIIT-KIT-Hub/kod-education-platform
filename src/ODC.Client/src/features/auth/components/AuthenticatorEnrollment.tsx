@@ -42,7 +42,12 @@ export function LinkAuthenticator({ badge, rememberMe, onEnrolled }: LinkAuthent
     const { t } = useLingui();
     const navigate = useNavigate();
     const queryClient = useQueryClient();
-    const key = useQuery({ queryKey: ["auth", "authenticator"], queryFn: authApi.authenticatorKey, retry: false, staleTime: Infinity });
+    const key = useQuery({
+        queryKey: ["auth", "authenticator"],
+        queryFn: ({ signal }) => authApi.authenticatorKey(signal),
+        retry: false,
+        staleTime: Infinity,
+    });
 
     const schema = z.object({ code: z.string().regex(/^\d{6}$/, t`Код містить 6 цифр.`) });
     const { control, handleSubmit, formState } = useForm({ resolver: zodResolver(schema), defaultValues: { code: "" } });

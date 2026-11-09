@@ -125,6 +125,11 @@ public static class DependencyInjection
                 })
                 .AddRoles<Role>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
+
+                // The ASP.NET managers pass the request's cancellation token to the stores (the plain ones of
+                // AddIdentityCore pass none), so Identity queries stop when the client gives up.
+                .AddUserManager<AspNetUserManager<User>>()
+                .AddRoleManager<AspNetRoleManager<Role>>()
                 .AddUserStore<ProtectedUserStore>()
                 .AddSignInManager<AppSignInManager>()
                 .AddClaimsPrincipalFactory<AppUserClaimsPrincipalFactory>()

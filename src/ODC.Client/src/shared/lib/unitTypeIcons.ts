@@ -54,5 +54,5 @@ export const unitTypeIcons: Readonly<Record<string, LucideIcon>> = {
  * @returns The icon, or the folder tree for an unknown name.
  */
 export function unitTypeIcon(name: string): LucideIcon {
-    return unitTypeIcons[name] ?? FolderTree;
+    return Object.hasOwn(unitTypeIcons, name) ? (unitTypeIcons[name] ?? FolderTree) : FolderTree;
 }

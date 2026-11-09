@@ -61,11 +61,12 @@ interface Resumed {
 
 /**
  * Asks the server where this browser stopped.
+ * @param signal Cancels the requests when the page no longer needs the answer.
  * @returns The activation or the pending sign-in; nothing for a fresh start.
  */
-async function resume(): Promise<Resumed> {
+async function resume(signal?: AbortSignal): Promise<Resumed> {
     try {
-        return { status: await activationApi.status() };
+        return { status: await activationApi.status(signal) };
     } catch (failure) {
         if (!(failure instanceof ApiError && failure.status === 404)) {
             throw failure;
@@ -73,7 +74,7 @@ async function resume(): Promise<Resumed> {
     }
 
     try {
-        return { pending: await authApi.pending() };
+        return { pending: await authApi.pending(signal) };
     } catch {
         return {};
     }
@@ -118,7 +119,13 @@ export function ActivationPage() {
     const { t } = useLingui();
     const navigate = useNavigate();
     const queryClient = useQueryClient();
-    const status = useQuery({ queryKey: ["auth", "activation"], queryFn: resume, retry: false, staleTime: Infinity, gcTime: 0 });
+    const status = useQuery({
+        queryKey: ["auth", "activation"],
+        queryFn: ({ signal }) => resume(signal),
+        retry: false,
+        staleTime: Infinity,
+        gcTime: 0,
+    });
     const [chosen, setChosen] = useState<Stage | null>(null);
 
     if (!chosen && status.isPending) {

@@ -14,10 +14,12 @@ namespace ODC.Web.Infrastructure.Identity;
 /// <param name="userManager">The user manager.</param>
 /// <param name="optionsAccessor">The Identity options.</param>
 /// <param name="permissionResolver">The permission resolver.</param>
+/// <param name="httpContextAccessor">The current request (its cancellation token), if any.</param>
 internal sealed class AppUserClaimsPrincipalFactory(
     UserManager<User> userManager,
     IOptions<IdentityOptions> optionsAccessor,
-    IPermissionResolver permissionResolver) : UserClaimsPrincipalFactory<User>(userManager, optionsAccessor)
+    IPermissionResolver permissionResolver,
+    IHttpContextAccessor httpContextAccessor) : UserClaimsPrincipalFactory<User>(userManager, optionsAccessor)
 {
     /// <inheritdoc />
     protected override async Task<ClaimsIdentity> GenerateClaimsAsync(User user)
@@ -44,7 +46,7 @@ internal sealed class AppUserClaimsPrincipalFactory(
             identity.AddClaim(new Claim(AppClaimTypes.Photo, photo.ToString("N")));
         }
 
-        var permissions = await permissionResolver.GetEffectivePermissionsAsync(user.Id, CancellationToken.None);
+        var permissions = await permissionResolver.GetEffectivePermissionsAsync(user.Id, httpContextAccessor.HttpContext?.RequestAborted ?? CancellationToken.None);
         foreach (var permission in permissions.Order(StringComparer.Ordinal))
         {
             identity.AddClaim(new Claim(AppClaimTypes.Permission, permission));

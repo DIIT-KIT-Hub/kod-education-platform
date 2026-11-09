@@ -1,0 +1,136 @@
+/* The search of the manual: a command palette at the top of the screen. */
+
+.dialog {
+    width: min(42rem, calc(100vw - 2rem));
+    max-height: min(36rem, calc(100dvh - 6rem));
+    margin: 4.5rem auto auto;
+    padding: 0;
+    overflow: hidden;
+    border: 1px solid var(--ds-color-border);
+    border-radius: var(--ds-radius-xl);
+    background: var(--ds-color-surface);
+    color: var(--ds-color-text);
+    box-shadow: var(--ds-shadow-lg);
+}
+.dialog::backdrop {
+    background: var(--ds-color-overlay);
+    backdrop-filter: blur(2px);
+}
+.dialog[open] {
+    animation: var(--ds-anim-scale-in);
+}
+
+.panel {
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr);
+    max-height: inherit;
+}
+
+.field {
+    display: flex;
+    align-items: center;
+    gap: var(--ds-space-3);
+    padding: 0 var(--ds-space-4);
+    border-bottom: 1px solid var(--ds-color-border);
+    color: var(--ds-color-text-muted);
+}
+.field input {
+    flex: 1;
+    min-width: 0;
+    height: 3.5rem;
+    border: 0;
+    background: transparent;
+    color: var(--ds-color-text);
+    font: inherit;
+    font-size: var(--ds-fs-lg);
+    outline: none;
+}
+.field input::-webkit-search-cancel-button {
+    display: none;
+}
+
+.label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+}
+
+.key {
+    padding: 0.1rem 0.4rem;
+    border: 1px solid var(--ds-color-border);
+    border-radius: var(--ds-radius-sm);
+    font-family: var(--ds-font-mono);
+    font-size: var(--ds-fs-xs);
+}
+
+.results {
+    overflow-y: auto;
+    padding: var(--ds-space-2);
+}
+
+.hint,
+.empty {
+    display: grid;
+    justify-items: center;
+    gap: var(--ds-space-3);
+    margin: 0;
+    padding: var(--ds-space-8) var(--ds-space-4);
+    color: var(--ds-color-text-muted);
+    text-align: center;
+}
+
+.list {
+    display: grid;
+    gap: 0.125rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.hit {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: start;
+    gap: var(--ds-space-3);
+    padding: var(--ds-space-3);
+    border-radius: var(--ds-radius-md);
+    cursor: pointer;
+}
+.hit[aria-selected="true"] {
+    background: var(--ds-color-surface-2);
+}
+
+.hitText {
+    display: grid;
+    gap: 0.15rem;
+}
+.hitPath {
+    color: var(--ds-color-text-muted);
+    font-size: var(--ds-fs-xs);
+    font-weight: 700;
+}
+.hitTitle {
+    font-weight: 750;
+}
+.snippet {
+    display: -webkit-box;
+    overflow: hidden;
+    color: var(--ds-color-text-muted);
+    font-size: var(--ds-fs-sm);
+    line-height: 1.45;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+}
+.snippet mark {
+    border-radius: 0.2em;
+    background: var(--ds-color-warning-surface);
+    color: var(--ds-color-text);
+    font-weight: 700;
+}
+.enter {
+    align-self: center;
+    color: var(--ds-color-text-subtle);
+}

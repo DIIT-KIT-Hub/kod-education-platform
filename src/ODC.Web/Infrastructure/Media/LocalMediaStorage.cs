@@ -57,8 +57,13 @@ internal sealed class LocalMediaStorage : IMediaStorage
     /// <inheritdoc />
     public void Delete(Guid id)
     {
-        File.Delete(PathOf(id, thumbnail: false));
-        File.Delete(PathOf(id, thumbnail: true));
+        // File.Delete ignores a missing file but not a missing folder (an image whose files were never written).
+        var main = PathOf(id, thumbnail: false);
+        if (Directory.Exists(Path.GetDirectoryName(main)))
+        {
+            File.Delete(main);
+            File.Delete(PathOf(id, thumbnail: true));
+        }
     }
 
     /// <summary>

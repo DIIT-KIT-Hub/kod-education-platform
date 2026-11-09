@@ -42,6 +42,6 @@ internal sealed class AccountSetupMiddleware(RequestDelegate next)
     private static Task Refuse(HttpContext context, string message)
     {
         context.Response.StatusCode = StatusCodes.Status403Forbidden;
-        return context.Response.WriteAsJsonAsync(new { title = message });
+        return context.Response.WriteAsJsonAsync(new { title = message }, context.RequestAborted);
     }
 }

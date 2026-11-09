@@ -424,6 +424,10 @@ msgstr "В архіві"
 msgid "В роботі"
 msgstr "В роботі"
 
+#: src/features/help/components/Manual.tsx
+msgid "Важливо"
+msgstr "Важливо"
+
 #: src/features/notifications/display.ts
 msgid "Вам призначено звернення"
 msgstr "Вам призначено звернення"
@@ -459,6 +463,10 @@ msgstr "Введіть резервний код."
 #: src/features/chats/components/PeoplePicker.tsx
 msgid "Введіть щонайменше два символи."
 msgstr "Введіть щонайменше два символи."
+
+#: src/features/help/components/HelpSearch.tsx
+msgid "Введіть щонайменше два символи. Шукаємо в назвах, підзаголовках і тексті всіх сторінок."
+msgstr "Введіть щонайменше два символи. Шукаємо в назвах, підзаголовках і тексті всіх сторінок."
 
 #: src/features/documents/pages/DocumentPage.tsx
 msgid "Версія після цього підпису"
@@ -1054,6 +1062,10 @@ msgstr "До документа"
 msgid "До новин"
 msgstr "До новин"
 
+#: src/features/help/pages/HelpTopicPage.tsx
+msgid "До огляду довідки"
+msgstr "До огляду довідки"
+
 #: src/features/chats/components/Composer.tsx
 msgid "До повідомлення можна додати не більше {maxFiles} файлів."
 msgstr "До повідомлення можна додати не більше {maxFiles} файлів."
@@ -1092,7 +1104,9 @@ msgid "Доброї ночі,"
 msgstr "Доброї ночі,"
 
 #: src/app/layout/navigation.ts
-#: src/features/help/pages/HelpPage.tsx
+#: src/features/help/components/HelpLayout.tsx
+#: src/features/help/pages/HelpHomePage.tsx
+#: src/features/help/pages/HelpTopicPage.tsx
 msgid "Довідка"
 msgstr "Довідка"
 
@@ -1100,6 +1114,10 @@ msgstr "Довідка"
 msgctxt "document-kind"
 msgid "Довідка"
 msgstr "Довідка"
+
+#: src/features/help/pages/HelpHomePage.tsx
+msgid "Довідка Кабінету організаційних документів"
+msgstr "Довідка Кабінету організаційних документів"
 
 #: src/features/help/contents.ts
 msgctxt "help"
@@ -1324,10 +1342,6 @@ msgstr "Доступно Вам"
 msgid "Дочекайтеся, поки завантажаться фото."
 msgstr "Дочекайтеся, поки завантажаться фото."
 
-#: src/features/help/pages/HelpPage.tsx
-msgid "Друк / PDF"
-msgstr "Друк / PDF"
-
 #: src/features/admin/pages/UsersImportPage.tsx
 msgid "Експорт"
 msgstr "Експорт"
@@ -1394,6 +1408,10 @@ msgstr "з даними (внутрішній)"
 #: src/features/admin/pages/AuditPage.tsx
 msgid "З дати"
 msgstr "З дати"
+
+#: src/features/help/pages/HelpHomePage.tsx
+msgid "З чого почати"
+msgstr "З чого почати"
 
 #: src/features/admin/pages/UserEditorPage.tsx
 msgid "За ролями"
@@ -1506,6 +1524,7 @@ msgstr "Заголовок не може бути довшим за 200 симв
 msgid "Закреслений"
 msgstr "Закреслений"
 
+#: src/features/help/components/Manual.tsx
 #: src/features/news/components/ArticleBody.tsx
 #: src/features/tickets/pages/TicketPage.tsx
 #: src/shared/ui/Dialog.tsx
@@ -1624,6 +1643,10 @@ msgstr "Зберегти чернетку"
 msgid "Збережіть резервні коди в надійному місці. Вони знадобляться, якщо Ви втратите доступ до телефону. Кожен код діє один раз."
 msgstr "Збережіть резервні коди в надійному місці. Вони знадобляться, якщо Ви втратите доступ до телефону. Кожен код діє один раз."
 
+#: src/features/help/components/Manual.tsx
+msgid "Збільшити зображення: {alt}"
+msgstr "Збільшити зображення: {alt}"
+
 #: src/app/layout/navigation.ts
 #: src/features/admin/pages/AdminPage.tsx
 #: src/features/tickets/pages/NewTicketPage.tsx
@@ -1666,6 +1689,10 @@ msgstr "Звернень не знайдено"
 #: src/features/tickets/pages/TicketsPage.tsx
 msgid "Звернень ще немає"
 msgstr "Звернень ще немає"
+
+#: src/features/help/components/Manual.tsx
+msgid "Зверніть увагу"
+msgstr "Зверніть увагу"
 
 #: src/features/profile/pages/ProfilePage.tsx
 msgid "Зверніться до відділу кадрів."
@@ -1795,11 +1822,7 @@ msgstr "Змінити фото"
 msgid "Змініть файл, реквізити або маршрут і збережіть документ або надішліть його на підпис."
 msgstr "Змініть файл, реквізити або маршрут і збережіть документ або надішліть його на підпис."
 
-#: src/features/help/pages/HelpPage.tsx
-msgid "Зміст"
-msgstr "Зміст"
-
-#: src/features/help/pages/HelpPage.tsx
+#: src/features/help/components/HelpLayout.tsx
 msgid "Зміст довідки"
 msgstr "Зміст довідки"
 
@@ -1807,11 +1830,6 @@ msgstr "Зміст довідки"
 #: src/features/admin/pages/UsersImportPage.tsx
 msgid "Знайдено помилок: {0}"
 msgstr "Знайдено помилок: {0}"
-
-#. placeholder {0}: matched.size
-#: src/features/help/pages/HelpPage.tsx
-msgid "Знайдено тем: {0}"
-msgstr "Знайдено тем: {0}"
 
 #: src/features/documents/pages/DocumentEditorPage.tsx
 msgid "Знайти працівника"
@@ -1883,9 +1901,9 @@ msgctxt "help"
 msgid "Індивідуальні дозволи"
 msgstr "Індивідуальні дозволи"
 
-#: src/features/help/pages/HelpPage.tsx
-msgid "Інструкція користувача Кабінету організаційних документів: усі модулі, можливості та покрокові дії."
-msgstr "Інструкція користувача Кабінету організаційних документів: усі модулі, можливості та покрокові дії."
+#: src/features/help/pages/HelpHomePage.tsx
+msgid "Інструкція користувача"
+msgstr "Інструкція користувача"
 
 #: src/features/signing/pages/SigningPages.tsx
 msgid "Інструменти підпису"
@@ -2044,6 +2062,7 @@ msgstr "Код"
 
 #: src/app/layout/AppShell.tsx
 #: src/features/auth/components/AuthLayout.tsx
+#: src/features/help/components/HelpLayout.tsx
 #: src/shared/ui/DocumentTitle.tsx
 msgid "КОД"
 msgstr "КОД"
@@ -2344,6 +2363,10 @@ msgstr "Можливо, її було видалено або знято з пу
 msgid "Можливо, посилання застаріло або сторінку перенесено."
 msgstr "Можливо, посилання застаріло або сторінку перенесено."
 
+#: src/features/help/pages/HelpTopicPage.tsx
+msgid "Можливо, посилання застаріло. Скористайтеся пошуком або змістом ліворуч."
+msgstr "Можливо, посилання застаріло. Скористайтеся пошуком або змістом ліворуч."
+
 #: src/features/tickets/components/FilePicker.tsx
 msgid "Можна додати не більше {maxFiles} файлів."
 msgstr "Можна додати не більше {maxFiles} файлів."
@@ -2377,10 +2400,15 @@ msgstr "На підписання"
 msgid "На сторінці"
 msgstr "На сторінці"
 
+#: src/features/help/pages/HelpTopicPage.tsx
+msgid "На цій сторінці"
+msgstr "На цій сторінці"
+
 #: src/features/admin/pages/AdminPage.tsx
 msgid "Набори дозволів для посад і модулів."
 msgstr "Набори дозволів для посад і модулів."
 
+#: src/features/help/pages/HelpTopicPage.tsx
 #: src/shared/ui/PageHeader.tsx
 msgid "Навігаційний ланцюжок"
 msgstr "Навігаційний ланцюжок"
@@ -2550,10 +2578,15 @@ msgstr "напр. доцент"
 msgid "Наприклад: не завантажується файл документа"
 msgstr "Наприклад: не завантажується файл документа"
 
+#: src/features/help/components/HelpSearch.tsx
+msgid "Наприклад: підписати документ"
+msgstr "Наприклад: підписати документ"
+
 #: src/features/documents/pages/DocumentEditorPage.tsx
 msgid "Наприклад: Про затвердження графіка відпусток"
 msgstr "Наприклад: Про затвердження графіка відпусток"
 
+#: src/features/help/pages/HelpTopicPage.tsx
 #: src/shared/ui/Pagination.tsx
 msgid "Наступна сторінка"
 msgstr "Наступна сторінка"
@@ -2624,6 +2657,10 @@ msgstr "Не вдалося завантажити документи."
 #: src/features/admin/pages/AuditPage.tsx
 msgid "Не вдалося завантажити журнал."
 msgstr "Не вдалося завантажити журнал."
+
+#: src/features/home/HomePage.tsx
+msgid "Не вдалося завантажити зведення."
+msgstr "Не вдалося завантажити зведення."
 
 #: src/features/tickets/pages/TicketPage.tsx
 #: src/features/tickets/pages/TicketsAdminPage.tsx
@@ -2827,6 +2864,10 @@ msgstr "Не використовуйте на спільних комп'юте�
 msgid "Не всі кроки завершено."
 msgstr "Не всі кроки завершено."
 
+#: src/features/help/pages/HelpTopicPage.tsx
+msgid "Не знайшли відповіді?"
+msgstr "Не знайшли відповіді?"
+
 #: src/features/chats/components/MessageItem.tsx
 msgid "Не надіслано"
 msgstr "Не надіслано"
@@ -2956,9 +2997,9 @@ msgstr "Нікого не знайдено."
 msgid "Нічого не знайдено."
 msgstr "Нічого не знайдено."
 
-#: src/features/help/pages/HelpPage.tsx
-msgid "Нічого не знайдено. Спробуйте інше слово."
-msgstr "Нічого не знайдено. Спробуйте інше слово."
+#: src/features/help/components/HelpSearch.tsx
+msgid "Нічого не знайдено. Спробуйте інші слова або коротший запит."
+msgstr "Нічого не знайдено. Спробуйте інші слова або коротший запит."
 
 #: src/features/admin/pages/RoleEditorPage.tsx
 #: src/features/news/pages/NewsEditorPage.tsx
@@ -3286,6 +3327,10 @@ msgstr "Обрані люди"
 #: src/shared/i18n/display.ts
 msgid "Обурює"
 msgstr "Обурює"
+
+#: src/features/help/components/HelpNav.tsx
+msgid "Огляд довідки"
+msgstr "Огляд довідки"
 
 #: src/shared/i18n/display.ts
 msgid "Оголошення"
@@ -3643,6 +3688,10 @@ msgstr "Перейти до змісту"
 msgid "Перейти до кабінету"
 msgstr "Перейти до кабінету"
 
+#: src/features/help/components/HelpLayout.tsx
+msgid "Перейти до тексту"
+msgstr "Перейти до тексту"
+
 #: src/features/help/contents.ts
 msgctxt "help"
 msgid "Перелік дозволів"
@@ -3932,6 +3981,10 @@ msgstr "По центру"
 msgid "Повернутися"
 msgstr "Повернутися"
 
+#: src/features/help/components/HelpLayout.tsx
+msgid "Повернутися до кабінету"
+msgstr "Повернутися до кабінету"
+
 #: src/features/chats/components/Composer.tsx
 #: src/features/chats/components/MessageList.tsx
 #: src/features/tickets/components/TicketThread.tsx
@@ -4055,6 +4108,10 @@ msgstr "Показники документів"
 msgid "Поки Ви підписували, документ підписав інший підписант. Завантажено останню версію — натисніть «Підписати» ще раз."
 msgstr "Поки Ви підписували, документ підписав інший підписант. Завантажено останню версію — натисніть «Підписати» ще раз."
 
+#: src/features/help/pages/HelpHomePage.tsx
+msgid "Покрокові інструкції до кожного розділу кабінету: що де знаходиться, як виконати дію і що робити, якщо щось пішло не так."
+msgstr "Покрокові інструкції до кожного розділу кабінету: що де знаходиться, як виконати дію і що робити, якщо щось пішло не так."
+
 #: src/shared/i18n/display.ts
 msgctxt "document-kind"
 msgid "Положення / інструкція"
@@ -4105,9 +4162,14 @@ msgstr "Попередній перегляд фото"
 msgid "Попередній рік"
 msgstr "Попередній рік"
 
+#: src/features/help/pages/HelpTopicPage.tsx
 #: src/shared/ui/Pagination.tsx
 msgid "Попередня сторінка"
 msgstr "Попередня сторінка"
+
+#: src/features/help/components/Manual.tsx
+msgid "Порада"
+msgstr "Порада"
 
 #: src/features/help/contents.ts
 msgctxt "help"
@@ -4163,10 +4225,6 @@ msgstr "Посади не призначено"
 msgid "Посилання"
 msgstr "Посилання"
 
-#: src/features/help/components/Manual.tsx
-msgid "Посилання на розділ «{title}»"
-msgstr "Посилання на розділ «{title}»"
-
 #: src/shared/i18n/display.ts
 msgid "Послідовно"
 msgstr "Послідовно"
@@ -4195,6 +4253,10 @@ msgstr "потребує агента ІІТ"
 #: src/shared/signing/KeyPanel.tsx
 msgid "потребує сервісу надавача"
 msgstr "потребує сервісу надавача"
+
+#: src/features/help/components/HelpNav.tsx
+msgid "Потрібен дозвіл"
+msgstr "Потрібен дозвіл"
 
 #: src/features/help/components/Manual.tsx
 msgid "Потрібен дозвіл: {required}"
@@ -4233,9 +4295,13 @@ msgstr "Пошту підтверджено. Придумайте пароль �
 msgid "Пошук працівника"
 msgstr "Пошук працівника"
 
-#: src/features/help/pages/HelpPage.tsx
-msgid "Пошук у довідці: наприклад, «підпис», «пароль», «імпорт»"
-msgstr "Пошук у довідці: наприклад, «підпис», «пароль», «імпорт»"
+#: src/features/help/components/HelpSearch.tsx
+msgid "Пошук у довідці"
+msgstr "Пошук у довідці"
+
+#: src/features/help/components/HelpLayout.tsx
+msgid "Пошук у довідці…"
+msgstr "Пошук у довідці…"
 
 #: src/features/news/pages/NewsPage.tsx
 msgid "Пошук у новинах"
@@ -4511,6 +4577,10 @@ msgstr "Резервний код задовгий."
 msgid "Резервні коди"
 msgstr "Резервні коди"
 
+#: src/features/help/components/HelpSearch.tsx
+msgid "Результати пошуку"
+msgstr "Результати пошуку"
+
 #: src/features/documents/pages/DocumentEditorPage.tsx
 msgid "Реквізити"
 msgstr "Реквізити"
@@ -4544,9 +4614,14 @@ msgstr "Розблокувати обліковий запис?"
 msgid "Розгорнути меню"
 msgstr "Розгорнути меню"
 
-#: src/features/help/components/Manual.tsx
-msgid "Розділ {number}"
-msgstr "Розділ {number}"
+#. placeholder {0}: index + 1
+#: src/features/help/pages/HelpHomePage.tsx
+msgid "Розділ {0}"
+msgstr "Розділ {0}"
+
+#: src/features/help/pages/HelpHomePage.tsx
+msgid "Розділи довідки"
+msgstr "Розділи довідки"
 
 #: src/features/documents/pages/DocumentsPage.tsx
 msgid "Розділи документів"
@@ -4892,6 +4967,10 @@ msgstr "Створено користувача"
 msgid "Створити груповий чат"
 msgstr "Створити груповий чат"
 
+#: src/features/help/pages/HelpTopicPage.tsx
+msgid "Створити звернення"
+msgstr "Створити звернення"
+
 #: src/features/documents/pages/DocumentEditorPage.tsx
 msgid "Створити й надіслати на підпис"
 msgstr "Створити й надіслати на підпис"
@@ -4899,6 +4978,10 @@ msgstr "Створити й надіслати на підпис"
 #: src/features/admin/pages/UserEditorPage.tsx
 msgid "Створити обліковий запис"
 msgstr "Створити обліковий запис"
+
+#: src/features/help/pages/HelpTopicPage.tsx
+msgid "Створіть звернення — його побачать ті, хто опрацьовує звернення, і відповідять у кабінеті."
+msgstr "Створіть звернення — його побачать ті, хто опрацьовує звернення, і відповідять у кабінеті."
 
 #: src/features/admin/pages/UnitTypesPage.tsx
 msgid "Створіть хоча б один тип, позначений як організація."
@@ -4920,6 +5003,10 @@ msgstr "Сторінка підрозділу та працівники"
 #: src/shared/ui/Pagination.tsx
 msgid "Сторінки"
 msgstr "Сторінки"
+
+#: src/features/help/pages/HelpTopicPage.tsx
+msgid "Сторінку довідки не знайдено"
+msgstr "Сторінку довідки не знайдено"
 
 #: src/app/pages/RouteError.tsx
 msgid "Сторінку не вдалося завантажити. Оновіть сторінку або спробуйте пізніше."
@@ -4962,6 +5049,10 @@ msgstr "Сумнівно"
 msgid "Сумно"
 msgstr "Сумно"
 
+#: src/features/help/pages/HelpTopicPage.tsx
+msgid "Сусідні сторінки"
+msgstr "Сусідні сторінки"
+
 #: src/shared/ui/PasswordInput.tsx
 msgid "Сховати пароль"
 msgstr "Сховати пароль"
@@ -4991,6 +5082,10 @@ msgstr "Також видалити для {0}"
 #: src/features/chats/components/MessageList.tsx
 msgid "Також видалити для {peerName}"
 msgstr "Також видалити для {peerName}"
+
+#: src/features/help/pages/HelpTopicPage.tsx
+msgid "Такої сторінки в довідці немає"
+msgstr "Такої сторінки в довідці немає"
 
 #: src/features/news/pages/NewsEditorPage.tsx
 msgid "Текст"
@@ -5508,6 +5603,10 @@ msgstr "Ще відповідей: {hidden}"
 #: src/features/tickets/pages/NewTicketPage.tsx
 msgid "Що Ви робили, що очікували побачити і що сталося натомість. Для помилки — кроки, щоб її повторити."
 msgstr "Що Ви робили, що очікували побачити і що сталося натомість. Для помилки — кроки, щоб її повторити."
+
+#: src/features/help/pages/HelpHomePage.tsx
+msgid "Що Ви хочете зробити? Наприклад: підписати документ"
+msgstr "Що Ви хочете зробити? Наприклад: підписати документ"
 
 #: src/features/help/components/RoleReference.tsx
 msgid "Що дає"

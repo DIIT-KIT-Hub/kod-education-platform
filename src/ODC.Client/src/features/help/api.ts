@@ -7,7 +7,7 @@ import { unwrap } from "@/shared/api/problem";
  */
 export const helpPermissionsQuery = queryOptions({
     queryKey: ["help", "permissions"],
-    queryFn: () => unwrap(api.GET("/api/v1/permissions")),
+    queryFn: ({ signal }) => unwrap(api.GET("/api/v1/permissions", { signal })),
     staleTime: Infinity,
 });
 
@@ -16,6 +16,6 @@ export const helpPermissionsQuery = queryOptions({
  */
 export const systemRolesQuery = queryOptions({
     queryKey: ["help", "system-roles"],
-    queryFn: () => unwrap(api.GET("/api/v1/permissions/system-roles")),
+    queryFn: ({ signal }) => unwrap(api.GET("/api/v1/permissions/system-roles", { signal })),
     staleTime: Infinity,
 });

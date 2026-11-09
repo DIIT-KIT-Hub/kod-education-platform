@@ -24,7 +24,7 @@ the React single-page application (`src/ODC.Client`) at the root of the site. Th
 # from bin/Debug, which locks the Debug output. Warnings are errors (StyleCop + .NET analyzers).
 dotnet build tests/ODC.UnitTests/ODC.UnitTests.csproj -c Lead -v q -nologo -p:SkipClientBuild=true 2>&1 | grep -E "error|warn" | sort -u
 
-# Tests (xUnit v3 on Microsoft Testing Platform; ~160 tests, ~30 seconds)
+# Tests (xUnit v3 on Microsoft Testing Platform; ~500 tests, ~75 seconds; the document tests need PostgreSQL, see tests/ODC.UnitTests/CLAUDE.md)
 dotnet test tests/ODC.UnitTests -c Lead --no-build
 
 # Run (migrations and seeding run at startup). The user's own instance is usually on https://localhost:7180;

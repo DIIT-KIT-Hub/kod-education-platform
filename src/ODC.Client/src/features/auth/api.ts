@@ -8,10 +8,10 @@ import type { ImageCrop } from "@/shared/ui/PhotoPicker";
 export const authApi = {
     login: (email: string, password: string, rememberMe: boolean) =>
         unwrap(api.POST("/api/v1/auth/login", { body: { email, password, rememberMe } })),
-    pending: () => unwrap(api.GET("/api/v1/auth/login/pending")),
+    pending: (signal?: AbortSignal) => unwrap(api.GET("/api/v1/auth/login/pending", { signal })),
     twoFactor: (code: string, rememberMe: boolean) => unwrap(api.POST("/api/v1/auth/login/two-factor", { body: { code, rememberMe } })),
     recovery: (code: string) => unwrap(api.POST("/api/v1/auth/login/recovery", { body: { code, rememberMe: false } })),
-    authenticatorKey: () => unwrap(api.GET("/api/v1/auth/login/authenticator")),
+    authenticatorKey: (signal?: AbortSignal) => unwrap(api.GET("/api/v1/auth/login/authenticator", { signal })),
     enroll: (code: string, rememberMe: boolean) => unwrap(api.POST("/api/v1/auth/login/authenticator", { body: { code, rememberMe } })),
     logout: () => unwrap(api.POST("/api/v1/auth/logout")),
     changePassword: (currentPassword: string, newPassword: string) =>
@@ -24,7 +24,7 @@ export const authApi = {
  * one-time code from it and the first password. The activation is bound to this browser by an HttpOnly cookie.
  */
 export const activationApi = {
-    status: () => unwrap(api.GET("/api/v1/auth/activation")),
+    status: (signal?: AbortSignal) => unwrap(api.GET("/api/v1/auth/activation", { signal })),
     start: (email: string) => unwrap(api.POST("/api/v1/auth/activation", { body: { email } })),
     verify: (code: string) => unwrap(api.POST("/api/v1/auth/activation/code", { body: { code } })),
     password: (newPassword: string) => unwrap(api.POST("/api/v1/auth/activation/password", { body: { newPassword } })),

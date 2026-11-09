@@ -353,12 +353,21 @@ export const router = createBrowserRouter([
                                     },
                                 ],
                             },
-                            {
-                                path: "help",
-                                lazy: async () => ({ Component: (await import("@/features/help/pages/HelpPage")).HelpPage }),
-                            },
                             { path: "*", Component: NotFoundPage },
                         ],
+                    },
+                ],
+            },
+            {
+                // The manual: a page of the cabinet for signed-in users with a layout of its own (no menu of the cabinet).
+                path: "help",
+                loader: requireReadyUser,
+                lazy: async () => ({ Component: (await import("@/features/help/components/HelpLayout")).HelpLayout }),
+                children: [
+                    { index: true, lazy: async () => ({ Component: (await import("@/features/help/pages/HelpHomePage")).HelpHomePage }) },
+                    {
+                        path: ":topicId",
+                        lazy: async () => ({ Component: (await import("@/features/help/pages/HelpTopicPage")).HelpTopicPage }),
                     },
                 ],
             },

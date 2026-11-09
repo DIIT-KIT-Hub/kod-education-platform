@@ -15,7 +15,7 @@ export const profileKeys = {
  */
 export const profileQuery = queryOptions({
     queryKey: profileKeys.all,
-    queryFn: () => unwrap(api.GET("/api/v1/profile")),
+    queryFn: ({ signal }) => unwrap(api.GET("/api/v1/profile", { signal })),
 });
 
 /**

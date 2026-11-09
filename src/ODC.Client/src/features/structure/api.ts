@@ -26,7 +26,7 @@ export const structureKeys = {
  */
 export const unitTreeQuery = queryOptions({
     queryKey: structureKeys.tree,
-    queryFn: () => unwrap(api.GET("/api/v1/organization-units", { params: { query: { includeInactive: false } } })),
+    queryFn: ({ signal }) => unwrap(api.GET("/api/v1/organization-units", { signal, params: { query: { includeInactive: false } } })),
 });
 
 /**
@@ -37,7 +37,7 @@ export const unitTreeQuery = queryOptions({
 export function unitQuery(id: string) {
     return queryOptions({
         queryKey: structureKeys.unit(id),
-        queryFn: () => unwrap(api.GET("/api/v1/organization-units/{id}", { params: { path: { id } } })),
+        queryFn: ({ signal }) => unwrap(api.GET("/api/v1/organization-units/{id}", { signal, params: { path: { id } } })),
     });
 }
 
@@ -50,9 +50,10 @@ export function unitQuery(id: string) {
 export function unitStaffQuery(id: string, filters: StaffFilters) {
     return queryOptions({
         queryKey: structureKeys.staff(id, filters),
-        queryFn: () =>
+        queryFn: ({ signal }) =>
             unwrap(
                 api.GET("/api/v1/organization-units/{id}/staff", {
+                    signal,
                     params: { path: { id }, query: { Search: filters.search, Page: filters.page, PageSize: filters.pageSize } },
                 }),
             ),

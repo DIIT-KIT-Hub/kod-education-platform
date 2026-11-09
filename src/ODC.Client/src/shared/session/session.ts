@@ -15,8 +15,8 @@ export type CurrentUser = CurrentUserResponse;
  */
 export const authContextQuery = queryOptions({
     queryKey: ["auth", "context"],
-    queryFn: async (): Promise<AuthContextResponse> => {
-        const context = await unwrap(api.GET("/api/v1/auth/context"));
+    queryFn: async ({ signal }): Promise<AuthContextResponse> => {
+        const context = await unwrap(api.GET("/api/v1/auth/context", { signal }));
         setAntiforgeryToken(context.antiforgeryToken);
         await activateLocale(toLocale(context.language));
         return context;

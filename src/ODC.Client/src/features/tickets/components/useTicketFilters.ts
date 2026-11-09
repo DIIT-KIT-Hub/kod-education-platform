@@ -18,8 +18,8 @@ export function useTicketFilters() {
         pageSize: Number(params.get("pageSize")) || 20,
         sortBy: params.get("sortBy") ?? undefined,
         descending: params.get("descending") === "true",
-        status: status && status in ticketStatusNames ? (status as TicketStatus) : undefined,
-        category: category && category in ticketCategoryNames ? (category as TicketCategory) : undefined,
+        status: status && Object.hasOwn(ticketStatusNames, status) ? (status as TicketStatus) : undefined,
+        category: category && Object.hasOwn(ticketCategoryNames, category) ? (category as TicketCategory) : undefined,
         openOnly: scope === "open",
         assignedToMe: scope === "assigned",
     };

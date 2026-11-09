@@ -83,6 +83,13 @@ export function toast(text: string, options: ToastOptions = {}): void {
 }
 
 /**
+ * Removes every notification at once (a new test starts with an empty screen).
+ */
+export function clearToasts(): void {
+    update([]);
+}
+
+/**
  * Subscribes to the notifications.
  * @param listener Called on every change.
  * @returns The unsubscribe function.

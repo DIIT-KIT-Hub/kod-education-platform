@@ -1,146 +1,10 @@
-/* Chapters and topics -------------------------------------------------------------------------------------------- */
-
-.chapter {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    gap: var(--ds-space-6);
-    scroll-margin-top: 5rem;
-}
-
-.chapter[hidden] {
-    display: none;
-}
-
-.chapterHeader {
-    display: flex;
-    gap: var(--ds-space-5);
-    align-items: flex-start;
-    padding: var(--ds-space-6);
-    border-radius: var(--ds-radius-xl);
-    background: var(--ds-color-inverse);
-    color: var(--ds-color-on-inverse);
-    animation: var(--ds-anim-fade-up);
-}
-
-.chapterIcon {
-    display: grid;
-    place-items: center;
-    flex: none;
-    width: 3.5rem;
-    height: 3.5rem;
-    border-radius: var(--ds-radius-md);
-    background: color-mix(in srgb, var(--ds-color-on-inverse) 14%, transparent);
-}
-
-.chapterHeading {
-    display: grid;
-    gap: var(--ds-space-2);
-    min-width: 0;
-}
-
-.chapterNumber {
-    font-size: var(--ds-fs-xs);
-    font-weight: 750;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    opacity: 0.7;
-}
-
-.chapterTitle {
-    margin: 0;
-    font-size: var(--ds-fs-2xl);
-    line-height: 1.15;
-}
-
-.chapterSummary {
-    margin: 0;
-    opacity: 0.75;
-}
+/* The building blocks of the manual pages (components/Manual.tsx). */
 
 /* Access badges may name several permissions: they wrap on narrow screens. */
 .badge {
     max-width: 100%;
     border-radius: 0.75rem;
     white-space: normal;
-}
-
-.headerBadge {
-    composes: badge;
-    border-color: currentColor;
-    background: transparent;
-    color: inherit;
-}
-
-.headerBadgeOn {
-    composes: badge;
-    background: var(--ds-color-on-inverse);
-    color: var(--ds-color-inverse);
-}
-
-.topic {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    gap: var(--ds-space-4);
-    padding: var(--ds-space-6);
-    border: 1px solid var(--ds-color-border);
-    border-radius: var(--ds-radius-lg);
-    background: var(--ds-color-surface);
-    scroll-margin-top: 5rem;
-
-    /* The manual is long: topics outside the viewport skip layout and paint, so resizing the page (the sidebar
-       animation, window resizes) reflows only what is on screen. "auto" remembers the last rendered height. */
-    content-visibility: auto;
-    contain-intrinsic-size: auto 28rem;
-}
-
-.topic[hidden] {
-    display: none;
-}
-
-/* The page renders every topic once (and after width changes) so the remembered heights are real. */
-:global([data-help-measuring]) .topic {
-    content-visibility: visible;
-}
-
-.topicTitle {
-    display: flex;
-    align-items: center;
-    gap: var(--ds-space-2);
-    margin: 0;
-    font-size: var(--ds-fs-xl);
-    line-height: 1.25;
-}
-
-.anchor {
-    display: inline-grid;
-    place-items: center;
-    flex: none;
-    width: 1.75rem;
-    height: 1.75rem;
-    border-radius: var(--ds-radius-sm);
-    color: var(--ds-color-text-subtle);
-    opacity: 0.5;
-    transition:
-        opacity var(--ds-duration-fast),
-        background-color var(--ds-duration-fast);
-}
-.topic:hover .anchor,
-.anchor:focus-visible {
-    opacity: 1;
-}
-.anchor:hover {
-    background: var(--ds-color-surface-2);
-    color: var(--ds-color-text);
-}
-
-@media (max-width: 479.98px) {
-    .chapterHeader {
-        flex-direction: column;
-        padding: var(--ds-space-5);
-    }
-    .topic {
-        padding: var(--ds-space-5) var(--ds-space-4);
-    }
 }
 
 /* Typography ------------------------------------------------------------------------------------------------------ */
@@ -154,13 +18,15 @@
 .prose > * {
     margin: 0;
 }
-.prose h4 {
+.prose h2 {
+    scroll-margin-top: 5.5rem;
     display: flex;
     align-items: center;
     gap: var(--ds-space-2);
-    margin-top: var(--ds-space-2);
-    font-size: var(--ds-fs-md);
+    margin-top: var(--ds-space-4);
+    font-size: var(--ds-fs-xl);
     font-weight: 750;
+    line-height: 1.25;
 }
 .prose ul,
 .prose ol {
@@ -300,21 +166,147 @@
     margin: 0;
 }
 
-@media print {
-    .anchor {
-        display: none;
-    }
-    .topic {
-        content-visibility: visible;
-        break-inside: avoid-page;
-        border-color: #999;
-    }
-    .chapter {
-        break-before: page;
-    }
-    .chapterHeader {
-        border: 2px solid #000;
-        background: none;
-        color: #000;
-    }
+.prose h3 {
+    margin-top: var(--ds-space-2);
+    font-size: var(--ds-fs-md);
+    font-weight: 750;
+}
+
+/* A key or a combination of keys. */
+.kbd {
+    display: inline-block;
+    min-width: 1.6em;
+    padding: 0 0.4em;
+    border: 1px solid var(--ds-color-border-strong);
+    border-bottom-width: 2px;
+    border-radius: 0.35em;
+    background: var(--ds-color-surface);
+    font-family: var(--ds-font-mono);
+    font-size: 0.85em;
+    font-weight: 700;
+    line-height: 1.6;
+    text-align: center;
+}
+
+/* Callouts: a tip, a note or a warning next to the text. */
+.callout {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: var(--ds-space-3);
+    padding: var(--ds-space-4);
+    border: 1px solid var(--ds-color-border);
+    border-left-width: 4px;
+    border-radius: var(--ds-radius-md);
+    background: var(--ds-color-surface-2);
+}
+.callout[data-kind="tip"] {
+    border-left-color: var(--ds-color-success);
+}
+.callout[data-kind="note"] {
+    border-left-color: var(--ds-color-text-muted);
+}
+.callout[data-kind="warning"] {
+    border-left-color: var(--ds-color-warning);
+    background: var(--ds-color-warning-surface);
+}
+.calloutTitle {
+    display: block;
+    margin-bottom: var(--ds-space-1);
+}
+.calloutBody {
+    display: grid;
+    gap: var(--ds-space-2);
+}
+.calloutBody > * {
+    margin: 0;
+}
+
+/* Screenshots: framed like a window, a click opens the full size. */
+.figure {
+    display: grid;
+    gap: var(--ds-space-2);
+    margin: var(--ds-space-2) 0;
+}
+.figureButton {
+    position: relative;
+    display: block;
+    padding: 0;
+    overflow: hidden;
+    border: 1px solid var(--ds-color-border);
+    border-radius: var(--ds-radius-lg);
+    background: var(--ds-color-surface-2);
+    box-shadow: var(--ds-shadow-sm);
+    cursor: zoom-in;
+    transition: box-shadow var(--ds-hover-duration) var(--ds-hover-ease);
+}
+.figureButton:hover {
+    box-shadow: var(--ds-shadow-md);
+}
+.figureImage {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+.figureZoom {
+    position: absolute;
+    right: var(--ds-space-3);
+    bottom: var(--ds-space-3);
+    display: grid;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 50%;
+    background: var(--ds-color-inverse);
+    color: var(--ds-color-on-inverse);
+    opacity: 0;
+    transition: opacity var(--ds-hover-duration) var(--ds-hover-ease);
+}
+.figureButton:hover .figureZoom,
+.figureButton:focus-visible .figureZoom {
+    opacity: 1;
+}
+.figureCaption {
+    color: var(--ds-color-text-muted);
+    font-size: var(--ds-fs-sm);
+    text-align: center;
+}
+
+.viewer {
+    max-width: none;
+    max-height: none;
+    width: 100vw;
+    height: 100dvh;
+    margin: 0;
+    padding: var(--ds-space-6);
+    border: 0;
+    background: transparent;
+}
+.viewer[open] {
+    display: grid;
+    place-items: center;
+}
+.viewer::backdrop {
+    background: color-mix(in srgb, var(--ds-black) 82%, transparent);
+}
+.viewerImage {
+    max-width: calc(100vw - 2 * var(--ds-space-6));
+    max-height: calc(100dvh - 2 * var(--ds-space-6));
+    object-fit: contain;
+    border-radius: var(--ds-radius-md);
+    box-shadow: var(--ds-shadow-lg);
+    cursor: zoom-out;
+}
+.viewerClose {
+    position: fixed;
+    top: var(--ds-space-4);
+    right: var(--ds-space-4);
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border: 0;
+    border-radius: 50%;
+    background: var(--ds-color-surface);
+    color: var(--ds-color-text);
+    cursor: pointer;
 }

@@ -20,7 +20,12 @@ export function SetupAuthenticatorPage() {
     const { t } = useLingui();
     const returnUrl = useReturnUrl();
     const rememberMe = useRememberMe();
-    const pending = useQuery({ queryKey: ["auth", "pending"], queryFn: authApi.pending, retry: false, staleTime: Infinity });
+    const pending = useQuery({
+        queryKey: ["auth", "pending"],
+        queryFn: ({ signal }) => authApi.pending(signal),
+        retry: false,
+        staleTime: Infinity,
+    });
     const [codes, setCodes] = useState<readonly string[] | null>(null);
 
     if (codes) {

@@ -34,9 +34,10 @@ export const newsKeys = {
 export function newsListQuery(filters: NewsFilters) {
     return queryOptions({
         queryKey: ["news", "list", filters],
-        queryFn: () =>
+        queryFn: ({ signal }) =>
             unwrap(
                 api.GET("/api/v1/news", {
+                    signal,
                     params: {
                         query: {
                             Category: filters.category,
@@ -62,7 +63,7 @@ export function newsListQuery(filters: NewsFilters) {
 export function articleQuery(slug: string) {
     return queryOptions({
         queryKey: ["news", "article", slug],
-        queryFn: () => unwrap(api.GET("/api/v1/news/{slug}", { params: { path: { slug } } })),
+        queryFn: ({ signal }) => unwrap(api.GET("/api/v1/news/{slug}", { signal, params: { path: { slug } } })),
     });
 }
 
@@ -74,7 +75,7 @@ export function articleQuery(slug: string) {
 export function articleForEditQuery(id: string) {
     return queryOptions({
         queryKey: ["news", "edit", id],
-        queryFn: () => unwrap(api.GET("/api/v1/news/{id}", { params: { path: { id } } })),
+        queryFn: ({ signal }) => unwrap(api.GET("/api/v1/news/{id}", { signal, params: { path: { id } } })),
         staleTime: 0,
     });
 }
@@ -84,7 +85,7 @@ export function articleForEditQuery(id: string) {
  */
 export const newsOrganizationsQuery = queryOptions({
     queryKey: ["news", "organizations"],
-    queryFn: () => unwrap(api.GET("/api/v1/news/organizations")),
+    queryFn: ({ signal }) => unwrap(api.GET("/api/v1/news/organizations", { signal })),
     staleTime: 5 * 60_000,
 });
 
@@ -98,9 +99,12 @@ export const newsOrganizationsQuery = queryOptions({
 export function discussionQuery(articleId: string, page: number, sort: CommentSort) {
     return queryOptions({
         queryKey: [...newsKeys.discussion(articleId), page, sort],
-        queryFn: () =>
+        queryFn: ({ signal }) =>
             unwrap(
-                api.GET("/api/v1/news/{articleId}/discussion", { params: { path: { articleId }, query: { page, pageSize: 10, sort } } }),
+                api.GET("/api/v1/news/{articleId}/discussion", {
+                    signal,
+                    params: { path: { articleId }, query: { page, pageSize: 10, sort } },
+                }),
             ),
         placeholderData: (previous) => previous,
         staleTime: 0,

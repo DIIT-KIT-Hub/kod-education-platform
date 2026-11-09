@@ -84,9 +84,10 @@ function listQuery(params: ListParams) {
 export function unitListQuery(filters: UnitFilters) {
     return queryOptions({
         queryKey: adminKeys.units(filters),
-        queryFn: () =>
+        queryFn: ({ signal }) =>
             unwrap(
                 api.GET("/api/v1/organization-units/list", {
+                    signal,
                     params: { query: { ...listQuery(filters), TypeId: filters.typeId, OrganizationId: filters.organizationId } },
                 }),
             ),
@@ -99,7 +100,7 @@ export function unitListQuery(filters: UnitFilters) {
  */
 export const unitOptionsQuery = queryOptions({
     queryKey: adminKeys.unitOptions,
-    queryFn: () => unwrap(api.GET("/api/v1/organization-units/options")),
+    queryFn: ({ signal }) => unwrap(api.GET("/api/v1/organization-units/options", { signal })),
 });
 
 /**
@@ -110,7 +111,7 @@ export const unitOptionsQuery = queryOptions({
 export function unitQuery(id: string) {
     return queryOptions({
         queryKey: adminKeys.unit(id),
-        queryFn: () => unwrap(api.GET("/api/v1/organization-units/{id}", { params: { path: { id } } })),
+        queryFn: ({ signal }) => unwrap(api.GET("/api/v1/organization-units/{id}", { signal, params: { path: { id } } })),
         staleTime: 0,
     });
 }
@@ -120,7 +121,7 @@ export function unitQuery(id: string) {
  */
 export const unitTypesQuery = queryOptions({
     queryKey: adminKeys.unitTypes,
-    queryFn: () => unwrap(api.GET("/api/v1/unit-types")),
+    queryFn: ({ signal }) => unwrap(api.GET("/api/v1/unit-types", { signal })),
 });
 
 /**
@@ -131,7 +132,7 @@ export const unitTypesQuery = queryOptions({
 export function unitTypeQuery(id: string) {
     return queryOptions({
         queryKey: adminKeys.unitType(id),
-        queryFn: () => unwrap(api.GET("/api/v1/unit-types/{id}", { params: { path: { id } } })),
+        queryFn: ({ signal }) => unwrap(api.GET("/api/v1/unit-types/{id}", { signal, params: { path: { id } } })),
         staleTime: 0,
     });
 }
@@ -144,9 +145,10 @@ export function unitTypeQuery(id: string) {
 export function userListQuery(filters: UserFilters) {
     return queryOptions({
         queryKey: adminKeys.users(filters),
-        queryFn: () =>
+        queryFn: ({ signal }) =>
             unwrap(
                 api.GET("/api/v1/users", {
+                    signal,
                     params: {
                         query: { ...listQuery(filters), Status: filters.status, UnitId: filters.unitId, RoleId: filters.roleId },
                     },
@@ -164,7 +166,7 @@ export function userListQuery(filters: UserFilters) {
 export function userUnitsQuery(manage: boolean) {
     return queryOptions({
         queryKey: adminKeys.userUnits(manage),
-        queryFn: () => unwrap(api.GET("/api/v1/users/units", { params: { query: { manage } } })),
+        queryFn: ({ signal }) => unwrap(api.GET("/api/v1/users/units", { signal, params: { query: { manage } } })),
     });
 }
 
@@ -173,7 +175,7 @@ export function userUnitsQuery(manage: boolean) {
  */
 export const userRolesQuery = queryOptions({
     queryKey: adminKeys.userRoles,
-    queryFn: () => unwrap(api.GET("/api/v1/users/roles")),
+    queryFn: ({ signal }) => unwrap(api.GET("/api/v1/users/roles", { signal })),
 });
 
 /**
@@ -184,7 +186,7 @@ export const userRolesQuery = queryOptions({
 export function userQuery(id: string) {
     return queryOptions({
         queryKey: adminKeys.user(id),
-        queryFn: () => unwrap(api.GET("/api/v1/users/{id}", { params: { path: { id } } })),
+        queryFn: ({ signal }) => unwrap(api.GET("/api/v1/users/{id}", { signal, params: { path: { id } } })),
         staleTime: 0,
     });
 }
@@ -197,7 +199,7 @@ export function userQuery(id: string) {
 export function roleListQuery(params: ListParams) {
     return queryOptions({
         queryKey: adminKeys.roles(params),
-        queryFn: () => unwrap(api.GET("/api/v1/roles", { params: { query: listQuery(params) } })),
+        queryFn: ({ signal }) => unwrap(api.GET("/api/v1/roles", { signal, params: { query: listQuery(params) } })),
         placeholderData: (previous) => previous,
     });
 }
@@ -210,7 +212,7 @@ export function roleListQuery(params: ListParams) {
 export function roleQuery(id: string) {
     return queryOptions({
         queryKey: adminKeys.role(id),
-        queryFn: () => unwrap(api.GET("/api/v1/roles/{id}", { params: { path: { id } } })),
+        queryFn: ({ signal }) => unwrap(api.GET("/api/v1/roles/{id}", { signal, params: { path: { id } } })),
         staleTime: 0,
     });
 }
@@ -220,7 +222,7 @@ export function roleQuery(id: string) {
  */
 export const permissionsQuery = queryOptions({
     queryKey: adminKeys.permissions,
-    queryFn: () => unwrap(api.GET("/api/v1/permissions")),
+    queryFn: ({ signal }) => unwrap(api.GET("/api/v1/permissions", { signal })),
     staleTime: Infinity,
 });
 
@@ -229,7 +231,7 @@ export const permissionsQuery = queryOptions({
  */
 export const importRolesQuery = queryOptions({
     queryKey: adminKeys.importRoles,
-    queryFn: () => unwrap(api.GET("/api/v1/user-imports/roles")),
+    queryFn: ({ signal }) => unwrap(api.GET("/api/v1/user-imports/roles", { signal })),
 });
 
 /**
@@ -240,9 +242,10 @@ export const importRolesQuery = queryOptions({
 export function auditQuery(filters: AuditFilters) {
     return queryOptions({
         queryKey: adminKeys.audit(filters),
-        queryFn: () =>
+        queryFn: ({ signal }) =>
             unwrap(
                 api.GET("/api/v1/audit-entries", {
+                    signal,
                     params: { query: { ...listQuery(filters), Action: filters.category, From: filters.from, To: filters.to } },
                 }),
             ),

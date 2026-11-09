@@ -105,12 +105,27 @@ there is none, `GET login/pending` (password already set → the authenticator s
   `ODC.Web/wwwroot/lib/eusign` (16 MB, served compressed by `MapStaticAssets`; the trust list fallback lives there too).
   Keep the order: key read only on the last step, released after signing / going back / closing / leaving. The private
   key and its password never leave the worker.
-- **Manual** (`features/help`): the table of contents (anchors, titles, icons, permissions) is `contents.ts`; the text is
-  `chapters/uk/<X>Chapter.tsx` and its English twin `chapters/en/<X>Chapter.tsx` with the same anchors (only the
-  reader's language is loaded). Building blocks from `components/Manual.tsx`: `<Chapter id>`, `<Topic id>`, `<Ui>` (an
-  interface label written exactly as on screen), `<Steps>`, `<Ref to>` (link to a topic), `<Table>`, `<Faq>`, `<Code>`.
-  The roles chapter is built from `GET /api/v1/permissions` and `/permissions/system-roles`. Update both languages when
-  a feature changes; `contents.test.ts` checks that both use every anchor and that every `<Ref>` points to a topic.
+- **Manual** (`features/help`, routes `/help` and `/help/:topicId`): a user guide, not technical documentation. It is
+  a docs-style site inside the cabinet: its route sits outside `AppShell` (no cabinet sidebar) but behind
+  `requireReadyUser`, so only signed-in users see it. `HelpLayout` has the chapter navigation (`HelpNav`), the search
+  (`HelpSearch`, Ctrl + K) and "Повернутися до системи", which opens the last cabinet page with its view
+  (`shared/lib/lastPage.ts`: `AppShell` remembers it in sessionStorage; unsafe or unknown addresses fall back to `/`).
+  - `contents.ts`: chapters → topics (id, title, icon, required permissions); `topicPath`, `neighboursOf`, `findEntry`.
+  - One page per topic: `content/uk/<topic-id>.tsx` and its English twin `content/en/<topic-id>.tsx`, each exporting
+    `Content`. `content/pages.ts` loads them lazily (`import.meta.glob`), only in the reader's language; `HelpTopicPage`
+    shows one page with breadcrumbs, the access badge, "On this page" (from its `h2`s) and previous / next.
+  - Building blocks from `components/Manual.tsx`: `<Ui>` (an interface label exactly as on screen), `<Steps>`,
+    `<Ref to>` (link to a topic), `<Table>`, `<Faq>`, `<Kbd>`, `<Code>`, `<Tip>` / `<Note>` / `<Warning>`,
+    `<Figure src alt caption>` (screenshots from `images/<language>/<name>.webp`), `<Access permissions>`. Subheadings
+    are `h2` only (the topic title is the `h1`). The roles page is built from `GET /api/v1/permissions` and
+    `/permissions/system-roles` (`RoleReference`).
+  - Search (`search.ts`) indexes the pages by rendering them hidden once and matches words with Ukrainian/English
+    normalization; a hit opens the page at its section.
+  - Screenshots: `scripts/help-screenshots.mjs` drives headless Edge/Chrome over the DevTools protocol against a running
+    verification instance with demo data (both languages, 1440 × 900, light theme, WebP). Run it only against your own
+    instance: `ODC_URL`, `ODC_EMAIL`, `ODC_PASSWORD`, `ODC_TOTP_KEY` (see the comment at its top).
+  - Update both languages when a feature changes. `contents.test.ts` checks unique ids, chapter order, that every
+    `<Ref>` points to a topic and the `h2`-only structure; `help.test.tsx` covers the layout, navigation and search.
 - Texts: Lingui with Ukrainian source texts — ``t`Зберегти` `` / `<Trans>` from `@lingui/react/macro`, ``msg`…` `` for
   module-level descriptors, `msg({ message, context })` for the same word with different meanings. Dates in Kyiv time
   through `shared/i18n/format.ts`, enum names through `shared/i18n/display.ts`.
@@ -140,6 +155,38 @@ there is none, `GET login/pending` (password already set → the authenticator s
 - Steppers: `Wizard` (`shared/ui`) for forms the user moves through freely (Back / Next); `StepProgress` for flows the
   server drives one step at a time (activation). Both share the same look.
 
+## Tests
+
+Vitest + happy-dom + Testing Library + MSW (`pnpm test`, `pnpm test:coverage` → `coverage/index.html`). A test sits next
+to its module (`LoginPage.test.tsx`). Shared helpers live in `src/test` (excluded from coverage and from the lint
+rule that keeps features apart):
+
+- `renderPage(element, { path, url, user, routes, state })` (`@/test/render`): renders inside the app's providers —
+  a fresh query client (no retries) with the auth context already in the cache (`user` defaults to a user with every
+  permission, `null` = visitor), a memory router (`path` is the route pattern, `url` the opened address, `state` the
+  history state the list views read), Lingui in Ukrainian, toasts and confirmation dialogs. Returns `user`
+  (user-event), `queryClient` and `router`. A navigation to an unrendered route shows its address:
+  `await navigatedTo()`.
+- `mockApi(method, "/api/v1/documents/{id}", answer)` (`@/test/server`): mocks an endpoint (OpenAPI path) and returns
+  the recorded calls (`path`, `query`, `headers`, JSON or form `body`). The answer is a JSON body, a status code or
+  a function; `problem(status, code, detail)` builds the server's problem details. **Every request needs a handler**:
+  an unmocked call fails the test.
+- `makeUser`, `makeAuthContext`, `makeUserRef`, `makePage` (`@/test/factories`); type other fixtures with
+  `Schemas["DocumentDetails"]` so a contract change breaks the test at compile time.
+- `src/test/architecture.test.ts` checks the sources: every `queryFn` passes the abort signal, no hand-written
+  `fetch("/api/…")`.
+- Query by role and visible Ukrainian text (`getByRole("button", { name: "Зберегти" })`, `getByLabelText`), not by CSS
+  classes. Cover the success path, every validation message, every error code the page handles, permission-dependent
+  UI (render with `makeUser({ permissions: [...] })`), empty and loading states, and what is sent (body, query, the
+  `X-CSRF-TOKEN` header on state-changing calls).
+- happy-dom lacks the popover API and modal dialogs; `src/test/setup.ts` adds minimal stand-ins. A confirmation dialog
+  is found by its heading (`findByRole("heading", { name })` → `closest("dialog")`); its action button can share the
+  name of the close button, take the last one.
+- Live hub messages: `vi.mock("@/shared/realtime/live", () => import("@/shared/realtime/fakeLive"))`, then
+  `emitLive("NotificationReceived", dto, 3)` / `reconnectLive()`.
+- `ButtonLink`, `StatCard` and breadcrumbs move a target's query string into the history state (`viewTarget`), so
+  their `href` is the bare path.
+
 ## Gotchas
 
 - **React Compiler runs before the Lingui macro**: a static element inside `<Trans>` (`<strong>Microsoft
@@ -155,10 +202,14 @@ there is none, `GET login/pending` (password already set → the authenticator s
   (Vite would inline small fonts). `img-src` allows `data:` (the authenticator QR code is an `<img>` with an SVG data
   URL) and `blob:`.
 - **Vitest transform cache**: `import.meta.glob` results are cached in `node_modules/.vitest-cache`; after adding a
-  file a glob should find (e.g. a manual chapter) delete that folder if a test still sees the old list.
-- Manual performance: topics use `content-visibility: auto`; `HelpPage` renders them once (`data-help-measuring`) to
-  remember real heights so anchors land exactly. Keep that when changing the manual's layout. Its scroll, search
-  highlight and contents tracking run in animation frames, which a hidden browser tab pauses.
+  file a glob should find (e.g. a manual page) delete that folder if a test still sees the old list.
+- Manual pages are `React.lazy` components created at module level (`content/pages.ts`): `use()` with a promise does
+  not settle inside act-based tests, and creating a lazy component during render breaks the lint rule and remounts.
+  `HelpTopicPage` reads the page's headings in `useEffect` (not a layout effect: a cached page's child effect runs
+  before the parent's ref is attached) and passes a stable state setter down, never a new callback per render
+  (that looped).
+- **Lookups by a value from outside** (server codes, history state): use `Object.hasOwn(map, key)`, not `map[key]` or
+  `key in map` — `constructor` or `toString` would match a member of `Object.prototype`.
 - Navigating the browser to the same address with another `#hash` does not reload the page (the client keeps its
   language and state); reload explicitly when a test needs a fresh start.
 - Shell edits with backticks (template literals) break in Git Bash heredocs; write scripts with the Write tool.

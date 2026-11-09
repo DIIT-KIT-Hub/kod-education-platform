@@ -67,6 +67,14 @@ export function confirmWithOption(options: Omit<ConfirmRequest, "resolve"> & { r
 }
 
 /**
+ * Cancels the open question, if any (a new test starts without a dialog).
+ */
+export function clearConfirm(): void {
+    current?.resolve(false, false);
+    update(null);
+}
+
+/**
  * Subscribes to the open question.
  * @param listener Called on every change.
  * @returns The unsubscribe function.

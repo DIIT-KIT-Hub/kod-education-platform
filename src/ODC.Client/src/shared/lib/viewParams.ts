@@ -106,7 +106,11 @@ export function useViewParams() {
     ): void {
         const value = typeof next === "function" ? next(new URLSearchParams(params)) : new URLSearchParams(next);
         const target = link(value);
-        void navigate(target.to, { replace: options.replace ?? false, preventScrollReset: options.preventScrollReset, state: target.state });
+        void navigate(target.to, {
+            replace: options.replace ?? false,
+            preventScrollReset: options.preventScrollReset,
+            state: target.state,
+        });
     }
 
     return [params, setParams, link] as const;

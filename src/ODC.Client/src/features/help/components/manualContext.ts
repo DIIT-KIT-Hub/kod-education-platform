@@ -1,24 +1,22 @@
 import { createContext, useContext } from "react";
 
 /**
- * What the chapters need from the manual page.
+ * What the manual pages know about the reader.
  */
 export interface ManualState {
-    /** The topics that match the search, or null when nothing is searched. */
-    readonly matched: ReadonlySet<string> | null;
-    /** The titles of the permissions in the interface language (empty until loaded). */
+    /** The translated titles of the permissions (for the access badges). */
     readonly permissionTitles: ReadonlyMap<string, string>;
-    /** Whether the reader has a permission. */
+    /** Whether the reader holds a permission. */
     readonly has: (permission: string) => boolean;
 }
 
 /**
- * The state of the manual page.
+ * The reader of the manual, provided by the help layout.
  */
-export const ManualContext = createContext<ManualState>({ matched: null, permissionTitles: new Map(), has: () => false });
+export const ManualContext = createContext<ManualState>({ permissionTitles: new Map(), has: () => false });
 
 /**
- * Reads the state of the manual page.
+ * Reads the reader of the manual.
  * @returns The state.
  */
 export function useManual(): ManualState {

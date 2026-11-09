@@ -371,3 +371,47 @@ export function topicOf(id: string): HelpTopic {
 
     return topic;
 }
+
+/**
+ * A topic with its chapter, in reading order.
+ */
+export interface HelpEntry {
+    /** The chapter. */
+    readonly chapter: HelpChapter;
+    /** The topic. */
+    readonly topic: HelpTopic;
+}
+
+/**
+ * Every topic of the manual in reading order.
+ */
+export const helpEntries: readonly HelpEntry[] = helpChapters.flatMap((chapter) => chapter.topics.map((topic) => ({ chapter, topic })));
+
+/**
+ * Finds a topic with its chapter.
+ * @param id The topic.
+ * @returns The entry, or undefined for an unknown topic.
+ */
+export function findEntry(id: string): HelpEntry | undefined {
+    return helpEntries.find((entry) => entry.topic.id === id);
+}
+
+/**
+ * The topics before and after one (the "previous / next" links at the end of a page).
+ * @param id The topic.
+ * @returns The neighbours; undefined at the ends.
+ */
+export function neighboursOf(id: string): { readonly previous?: HelpEntry; readonly next?: HelpEntry } {
+    const index = helpEntries.findIndex((entry) => entry.topic.id === id);
+    return { previous: index > 0 ? helpEntries[index - 1] : undefined, next: index >= 0 ? helpEntries[index + 1] : undefined };
+}
+
+/**
+ * The address of a manual page. A chapter leads to its first page.
+ * @param id The topic or the chapter.
+ * @returns The address.
+ */
+export function topicPath(id: string): string {
+    const chapter = helpChapters.find((item) => item.id === id);
+    return `/help/${chapter?.topics[0]?.id ?? id}`;
+}

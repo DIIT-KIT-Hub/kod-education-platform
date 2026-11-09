@@ -42,7 +42,7 @@ export const chatKeys = {
  */
 export const chatsQuery = queryOptions({
     queryKey: chatKeys.list,
-    queryFn: () => unwrap(api.GET("/api/v1/chats")),
+    queryFn: ({ signal }) => unwrap(api.GET("/api/v1/chats", { signal })),
     staleTime: 60_000,
 });
 
@@ -54,7 +54,7 @@ export const chatsQuery = queryOptions({
 export function chatQuery(chatId: string) {
     return queryOptions({
         queryKey: chatKeys.details(chatId),
-        queryFn: () => unwrap(api.GET("/api/v1/chats/{id}", { params: { path: { id: chatId } } })),
+        queryFn: ({ signal }) => unwrap(api.GET("/api/v1/chats/{id}", { signal, params: { path: { id: chatId } } })),
         staleTime: 60_000,
     });
 }
@@ -67,9 +67,9 @@ export function chatQuery(chatId: string) {
 export function threadQuery(chatId: string) {
     return queryOptions({
         queryKey: chatKeys.thread(chatId),
-        queryFn: async (): Promise<ChatThread> => {
+        queryFn: async ({ signal }): Promise<ChatThread> => {
             const page = await unwrap(
-                api.GET("/api/v1/chats/{id}/messages", { params: { path: { id: chatId }, query: { limit: pageSize } } }),
+                api.GET("/api/v1/chats/{id}/messages", { signal, params: { path: { id: chatId }, query: { limit: pageSize } } }),
             );
             return { messages: page.messages, hasOlder: page.hasMore };
         },
@@ -87,7 +87,7 @@ export function threadQuery(chatId: string) {
 export function peopleQuery(term: string) {
     return queryOptions({
         queryKey: chatKeys.people(term),
-        queryFn: () => unwrap(api.GET("/api/v1/chats/people", { params: { query: { term } } })),
+        queryFn: ({ signal }) => unwrap(api.GET("/api/v1/chats/people", { signal, params: { query: { term } } })),
         enabled: term.trim().length >= 2,
         staleTime: 30_000,
     });

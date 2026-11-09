@@ -44,7 +44,7 @@ export function ArticleBody({ html }: ArticleBodyProps) {
         }
 
         const all = Array.from(body.current.querySelectorAll("img"));
-        setImages(all.map((item) => ({ src: item.getAttribute("data-full") ?? item.currentSrc ?? item.src, alt: item.alt })));
+        setImages(all.map((item) => ({ src: item.getAttribute("data-full") || item.currentSrc || item.src, alt: item.alt })));
         setIndex(all.indexOf(image));
     }
 

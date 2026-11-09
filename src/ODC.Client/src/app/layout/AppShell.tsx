@@ -1,7 +1,8 @@
 import { useLingui } from "@lingui/react/macro";
 import { ChevronLeft, Menu, X } from "lucide-react";
-import { useRef, useState, type FocusEvent, type MouseEvent } from "react";
-import { Link, Outlet } from "react-router";
+import { useEffect, useRef, useState, type FocusEvent, type MouseEvent } from "react";
+import { Link, Outlet, useLocation } from "react-router";
+import { rememberPage } from "@/shared/lib/lastPage";
 import { toggleSidebar, useSidebarCollapsed } from "@/shared/lib/preferences";
 import { ChatSync, useUnreadChats } from "@/features/chats/components/ChatSync";
 import { NotificationPanel, NotificationTrigger } from "@/features/notifications/components/NotificationPanel";
@@ -41,6 +42,13 @@ export function AppShell() {
     const collapsed = useSidebarCollapsed();
     const drawer = useRef<HTMLDivElement>(null);
     const [tip, setTip] = useState<RailTip | null>(null);
+    const location = useLocation();
+
+    // The manual has its own layout; its "back to the cabinet" button returns to the page the user left (with the
+    // filters of a list, which live in the history state).
+    useEffect(() => {
+        rememberPage({ path: location.pathname + location.search + location.hash, state: location.state });
+    }, [location]);
 
     /**
      * Shows the name of a menu entry next to its icon while the sidebar is a rail. The tooltip is fixed to the viewport,

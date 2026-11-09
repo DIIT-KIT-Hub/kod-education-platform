@@ -160,7 +160,9 @@ dotnet_diagnostic.CS1591.severity = warning
 dotnet_diagnostic.CA1848.severity = warning
 # ASP.NET Core has no synchronization context.
 dotnet_diagnostic.CA2007.severity = none
-# Public types are required across Clean Architecture layers.
+# Every cancellation token in scope is passed on (a request the client gave up on stops its database work).
+dotnet_diagnostic.CA2016.severity = warning
+# Public types are used across the folders of the single project and by the tests.
 dotnet_diagnostic.CA1515.severity = none
 # Entity collections are exposed as read-only views by design.
 dotnet_diagnostic.CA2227.severity = none

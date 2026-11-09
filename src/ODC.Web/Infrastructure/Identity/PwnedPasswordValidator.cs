@@ -17,10 +17,12 @@ namespace ODC.Web.Infrastructure.Identity;
 /// <param name="clientFactory">The HTTP client factory.</param>
 /// <param name="options">The options.</param>
 /// <param name="logger">The logger.</param>
+/// <param name="httpContextAccessor">The current request (its cancellation token), if any.</param>
 internal sealed partial class PwnedPasswordValidator(
     IHttpClientFactory clientFactory,
     IOptions<PasswordSecurityOptions> options,
-    ILogger<PwnedPasswordValidator> logger) : IPasswordValidator<User>
+    ILogger<PwnedPasswordValidator> logger,
+    IHttpContextAccessor httpContextAccessor) : IPasswordValidator<User>
 {
     /// <summary>
     /// The named HTTP client.
@@ -37,17 +39,19 @@ internal sealed partial class PwnedPasswordValidator(
             return IdentityResult.Success;
         }
 
+        // The validator interface takes no token: the request's own one stops the lookup when the client gives up.
+        var aborted = httpContextAccessor.HttpContext?.RequestAborted ?? CancellationToken.None;
         var hash = Convert.ToHexString(SHA1.HashData(Encoding.UTF8.GetBytes(password)));
         var (prefix, suffix) = (hash[..5], hash[5..]);
         try
         {
             using var request = new HttpRequestMessage(HttpMethod.Get, new Uri(settings.BreachedPasswordsApi, prefix));
             request.Headers.Add("Add-Padding", "true");
-            using var response = await clientFactory.CreateClient(HttpClientName).SendAsync(request);
+            using var response = await clientFactory.CreateClient(HttpClientName).SendAsync(request, aborted);
             response.EnsureSuccessStatusCode();
 
-            using var reader = new StringReader(await response.Content.ReadAsStringAsync());
-            while (await reader.ReadLineAsync() is { } line)
+            using var reader = new StringReader(await response.Content.ReadAsStringAsync(aborted));
+            while (await reader.ReadLineAsync(aborted) is { } line)
             {
                 var separator = line.IndexOf(':', StringComparison.Ordinal);
                 if (separator == suffix.Length
@@ -63,7 +67,7 @@ internal sealed partial class PwnedPasswordValidator(
                 }
             }
         }
-        catch (Exception exception) when (exception is HttpRequestException or TaskCanceledException)
+        catch (Exception exception) when (exception is HttpRequestException || (exception is TaskCanceledException && !aborted.IsCancellationRequested))
         {
             LogUnavailable(logger, exception);
         }

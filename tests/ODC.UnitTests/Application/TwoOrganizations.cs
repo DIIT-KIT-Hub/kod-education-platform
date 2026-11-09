@@ -35,11 +35,21 @@ internal sealed class TwoOrganizations : IDisposable
     /// Initializes a new instance of the <see cref="TwoOrganizations"/> class.
     /// </summary>
     public TwoOrganizations()
-    {
-        Db = new ApplicationDbContext(new DbContextOptionsBuilder<ApplicationDbContext>()
+        : this(new DbContextOptionsBuilder<ApplicationDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .ConfigureWarnings(static w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning))
-            .Options);
+            .Options)
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="TwoOrganizations"/> class on a given database (PostgreSQL for the
+    /// slices the in-memory provider cannot run).
+    /// </summary>
+    /// <param name="options">The options of the context.</param>
+    public TwoOrganizations(DbContextOptions<ApplicationDbContext> options)
+    {
+        Db = new ApplicationDbContext(options);
 
         OrganizationType = new UnitType("ORGANIZATION", "Організація", isOrganization: true);
         DivisionType = new UnitType("DIVISION", "Відділ", isOrganization: false);
@@ -162,6 +172,9 @@ internal sealed class TwoOrganizations : IDisposable
     /// <summary>Gets or sets the rows the fake spreadsheet returns.</summary>
     public IReadOnlyList<UserSheetRow> SheetRows { get; set; } = [];
 
+    /// <summary>Gets or sets the rows last written by the fake spreadsheet, with the format.</summary>
+    public (IReadOnlyList<UserSheetRow> Rows, SpreadsheetFormat Format)? Written { get; internal set; }
+
     /// <inheritdoc />
     public void Dispose() => Db.Dispose();
 
@@ -169,10 +182,11 @@ internal sealed class TwoOrganizations : IDisposable
     /// Builds the services as seen by a user with the effective permissions of their roles.
     /// </summary>
     /// <param name="user">The current user.</param>
+    /// <param name="configure">Replaces services after the defaults (e.g. a scriptable identity service).</param>
     /// <returns>The services.</returns>
-    public Services As(User user)
+    public Services As(User user, Action<IServiceCollection>? configure = null)
     {
-        var permissions = new PermissionResolver(Db).GetEffectivePermissionsAsync(user.Id, CancellationToken.None).GetAwaiter().GetResult();
+        var permissions = Task.Run(() => new PermissionResolver(Db).GetEffectivePermissionsAsync(user.Id, CancellationToken.None)).GetAwaiter().GetResult();
         var services = new ServiceCollection()
             .AddLogging()
             .AddApplication();
@@ -195,6 +209,7 @@ internal sealed class TwoOrganizations : IDisposable
         services.AddSingleton<IMarkdownRenderer, FakeMarkdown>();
         services.AddSingleton<IRichTextSanitizer, RichTextSanitizer>();
         services.AddSingleton(Options.Create(new EmailOptions { SiteUrl = "https://odc.test/" }));
+        configure?.Invoke(services);
 
         var provider = services.BuildServiceProvider();
         return new Services(provider);
@@ -512,7 +527,11 @@ internal sealed class TwoOrganizations : IDisposable
         public IReadOnlyList<UserSheetRow> Read(Stream content, SpreadsheetFormat format) => world.SheetRows;
 
         /// <inheritdoc />
-        public byte[] Write(IEnumerable<UserSheetRow> rows, SpreadsheetFormat format) => [];
+        public byte[] Write(IEnumerable<UserSheetRow> rows, SpreadsheetFormat format)
+        {
+            world.Written = ([.. rows], format);
+            return [1, 2, 3];
+        }
     }
 
     /// <summary>
@@ -545,6 +564,6 @@ internal sealed class TwoOrganizations : IDisposable
     {
         /// <inheritdoc />
         public Task<ProcessedImage?> ProcessAsync(ReadOnlyMemory<byte> source, MediaPurpose purpose, ImageCrop? crop, CancellationToken cancellationToken)
-            => Task.FromResult<ProcessedImage?>(new ProcessedImage([1, 2, 3], [1], 100, 100));
+            => Task.FromResult(source.Length == 0 || source.Span[0] == 0 ? null : new ProcessedImage([1, 2, 3], [1], 100, 100));
     }
 }

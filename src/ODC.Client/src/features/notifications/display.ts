@@ -43,7 +43,9 @@ export function notificationTitle(notification: NotificationDto, i18n: I18n): st
         case "ChatMessage":
             return notification.count > 1 ? i18n._(msg`Нові повідомлення: ${notification.count}`) : i18n._(msg`Нове повідомлення`);
         case "TicketStatusChanged": {
-            const status = ticketStatusNames[notification.code as TicketStatus] as (typeof ticketStatusNames)[TicketStatus] | undefined;
+            // Own keys only: a code such as "constructor" must not pick up a member of Object.prototype.
+            const code = notification.code;
+            const status = code && Object.hasOwn(ticketStatusNames, code) ? ticketStatusNames[code as TicketStatus] : undefined;
             return status ? i18n._(msg`Стан звернення: ${i18n._(status)}`) : i18n._(msg`Стан звернення змінено`);
         }
         default:

@@ -6,7 +6,15 @@
  * @returns A safe application path.
  */
 export function safeReturnUrl(value: string | null | undefined, fallback = "/"): string {
-    if (!value || !value.startsWith("/") || value.startsWith("//") || value.startsWith("/\\")) {
+    // Browsers drop tabs and line breaks from addresses and read "\" as "/": "/\t/evil.example" or "/\evil.example"
+    // would become the protocol-relative "//evil.example". Control characters are never part of an application path.
+    // eslint-disable-next-line no-control-regex
+    if (!value || /[\u0000-\u001f\u007f]/u.test(value)) {
+        return fallback;
+    }
+
+    const normalized = value.replaceAll("\\", "/");
+    if (!normalized.startsWith("/") || normalized.startsWith("//")) {
         return fallback;
     }
 

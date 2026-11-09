@@ -35,9 +35,10 @@ export const documentKeys = {
 export function documentListQuery(filters: DocumentFilters) {
     return queryOptions({
         queryKey: documentKeys.list(filters),
-        queryFn: () =>
+        queryFn: ({ signal }) =>
             unwrap(
                 api.GET("/api/v1/documents", {
+                    signal,
                     params: {
                         query: {
                             Scope: filters.scope,
@@ -64,7 +65,7 @@ export function documentListQuery(filters: DocumentFilters) {
 export function documentQuery(id: string) {
     return queryOptions({
         queryKey: documentKeys.details(id),
-        queryFn: () => unwrap(api.GET("/api/v1/documents/{id}", { params: { path: { id } } })),
+        queryFn: ({ signal }) => unwrap(api.GET("/api/v1/documents/{id}", { signal, params: { path: { id } } })),
     });
 }
 
@@ -76,7 +77,7 @@ export function documentQuery(id: string) {
 export function documentEditQuery(id: string) {
     return queryOptions({
         queryKey: documentKeys.edit(id),
-        queryFn: () => unwrap(api.GET("/api/v1/documents/{id}/edit", { params: { path: { id } } })),
+        queryFn: ({ signal }) => unwrap(api.GET("/api/v1/documents/{id}/edit", { signal, params: { path: { id } } })),
         staleTime: 0,
     });
 }
@@ -86,7 +87,7 @@ export function documentEditQuery(id: string) {
  */
 export const authorUnitsQuery = queryOptions({
     queryKey: ["documents", "author-units"],
-    queryFn: () => unwrap(api.GET("/api/v1/documents/author-units")),
+    queryFn: ({ signal }) => unwrap(api.GET("/api/v1/documents/author-units", { signal })),
     staleTime: 5 * 60_000,
 });
 
@@ -98,7 +99,7 @@ export const authorUnitsQuery = queryOptions({
 export function signerSearchQuery(term: string) {
     return queryOptions({
         queryKey: ["documents", "signers", term],
-        queryFn: () => unwrap(api.GET("/api/v1/documents/signers", { params: { query: { term } } })),
+        queryFn: ({ signal }) => unwrap(api.GET("/api/v1/documents/signers", { signal, params: { query: { term } } })),
         enabled: term.length >= 2,
         staleTime: 60_000,
     });

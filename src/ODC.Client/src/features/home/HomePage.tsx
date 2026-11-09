@@ -1,12 +1,13 @@
 import { useLingui } from "@lingui/react/macro";
-import { useQuery } from "@tanstack/react-query";
+import { queryOptions, useQuery } from "@tanstack/react-query";
 import { ArrowRight, BadgeCheck, ChevronRight, CircleCheck, FilePlus, Hourglass, Newspaper, Pencil, Pin, Signature } from "lucide-react";
 import { api } from "@/shared/api/client";
-import { unwrap } from "@/shared/api/problem";
+import { describeError, unwrap } from "@/shared/api/problem";
 import { documentKindNames, newsCategoryNames } from "@/shared/i18n/display";
 import { formatDate, formatNumber, kyivHour } from "@/shared/i18n/format";
 import { hasPermission, Permissions, useCurrentUser } from "@/shared/session/session";
 import layout from "@/shared/styles/layout.module.css";
+import { Alert } from "@/shared/ui/Alert";
 import { Avatar } from "@/shared/ui/Avatar";
 import { ButtonLink } from "@/shared/ui/Button";
 import { Card } from "@/shared/ui/Card";
@@ -21,10 +22,10 @@ import styles from "./HomePage.module.css";
 /**
  * The home page data.
  */
-const dashboardQuery = {
+const dashboardQuery = queryOptions({
     queryKey: ["dashboard"],
-    queryFn: () => unwrap(api.GET("/api/v1/dashboard")),
-} as const;
+    queryFn: ({ signal }) => unwrap(api.GET("/api/v1/dashboard", { signal })),
+});
 
 /**
  * The home page: greeting, key figures, documents awaiting the user's signature and the latest news.
@@ -70,6 +71,8 @@ export function HomePage() {
                     <SkeletonPage header={false} />
                 </>
             )}
+
+            {summary.isError && <Alert tone="danger">{describeError(summary.error, t`Не вдалося завантажити зведення.`)}</Alert>}
 
             {summary.data && (
                 <>
