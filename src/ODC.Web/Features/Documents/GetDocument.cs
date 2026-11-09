@@ -4,6 +4,7 @@ using ODC.Web.Endpoints;
 using ODC.Web.Features.Documents.Domain;
 using ODC.Web.Infrastructure.Persistence;
 using ODC.Web.Messaging;
+using ODC.Web.Shared.Access;
 using ODC.Web.Shared.Domain.Access;
 using ODC.Web.Shared.Identity;
 using ODC.Web.Shared.Kernel;
@@ -28,10 +29,11 @@ public static class GetDocument
     /// Reads the document when visible.
     /// </summary>
     /// <param name="db">The database context.</param>
+    /// <param name="directory">The positions of people.</param>
     /// <param name="currentUser">The current user.</param>
     /// <param name="desk">The shared document rules.</param>
     /// <param name="domainEvents">Raises what the user has seen (their notifications about it are done).</param>
-    internal sealed class Handler(ApplicationDbContext db, ICurrentUser currentUser, DocumentDesk desk, DomainEvents domainEvents) : IRequestHandler<Query, Result<DocumentDetails>>
+    internal sealed class Handler(OrganizationDbContext db, PositionDirectory directory, ICurrentUser currentUser, DocumentDesk desk, DomainEvents domainEvents) : IRequestHandler<Query, Result<DocumentDetails>>
     {
         /// <inheritdoc />
         public async Task<Result<DocumentDetails>> HandleAsync(Query request, CancellationToken cancellationToken)
@@ -57,11 +59,7 @@ public static class GetDocument
                 .FirstAsync(d => d.Id == id, cancellationToken);
 
             var signerIds = document.Signers.Select(static s => s.UserId).ToList();
-            var positions = await db.StaffPositions
-                .AsNoTracking()
-                .Where(p => signerIds.Contains(p.UserId) && p.IsPrimary)
-                .Select(static p => new { p.UserId, p.Title, Role = p.Role!.Name, Unit = p.OrganizationUnit!.Name })
-                .ToDictionaryAsync(static p => p.UserId, static p => StoredText.PositionInUnit(p.Title, p.Role, p.Unit)!, cancellationToken);
+            var positions = (await directory.PrimaryAsync(signerIds, cancellationToken)).ToDictionary(static p => p.Key, static p => p.Value.InUnit);
 
             // Opening the document answers the notifications about it.
             domainEvents.Raise(new ItemSeen(me, id));

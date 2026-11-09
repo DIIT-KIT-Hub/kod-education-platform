@@ -5,9 +5,10 @@ using ODC.Web.Shared.Domain.Organization;
 namespace ODC.Web.Infrastructure.Persistence.Configurations;
 
 /// <summary>
-/// Maps <see cref="OrganizationUnit"/> and <see cref="UnitType"/>.
+/// Maps <see cref="OrganizationUnit"/> (an organization's database). The unit type is referred to by identifier only: the
+/// catalog lives in the master database.
 /// </summary>
-internal sealed class OrganizationUnitConfiguration : IEntityTypeConfiguration<OrganizationUnit>, IEntityTypeConfiguration<UnitType>
+internal sealed class OrganizationUnitConfiguration : IEntityTypeConfiguration<OrganizationUnit>
 {
     /// <inheritdoc />
     public void Configure(EntityTypeBuilder<OrganizationUnit> builder)
@@ -19,27 +20,9 @@ internal sealed class OrganizationUnitConfiguration : IEntityTypeConfiguration<O
         builder.HasIndex(static u => u.Code).IsUnique();
         builder.HasIndex(static u => u.ParentId);
         builder.HasIndex(static u => u.TypeId);
-
         builder.HasOne(static u => u.Parent)
             .WithMany(static u => u.Children)
             .HasForeignKey(static u => u.ParentId)
             .OnDelete(DeleteBehavior.Restrict);
-
-        builder.HasOne(static u => u.Type)
-            .WithMany()
-            .HasForeignKey(static u => u.TypeId)
-            .OnDelete(DeleteBehavior.Restrict);
-    }
-
-    /// <inheritdoc />
-    public void Configure(EntityTypeBuilder<UnitType> builder)
-    {
-        builder.ToTable("unit_types");
-        builder.Property(static t => t.Code).HasMaxLength(UnitType.CodeMaxLength).HasColumnType("citext");
-        builder.Property(static t => t.Name).HasMaxLength(UnitType.NameMaxLength).HasColumnType("citext");
-        builder.Property(static t => t.Description).HasMaxLength(UnitType.DescriptionMaxLength);
-        builder.Property(static t => t.Icon).HasMaxLength(UnitType.IconMaxLength);
-        builder.HasIndex(static t => t.Code).IsUnique();
-        builder.HasIndex(static t => t.Name).IsUnique();
     }
 }

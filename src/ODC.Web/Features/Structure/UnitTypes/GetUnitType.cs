@@ -25,13 +25,14 @@ public static class GetUnitType
     /// Reads the type.
     /// </summary>
     /// <param name="db">The database context.</param>
-    internal sealed class Handler(ApplicationDbContext db) : IRequestHandler<Query, Result<UnitTypeItem>>
+    /// <param name="organization">The organization's database (units of the type).</param>
+    internal sealed class Handler(MasterDbContext db, OrganizationDbContext organization) : IRequestHandler<Query, Result<UnitTypeItem>>
     {
         /// <inheritdoc />
         public async Task<Result<UnitTypeItem>> HandleAsync(Query request, CancellationToken cancellationToken)
         {
             ArgumentNullException.ThrowIfNull(request);
-            var type = await UnitTypeCatalog.Items(db, request.Id).FirstOrDefaultAsync(cancellationToken);
+            var type = (await UnitTypeCatalog.ItemsAsync(db, organization, request.Id, cancellationToken)).FirstOrDefault();
             return type is null ? UnitTypeCatalog.NotFound() : type;
         }
     }

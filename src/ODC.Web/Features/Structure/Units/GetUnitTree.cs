@@ -3,6 +3,7 @@ using ODC.Web.Endpoints;
 using ODC.Web.Infrastructure.Persistence;
 using ODC.Web.Messaging;
 using ODC.Web.Security;
+using ODC.Web.Shared.Access;
 using ODC.Web.Shared.Domain.Access;
 using ODC.Web.Shared.Kernel;
 
@@ -24,13 +25,14 @@ public static class GetUnitTree
     /// Builds the tree.
     /// </summary>
     /// <param name="db">The database context.</param>
-    internal sealed class Handler(ApplicationDbContext db) : IRequestHandler<Query, Result<IReadOnlyList<UnitTreeNode>>>
+    /// <param name="catalog">The shared catalogs (unit types).</param>
+    internal sealed class Handler(OrganizationDbContext db, Catalog catalog) : IRequestHandler<Query, Result<IReadOnlyList<UnitTreeNode>>>
     {
         /// <inheritdoc />
         public async Task<Result<IReadOnlyList<UnitTreeNode>>> HandleAsync(Query request, CancellationToken cancellationToken)
         {
             ArgumentNullException.ThrowIfNull(request);
-            var units = await UnitTree.LoadAsync(db, cancellationToken);
+            var units = await UnitTree.LoadAsync(db, catalog, cancellationToken);
             return Result<IReadOnlyList<UnitTreeNode>>.Success(UnitTree.Build(units, null, request.IncludeInactive));
         }
     }

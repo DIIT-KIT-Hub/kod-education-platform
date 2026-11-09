@@ -19,20 +19,21 @@ output for `error` (analyzer ids such as `xUnit2017` are lower-case and easy to 
 | Folder | What is tested |
 | --- | --- |
 | `Domain/` | entity invariants (users, permissions, documents and the signature chain) |
-| `Application/` | slices on the `TwoOrganizations` fixture (EF Core InMemory with two organizations, roles, staff and fakes for identity, spreadsheets, audit, e-mail): scoped administration, user security and export (`Admin/`), roles and audit, unit types and the unit tree (`Structure/`), profile, account settings (`Auth/`), chats, tickets, notifications, news discussion, signing journal and media. `As(user)` builds a real container (`AddApplication()` + fakes), so `SendAsync(new X.Command(…))` runs the whole pipeline: decorators, permission checks and domain events. `ChatClient` adapts the chat slices to short helper calls |
+| `Application/` | slices on the `TwoOrganizations` fixture (two EF Core InMemory databases as in production: `Master` with accounts, roles and unit types, `Db` with two organizations and their members; `MemberSync` copies account changes into `Db` — save `Db` before `Master` when both are new; change accounts and roles through `Master`), roles, staff and fakes for identity, spreadsheets, audit, e-mail): scoped administration, user security and export (`Admin/`), roles and audit, unit types and the unit tree (`Structure/`), profile, account settings (`Auth/`), chats, tickets, notifications, news discussion, signing journal and media. `As(user)` builds a real container (`AddApplication()` + fakes), so `SendAsync(new X.Command(…))` runs the whole pipeline: decorators, permission checks and domain events. `ChatClient` adapts the chat slices to short helper calls |
 | `Application/Documents/` | the document slices on **PostgreSQL** (`DocumentWorld` on top of `TwoOrganizations`, a manual clock, a scripted signature inspector): lifecycle, signing chains and turns, access |
 | `Messaging/` | the pipeline itself: domain events delivered once and only after success, failures isolated, reactions raising events |
-| `Architecture/` | `SliceArchitectureTests` (allowed edges between features, no injection of another feature's internals, handlers/endpoints internal and sealed, every request handled and registered, `Domain/` free of EF Core/HTTP/pipeline) and `EndpointSecurityTests` (the real host's endpoints: anonymous only on the list, antiforgery on every state-changing method) |
+| `Architecture/` | `DataPlacementTests` (every entity placed in one database, each model holds exactly its entities, no foreign key or table shared across the databases), `SliceArchitectureTests` (allowed edges between features, no injection of another feature's internals, handlers/endpoints internal and sealed, every request handled and registered, `Domain/` free of EF Core/HTTP/pipeline) and `EndpointSecurityTests` (the real host's endpoints: anonymous only on the list, antiforgery on every state-changing method) |
 | `Infrastructure/` | JWT tokens and refresh rotation, account activation (`AccountActivationTests`), `IdentityServiceTests` (a real `UserManager` configured like the cabinet: password rules, lockout, replay-protected TOTP, encrypted recovery codes, the breached password check over a fake HTTP handler, the claims factory), file and image storage on a temporary folder (`TemporaryFolder`), the e-mail outbox and pickup sender, the audit writer, TOTP/token protection, sanitizer, images, CMS signatures; `PostgresDatabase` / `PostgresCollection` |
 | `Web/` | API contracts, localization coverage (every `T`/`In`/`ErrorMessage`/Guard literal has English), trust list, `Security/` (headers and CSP, the photo requirement, problem details, permission policies, the current user), endpoint helpers (results → HTTP, antiforgery filter, form files, enum schemas), the SignalR hub and live senders (fake hub context and clients), shared rules (file allow-lists, e-mail addresses, account e-mails, language) |
 
 ## PostgreSQL tests
 
 - `PostgresDatabase` is an xUnit collection fixture (`[Collection(PostgresCollection.Name)]`): it creates
-  `odc_tests_<guid>` from the model once (`EnsureCreated`), each test empties the tables (`Reset()`: `DELETE` in
-  dependants-first order, much faster than `TRUNCATE`), and it drops the database at the end (`WITH (FORCE)`).
+  `odc_tests_<guid>` and `odc_tests_<guid>_org` from the two models once (`EnsureCreated`; `MasterOptions`,
+  `OrganizationOptions`), each test empties the tables of both (`Reset()`: `DELETE` in
+  dependants-first order, much faster than `TRUNCATE`), and it drops both databases at the end (`WITH (FORCE)`).
 - The server comes from `ODC_TEST_DATABASE` (a connection string, for CI) or the user secrets of ODC.Web
-  (`ConnectionStrings:Database`); only the database name is replaced, so the developer's data is never touched.
+  (`ConnectionStrings:Database`); only the database names are replaced, so the developer's data is never touched.
   Without either the tests are skipped. `synchronous_commit=off` keeps them fast (~2 s per test).
 - Use PostgreSQL when the code needs the real provider: complex properties (`Document.File`: InMemory cannot load them),
   `xmin` concurrency, `ExecuteDelete`, SQL translation.

@@ -27,7 +27,7 @@ public static class ChangeTicketStatus
     /// <param name="currentUser">The current user.</param>
     /// <param name="desk">The shared request rules.</param>
     /// <param name="timeProvider">The clock.</param>
-    internal sealed class Handler(ApplicationDbContext db, ICurrentUser currentUser, TicketDesk desk, TimeProvider timeProvider)
+    internal sealed class Handler(MasterDbContext db, ICurrentUser currentUser, TicketDesk desk, TimeProvider timeProvider)
         : IRequestHandler<Command, Result>
     {
         /// <inheritdoc />

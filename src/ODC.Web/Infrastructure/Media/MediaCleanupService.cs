@@ -38,7 +38,7 @@ internal sealed partial class MediaCleanupService(
             try
             {
                 await using var scope = scopeFactory.CreateAsyncScope();
-                var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                var db = scope.ServiceProvider.GetRequiredService<MasterDbContext>();
                 var before = timeProvider.GetUtcNow() - Grace;
                 var unused = await db.MediaFiles
                     .Where(m => m.CreatedAt < before)

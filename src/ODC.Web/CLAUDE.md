@@ -14,11 +14,11 @@ their code now lives in the folders below and their old guides are in the git hi
 | `Features/Notifications/Reactions/` | Domain event handlers that turn the events of documents, requests, chats and news into notifications |
 | `Features/DependencyInjection.cs` | `AddApplication()`: `AddMessaging(assembly)` plus the desks and shared services |
 | `Shared/Kernel` | `Entity` (Guid v7 `Id`, `Raise` / `TakeDomainEvents`), `AuditableEntity`, `Guard`, `DomainException`, `DomainErrors.GuardAsync`, `Result`/`Result<T>`/`Error`/`IOutcome`, `IDomainEvent`, `ItemSeen` |
-| `Shared/Domain/` | Entities several features share: `Users` (`User : IdentityUser`, `StaffPosition`), `Access` (`Role`, permission catalog `Permissions`, `SystemRoles`), `Organization` (`OrganizationUnit`, `UnitType`), `Media`, `Audit` (`AuditEntry`, `AuditActions`), `Reactions` (`ReactionKind`) |
-| `Shared/…` | Cross-feature services and ports: `Access` (`IAccessScope`, `AdministrationScope`, `PermissionResolver`, `PermissionHolders`), `Identity` (`ICurrentUser`, `IIdentityService`), `Email` (`EmailLayout`, `AccountEmails`, `IEmailOutbox`), `Files` (`FileRules`, `AttachmentStore`), `Media` (`MediaLibrary`), `Text`, `Paging`, `Models`, `Localization` (`Texts`, `Languages`, `en/*.json`) |
+| `Shared/Domain/` | Entities several features share: `Users` (`User : IdentityUser`, `Member` — the organization's copy with `StaffPosition`s), `Access` (`Role`, permission catalog `Permissions`, `SystemRoles`), `Organization` (`OrganizationUnit`, `UnitType`), `Media`, `Audit` (`AuditEntry`, `AuditActions`), `Reactions` (`ReactionKind`) |
+| `Shared/…` | Cross-feature services and ports: `Access` (`IAccessScope`, `AdministrationScope`, `PermissionResolver`, `PermissionHolders`, `Catalog`, `PositionDirectory`), `Identity` (`ICurrentUser`, `IIdentityService`), `Email` (`EmailLayout`, `AccountEmails`, `IEmailOutbox`), `Files` (`FileRules`, `AttachmentStore`), `Media` (`MediaLibrary`), `Text`, `Paging`, `Models`, `Localization` (`Texts`, `Languages`, `en/*.json`) |
 | `Messaging/` | Our own mediator (no MediatR): `IRequest<T>`/`ICommand<T>`/`IQuery<T>`, `IRequestHandler<,>`, the decorators, domain event delivery, `AddMessaging` |
 | `Endpoints/` | `IEndpoint`, `ApiEndpoints.MapApiEndpoints` (the secure `/api/v1` group), `RequirePermission`, `RequireAntiforgeryToken`, `ResultHttpExtensions` (`ToOk`, `ToCreated`, `ToNoContent`, `ToFile`, `ToProblem`), `NonNullableEnumSchemaTransformer` |
-| `Infrastructure/` | Implementations: `Persistence` (`ApplicationDbContext`, shared configurations, the single migration, seeding), `Identity` (sign-in manager, claims, JWT + refresh tokens in `Tokens/`, authentication handlers in `Authentication/`), `Email` (outbox → SMTP / pickup folder), `Files`, `Media` (libvips → AVIF, cleanup), `Signatures`, `Text`, `Auditing`; `AddInfrastructure()` |
+| `Infrastructure/` | Implementations: `Persistence` (`MasterDbContext`, `OrganizationDbContext`, `DataPlacement`, `MemberSync`, shared configurations, one migration per database, seeding), `Identity` (sign-in manager, claims, JWT + refresh tokens in `Tokens/`, authentication handlers in `Authentication/`), `Email` (outbox → SMTP / pickup folder), `Files`, `Media` (libvips → AVIF, cleanup), `Signatures`, `Text`, `Auditing`; `AddInfrastructure()` |
 | `Security/` | `SecurityHeadersMiddleware` (strict CSP), `AccountSetupMiddleware` (photo required), permission policies (`RequirePermissionAttribute`), `CurrentUser` |
 | `Hosting/` | `WebServiceCollectionExtensions` (JSON, OpenAPI, validation, rate limits, auth, SignalR), `WebApplicationExtensions` (pipeline order and mapping), `SpaHostingExtensions`, `ApiExceptionHandler`, logging |
 | `Realtime/` | `LiveHub` at `/api/v1/live` and the event senders (chats, news discussion, notifications) |
@@ -74,14 +74,17 @@ public static class RenameChat                                   // Features/Cha
 
 ## Domain and domain events
 
-- Entities keep their invariants: private setters, state changes through methods (`User.SetPositions`,
+- Entities keep their invariants: private setters, state changes through methods (`Member.SetPositions`,
   `Document.AddSignature`, `Ticket.Comment`), `DomainException` with a translated message for a broken rule. EF Core
   needs a private parameterless constructor; collections are private `List<T>` fields exposed read-only. Mapping
   (tables, lengths, indexes, `xmin`) lives in `Persistence/` configurations, never as attributes on entities.
   `Domain/` folders reference neither EF Core nor HTTP nor the pipeline (checked by `SliceArchitectureTests`); ASP.NET
   Core Identity base types are the domain's own (`User : IdentityUser<Guid>`).
 - A feature owns its entities (`Features/Documents/Domain`); entities used by several features live in
-  `Shared/Domain`. `ApplicationDbContext` is the one unit of work (no repositories): slices query it directly.
+  `Shared/Domain`. The contexts are the units of work (no repositories): slices query `OrganizationDbContext` for the
+  organization's data and `MasterDbContext` for accounts, catalogs and requests (root `CLAUDE.md`, "Databases"); a
+  query never joins the two. Role names, unit types and people's positions on the organization's side come from
+  `Catalog` and `PositionDirectory`.
 - **Domain events** decouple features: an entity raises one (`Raise(new TicketSubmitted(…))`) or a handler raises one
   through the scoped `DomainEvents` (`domainEvents.Raise(new ItemSeen(me, id))` for "the user saw it", or a batch of
   chat messages). `DomainEventsDecorator` takes them from the tracked entities and `DomainEvents` **after the handler
@@ -97,12 +100,13 @@ public static class RenameChat                                   // Features/Cha
 
 ## Persistence
 
-- Schema: snake_case names, `citext` for case-insensitive text, PostgreSQL `xmin` as the concurrency token. One
-  migration (`InitialCreate`, squashed on 2026-11-07); add new ones with
-  `dotnet ef migrations add <Name> --project src/ODC.Web --configuration Lead --output-dir Infrastructure/Persistence/Migrations`
-  and the environment variable `SkipClientBuild=true` (`-p:` is not passed through `dotnet ef`). Check
-  `dotnet ef migrations has-pending-model-changes --project src/ODC.Web --configuration Lead` after moving entities:
-  the snapshot names entity types by their full CLR name.
+- Schema: snake_case names, `citext` for case-insensitive text, PostgreSQL `xmin` as the concurrency token. Two
+  databases, one migration each (`InitialCreate`, 2026-11-09). A new entity goes into `DataPlacement` and gets its own
+  configuration class (a class configures entities of one database only). Add migrations per context:
+  `dotnet ef migrations add <Name> --project src/ODC.Web --configuration Lead --context MasterDbContext --output-dir Infrastructure/Persistence/Migrations/Master`
+  (and the same with `OrganizationDbContext` / `…/Organization`) with the environment variable `SkipClientBuild=true`
+  (`-p:` is not passed through `dotnet ef`). Check `dotnet ef migrations has-pending-model-changes … --context <X>` for
+  both after moving entities: the snapshot names entity types by their full CLR name.
 - EF Core: filter before projecting into a record; .NET calls (`Texts.T`, `StoredText.Display`) only in the final
   projection. The InMemory test provider does not catch untranslatable queries — check them against PostgreSQL.
 - Secrets at rest go through Data Protection (application `ODC`, purposes `ODC.*`); keys live in the database and are

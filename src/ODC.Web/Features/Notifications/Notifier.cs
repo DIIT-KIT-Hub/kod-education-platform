@@ -11,7 +11,7 @@ namespace ODC.Web.Features.Notifications;
 /// <param name="events">Delivers notifications to the open pages.</param>
 /// <param name="timeProvider">The clock.</param>
 /// <param name="logger">The logger.</param>
-internal sealed partial class Notifier(ApplicationDbContext db, INotificationEvents events, TimeProvider timeProvider, ILogger<Notifier> logger) : INotifier
+internal sealed partial class Notifier(OrganizationDbContext db, INotificationEvents events, TimeProvider timeProvider, ILogger<Notifier> logger) : INotifier
 {
     /// <inheritdoc />
     public async Task NotifyAsync(NotificationDraft draft, IReadOnlyCollection<Guid> recipients, CancellationToken cancellationToken)
@@ -26,7 +26,7 @@ internal sealed partial class Notifier(ApplicationDbContext db, INotificationEve
 
         try
         {
-            var users = await db.Users.Where(u => wanted.Contains(u.Id) && u.IsActive).Select(static u => u.Id).ToListAsync(cancellationToken);
+            var users = await db.Members.Where(u => wanted.Contains(u.Id) && u.IsActive).Select(static u => u.Id).ToListAsync(cancellationToken);
             if (draft.OnceSince is { } since)
             {
                 var told = await db.Notifications

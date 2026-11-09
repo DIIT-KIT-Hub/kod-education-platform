@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using ODC.Web.Endpoints;
 using ODC.Web.Infrastructure.Persistence;
+using ODC.Web.Shared.Access;
 using ODC.Web.Shared.Domain.Access;
 using ODC.Web.Shared.Kernel;
 using ODC.Web.Shared.Localization;
@@ -65,40 +66,50 @@ internal static class UnitTree
     /// Loads all units with their staff counts.
     /// </summary>
     /// <param name="db">The database context.</param>
+    /// <param name="catalog">The shared catalogs (unit types).</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The units.</returns>
-    public static Task<List<UnitRow>> LoadAsync(ApplicationDbContext db, CancellationToken cancellationToken)
-        => db.OrganizationUnits
+    public static async Task<List<UnitRow>> LoadAsync(OrganizationDbContext db, Catalog catalog, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(catalog);
+        var types = await catalog.UnitTypesAsync(cancellationToken);
+        var units = await db.OrganizationUnits
             .AsNoTracking()
-            .Select(u => new UnitRow(
+            .Select(u => new
+            {
                 u.Id,
                 u.ParentId,
                 u.Code,
                 u.Name,
                 u.ShortName,
-                new UnitTypeRef(u.TypeId, StoredText.Display(u.Type!.Name), u.Type.Icon, u.Type.IsOrganization),
+                u.TypeId,
                 u.IsActive,
                 u.SortOrder,
-                db.StaffPositions.Count(p => p.OrganizationUnitId == u.Id)))
+                StaffCount = db.StaffPositions.Count(p => p.OrganizationUnitId == u.Id),
+            })
             .ToListAsync(cancellationToken);
+        return [.. units.Select(u => new UnitRow(u.Id, u.ParentId, u.Code, u.Name, u.ShortName, CatalogUnitType.RefOf(types, u.TypeId), u.IsActive, u.SortOrder, u.StaffCount))];
+    }
 
     /// <summary>
     /// Validates code uniqueness, the type and the parent reference.
     /// </summary>
     /// <param name="db">The database context.</param>
+    /// <param name="catalog">The shared catalogs (unit types).</param>
     /// <param name="id">The unit being updated, <see langword="null"/> when creating.</param>
     /// <param name="unit">The new data.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>An error or <see langword="null"/>.</returns>
-    public static async Task<Error?> ValidateAsync(ApplicationDbContext db, Guid? id, SaveUnitCommand unit, CancellationToken cancellationToken)
+    public static async Task<Error?> ValidateAsync(OrganizationDbContext db, Catalog catalog, Guid? id, SaveUnitCommand unit, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(catalog);
         var code = unit.Code?.Trim().ToUpperInvariant() ?? string.Empty;
         if (await db.OrganizationUnits.AnyAsync(u => u.Code == code && u.Id != id, cancellationToken))
         {
             return Error.Conflict(Texts.T("Підрозділ із кодом «{0}» вже існує.", code));
         }
 
-        var type = await db.UnitTypes.AsNoTracking().FirstOrDefaultAsync(t => t.Id == unit.TypeId, cancellationToken);
+        var type = (await catalog.UnitTypesAsync(cancellationToken)).GetValueOrDefault(unit.TypeId);
         if (type is null)
         {
             return Error.Validation(Texts.T("Оберіть тип підрозділу."));

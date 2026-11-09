@@ -42,24 +42,30 @@ internal static class UnitTypeCatalog
     /// Projects the types with their usage in display order. The id filter goes before the projection: EF Core cannot
     /// translate a filter on a property of the projected record.
     /// </summary>
-    /// <param name="db">The database context.</param>
+    /// <param name="db">The master database (the catalog).</param>
+    /// <param name="organization">The organization's database (the units of each type).</param>
     /// <param name="id">The type to load, or <see langword="null"/> for all of them.</param>
-    /// <returns>The query.</returns>
-    public static IQueryable<UnitTypeItem> Items(ApplicationDbContext db, Guid? id = null)
-        => db.UnitTypes
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The types.</returns>
+    public static async Task<List<UnitTypeItem>> ItemsAsync(MasterDbContext db, OrganizationDbContext organization, Guid? id, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(db);
+        ArgumentNullException.ThrowIfNull(organization);
+        var types = await db.UnitTypes
             .AsNoTracking()
             .Where(t => id == null || t.Id == id)
             .OrderBy(static t => t.SortOrder)
             .ThenBy(static t => t.Name)
-            .Select(t => new UnitTypeItem(
-                t.Id,
-                t.Code,
-                t.Name,
-                t.Description,
-                t.Icon,
-                t.IsOrganization,
-                t.SortOrder,
-                db.OrganizationUnits.Count(u => u.TypeId == t.Id)));
+            .Select(static t => new UnitTypeItem(t.Id, t.Code, t.Name, t.Description, t.Icon, t.IsOrganization, t.SortOrder, 0))
+            .ToListAsync(cancellationToken);
+        var ids = types.Select(static t => t.Id).ToList();
+        var usage = await organization.OrganizationUnits
+            .Where(u => ids.Contains(u.TypeId))
+            .GroupBy(static u => u.TypeId)
+            .Select(static g => new { g.Key, Count = g.Count() })
+            .ToDictionaryAsync(static g => g.Key, static g => g.Count, cancellationToken);
+        return [.. types.Select(t => t with { UnitCount = usage.GetValueOrDefault(t.Id) })];
+    }
 
     /// <summary>
     /// Validates the uniqueness of the code and the name.
@@ -69,7 +75,7 @@ internal static class UnitTypeCatalog
     /// <param name="type">The new data.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>An error or <see langword="null"/>.</returns>
-    public static async Task<Error?> ValidateAsync(ApplicationDbContext db, Guid? id, SaveUnitTypeCommand type, CancellationToken cancellationToken)
+    public static async Task<Error?> ValidateAsync(MasterDbContext db, Guid? id, SaveUnitTypeCommand type, CancellationToken cancellationToken)
     {
         var code = type.Code?.Trim().ToUpperInvariant() ?? string.Empty;
         if (await db.UnitTypes.AnyAsync(t => t.Code == code && t.Id != id, cancellationToken))

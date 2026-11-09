@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using ODC.Web.Endpoints;
 using ODC.Web.Infrastructure.Persistence;
 using ODC.Web.Messaging;
+using ODC.Web.Shared.Access;
 using ODC.Web.Shared.Domain.Access;
 using ODC.Web.Shared.Identity;
 using ODC.Web.Shared.Kernel;
@@ -38,9 +39,11 @@ public static class GetDocumentForEdit
     /// Reads a draft or rejected document of its author.
     /// </summary>
     /// <param name="db">The database context.</param>
+    /// <param name="catalog">The shared catalogs (which unit types are organizations).</param>
+    /// <param name="directory">The positions of people.</param>
     /// <param name="currentUser">The current user.</param>
     /// <param name="desk">The shared document rules.</param>
-    internal sealed class Handler(ApplicationDbContext db, ICurrentUser currentUser, DocumentDesk desk) : IRequestHandler<Query, Result<DocumentEditModel>>
+    internal sealed class Handler(OrganizationDbContext db, Catalog catalog, PositionDirectory directory, ICurrentUser currentUser, DocumentDesk desk) : IRequestHandler<Query, Result<DocumentEditModel>>
     {
         /// <inheritdoc />
         public async Task<Result<DocumentEditModel>> HandleAsync(Query request, CancellationToken cancellationToken)
@@ -73,23 +76,12 @@ public static class GetDocumentForEdit
             }
 
             var signerIds = document.Signers.OrderBy(static s => s.Order).Select(static s => s.UserId).ToList();
-            var people = await db.Users
-                .AsNoTracking()
-                .Where(u => signerIds.Contains(u.Id))
-                .Select(static u => new UserLookupItem(
-                    u.Id,
-                    u.LastName + " " + u.FirstName + (u.MiddleName != null ? " " + u.MiddleName : string.Empty),
-                    u.Email!,
-                    StoredText.PositionInUnit(
-                        u.Positions.Where(static p => p.IsPrimary).Select(static p => p.Title).FirstOrDefault(),
-                        u.Positions.Where(static p => p.IsPrimary).Select(static p => p.Role!.Name).FirstOrDefault(),
-                        u.Positions.Where(static p => p.IsPrimary).Select(static p => p.OrganizationUnit!.Name).FirstOrDefault()),
-                    u.PhotoId))
-                .ToDictionaryAsync(static u => u.Id, cancellationToken);
+            var people = (await directory.LookupAsync(db.Members.Where(u => signerIds.Contains(u.Id)), cancellationToken)).ToDictionary(static u => u.Id);
+            var organizationTypes = await catalog.OrganizationTypeIdsAsync(cancellationToken);
             var unit = await db.OrganizationUnits
                 .AsNoTracking()
                 .Where(u => u.Id == document.OrganizationUnitId)
-                .Select(static u => new UnitOption(u.Id, u.Name, u.Code, u.Type!.IsOrganization, 0))
+                .Select(u => new UnitOption(u.Id, u.Name, u.Code, organizationTypes.Contains(u.TypeId), 0))
                 .FirstAsync(cancellationToken);
 
             return new DocumentEditModel(
@@ -121,8 +113,9 @@ public static class GetDocumentForEdit
     /// Finds the people.
     /// </summary>
     /// <param name="db">The database context.</param>
+    /// <param name="directory">The positions of people.</param>
     /// <param name="currentUser">The current user.</param>
-    internal sealed class SignersHandler(ApplicationDbContext db, ICurrentUser currentUser) : IRequestHandler<SignersQuery, IReadOnlyList<UserLookupItem>>
+    internal sealed class SignersHandler(OrganizationDbContext db, PositionDirectory directory, ICurrentUser currentUser) : IRequestHandler<SignersQuery, IReadOnlyList<UserLookupItem>>
     {
         /// <inheritdoc />
         public async Task<IReadOnlyList<UserLookupItem>> HandleAsync(SignersQuery request, CancellationToken cancellationToken)
@@ -135,21 +128,12 @@ public static class GetDocumentForEdit
             }
 
             var lowered = term.Trim();
-            return await db.Users
-                .AsNoTracking()
-                .Where(u => u.IsActive && (u.LastName.Contains(lowered) || u.FirstName.Contains(lowered) || u.Email!.Contains(lowered)))
-                .OrderBy(static u => u.LastName).ThenBy(static u => u.FirstName)
-                .Take(10)
-                .Select(static u => new UserLookupItem(
-                    u.Id,
-                    u.LastName + " " + u.FirstName + (u.MiddleName != null ? " " + u.MiddleName : string.Empty),
-                    u.Email!,
-                    StoredText.PositionInUnit(
-                        u.Positions.Where(static p => p.IsPrimary).Select(static p => p.Title).FirstOrDefault(),
-                        u.Positions.Where(static p => p.IsPrimary).Select(static p => p.Role!.Name).FirstOrDefault(),
-                        u.Positions.Where(static p => p.IsPrimary).Select(static p => p.OrganizationUnit!.Name).FirstOrDefault()),
-                    u.PhotoId))
-                .ToListAsync(cancellationToken);
+            return await directory.LookupAsync(
+                db.Members
+                    .Where(u => u.IsActive && (u.LastName.Contains(lowered) || u.FirstName.Contains(lowered) || u.Email.Contains(lowered)))
+                    .OrderBy(static u => u.LastName).ThenBy(static u => u.FirstName)
+                    .Take(10),
+                cancellationToken);
         }
     }
 

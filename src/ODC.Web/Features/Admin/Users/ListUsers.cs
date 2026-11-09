@@ -30,11 +30,13 @@ public static class ListUsers
     /// <summary>
     /// Filters, sorts and pages the accounts; the shown position is the first one inside the scope.
     /// </summary>
-    /// <param name="db">The database context.</param>
+    /// <param name="db">The master database (sign-in state of the accounts).</param>
+    /// <param name="organization">The organization's database (members and positions).</param>
+    /// <param name="catalog">The shared catalogs (role names).</param>
     /// <param name="accessScope">The administration scopes.</param>
     /// <param name="directory">The user administration rules.</param>
     /// <param name="timeProvider">The clock.</param>
-    internal sealed class Handler(ApplicationDbContext db, IAccessScope accessScope, UserDirectory directory, TimeProvider timeProvider)
+    internal sealed class Handler(MasterDbContext db, OrganizationDbContext organization, Catalog catalog, IAccessScope accessScope, UserDirectory directory, TimeProvider timeProvider)
         : IRequestHandler<Query, Result<PagedResult<UserListItem>>>
     {
         /// <inheritdoc />
@@ -45,7 +47,7 @@ public static class ListUsers
             var all = scope.IsCabinetWide;
             var units = UserDirectory.ScopeUnits(scope);
             var now = timeProvider.GetUtcNow();
-            var users = await directory.FilterAsync(UserDirectory.InScope(db.Users.AsNoTracking(), scope), request, cancellationToken);
+            var users = await directory.FilterAsync(UserDirectory.InScope(organization.Members.AsNoTracking(), scope), request, cancellationToken);
             users = request.SortBy switch
             {
                 "email" => users.OrderByDirection(static u => u.Email, request.IsDescending),
@@ -55,23 +57,62 @@ public static class ListUsers
                     : users.OrderBy(static u => u.LastName).ThenBy(static u => u.FirstName),
             };
 
-            return await users
-                .Select(u => new UserListItem(
+            var page = await users
+                .Select(u => new UserRow(
                     u.Id,
                     u.LastName + " " + u.FirstName + (u.MiddleName != null ? " " + u.MiddleName : string.Empty),
-                    u.Email!,
-                    StoredText.PositionTitle(
-                        u.Positions.Where(p => all || units.Contains(p.OrganizationUnitId)).OrderByDescending(static p => p.IsPrimary).ThenBy(static p => p.Id).Select(static p => p.Title).FirstOrDefault(),
-                        u.Positions.Where(p => all || units.Contains(p.OrganizationUnitId)).OrderByDescending(static p => p.IsPrimary).ThenBy(static p => p.Id).Select(static p => p.Role!.Name).FirstOrDefault()),
+                    u.Email,
+                    u.Positions.Where(p => all || units.Contains(p.OrganizationUnitId)).OrderByDescending(static p => p.IsPrimary).ThenBy(static p => p.Id).Select(static p => p.Title).FirstOrDefault(),
+                    u.Positions.Where(p => all || units.Contains(p.OrganizationUnitId)).OrderByDescending(static p => p.IsPrimary).ThenBy(static p => p.Id).Select(static p => (Guid?)p.RoleId).FirstOrDefault(),
                     u.Positions.Where(p => all || units.Contains(p.OrganizationUnitId)).OrderByDescending(static p => p.IsPrimary).ThenBy(static p => p.Id).Select(static p => p.OrganizationUnit!.Name).FirstOrDefault(),
                     u.IsActive,
-                    u.PasswordHash == null,
-                    u.TwoFactorEnabled,
-                    u.LockoutEnd != null && u.LockoutEnd > now,
+                    u.AwaitsActivation,
                     u.LastSignInAt,
                     u.PhotoId))
                 .ToPagedResultAsync(request, cancellationToken);
+
+            // Two-factor and lockout state stay with the accounts in the master database.
+            var ids = page.Items.Select(static u => u.Id).ToList();
+            var accounts = await db.Users
+                .AsNoTracking()
+                .Where(u => ids.Contains(u.Id))
+                .Select(static u => new { u.Id, u.TwoFactorEnabled, u.LockoutEnd })
+                .ToDictionaryAsync(static u => u.Id, cancellationToken);
+            var roles = await catalog.RolesAsync(cancellationToken);
+            return new PagedResult<UserListItem>(
+                [
+                    .. page.Items.Select(u => new UserListItem(
+                        u.Id,
+                        u.Name,
+                        u.Email,
+                        StoredText.PositionTitle(u.Title, u.RoleId is { } role ? roles.GetValueOrDefault(role)?.Name : null),
+                        u.Unit,
+                        u.IsActive,
+                        u.AwaitsActivation,
+                        accounts.GetValueOrDefault(u.Id)?.TwoFactorEnabled ?? false,
+                        accounts.GetValueOrDefault(u.Id)?.LockoutEnd > now,
+                        u.LastSignInAt,
+                        u.PhotoId)),
+                ],
+                page.Page,
+                page.PageSize,
+                page.TotalCount);
         }
+
+        /// <summary>
+        /// A row of the page before the account data of the master database is added.
+        /// </summary>
+        /// <param name="Id">The account.</param>
+        /// <param name="Name">The full name.</param>
+        /// <param name="Email">The e-mail.</param>
+        /// <param name="Title">The official title of the shown position.</param>
+        /// <param name="RoleId">The role of the shown position.</param>
+        /// <param name="Unit">The unit of the shown position.</param>
+        /// <param name="IsActive">Whether the account may sign in.</param>
+        /// <param name="AwaitsActivation">Whether the account waits for activation.</param>
+        /// <param name="LastSignInAt">The last sign-in.</param>
+        /// <param name="PhotoId">The photo.</param>
+        private sealed record UserRow(Guid Id, string Name, string Email, string? Title, Guid? RoleId, string? Unit, bool IsActive, bool AwaitsActivation, DateTimeOffset? LastSignInAt, Guid? PhotoId);
     }
 
     /// <summary>

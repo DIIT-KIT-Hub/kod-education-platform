@@ -19,6 +19,7 @@ namespace ODC.Web.Features.Chats;
 /// the files of messages and their copies.
 /// </summary>
 /// <param name="db">The database context.</param>
+/// <param name="catalog">The shared catalogs (who may use chats).</param>
 /// <param name="currentUser">The current user.</param>
 /// <param name="attachmentStore">Checks and stores the files of messages.</param>
 /// <param name="files">The private file storage.</param>
@@ -26,7 +27,8 @@ namespace ODC.Web.Features.Chats;
 /// <param name="domainEvents">Raises what the user has seen (their notifications about it are done).</param>
 /// <param name="timeProvider">The clock.</param>
 internal sealed class ChatRoom(
-    ApplicationDbContext db,
+    OrganizationDbContext db,
+    Catalog catalog,
     ICurrentUser currentUser,
     AttachmentStore attachmentStore,
     IFileStorage files,
@@ -101,8 +103,9 @@ internal sealed class ChatRoom(
     /// <summary>
     /// Selects the active accounts that may use chats (role permissions and individual grants, minus denials).
     /// </summary>
+    /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The query.</returns>
-    public IQueryable<User> ChatUsers() => db.UsersWith(Permissions.Chats.Use);
+    public Task<IQueryable<Member>> ChatUsersAsync(CancellationToken cancellationToken) => db.MembersWithAsync(catalog, Permissions.Chats.Use, cancellationToken);
 
     /// <summary>
     /// Checks that everyone may be added to a chat.
@@ -118,7 +121,7 @@ internal sealed class ChatRoom(
             return Error.Validation(Texts.T("У груповому чаті може бути не більше {0} учасників.", Chat.MaxMembers));
         }
 
-        var allowed = await ChatUsers().CountAsync(u => ids.Contains(u.Id), cancellationToken);
+        var allowed = await (await ChatUsersAsync(cancellationToken)).CountAsync(u => ids.Contains(u.Id), cancellationToken);
         return allowed == ids.Count
             ? null
             : Error.Validation(Texts.T("Цій людині не можна написати: обліковий запис заблоковано або чати для неї вимкнено."));
@@ -141,7 +144,7 @@ internal sealed class ChatRoom(
     /// <returns>The names, comma separated.</returns>
     public async Task<string> NamesAsync(IReadOnlyCollection<Guid> userIds, CancellationToken cancellationToken)
     {
-        var names = await db.Users
+        var names = await db.Members
             .Where(u => userIds.Contains(u.Id))
             .OrderBy(static u => u.LastName).ThenBy(static u => u.FirstName)
             .Select(static u => u.LastName + " " + u.FirstName)

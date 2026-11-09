@@ -174,7 +174,7 @@ dotnet_diagnostic.CA1000.severity = none
 # Domain terms such as "Signed" are intentional enum member names.
 dotnet_diagnostic.CA1720.severity = none
 
-[**/Migrations/*.cs]
+[**/Migrations/**.cs]
 generated_code = true
 dotnet_diagnostic.SA1600.severity = none
 dotnet_diagnostic.CS1591.severity = none

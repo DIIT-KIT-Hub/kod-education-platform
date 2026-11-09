@@ -86,7 +86,7 @@ public sealed class SigningAndMediaTests : IDisposable
         Assert.Equal($"/media/{media.Id:N}", media.Url);
         Assert.Equal($"/media/{media.Id:N}/thumb", media.ThumbnailUrl);
         Assert.Contains(media.Id, _world.Storage.Stored);
-        Assert.Contains(_world.Db.MediaFiles, m => m.Id == media.Id);
+        Assert.Contains(_world.Master.MediaFiles, m => m.Id == media.Id);
     }
 
     [Fact]

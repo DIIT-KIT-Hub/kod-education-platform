@@ -1,12 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using ODC.Web.Features.News.Domain;
 using ODC.Web.Shared.Domain.Media;
 
 namespace ODC.Web.Infrastructure.Persistence.Configurations;
 
 /// <summary>
-/// Maps the uploaded images.
+/// Maps the uploaded images (master database).
 /// </summary>
 internal sealed class MediaFileConfiguration : IEntityTypeConfiguration<MediaFile>
 {
@@ -17,9 +16,7 @@ internal sealed class MediaFileConfiguration : IEntityTypeConfiguration<MediaFil
         builder.HasIndex(static m => m.NewsArticleId);
         builder.HasIndex(static m => new { m.Purpose, m.CreatedAt });
 
-        builder.HasOne<NewsArticle>()
-            .WithMany()
-            .HasForeignKey(static m => m.NewsArticleId)
-            .OnDelete(DeleteBehavior.SetNull);
+        // NewsArticleId refers to an article of an organization's database: no foreign key across databases. Deleting
+        // an article detaches its images (NewsDesk), and MediaCleanupService removes unattached images a day later.
     }
 }

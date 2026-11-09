@@ -33,7 +33,7 @@ public static class RegenerateRecoveryCodes
         public async Task<Result<IReadOnlyList<string>>> HandleAsync(Command request, CancellationToken cancellationToken)
         {
             ArgumentNullException.ThrowIfNull(request);
-            var user = await account.LoadWithPositionsAsync(cancellationToken);
+            var user = await account.LoadAsync(cancellationToken);
             if (user is null)
             {
                 return Error.Unauthorized();

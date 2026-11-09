@@ -30,9 +30,10 @@ public static class DeleteUnitType
     /// Deletes the type when unused.
     /// </summary>
     /// <param name="db">The database context.</param>
+    /// <param name="organization">The organization's database (units of the type).</param>
     /// <param name="currentUser">The current user.</param>
     /// <param name="audit">The audit logger.</param>
-    internal sealed class Handler(ApplicationDbContext db, ICurrentUser currentUser, IAuditLogger audit) : IRequestHandler<Command, Result>
+    internal sealed class Handler(MasterDbContext db, OrganizationDbContext organization, ICurrentUser currentUser, IAuditLogger audit) : IRequestHandler<Command, Result>
     {
         /// <inheritdoc />
         public async Task<Result> HandleAsync(Command request, CancellationToken cancellationToken)
@@ -49,7 +50,7 @@ public static class DeleteUnitType
                 return UnitTypeCatalog.NotFound();
             }
 
-            var used = await db.OrganizationUnits.CountAsync(u => u.TypeId == request.Id, cancellationToken);
+            var used = await organization.OrganizationUnits.CountAsync(u => u.TypeId == request.Id, cancellationToken);
             if (used > 0)
             {
                 return Error.Conflict(Texts.T("Тип «{0}» мають підрозділи ({1}). Спершу змініть їхній тип.", Texts.T(type.Name), used));

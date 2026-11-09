@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Npgsql;
 using ODC.IntegrationTests.Clients;
+using ODC.Web.Infrastructure.Persistence;
 
 namespace ODC.IntegrationTests.Hosting;
 
@@ -150,7 +151,8 @@ public sealed class OdcApplication : WebApplicationFactory<Program>, IAsyncLifet
             return;
         }
 
-        // Pooled connections keep the database open: close them and force the drop (PostgreSQL 13+).
+        // Pooled connections keep the databases open: close them and force the drop (PostgreSQL 13+). The organizations'
+        // database is named after the master one (OrganizationDatabase).
         NpgsqlConnection.ClearAllPools();
         var builder = new NpgsqlConnectionStringBuilder(_connectionString);
         var name = builder.Database;
@@ -158,9 +160,12 @@ public sealed class OdcApplication : WebApplicationFactory<Program>, IAsyncLifet
         await using (var connection = new NpgsqlConnection(builder.ConnectionString))
         {
             await connection.OpenAsync(CancellationToken.None);
-            await using var command = connection.CreateCommand();
-            command.CommandText = $"DROP DATABASE IF EXISTS \"{name}\" WITH (FORCE)";
-            await command.ExecuteNonQueryAsync(CancellationToken.None);
+            foreach (var database in new[] { name, name + OrganizationDatabase.NameSuffix })
+            {
+                await using var command = connection.CreateCommand();
+                command.CommandText = $"DROP DATABASE IF EXISTS \"{database}\" WITH (FORCE)";
+                await command.ExecuteNonQueryAsync(CancellationToken.None);
+            }
         }
 
         try

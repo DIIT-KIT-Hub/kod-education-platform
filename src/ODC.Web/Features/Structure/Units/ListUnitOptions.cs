@@ -25,8 +25,9 @@ public static class ListUnitOptions
     /// Walks the tree and keeps the units of the scope.
     /// </summary>
     /// <param name="db">The database context.</param>
+    /// <param name="catalog">The shared catalogs (unit types).</param>
     /// <param name="accessScope">The administration scopes.</param>
-    internal sealed class Handler(ApplicationDbContext db, IAccessScope accessScope) : IRequestHandler<Query, IReadOnlyList<UnitOption>>
+    internal sealed class Handler(OrganizationDbContext db, Catalog catalog, IAccessScope accessScope) : IRequestHandler<Query, IReadOnlyList<UnitOption>>
     {
         /// <inheritdoc />
         public async Task<IReadOnlyList<UnitOption>> HandleAsync(Query request, CancellationToken cancellationToken)
@@ -38,7 +39,7 @@ public static class ListUnitOptions
                 return [];
             }
 
-            var units = await UnitTree.LoadAsync(db, cancellationToken);
+            var units = await UnitTree.LoadAsync(db, catalog, cancellationToken);
             var result = new List<UnitOption>(units.Count);
             void Walk(IReadOnlyList<UnitTreeNode> nodes, int depth)
             {

@@ -90,7 +90,7 @@ public sealed class DocumentLifecycleTests(PostgresDatabase database) : Document
     public async Task Signers_must_be_existing_active_users()
     {
         World.SignerA2.SetActive(false);
-        World.Db.SaveChanges();
+        World.World.Master.SaveChanges();
 
         var inactive = await World.As(World.AuthorA).SendAsync(Create([World.SignerA, World.SignerA2]));
         var unknown = await World.As(World.AuthorA).SendAsync(new CreateDocumentCommand("Наказ", null, DocumentKind.Order, World.World.AHr.Id, SigningMode.Sequential, [Guid.NewGuid()], false, Upload()));

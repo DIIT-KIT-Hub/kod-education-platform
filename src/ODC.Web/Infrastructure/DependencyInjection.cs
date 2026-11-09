@@ -49,15 +49,32 @@ public static class DependencyInjection
             var connectionString = configuration.GetConnectionString("Database")
                 ?? throw new InvalidOperationException("Connection string 'ConnectionStrings:Database' is not configured.");
 
+            var organizationConnectionString = OrganizationDatabase.ConnectionString(configuration.GetConnectionString("OrganizationDatabase"), connectionString);
+
             services.AddSingleton(TimeProvider.System);
             services.AddSingleton<AuditableEntityInterceptor>();
-            services.AddDbContext<ApplicationDbContext>((provider, options) => options
+            services.AddScoped<PendingAudit>();
+            services.AddScoped<PendingAuditInterceptor>();
+            services.AddScoped<MemberSync>();
+            services.AddDbContext<MasterDbContext>((provider, options) => options
                 .UseNpgsql(connectionString, npgsql => npgsql
                     .UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)
                     .EnableRetryOnFailure(maxRetryCount: 3))
                 .UseSnakeCaseNamingConvention()
-                .AddInterceptors(provider.GetRequiredService<AuditableEntityInterceptor>()));
-            services.AddScoped<IDomainEventSource>(static provider => provider.GetRequiredService<ApplicationDbContext>());
+                .AddInterceptors(
+                    provider.GetRequiredService<AuditableEntityInterceptor>(),
+                    provider.GetRequiredService<PendingAuditInterceptor>(),
+                    provider.GetRequiredService<MemberSync>()));
+            services.AddDbContext<OrganizationDbContext>((provider, options) => options
+                .UseNpgsql(organizationConnectionString, npgsql => npgsql
+                    .UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)
+                    .EnableRetryOnFailure(maxRetryCount: 3))
+                .UseSnakeCaseNamingConvention()
+                .AddInterceptors(
+                    provider.GetRequiredService<AuditableEntityInterceptor>(),
+                    provider.GetRequiredService<PendingAuditInterceptor>()));
+            services.AddScoped<IDomainEventSource>(static provider => provider.GetRequiredService<MasterDbContext>());
+            services.AddScoped<IDomainEventSource>(static provider => provider.GetRequiredService<OrganizationDbContext>());
 
             services.AddIdentityServices();
             services.AddKeyProtection(configuration, environment);
@@ -123,13 +140,11 @@ public static class DependencyInjection
                     options.Lockout.MaxFailedAccessAttempts = 5;
                     options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
                 })
-                .AddRoles<Role>()
-                .AddEntityFrameworkStores<ApplicationDbContext>()
+                .AddEntityFrameworkStores<MasterDbContext>()
 
                 // The ASP.NET managers pass the request's cancellation token to the stores (the plain ones of
                 // AddIdentityCore pass none), so Identity queries stop when the client gives up.
                 .AddUserManager<AspNetUserManager<User>>()
-                .AddRoleManager<AspNetRoleManager<Role>>()
                 .AddUserStore<ProtectedUserStore>()
                 .AddSignInManager<AppSignInManager>()
                 .AddClaimsPrincipalFactory<AppUserClaimsPrincipalFactory>()
@@ -163,7 +178,7 @@ public static class DependencyInjection
         {
             var builder = services.AddDataProtection()
                 .SetApplicationName("ODC")
-                .PersistKeysToDbContext<ApplicationDbContext>();
+                .PersistKeysToDbContext<MasterDbContext>();
 
             var certificatePath = configuration["DataProtection:CertificatePath"];
             if (!string.IsNullOrWhiteSpace(certificatePath))

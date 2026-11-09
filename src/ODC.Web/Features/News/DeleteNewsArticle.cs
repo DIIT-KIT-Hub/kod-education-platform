@@ -33,7 +33,7 @@ public static class DeleteNewsArticle
     /// <param name="desk">The shared news rules.</param>
     /// <param name="media">The image library.</param>
     /// <param name="audit">The audit logger.</param>
-    internal sealed class Handler(ApplicationDbContext db, NewsDesk desk, MediaLibrary media, IAuditLogger audit) : IRequestHandler<Command, Result>
+    internal sealed class Handler(OrganizationDbContext db, NewsDesk desk, MediaLibrary media, IAuditLogger audit) : IRequestHandler<Command, Result>
     {
         /// <inheritdoc />
         public async Task<Result> HandleAsync(Command request, CancellationToken cancellationToken)
@@ -50,13 +50,14 @@ public static class DeleteNewsArticle
                 return Error.Forbidden(Texts.T(NewsDesk.OutsideScopeMessage));
             }
 
-            foreach (var image in await db.MediaFiles.Where(m => m.NewsArticleId == request.Id).ToListAsync(cancellationToken))
+            foreach (var image in await media.Files.Where(m => m.NewsArticleId == request.Id).ToListAsync(cancellationToken))
             {
                 media.Remove(image);
             }
 
             db.NewsArticles.Remove(article);
             audit.Add(AuditActions.NewsDeleted, nameof(NewsArticle), article.Id.ToString(), $"Видалено «{article.Title}»");
+            await db.SaveChangesAsync(cancellationToken);
             await media.SaveChangesAsync(cancellationToken);
             return Result.Success();
         }

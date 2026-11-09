@@ -77,7 +77,7 @@ public sealed class NewsComment : AuditableEntity
     /// <summary>
     /// Gets the author.
     /// </summary>
-    public User? Author { get; private set; }
+    public Member? Author { get; private set; }
 
     /// <summary>
     /// Gets the comment this one replies to; <see langword="null"/> for a top-level comment.

@@ -28,13 +28,19 @@ public static class GetUser
     /// <summary>
     /// Reads the account when it has a position in the scope.
     /// </summary>
-    /// <param name="db">The database context.</param>
+    /// <param name="db">The master database (the account).</param>
+    /// <param name="organization">The organization's database (individual permissions, units).</param>
+    /// <param name="catalog">The shared catalogs (which unit types are organizations).</param>
+    /// <param name="directory">The positions of people.</param>
     /// <param name="currentUser">The current user.</param>
     /// <param name="permissions">Resolves effective permissions.</param>
     /// <param name="accessScope">The administration scopes.</param>
     /// <param name="timeProvider">The clock.</param>
     internal sealed class Handler(
-        ApplicationDbContext db,
+        MasterDbContext db,
+        OrganizationDbContext organization,
+        Catalog catalog,
+        PositionDirectory directory,
         ICurrentUser currentUser,
         IPermissionResolver permissions,
         IAccessScope accessScope,
@@ -45,24 +51,21 @@ public static class GetUser
         {
             ArgumentNullException.ThrowIfNull(request);
             var id = request.Id;
-            var user = await db.Users
-                .AsNoTracking()
-                .Include(static u => u.Positions).ThenInclude(static p => p.OrganizationUnit)
-                .Include(static u => u.Positions).ThenInclude(static p => p.Role)
-                .Include(static u => u.PermissionOverrides)
-                .FirstOrDefaultAsync(u => u.Id == id, cancellationToken);
+            var user = await db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == id, cancellationToken);
+            var positions = await directory.AllAsync(id, cancellationToken);
             var scope = await accessScope.GetAdministrationScopeAsync(Permissions.Users.View, cancellationToken);
-            if (user is null || !scope.Overlaps(user.Positions.Select(static p => p.OrganizationUnitId)))
+            if (user is null || !scope.Overlaps(positions.Select(static p => p.UnitId)))
             {
                 return UserDirectory.NotFound();
             }
 
             var now = timeProvider.GetUtcNow();
             var effective = await permissions.GetEffectivePermissionsAsync(id, cancellationToken);
-            var hierarchy = await UnitHierarchy.LoadAsync(db, cancellationToken);
+            var hierarchy = await UnitHierarchy.LoadAsync(organization, catalog, cancellationToken);
+            var member = await organization.Members.AsNoTracking().Include(static m => m.PermissionOverrides).FirstOrDefaultAsync(m => m.Id == id, cancellationToken);
             var manageScope = await accessScope.GetAdministrationScopeAsync(Permissions.Users.Manage, cancellationToken);
             var securityScope = await accessScope.GetAdministrationScopeAsync(Permissions.Users.Security, cancellationToken);
-            var units = user.Positions.Select(static p => p.OrganizationUnitId).ToList();
+            var units = positions.Select(static p => p.UnitId).ToList();
             var withinHierarchy = id == currentUser.Id || effective.All(currentUser.Has);
 
             return new UserDetails(
@@ -79,24 +82,23 @@ public static class GetUser
                 user.LockoutEnd > now,
                 user.CreatedAt,
                 user.LastSignInAt,
-                user.Positions
-                    .OrderByDescending(static p => p.IsPrimary)
+                positions
                     .Select(p =>
                     {
-                        var organization = hierarchy.OrganizationOf(p.OrganizationUnitId);
+                        var owner = hierarchy.OrganizationOf(p.UnitId);
                         return new UserPositionDto(
-                            p.OrganizationUnitId,
-                            p.OrganizationUnit!.Name,
-                            new UnitRef(organization, hierarchy.Names.GetValueOrDefault(organization, string.Empty)),
+                            p.UnitId,
+                            p.UnitName,
+                            new UnitRef(owner, hierarchy.Names.GetValueOrDefault(owner, string.Empty)),
                             p.RoleId,
-                            StoredText.Display(p.Role!.Name),
+                            StoredText.Display(p.RoleName) ?? p.RoleName,
                             p.Title,
                             p.IsPrimary,
-                            manageScope.Contains(p.OrganizationUnitId));
+                            manageScope.Contains(p.UnitId));
                     })
                     .ToList(),
-                [.. UserDirectory.Overrides(user, PermissionClaimTypes.Permission)],
-                [.. UserDirectory.Overrides(user, PermissionClaimTypes.DeniedPermission)],
+                member is null ? [] : [.. UserDirectory.Overrides(member, PermissionClaimTypes.Permission)],
+                member is null ? [] : [.. UserDirectory.Overrides(member, PermissionClaimTypes.DeniedPermission)],
                 [.. effective],
                 CanEditAccount: withinHierarchy && manageScope.Covers(units),
                 CanEditPositions: withinHierarchy && manageScope.Overlaps(units),

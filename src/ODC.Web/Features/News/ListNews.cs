@@ -42,7 +42,7 @@ public static class ListNews
     /// <param name="db">The database context.</param>
     /// <param name="currentUser">The current user.</param>
     /// <param name="desk">The shared news rules.</param>
-    internal sealed class Handler(ApplicationDbContext db, ICurrentUser currentUser, NewsDesk desk) : IRequestHandler<Query, Result<PagedResult<NewsListItem>>>
+    internal sealed class Handler(OrganizationDbContext db, ICurrentUser currentUser, NewsDesk desk) : IRequestHandler<Query, Result<PagedResult<NewsListItem>>>
     {
         /// <inheritdoc />
         public async Task<Result<PagedResult<NewsListItem>>> HandleAsync(Query request, CancellationToken cancellationToken)

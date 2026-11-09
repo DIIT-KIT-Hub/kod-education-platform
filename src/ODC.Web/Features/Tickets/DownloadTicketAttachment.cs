@@ -36,7 +36,7 @@ public static class DownloadTicketAttachment
     /// <param name="currentUser">The current user.</param>
     /// <param name="desk">The shared request rules.</param>
     /// <param name="files">The private file storage.</param>
-    internal sealed class Handler(ApplicationDbContext db, ICurrentUser currentUser, TicketDesk desk, IFileStorage files) : IRequestHandler<Query, Result<DownloadableFile>>
+    internal sealed class Handler(MasterDbContext db, ICurrentUser currentUser, TicketDesk desk, IFileStorage files) : IRequestHandler<Query, Result<DownloadableFile>>
     {
         /// <inheritdoc />
         public async Task<Result<DownloadableFile>> HandleAsync(Query request, CancellationToken cancellationToken)

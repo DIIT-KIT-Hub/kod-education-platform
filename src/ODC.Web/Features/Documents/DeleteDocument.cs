@@ -32,7 +32,7 @@ public static class DeleteDocument
     /// <param name="desk">The shared document rules.</param>
     /// <param name="fileStorage">The private file storage.</param>
     /// <param name="audit">The audit logger.</param>
-    internal sealed class Handler(ApplicationDbContext db, ICurrentUser currentUser, DocumentDesk desk, IFileStorage fileStorage, IAuditLogger audit)
+    internal sealed class Handler(OrganizationDbContext db, ICurrentUser currentUser, DocumentDesk desk, IFileStorage fileStorage, IAuditLogger audit)
         : IRequestHandler<Command, Result>
     {
         /// <inheritdoc />

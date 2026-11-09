@@ -157,8 +157,8 @@ public sealed class ScopedAdministrationTests : IDisposable
         Assert.Equal(ErrorType.Forbidden, renamed.Failure());
         Assert.True(moved.IsSuccess);
         Assert.Equal(ErrorType.Forbidden, blocked.Failure());
-        Assert.Contains(_world.Shared.Positions, p => p.OrganizationUnitId == _world.BProj.Id && p.IsPrimary);
-        Assert.Contains(_world.Shared.Positions, p => p.OrganizationUnitId == _world.AHr.Id && p.Title == "Інспектор");
+        Assert.Contains(_world.PositionsOf(_world.Shared), p => p.OrganizationUnitId == _world.BProj.Id && p.IsPrimary);
+        Assert.Contains(_world.PositionsOf(_world.Shared), p => p.OrganizationUnitId == _world.AHr.Id && p.Title == "Інспектор");
     }
 
     [Fact]
@@ -197,7 +197,7 @@ public sealed class ScopedAdministrationTests : IDisposable
 
         Assert.True(report.Applied);
         Assert.Equal((1, 1), (report.UsersToCreate, report.UsersToUpdate));
-        Assert.Equal(_world.SDev.Id, Assert.Single(_world.EmployeeA.Positions).OrganizationUnitId);
+        Assert.Equal(_world.SDev.Id, Assert.Single(_world.PositionsOf(_world.EmployeeA)).OrganizationUnitId);
     }
 
     [Fact]

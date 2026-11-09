@@ -89,7 +89,7 @@ internal sealed class NewsConfiguration :
             .HasForeignKey(static r => r.CommentId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        builder.HasOne<User>()
+        builder.HasOne<Member>()
             .WithMany()
             .HasForeignKey(static r => r.UserId)
             .OnDelete(DeleteBehavior.Cascade);
@@ -106,7 +106,7 @@ internal sealed class NewsConfiguration :
             .HasForeignKey(static v => v.ArticleId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        builder.HasOne<User>()
+        builder.HasOne<Member>()
             .WithMany()
             .HasForeignKey(static v => v.UserId)
             .OnDelete(DeleteBehavior.Cascade);

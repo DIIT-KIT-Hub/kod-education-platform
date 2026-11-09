@@ -69,14 +69,9 @@ public sealed class OrganizationUnit : AuditableEntity
     public string? ShortName { get; private set; }
 
     /// <summary>
-    /// Gets the unit type identifier.
+    /// Gets the unit type identifier (a type of the master database's catalog).
     /// </summary>
     public Guid TypeId { get; private set; }
-
-    /// <summary>
-    /// Gets the unit type.
-    /// </summary>
-    public UnitType? Type { get; private set; }
 
     /// <summary>
     /// Gets the parent unit identifier.

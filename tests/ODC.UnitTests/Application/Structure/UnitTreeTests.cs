@@ -72,7 +72,7 @@ public sealed class UnitTreeTests : IDisposable
     public async Task The_staff_of_a_unit_lists_its_leaders_first_then_by_name()
     {
         _world.Hr.Update(_world.Hr.Name!, null, isLeadership: true);
-        _world.Db.SaveChanges();
+        _world.Master.SaveChanges();
 
         var staff = (await _world.As(_world.StewardA).SendAsync(new ListUnitStaff.Query(_world.AHr.Id, new PageRequest()))).Ok();
 
@@ -88,7 +88,7 @@ public sealed class UnitTreeTests : IDisposable
     public async Task Blocked_people_are_not_listed_in_the_staff()
     {
         _world.EmployeeA.SetActive(false);
-        _world.Db.SaveChanges();
+        _world.Master.SaveChanges();
 
         var staff = (await _world.As(_world.StewardA).SendAsync(new ListUnitStaff.Query(_world.AHr.Id, new PageRequest()))).Ok();
 

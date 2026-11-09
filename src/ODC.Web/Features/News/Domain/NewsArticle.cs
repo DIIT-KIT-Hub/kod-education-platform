@@ -124,7 +124,7 @@ public sealed class NewsArticle : AuditableEntity
     /// <summary>
     /// Gets the author.
     /// </summary>
-    public User? Author { get; private set; }
+    public Member? Author { get; private set; }
 
     /// <summary>
     /// Gets the organization the article belongs to; <see langword="null"/> for news of the whole cabinet.

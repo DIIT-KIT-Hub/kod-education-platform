@@ -27,16 +27,17 @@ public static class GetUnit
     /// Reads the unit.
     /// </summary>
     /// <param name="db">The database context.</param>
+    /// <param name="catalog">The shared catalogs (unit types).</param>
     /// <param name="currentUser">The current user.</param>
     /// <param name="accessScope">The administration scopes.</param>
-    internal sealed class Handler(ApplicationDbContext db, ICurrentUser currentUser, IAccessScope accessScope) : IRequestHandler<Query, Result<UnitDetails>>
+    internal sealed class Handler(OrganizationDbContext db, Catalog catalog, ICurrentUser currentUser, IAccessScope accessScope) : IRequestHandler<Query, Result<UnitDetails>>
     {
         /// <inheritdoc />
         public async Task<Result<UnitDetails>> HandleAsync(Query request, CancellationToken cancellationToken)
         {
             ArgumentNullException.ThrowIfNull(request);
             var id = request.Id;
-            var units = await UnitTree.LoadAsync(db, cancellationToken);
+            var units = await UnitTree.LoadAsync(db, catalog, cancellationToken);
             var unit = units.Find(u => u.Id == id);
             if (unit is null)
             {

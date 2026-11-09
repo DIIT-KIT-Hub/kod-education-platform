@@ -30,7 +30,7 @@ public static class CreateUnitType
     /// <param name="db">The database context.</param>
     /// <param name="currentUser">The current user.</param>
     /// <param name="audit">The audit logger.</param>
-    internal sealed class Handler(ApplicationDbContext db, ICurrentUser currentUser, IAuditLogger audit) : IRequestHandler<Command, Result<Guid>>
+    internal sealed class Handler(MasterDbContext db, ICurrentUser currentUser, IAuditLogger audit) : IRequestHandler<Command, Result<Guid>>
     {
         /// <inheritdoc />
         public async Task<Result<Guid>> HandleAsync(Command request, CancellationToken cancellationToken)

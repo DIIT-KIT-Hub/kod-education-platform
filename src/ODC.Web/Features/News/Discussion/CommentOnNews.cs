@@ -31,7 +31,7 @@ public static class CommentOnNews
     /// <param name="currentUser">The current user.</param>
     /// <param name="access">The discussion rights.</param>
     /// <param name="events">Tells the open pages of the article.</param>
-    internal sealed class Handler(ApplicationDbContext db, ICurrentUser currentUser, DiscussionAccess access, INewsDiscussionEvents events)
+    internal sealed class Handler(OrganizationDbContext db, ICurrentUser currentUser, DiscussionAccess access, INewsDiscussionEvents events)
         : IRequestHandler<Command, Result<Guid>>
     {
         /// <inheritdoc />

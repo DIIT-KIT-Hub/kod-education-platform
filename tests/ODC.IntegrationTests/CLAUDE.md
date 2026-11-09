@@ -16,9 +16,9 @@ As with the unit tests, a failed build keeps the old DLL and `--no-build` runs t
 
 ## The host (`Hosting/OdcApplication`)
 
-- Database: `odc_it_<guid>` on the server of `ODC_TEST_DATABASE` (a connection string; CI) or the user secrets of
-  ODC.Web (`ConnectionStrings:Database`); only the database name is replaced. Without either every test skips. The
-  database is dropped at the end (`WITH (FORCE)`).
+- Databases: `odc_it_<guid>` (master) and `odc_it_<guid>_org` (organizations) on the server of `ODC_TEST_DATABASE` (a connection string; CI) or the user secrets of
+  ODC.Web (`ConnectionStrings:Database`); only the database name is replaced. Without either every test skips. Both
+  databases are dropped at the end (`WITH (FORCE)`).
 - Everything else lives in a temporary folder: its own P-256 JWT key (never `App_Data/keys`, shared with the running
   app), storage, logs, the trust list cache, an empty client (`Spa:Root`) and the e-mail pickup folder.
 - Settings: environment Development (Data Protection keys may stay unencrypted off Windows), `Seed:DemoData=true` with a

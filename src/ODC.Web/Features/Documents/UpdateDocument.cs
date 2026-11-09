@@ -31,7 +31,7 @@ public static class UpdateDocument
     /// <param name="audit">The audit logger.</param>
     /// <param name="timeProvider">The clock.</param>
     internal sealed class Handler(
-        ApplicationDbContext db,
+        OrganizationDbContext db,
         ICurrentUser currentUser,
         DocumentDesk desk,
         IFileStorage fileStorage,
@@ -73,7 +73,7 @@ public static class UpdateDocument
             }
 
             var signerIds = command.SignerIds.Distinct().ToList();
-            var activeSigners = await db.Users.CountAsync(u => signerIds.Contains(u.Id) && u.IsActive, cancellationToken);
+            var activeSigners = await db.Members.CountAsync(u => signerIds.Contains(u.Id) && u.IsActive, cancellationToken);
             if (activeSigners != signerIds.Count)
             {
                 return Error.Validation(Texts.T("Серед підписантів є неактивні або неіснуючі користувачі."));

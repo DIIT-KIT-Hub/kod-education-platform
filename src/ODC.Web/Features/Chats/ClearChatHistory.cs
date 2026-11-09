@@ -25,7 +25,7 @@ public static class ClearChatHistory
     /// <param name="events">Delivers changes to the members' pages.</param>
     /// <param name="domainEvents">Raises what the user has seen (their notifications about it are done).</param>
     /// <param name="room">The shared chat rules.</param>
-    internal sealed class Handler(ApplicationDbContext db, IChatEvents events, DomainEvents domainEvents, ChatRoom room) : IRequestHandler<Command, Result>
+    internal sealed class Handler(OrganizationDbContext db, IChatEvents events, DomainEvents domainEvents, ChatRoom room) : IRequestHandler<Command, Result>
     {
         /// <inheritdoc />
         public async Task<Result> HandleAsync(Command request, CancellationToken cancellationToken)

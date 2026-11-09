@@ -11,7 +11,7 @@ namespace ODC.Web.Features.Notifications.Reactions;
 /// </summary>
 /// <param name="db">The database context.</param>
 /// <param name="notifier">Creates the notifications.</param>
-internal sealed class NewsNotifications(ApplicationDbContext db, INotifier notifier) : IDomainEventHandler<NewsCommentPosted>
+internal sealed class NewsNotifications(OrganizationDbContext db, INotifier notifier) : IDomainEventHandler<NewsCommentPosted>
 {
     /// <inheritdoc />
     public async Task HandleAsync(NewsCommentPosted domainEvent, CancellationToken cancellationToken)

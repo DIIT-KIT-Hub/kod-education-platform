@@ -34,7 +34,7 @@ public static class GetNewsArticle
     /// </summary>
     /// <param name="db">The database context.</param>
     /// <param name="desk">The shared news rules.</param>
-    internal sealed class BySlugHandler(ApplicationDbContext db, NewsDesk desk) : IRequestHandler<BySlugQuery, Result<NewsArticleDto>>
+    internal sealed class BySlugHandler(OrganizationDbContext db, NewsDesk desk) : IRequestHandler<BySlugQuery, Result<NewsArticleDto>>
     {
         /// <inheritdoc />
         public async Task<Result<NewsArticleDto>> HandleAsync(BySlugQuery request, CancellationToken cancellationToken)
@@ -56,7 +56,7 @@ public static class GetNewsArticle
     /// </summary>
     /// <param name="db">The database context.</param>
     /// <param name="desk">The shared news rules.</param>
-    internal sealed class ForEditingHandler(ApplicationDbContext db, NewsDesk desk) : IRequestHandler<ForEditingQuery, Result<NewsArticleDto>>
+    internal sealed class ForEditingHandler(OrganizationDbContext db, NewsDesk desk) : IRequestHandler<ForEditingQuery, Result<NewsArticleDto>>
     {
         /// <inheritdoc />
         public async Task<Result<NewsArticleDto>> HandleAsync(ForEditingQuery request, CancellationToken cancellationToken)

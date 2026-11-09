@@ -28,7 +28,7 @@ public static class ClassifyTicket
     /// Saves the classification when it changed.
     /// </summary>
     /// <param name="db">The database context.</param>
-    internal sealed class Handler(ApplicationDbContext db) : IRequestHandler<Command, Result>
+    internal sealed class Handler(MasterDbContext db) : IRequestHandler<Command, Result>
     {
         /// <inheritdoc />
         public async Task<Result> HandleAsync(Command request, CancellationToken cancellationToken)

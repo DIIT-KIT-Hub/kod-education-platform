@@ -36,7 +36,7 @@ public static class SetProfilePhoto
     /// <param name="account">The current user's account.</param>
     /// <param name="media">The image library.</param>
     /// <param name="audit">The audit logger.</param>
-    internal sealed class Handler(ApplicationDbContext db, ProfileAccount account, MediaLibrary media, IAuditLogger audit) : IRequestHandler<Command, Result<Guid>>
+    internal sealed class Handler(MasterDbContext db, ProfileAccount account, MediaLibrary media, IAuditLogger audit) : IRequestHandler<Command, Result<Guid>>
     {
         /// <inheritdoc />
         public async Task<Result<Guid>> HandleAsync(Command request, CancellationToken cancellationToken)

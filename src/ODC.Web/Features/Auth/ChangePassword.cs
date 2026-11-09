@@ -34,7 +34,7 @@ public static class ChangePassword
     /// <param name="currentUser">The current user.</param>
     /// <param name="identity">The identity store.</param>
     /// <param name="audit">The audit logger.</param>
-    internal sealed class Handler(ApplicationDbContext db, ICurrentUser currentUser, IIdentityService identity, IAuditLogger audit) : IRequestHandler<Command, Result>
+    internal sealed class Handler(MasterDbContext db, ICurrentUser currentUser, IIdentityService identity, IAuditLogger audit) : IRequestHandler<Command, Result>
     {
         /// <inheritdoc />
         public async Task<Result> HandleAsync(Command request, CancellationToken cancellationToken)

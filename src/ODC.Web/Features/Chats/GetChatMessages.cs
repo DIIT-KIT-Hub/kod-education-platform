@@ -26,7 +26,7 @@ public static class GetChatMessages
     /// </summary>
     /// <param name="db">The database context.</param>
     /// <param name="room">The shared chat rules.</param>
-    internal sealed class Handler(ApplicationDbContext db, ChatRoom room) : IRequestHandler<Query, Result<ChatMessagePage>>
+    internal sealed class Handler(OrganizationDbContext db, ChatRoom room) : IRequestHandler<Query, Result<ChatMessagePage>>
     {
         /// <inheritdoc />
         public async Task<Result<ChatMessagePage>> HandleAsync(Query request, CancellationToken cancellationToken)

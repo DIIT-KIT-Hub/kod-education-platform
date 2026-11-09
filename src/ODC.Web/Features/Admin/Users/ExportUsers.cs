@@ -30,14 +30,16 @@ public static class ExportUsers
     /// <summary>
     /// Builds the file.
     /// </summary>
-    /// <param name="db">The database context.</param>
+    /// <param name="db">The organization's database (members and positions).</param>
+    /// <param name="catalog">The shared catalogs (role codes).</param>
     /// <param name="accessScope">The administration scopes.</param>
     /// <param name="spreadsheet">Writes the file.</param>
     /// <param name="directory">The user administration rules.</param>
     /// <param name="audit">The audit logger.</param>
     /// <param name="timeProvider">The clock.</param>
     internal sealed class Handler(
-        ApplicationDbContext db,
+        OrganizationDbContext db,
+        Catalog catalog,
         IAccessScope accessScope,
         IUserSpreadsheet spreadsheet,
         UserDirectory directory,
@@ -51,7 +53,8 @@ public static class ExportUsers
             var scope = await accessScope.GetAdministrationScopeAsync(Permissions.Users.Export, cancellationToken);
             var all = scope.IsCabinetWide;
             var units = UserDirectory.ScopeUnits(scope);
-            var filtered = await directory.FilterAsync(UserDirectory.InScope(db.Users.AsNoTracking(), scope), request.Filter, cancellationToken);
+            var filtered = await directory.FilterAsync(UserDirectory.InScope(db.Members.AsNoTracking(), scope), request.Filter, cancellationToken);
+            var roles = await catalog.RolesAsync(cancellationToken);
             var users = await filtered
                 .OrderBy(static u => u.LastName).ThenBy(static u => u.FirstName)
                 .Select(u => new
@@ -65,7 +68,7 @@ public static class ExportUsers
                     Positions = u.Positions
                         .Where(p => all || units.Contains(p.OrganizationUnitId))
                         .OrderByDescending(static p => p.IsPrimary)
-                        .Select(static p => new { UnitCode = p.OrganizationUnit!.Code, RoleCode = p.Role!.Code, p.Title })
+                        .Select(static p => new { UnitCode = p.OrganizationUnit!.Code, p.RoleId, p.Title })
                         .ToList(),
                 })
                 .ToListAsync(cancellationToken);
@@ -74,8 +77,8 @@ public static class ExportUsers
             {
                 var status = u.IsActive ? "активний" : "заблокований";
                 return u.Positions.Count == 0
-                    ? [new UserSheetRow(0, u.Email!, u.LastName, u.FirstName, u.MiddleName, u.PhoneNumber, null, null, null, status)]
-                    : u.Positions.Select(p => new UserSheetRow(0, u.Email!, u.LastName, u.FirstName, u.MiddleName, u.PhoneNumber, p.UnitCode, p.RoleCode, p.Title, status));
+                    ? [new UserSheetRow(0, u.Email, u.LastName, u.FirstName, u.MiddleName, u.PhoneNumber, null, null, null, status)]
+                    : u.Positions.Select(p => new UserSheetRow(0, u.Email, u.LastName, u.FirstName, u.MiddleName, u.PhoneNumber, p.UnitCode, roles.GetValueOrDefault(p.RoleId)?.Code, p.Title, status));
             });
 
             var content = spreadsheet.Write(rows, request.Format);

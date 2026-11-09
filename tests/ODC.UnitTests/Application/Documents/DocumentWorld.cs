@@ -49,10 +49,11 @@ internal sealed class DocumentWorld : IDisposable
     /// <summary>
     /// Initializes a new instance of the <see cref="DocumentWorld"/> class.
     /// </summary>
-    /// <param name="options">The options of the context (a PostgreSQL test database).</param>
-    public DocumentWorld(DbContextOptions<ApplicationDbContext> options)
+    /// <param name="master">The options of the master database (a PostgreSQL test database).</param>
+    /// <param name="organization">The options of the organizations' database (a PostgreSQL test database).</param>
+    public DocumentWorld(DbContextOptions<MasterDbContext> master, DbContextOptions<OrganizationDbContext> organization)
     {
-        World = new TwoOrganizations(options);
+        World = new TwoOrganizations(master, organization);
         Clerk = Role("clerk", Permissions.Documents.View, Permissions.Documents.Create, Permissions.Documents.Sign);
         Registrar = Role("registrar", Permissions.Documents.View, Permissions.Documents.ViewOrganization, Permissions.Documents.Create, Permissions.Documents.Sign, Permissions.Documents.Manage);
         UnitViewer = Role("unit-viewer", Permissions.Documents.View, Permissions.Documents.ViewUnit);
@@ -73,13 +74,14 @@ internal sealed class DocumentWorld : IDisposable
         OutsiderA = Person("outsider.a@example.com", "Коваль", "Кирило", World.AHr, Outsider, save: false);
         ToolUser = Person("tool@example.com", "Литвин", "Леся", World.AHr, Tool, save: false);
         Db.SaveChanges();
+        World.Master.SaveChanges();
     }
 
     /// <summary>Gets the underlying cabinet (organizations A with subsidiary S, and B).</summary>
     public TwoOrganizations World { get; }
 
-    /// <summary>Gets the shared database.</summary>
-    public ApplicationDbContext Db => World.Db;
+    /// <summary>Gets the shared organizations' database.</summary>
+    public OrganizationDbContext Db => World.Db;
 
     /// <summary>Gets the role that views, creates and signs documents.</summary>
     public Role Clerk { get; }
@@ -165,16 +167,16 @@ internal sealed class DocumentWorld : IDisposable
     /// </summary>
     /// <param name="interceptors">The interceptors.</param>
     /// <returns>The context.</returns>
-    public ApplicationDbContext OpenContext(params IInterceptor[] interceptors)
+    public OrganizationDbContext OpenContext(params IInterceptor[] interceptors)
     {
-        var options = (DbContextOptions<ApplicationDbContext>)Db.GetService<IDbContextOptions>();
-        var builder = new DbContextOptionsBuilder<ApplicationDbContext>(options);
+        var options = (DbContextOptions<OrganizationDbContext>)Db.GetService<IDbContextOptions>();
+        var builder = new DbContextOptionsBuilder<OrganizationDbContext>(options);
         if (interceptors.Length > 0)
         {
             builder.AddInterceptors(interceptors);
         }
 
-        return new ApplicationDbContext(builder.Options);
+        return new OrganizationDbContext(builder.Options);
     }
 
     /// <summary>
@@ -184,7 +186,7 @@ internal sealed class DocumentWorld : IDisposable
     /// <param name="db">The database context the services use (the shared one by default).</param>
     /// <param name="permissions">Permissions that replace the effective ones.</param>
     /// <returns>The services.</returns>
-    public Session As(User? user, ApplicationDbContext? db = null, IReadOnlySet<string>? permissions = null)
+    public Session As(User? user, OrganizationDbContext? db = null, IReadOnlySet<string>? permissions = null)
     {
         // The services of a user on the shared context are built once (building them and resolving the permissions
         // costs a database round trip and the reflection of the pipeline).
@@ -215,11 +217,14 @@ internal sealed class DocumentWorld : IDisposable
     public User Person(string email, string lastName, string firstName, OrganizationUnit unit, Role role, bool save = true)
     {
         var user = new User(email, lastName, firstName, null) { NormalizedEmail = email.ToUpperInvariant() };
-        user.SetPositions([(unit.Id, role.Id, (string?)null, true)]);
-        Db.Users.Add(user);
+        World.Master.Users.Add(user);
+        var member = new Member(MemberProfile.Of(user));
+        member.SetPositions([(unit.Id, role.Id, (string?)null, true)]);
+        Db.Members.Add(member);
         if (save)
         {
             Db.SaveChanges();
+            World.Master.SaveChanges();
         }
 
         return user;
@@ -232,17 +237,19 @@ internal sealed class DocumentWorld : IDisposable
     /// <param name="db">The database context the services use (the shared one by default).</param>
     /// <param name="permissions">Permissions that replace the effective ones.</param>
     /// <returns>The services.</returns>
-    private Session Build(User? user, ApplicationDbContext? db, IReadOnlySet<string>? permissions)
+    private Session Build(User? user, OrganizationDbContext? db, IReadOnlySet<string>? permissions)
     {
         db ??= Db;
         permissions ??= user is null
             ? new HashSet<string>()
-            : Task.Run(() => new PermissionResolver(Db).GetEffectivePermissionsAsync(user.Id, CancellationToken.None)).GetAwaiter().GetResult();
+            : Task.Run(() => new PermissionResolver(Db, new Catalog(World.Master)).GetEffectivePermissionsAsync(user.Id, CancellationToken.None)).GetAwaiter().GetResult();
         var services = new ServiceCollection()
             .AddLogging()
             .AddApplication();
 
+        services.AddSingleton(World.Master);
         services.AddSingleton(db);
+        services.AddSingleton<IDomainEventSource>(World.Master);
         services.AddSingleton<IDomainEventSource>(db);
         services.AddSingleton<ICurrentUser>(new StaticUser(user?.Id, permissions));
         services.AddSingleton<TimeProvider>(Clock);
@@ -272,7 +279,7 @@ internal sealed class DocumentWorld : IDisposable
     {
         var role = new Role(code, code, null, isSystem: false);
         role.SetPermissions(permissions);
-        Db.Roles.Add(role);
+        World.Master.Roles.Add(role);
         return role;
     }
 

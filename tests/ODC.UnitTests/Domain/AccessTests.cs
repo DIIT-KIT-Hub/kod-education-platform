@@ -33,9 +33,9 @@ public sealed class AccessTests
     }
 
     [Fact]
-    public void Permission_overrides_are_identity_user_claims()
+    public void Permission_overrides_belong_to_the_member_of_the_organization()
     {
-        var user = new User("hr@example.com", "Поліщук", "Оксана", null);
+        var user = MemberOf(new User("hr@example.com", "Поліщук", "Оксана", null));
 
         user.SetPermissionOverrides([Permissions.Users.View], [Permissions.News.Manage]);
 
@@ -110,9 +110,9 @@ public sealed class AccessTests
     }
 
     [Fact]
-    public void User_can_hold_several_positions_with_one_primary()
+    public void A_member_can_hold_several_positions_with_one_primary()
     {
-        var user = new User("engineer@example.com", "Коваленко", "Марія", "Андріївна");
+        var user = MemberOf(new User("engineer@example.com", "Коваленко", "Марія", "Андріївна"));
         var unit = Guid.CreateVersion7();
 
         user.SetPositions([(unit, Guid.CreateVersion7(), "Інженер-програміст", false), (unit, Guid.CreateVersion7(), "Наставник", false)]);
@@ -124,7 +124,7 @@ public sealed class AccessTests
     [Fact]
     public void Two_primary_positions_are_rejected()
     {
-        var user = new User("engineer@example.com", "Коваленко", "Марія", null);
+        var user = MemberOf(new User("engineer@example.com", "Коваленко", "Марія", null));
         var unit = Guid.CreateVersion7();
 
         Assert.Throws<DomainException>(() => user.SetPositions([(unit, Guid.CreateVersion7(), null, true), (unit, Guid.CreateVersion7(), null, true)]));
@@ -133,7 +133,7 @@ public sealed class AccessTests
     [Fact]
     public void A_permission_cannot_be_granted_and_denied_at_once()
     {
-        var user = new User("hr@example.com", "Поліщук", "Оксана", null);
+        var user = MemberOf(new User("hr@example.com", "Поліщук", "Оксана", null));
 
         Assert.Throws<DomainException>(() => user.SetPermissionOverrides([Permissions.Users.View], [Permissions.Users.View]));
     }
@@ -148,4 +148,11 @@ public sealed class AccessTests
         Assert.Equal("head@example.com", user.Email);
         Assert.True(user.AwaitsActivation);
     }
+
+    /// <summary>
+    /// The member of an account in an organization.
+    /// </summary>
+    /// <param name="user">The account.</param>
+    /// <returns>The member.</returns>
+    private static Member MemberOf(User user) => new(MemberProfile.Of(user));
 }

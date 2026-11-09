@@ -32,7 +32,7 @@ public static class ReactToNews
     /// <param name="access">The discussion rights.</param>
     /// <param name="events">Tells the open pages of the article.</param>
     /// <param name="timeProvider">The clock.</param>
-    internal sealed class Handler(ApplicationDbContext db, ICurrentUser currentUser, DiscussionAccess access, INewsDiscussionEvents events, TimeProvider timeProvider)
+    internal sealed class Handler(OrganizationDbContext db, ICurrentUser currentUser, DiscussionAccess access, INewsDiscussionEvents events, TimeProvider timeProvider)
         : IRequestHandler<Command, Result<ReactionSummary>>
     {
         /// <inheritdoc />

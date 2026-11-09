@@ -32,7 +32,7 @@ public static class AssignTicket
     /// <param name="currentUser">The current user.</param>
     /// <param name="desk">The shared request rules.</param>
     /// <param name="timeProvider">The clock.</param>
-    internal sealed class Handler(ApplicationDbContext db, ICurrentUser currentUser, TicketDesk desk, TimeProvider timeProvider)
+    internal sealed class Handler(MasterDbContext db, ICurrentUser currentUser, TicketDesk desk, TimeProvider timeProvider)
         : IRequestHandler<Command, Result>
     {
         /// <inheritdoc />
@@ -53,7 +53,7 @@ public static class AssignTicket
             string? name = null;
             if (request.AssigneeId is { } assignee)
             {
-                if (!await db.UsersWith(Permissions.Tickets.Manage).AnyAsync(u => u.Id == assignee, cancellationToken))
+                if (!(await desk.HandlerIdsAsync(cancellationToken)).Contains(assignee))
                 {
                     return Error.Validation(Texts.T("Звернення можна призначити лише тому, хто опрацьовує звернення."));
                 }

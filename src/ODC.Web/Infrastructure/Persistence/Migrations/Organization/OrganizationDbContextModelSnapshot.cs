@@ -5,295 +5,26 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
-using ODC.Web.Features.Documents;
 using ODC.Web.Infrastructure.Persistence;
 
 #nullable disable
 
-namespace ODC.Web.Infrastructure.Persistence.Migrations
+namespace ODC.Web.Infrastructure.Persistence.Migrations.Organization
 {
-    [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [DbContext(typeof(OrganizationDbContext))]
+    partial class OrganizationDbContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.13")
+                .HasAnnotation("ProductVersion", "10.0.14")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.HasPostgresExtension(modelBuilder, "citext");
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
             modelBuilder.HasSequence("document_number_seq");
-
-            modelBuilder.Entity("Microsoft.AspNetCore.DataProtection.EntityFrameworkCore.DataProtectionKey", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("FriendlyName")
-                        .HasColumnType("text")
-                        .HasColumnName("friendly_name");
-
-                    b.Property<string>("Xml")
-                        .HasColumnType("text")
-                        .HasColumnName("xml");
-
-                    b.HasKey("Id")
-                        .HasName("pk_data_protection_keys");
-
-                    b.ToTable("data_protection_keys", (string)null);
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<System.Guid>", b =>
-                {
-                    b.Property<string>("LoginProvider")
-                        .HasColumnType("text")
-                        .HasColumnName("login_provider");
-
-                    b.Property<string>("ProviderKey")
-                        .HasColumnType("text")
-                        .HasColumnName("provider_key");
-
-                    b.Property<string>("ProviderDisplayName")
-                        .HasColumnType("text")
-                        .HasColumnName("provider_display_name");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("user_id");
-
-                    b.HasKey("LoginProvider", "ProviderKey")
-                        .HasName("pk_user_logins");
-
-                    b.HasIndex("UserId")
-                        .HasDatabaseName("ix_user_logins_user_id");
-
-                    b.ToTable("user_logins", (string)null);
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<System.Guid>", b =>
-                {
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("user_id");
-
-                    b.Property<string>("LoginProvider")
-                        .HasColumnType("text")
-                        .HasColumnName("login_provider");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("text")
-                        .HasColumnName("name");
-
-                    b.Property<string>("Value")
-                        .HasColumnType("text")
-                        .HasColumnName("value");
-
-                    b.HasKey("UserId", "LoginProvider", "Name")
-                        .HasName("pk_user_tokens");
-
-                    b.ToTable("user_tokens", (string)null);
-                });
-
-            modelBuilder.Entity("ODC.Web.Shared.Domain.Access.Role", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasMaxLength(64)
-                        .HasColumnType("character varying(64)")
-                        .HasColumnName("code");
-
-                    b.Property<string>("ConcurrencyStamp")
-                        .IsConcurrencyToken()
-                        .HasColumnType("text")
-                        .HasColumnName("concurrency_stamp");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(512)
-                        .HasColumnType("character varying(512)")
-                        .HasColumnName("description");
-
-                    b.Property<bool>("IsLeadership")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_leadership");
-
-                    b.Property<bool>("IsSystem")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_system");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(128)
-                        .HasColumnType("citext")
-                        .HasColumnName("name");
-
-                    b.Property<string>("NormalizedName")
-                        .IsRequired()
-                        .HasMaxLength(128)
-                        .HasColumnType("character varying(128)")
-                        .HasColumnName("normalized_name");
-
-                    b.Property<DateTimeOffset?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_at");
-
-                    b.HasKey("Id")
-                        .HasName("pk_roles");
-
-                    b.HasIndex("Code")
-                        .IsUnique()
-                        .HasDatabaseName("ix_roles_code");
-
-                    b.HasIndex("NormalizedName")
-                        .IsUnique()
-                        .HasDatabaseName("ix_roles_normalized_name");
-
-                    b.ToTable("roles", (string)null);
-                });
-
-            modelBuilder.Entity("ODC.Web.Shared.Domain.Access.RolePermission", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("ClaimType")
-                        .IsRequired()
-                        .HasMaxLength(64)
-                        .HasColumnType("character varying(64)")
-                        .HasColumnName("claim_type");
-
-                    b.Property<string>("ClaimValue")
-                        .IsRequired()
-                        .HasMaxLength(64)
-                        .HasColumnType("character varying(64)")
-                        .HasColumnName("claim_value");
-
-                    b.Property<Guid>("RoleId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("role_id");
-
-                    b.HasKey("Id")
-                        .HasName("pk_role_claims");
-
-                    b.HasIndex("RoleId", "ClaimType", "ClaimValue")
-                        .IsUnique()
-                        .HasDatabaseName("ix_role_claims_role_id_claim_type_claim_value");
-
-                    b.ToTable("role_claims", (string)null);
-                });
-
-            modelBuilder.Entity("ODC.Web.Shared.Domain.Access.UserPermissionOverride", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("ClaimType")
-                        .IsRequired()
-                        .HasMaxLength(64)
-                        .HasColumnType("character varying(64)")
-                        .HasColumnName("claim_type");
-
-                    b.Property<string>("ClaimValue")
-                        .IsRequired()
-                        .HasMaxLength(64)
-                        .HasColumnType("character varying(64)")
-                        .HasColumnName("claim_value");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("user_id");
-
-                    b.HasKey("Id")
-                        .HasName("pk_user_claims");
-
-                    b.HasIndex("UserId", "ClaimType", "ClaimValue")
-                        .IsUnique()
-                        .HasDatabaseName("ix_user_claims_user_id_claim_type_claim_value");
-
-                    b.ToTable("user_claims", (string)null);
-                });
-
-            modelBuilder.Entity("ODC.Web.Shared.Domain.Audit.AuditEntry", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<string>("Action")
-                        .IsRequired()
-                        .HasMaxLength(64)
-                        .HasColumnType("character varying(64)")
-                        .HasColumnName("action");
-
-                    b.Property<string>("Details")
-                        .HasMaxLength(2000)
-                        .HasColumnType("citext")
-                        .HasColumnName("details");
-
-                    b.Property<string>("EntityId")
-                        .HasMaxLength(64)
-                        .HasColumnType("character varying(64)")
-                        .HasColumnName("entity_id");
-
-                    b.Property<string>("EntityType")
-                        .HasMaxLength(64)
-                        .HasColumnType("character varying(64)")
-                        .HasColumnName("entity_type");
-
-                    b.Property<string>("IpAddress")
-                        .HasMaxLength(64)
-                        .HasColumnType("character varying(64)")
-                        .HasColumnName("ip_address");
-
-                    b.Property<DateTimeOffset>("OccurredAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("occurred_at");
-
-                    b.Property<Guid?>("UserId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("user_id");
-
-                    b.Property<string>("UserName")
-                        .HasMaxLength(256)
-                        .HasColumnType("citext")
-                        .HasColumnName("user_name");
-
-                    b.HasKey("Id")
-                        .HasName("pk_audit_entries");
-
-                    b.HasIndex("Action")
-                        .HasDatabaseName("ix_audit_entries_action");
-
-                    b.HasIndex("OccurredAt")
-                        .HasDatabaseName("ix_audit_entries_occurred_at");
-
-                    b.HasIndex("UserId")
-                        .HasDatabaseName("ix_audit_entries_user_id");
-
-                    b.ToTable("audit_entries", (string)null);
-                });
 
             modelBuilder.Entity("ODC.Web.Features.Chats.Domain.Chat", b =>
                 {
@@ -912,58 +643,6 @@ namespace ODC.Web.Infrastructure.Persistence.Migrations
                     b.ToTable("document_signers", (string)null);
                 });
 
-            modelBuilder.Entity("ODC.Web.Shared.Domain.Media.MediaFile", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at");
-
-                    b.Property<int>("Height")
-                        .HasColumnType("integer")
-                        .HasColumnName("height");
-
-                    b.Property<Guid?>("NewsArticleId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("news_article_id");
-
-                    b.Property<Guid>("OwnerId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("owner_id");
-
-                    b.Property<string>("Purpose")
-                        .IsRequired()
-                        .HasMaxLength(16)
-                        .HasColumnType("character varying(16)")
-                        .HasColumnName("purpose");
-
-                    b.Property<long>("Size")
-                        .HasColumnType("bigint")
-                        .HasColumnName("size");
-
-                    b.Property<DateTimeOffset?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_at");
-
-                    b.Property<int>("Width")
-                        .HasColumnType("integer")
-                        .HasColumnName("width");
-
-                    b.HasKey("Id")
-                        .HasName("pk_media_files");
-
-                    b.HasIndex("NewsArticleId")
-                        .HasDatabaseName("ix_media_files_news_article_id");
-
-                    b.HasIndex("Purpose", "CreatedAt")
-                        .HasDatabaseName("ix_media_files_purpose_created_at");
-
-                    b.ToTable("media_files", (string)null);
-                });
-
             modelBuilder.Entity("ODC.Web.Features.News.Domain.NewsArticle", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1274,6 +953,98 @@ namespace ODC.Web.Infrastructure.Persistence.Migrations
                     b.ToTable("notifications", (string)null);
                 });
 
+            modelBuilder.Entity("ODC.Web.Shared.Domain.Access.UserPermissionOverride", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("ClaimType")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("claim_type");
+
+                    b.Property<string>("ClaimValue")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("claim_value");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_permission_overrides");
+
+                    b.HasIndex("UserId", "ClaimType", "ClaimValue")
+                        .IsUnique()
+                        .HasDatabaseName("ix_permission_overrides_user_id_claim_type_claim_value");
+
+                    b.ToTable("permission_overrides", (string)null);
+                });
+
+            modelBuilder.Entity("ODC.Web.Shared.Domain.Audit.AuditEntry", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Action")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("action");
+
+                    b.Property<string>("Details")
+                        .HasMaxLength(2000)
+                        .HasColumnType("citext")
+                        .HasColumnName("details");
+
+                    b.Property<string>("EntityId")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("entity_id");
+
+                    b.Property<string>("EntityType")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("entity_type");
+
+                    b.Property<string>("IpAddress")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("ip_address");
+
+                    b.Property<DateTimeOffset>("OccurredAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("occurred_at");
+
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.Property<string>("UserName")
+                        .HasMaxLength(256)
+                        .HasColumnType("citext")
+                        .HasColumnName("user_name");
+
+                    b.HasKey("Id")
+                        .HasName("pk_audit_entries");
+
+                    b.HasIndex("Action")
+                        .HasDatabaseName("ix_audit_entries_action");
+
+                    b.HasIndex("OccurredAt")
+                        .HasDatabaseName("ix_audit_entries_occurred_at");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("ix_audit_entries_user_id");
+
+                    b.ToTable("audit_entries", (string)null);
+                });
+
             modelBuilder.Entity("ODC.Web.Shared.Domain.Organization.OrganizationUnit", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1337,255 +1108,66 @@ namespace ODC.Web.Infrastructure.Persistence.Migrations
                     b.ToTable("organization_units", (string)null);
                 });
 
-            modelBuilder.Entity("ODC.Web.Shared.Domain.Organization.UnitType", b =>
+            modelBuilder.Entity("ODC.Web.Shared.Domain.Users.Member", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasMaxLength(32)
-                        .HasColumnType("citext")
-                        .HasColumnName("code");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(512)
-                        .HasColumnType("character varying(512)")
-                        .HasColumnName("description");
-
-                    b.Property<string>("Icon")
-                        .IsRequired()
-                        .HasMaxLength(32)
-                        .HasColumnType("character varying(32)")
-                        .HasColumnName("icon");
-
-                    b.Property<bool>("IsOrganization")
+                    b.Property<bool>("AwaitsActivation")
                         .HasColumnType("boolean")
-                        .HasColumnName("is_organization");
+                        .HasColumnName("awaits_activation");
 
-                    b.Property<string>("Name")
+                    b.Property<string>("Email")
                         .IsRequired()
-                        .HasMaxLength(128)
+                        .HasMaxLength(256)
                         .HasColumnType("citext")
-                        .HasColumnName("name");
+                        .HasColumnName("email");
 
-                    b.Property<int>("SortOrder")
-                        .HasColumnType("integer")
-                        .HasColumnName("sort_order");
-
-                    b.Property<DateTimeOffset?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_at");
-
-                    b.HasKey("Id")
-                        .HasName("pk_unit_types");
-
-                    b.HasIndex("Code")
-                        .IsUnique()
-                        .HasDatabaseName("ix_unit_types_code");
-
-                    b.HasIndex("Name")
-                        .IsUnique()
-                        .HasDatabaseName("ix_unit_types_name");
-
-                    b.ToTable("unit_types", (string)null);
-                });
-
-            modelBuilder.Entity("ODC.Web.Features.Tickets.Domain.Ticket", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<Guid?>("AssigneeId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("assignee_id");
-
-                    b.Property<Guid>("AuthorId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("author_id");
-
-                    b.Property<string>("Category")
+                    b.Property<string>("FirstName")
                         .IsRequired()
-                        .HasMaxLength(32)
-                        .HasColumnType("character varying(32)")
-                        .HasColumnName("category");
-
-                    b.Property<DateTimeOffset?>("ClosedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("closed_at");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at");
-
-                    b.Property<DateTimeOffset>("LastActivityAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("last_activity_at");
-
-                    b.Property<int>("Number")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("number");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityAlwaysColumn(b.Property<int>("Number"));
-
-                    b.Property<string>("Priority")
-                        .IsRequired()
-                        .HasMaxLength(32)
-                        .HasColumnType("character varying(32)")
-                        .HasColumnName("priority");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasMaxLength(32)
-                        .HasColumnType("character varying(32)")
-                        .HasColumnName("status");
-
-                    b.Property<string>("Subject")
-                        .IsRequired()
-                        .HasMaxLength(200)
+                        .HasMaxLength(64)
                         .HasColumnType("citext")
-                        .HasColumnName("subject");
+                        .HasColumnName("first_name");
 
-                    b.Property<DateTimeOffset?>("UpdatedAt")
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("citext")
+                        .HasColumnName("last_name");
+
+                    b.Property<DateTimeOffset?>("LastSignInAt")
                         .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_at");
+                        .HasColumnName("last_sign_in_at");
 
-                    b.HasKey("Id")
-                        .HasName("pk_tickets");
+                    b.Property<string>("MiddleName")
+                        .HasMaxLength(64)
+                        .HasColumnType("citext")
+                        .HasColumnName("middle_name");
 
-                    b.HasIndex("AssigneeId")
-                        .HasDatabaseName("ix_tickets_assignee_id");
-
-                    b.HasIndex("Number")
-                        .IsUnique()
-                        .HasDatabaseName("ix_tickets_number");
-
-                    b.HasIndex("AuthorId", "LastActivityAt")
-                        .HasDatabaseName("ix_tickets_author_id_last_activity_at");
-
-                    b.HasIndex("Status", "LastActivityAt")
-                        .HasDatabaseName("ix_tickets_status_last_activity_at");
-
-                    b.ToTable("tickets", (string)null);
-                });
-
-            modelBuilder.Entity("ODC.Web.Features.Tickets.Domain.TicketAttachment", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<string>("ContentType")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)")
-                        .HasColumnName("content_type");
-
-                    b.Property<string>("FileName")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
-                        .HasColumnName("file_name");
-
-                    b.Property<int?>("Height")
-                        .HasColumnType("integer")
-                        .HasColumnName("height");
-
-                    b.Property<Guid>("MessageId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("message_id");
-
-                    b.Property<int>("Position")
-                        .HasColumnType("integer")
-                        .HasColumnName("position");
-
-                    b.Property<long>("Size")
-                        .HasColumnType("bigint")
-                        .HasColumnName("size");
-
-                    b.Property<string>("StorageKey")
-                        .IsRequired()
-                        .HasMaxLength(300)
-                        .HasColumnType("character varying(300)")
-                        .HasColumnName("storage_key");
-
-                    b.Property<string>("ThumbnailKey")
-                        .HasMaxLength(300)
-                        .HasColumnType("character varying(300)")
-                        .HasColumnName("thumbnail_key");
-
-                    b.Property<Guid>("TicketId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("ticket_id");
-
-                    b.Property<int?>("Width")
-                        .HasColumnType("integer")
-                        .HasColumnName("width");
-
-                    b.HasKey("Id")
-                        .HasName("pk_ticket_attachments");
-
-                    b.HasIndex("MessageId")
-                        .HasDatabaseName("ix_ticket_attachments_message_id");
-
-                    b.HasIndex("TicketId")
-                        .HasDatabaseName("ix_ticket_attachments_ticket_id");
-
-                    b.ToTable("ticket_attachments", (string)null);
-                });
-
-            modelBuilder.Entity("ODC.Web.Features.Tickets.Domain.TicketMessage", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<Guid>("AuthorId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("author_id");
-
-                    b.Property<string>("Body")
-                        .IsRequired()
-                        .HasMaxLength(10000)
-                        .HasColumnType("character varying(10000)")
-                        .HasColumnName("body");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at");
-
-                    b.Property<string>("Kind")
-                        .IsRequired()
+                    b.Property<string>("PhoneNumber")
                         .HasMaxLength(32)
                         .HasColumnType("character varying(32)")
-                        .HasColumnName("kind");
+                        .HasColumnName("phone_number");
 
-                    b.Property<string>("Status")
-                        .HasMaxLength(32)
-                        .HasColumnType("character varying(32)")
-                        .HasColumnName("status");
-
-                    b.Property<Guid>("TicketId")
+                    b.Property<Guid?>("PhotoId")
                         .HasColumnType("uuid")
-                        .HasColumnName("ticket_id");
+                        .HasColumnName("photo_id");
 
                     b.HasKey("Id")
-                        .HasName("pk_ticket_messages");
+                        .HasName("pk_members");
 
-                    b.HasIndex("AuthorId")
-                        .HasDatabaseName("ix_ticket_messages_author_id");
+                    b.HasIndex("Email")
+                        .HasDatabaseName("ix_members_email");
 
-                    b.HasIndex("TicketId", "CreatedAt")
-                        .HasDatabaseName("ix_ticket_messages_ticket_id_created_at");
+                    b.HasIndex("LastName", "FirstName")
+                        .HasDatabaseName("ix_members_last_name_first_name");
 
-                    b.ToTable("ticket_messages", (string)null);
+                    b.ToTable("members", (string)null);
                 });
 
             modelBuilder.Entity("ODC.Web.Shared.Domain.Users.StaffPosition", b =>
@@ -1616,322 +1198,19 @@ namespace ODC.Web.Infrastructure.Persistence.Migrations
                         .HasColumnName("user_id");
 
                     b.HasKey("Id")
-                        .HasName("pk_user_roles");
+                        .HasName("pk_staff_positions");
 
                     b.HasIndex("OrganizationUnitId")
-                        .HasDatabaseName("ix_user_roles_organization_unit_id");
+                        .HasDatabaseName("ix_staff_positions_organization_unit_id");
 
                     b.HasIndex("RoleId")
-                        .HasDatabaseName("ix_user_roles_role_id");
+                        .HasDatabaseName("ix_staff_positions_role_id");
 
                     b.HasIndex("UserId", "OrganizationUnitId", "RoleId")
                         .IsUnique()
-                        .HasDatabaseName("ix_user_roles_user_id_organization_unit_id_role_id");
+                        .HasDatabaseName("ix_staff_positions_user_id_organization_unit_id_role_id");
 
-                    b.ToTable("user_roles", (string)null);
-                });
-
-            modelBuilder.Entity("ODC.Web.Shared.Domain.Users.User", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<int>("AccessFailedCount")
-                        .HasColumnType("integer")
-                        .HasColumnName("access_failed_count");
-
-                    b.Property<string>("ConcurrencyStamp")
-                        .IsConcurrencyToken()
-                        .HasColumnType("text")
-                        .HasColumnName("concurrency_stamp");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at");
-
-                    b.Property<string>("Email")
-                        .HasMaxLength(256)
-                        .HasColumnType("citext")
-                        .HasColumnName("email");
-
-                    b.Property<bool>("EmailConfirmed")
-                        .HasColumnType("boolean")
-                        .HasColumnName("email_confirmed");
-
-                    b.Property<string>("FirstName")
-                        .IsRequired()
-                        .HasMaxLength(64)
-                        .HasColumnType("citext")
-                        .HasColumnName("first_name");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_active");
-
-                    b.Property<string>("Language")
-                        .HasMaxLength(8)
-                        .HasColumnType("character varying(8)")
-                        .HasColumnName("language");
-
-                    b.Property<string>("LastName")
-                        .IsRequired()
-                        .HasMaxLength(64)
-                        .HasColumnType("citext")
-                        .HasColumnName("last_name");
-
-                    b.Property<DateTimeOffset?>("LastSignInAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("last_sign_in_at");
-
-                    b.Property<bool>("LockoutEnabled")
-                        .HasColumnType("boolean")
-                        .HasColumnName("lockout_enabled");
-
-                    b.Property<DateTimeOffset?>("LockoutEnd")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("lockout_end");
-
-                    b.Property<string>("MiddleName")
-                        .HasMaxLength(64)
-                        .HasColumnType("citext")
-                        .HasColumnName("middle_name");
-
-                    b.Property<string>("NormalizedEmail")
-                        .HasMaxLength(256)
-                        .HasColumnType("character varying(256)")
-                        .HasColumnName("normalized_email");
-
-                    b.Property<string>("NormalizedUserName")
-                        .HasMaxLength(256)
-                        .HasColumnType("character varying(256)")
-                        .HasColumnName("normalized_user_name");
-
-                    b.Property<string>("PasswordHash")
-                        .HasColumnType("text")
-                        .HasColumnName("password_hash");
-
-                    b.Property<string>("PhoneNumber")
-                        .HasMaxLength(32)
-                        .HasColumnType("character varying(32)")
-                        .HasColumnName("phone_number");
-
-                    b.Property<bool>("PhoneNumberConfirmed")
-                        .HasColumnType("boolean")
-                        .HasColumnName("phone_number_confirmed");
-
-                    b.Property<Guid?>("PhotoId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("photo_id");
-
-                    b.Property<string>("SecurityStamp")
-                        .HasColumnType("text")
-                        .HasColumnName("security_stamp");
-
-                    b.Property<bool>("TwoFactorEnabled")
-                        .HasColumnType("boolean")
-                        .HasColumnName("two_factor_enabled");
-
-                    b.Property<DateTimeOffset?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_at");
-
-                    b.Property<string>("UserName")
-                        .HasMaxLength(256)
-                        .HasColumnType("character varying(256)")
-                        .HasColumnName("user_name");
-
-                    b.HasKey("Id")
-                        .HasName("pk_users");
-
-                    b.HasIndex("NormalizedEmail")
-                        .HasDatabaseName("ix_users_normalized_email");
-
-                    b.HasIndex("NormalizedUserName")
-                        .IsUnique()
-                        .HasDatabaseName("ix_users_normalized_user_name");
-
-                    b.HasIndex("PhotoId")
-                        .HasDatabaseName("ix_users_photo_id");
-
-                    b.HasIndex("LastName", "FirstName")
-                        .HasDatabaseName("ix_users_last_name_first_name");
-
-                    b.ToTable("users", (string)null);
-                });
-
-            modelBuilder.Entity("ODC.Web.Features.Auth.Activation.ActivationChallenge", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at");
-
-                    b.Property<string>("EmailHash")
-                        .IsRequired()
-                        .HasMaxLength(64)
-                        .HasColumnType("character(64)")
-                        .HasColumnName("email_hash")
-                        .IsFixedLength();
-
-                    b.Property<DateTimeOffset>("ExpiresAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("expires_at");
-
-                    b.Property<int>("FailedAttempts")
-                        .HasColumnType("integer")
-                        .HasColumnName("failed_attempts");
-
-                    b.Property<byte[]>("ProtectedCode")
-                        .IsRequired()
-                        .HasMaxLength(512)
-                        .HasColumnType("bytea")
-                        .HasColumnName("protected_code");
-
-                    b.Property<Guid?>("UserId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("user_id");
-
-                    b.Property<DateTimeOffset?>("VerifiedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("verified_at");
-
-                    b.Property<uint>("Version")
-                        .IsConcurrencyToken()
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("xid")
-                        .HasColumnName("xmin");
-
-                    b.HasKey("Id")
-                        .HasName("pk_activation_challenges");
-
-                    b.HasIndex("CreatedAt")
-                        .HasDatabaseName("ix_activation_challenges_created_at");
-
-                    b.HasIndex("UserId")
-                        .HasDatabaseName("ix_activation_challenges_user_id");
-
-                    b.HasIndex("EmailHash", "CreatedAt")
-                        .HasDatabaseName("ix_activation_challenges_email_hash_created_at");
-
-                    b.ToTable("activation_challenges", (string)null);
-                });
-
-            modelBuilder.Entity("ODC.Web.Infrastructure.Identity.Tokens.RefreshTokenFamily", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<string>("AuthenticationMethod")
-                        .HasMaxLength(32)
-                        .HasColumnType("character varying(32)")
-                        .HasColumnName("authentication_method");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at");
-
-                    b.Property<DateTimeOffset>("ExpiresAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("expires_at");
-
-                    b.Property<int>("Generation")
-                        .IsConcurrencyToken()
-                        .HasColumnType("integer")
-                        .HasColumnName("generation");
-
-                    b.Property<string>("IpAddress")
-                        .HasMaxLength(64)
-                        .HasColumnType("character varying(64)")
-                        .HasColumnName("ip_address");
-
-                    b.Property<bool>("IsPersistent")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_persistent");
-
-                    b.Property<DateTimeOffset>("LastUsedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("last_used_at");
-
-                    b.Property<byte[]>("ProtectedKey")
-                        .IsRequired()
-                        .HasMaxLength(512)
-                        .HasColumnType("bytea")
-                        .HasColumnName("protected_key");
-
-                    b.Property<DateTimeOffset?>("RotatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("rotated_at");
-
-                    b.Property<string>("SecurityStamp")
-                        .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("character varying(256)")
-                        .HasColumnName("security_stamp");
-
-                    b.Property<string>("UserAgent")
-                        .HasMaxLength(512)
-                        .HasColumnType("character varying(512)")
-                        .HasColumnName("user_agent");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("user_id");
-
-                    b.HasKey("Id")
-                        .HasName("pk_refresh_token_families");
-
-                    b.HasIndex("ExpiresAt")
-                        .HasDatabaseName("ix_refresh_token_families_expires_at");
-
-                    b.HasIndex("UserId")
-                        .HasDatabaseName("ix_refresh_token_families_user_id");
-
-                    b.ToTable("refresh_token_families", (string)null);
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<System.Guid>", b =>
-                {
-                    b.HasOne("ODC.Web.Shared.Domain.Users.User", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_user_logins_users_user_id");
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<System.Guid>", b =>
-                {
-                    b.HasOne("ODC.Web.Shared.Domain.Users.User", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_user_tokens_users_user_id");
-                });
-
-            modelBuilder.Entity("ODC.Web.Shared.Domain.Access.RolePermission", b =>
-                {
-                    b.HasOne("ODC.Web.Shared.Domain.Access.Role", null)
-                        .WithMany("Permissions")
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_role_claims_roles_role_id");
-                });
-
-            modelBuilder.Entity("ODC.Web.Shared.Domain.Access.UserPermissionOverride", b =>
-                {
-                    b.HasOne("ODC.Web.Shared.Domain.Users.User", null)
-                        .WithMany("PermissionOverrides")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_user_claims_users_user_id");
+                    b.ToTable("staff_positions", (string)null);
                 });
 
             modelBuilder.Entity("ODC.Web.Features.Chats.Domain.ChatAttachment", b =>
@@ -1953,24 +1232,24 @@ namespace ODC.Web.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasConstraintName("fk_chat_members_chats_chat_id");
 
-                    b.HasOne("ODC.Web.Shared.Domain.Users.User", "User")
+                    b.HasOne("ODC.Web.Shared.Domain.Users.Member", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_chat_members_users_user_id");
+                        .HasConstraintName("fk_chat_members_members_user_id");
 
                     b.Navigation("User");
                 });
 
             modelBuilder.Entity("ODC.Web.Features.Chats.Domain.ChatMessage", b =>
                 {
-                    b.HasOne("ODC.Web.Shared.Domain.Users.User", "Author")
+                    b.HasOne("ODC.Web.Shared.Domain.Users.Member", "Author")
                         .WithMany()
                         .HasForeignKey("AuthorId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
-                        .HasConstraintName("fk_chat_messages_users_author_id");
+                        .HasConstraintName("fk_chat_messages_members_author_id");
 
                     b.HasOne("ODC.Web.Features.Chats.Domain.Chat", null)
                         .WithMany()
@@ -1979,11 +1258,11 @@ namespace ODC.Web.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasConstraintName("fk_chat_messages_chats_chat_id");
 
-                    b.HasOne("ODC.Web.Shared.Domain.Users.User", "ForwardedFrom")
+                    b.HasOne("ODC.Web.Shared.Domain.Users.Member", "ForwardedFrom")
                         .WithMany()
                         .HasForeignKey("ForwardedFromId")
                         .OnDelete(DeleteBehavior.Restrict)
-                        .HasConstraintName("fk_chat_messages_users_forwarded_from_id");
+                        .HasConstraintName("fk_chat_messages_members_forwarded_from_id");
 
                     b.Navigation("Author");
 
@@ -1999,12 +1278,12 @@ namespace ODC.Web.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasConstraintName("fk_chat_reactions_chat_messages_message_id");
 
-                    b.HasOne("ODC.Web.Shared.Domain.Users.User", null)
+                    b.HasOne("ODC.Web.Shared.Domain.Users.Member", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_chat_reactions_users_user_id");
+                        .HasConstraintName("fk_chat_reactions_members_user_id");
                 });
 
             modelBuilder.Entity("ODC.Web.Features.Chats.Domain.HiddenChatMessage", b =>
@@ -2023,22 +1302,22 @@ namespace ODC.Web.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasConstraintName("fk_chat_hidden_messages_chat_messages_message_id");
 
-                    b.HasOne("ODC.Web.Shared.Domain.Users.User", null)
+                    b.HasOne("ODC.Web.Shared.Domain.Users.Member", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_chat_hidden_messages_users_user_id");
+                        .HasConstraintName("fk_chat_hidden_messages_members_user_id");
                 });
 
             modelBuilder.Entity("ODC.Web.Features.Documents.Domain.Document", b =>
                 {
-                    b.HasOne("ODC.Web.Shared.Domain.Users.User", "Author")
+                    b.HasOne("ODC.Web.Shared.Domain.Users.Member", "Author")
                         .WithMany()
                         .HasForeignKey("AuthorId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
-                        .HasConstraintName("fk_documents_users_author_id");
+                        .HasConstraintName("fk_documents_members_author_id");
 
                     b.HasOne("ODC.Web.Shared.Domain.Organization.OrganizationUnit", "OrganizationUnit")
                         .WithMany()
@@ -2061,12 +1340,12 @@ namespace ODC.Web.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasConstraintName("fk_document_signatures_documents_document_id");
 
-                    b.HasOne("ODC.Web.Shared.Domain.Users.User", "User")
+                    b.HasOne("ODC.Web.Shared.Domain.Users.Member", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
-                        .HasConstraintName("fk_document_signatures_users_user_id");
+                        .HasConstraintName("fk_document_signatures_members_user_id");
 
                     b.Navigation("User");
                 });
@@ -2080,33 +1359,24 @@ namespace ODC.Web.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasConstraintName("fk_document_signers_documents_document_id");
 
-                    b.HasOne("ODC.Web.Shared.Domain.Users.User", "User")
+                    b.HasOne("ODC.Web.Shared.Domain.Users.Member", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
-                        .HasConstraintName("fk_document_signers_users_user_id");
+                        .HasConstraintName("fk_document_signers_members_user_id");
 
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("ODC.Web.Shared.Domain.Media.MediaFile", b =>
-                {
-                    b.HasOne("ODC.Web.Features.News.Domain.NewsArticle", null)
-                        .WithMany()
-                        .HasForeignKey("NewsArticleId")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .HasConstraintName("fk_media_files_news_articles_news_article_id");
-                });
-
             modelBuilder.Entity("ODC.Web.Features.News.Domain.NewsArticle", b =>
                 {
-                    b.HasOne("ODC.Web.Shared.Domain.Users.User", "Author")
+                    b.HasOne("ODC.Web.Shared.Domain.Users.Member", "Author")
                         .WithMany()
                         .HasForeignKey("AuthorId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
-                        .HasConstraintName("fk_news_articles_users_author_id");
+                        .HasConstraintName("fk_news_articles_members_author_id");
 
                     b.HasOne("ODC.Web.Shared.Domain.Organization.OrganizationUnit", "Organization")
                         .WithMany()
@@ -2128,12 +1398,12 @@ namespace ODC.Web.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasConstraintName("fk_news_comments_news_articles_article_id");
 
-                    b.HasOne("ODC.Web.Shared.Domain.Users.User", "Author")
+                    b.HasOne("ODC.Web.Shared.Domain.Users.Member", "Author")
                         .WithMany()
                         .HasForeignKey("AuthorId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
-                        .HasConstraintName("fk_news_comments_users_author_id");
+                        .HasConstraintName("fk_news_comments_members_author_id");
 
                     b.HasOne("ODC.Web.Features.News.Domain.NewsComment", null)
                         .WithMany()
@@ -2159,12 +1429,12 @@ namespace ODC.Web.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .HasConstraintName("fk_news_reactions_news_comments_comment_id");
 
-                    b.HasOne("ODC.Web.Shared.Domain.Users.User", null)
+                    b.HasOne("ODC.Web.Shared.Domain.Users.Member", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_news_reactions_users_user_id");
+                        .HasConstraintName("fk_news_reactions_members_user_id");
                 });
 
             modelBuilder.Entity("ODC.Web.Features.News.Domain.NewsView", b =>
@@ -2176,30 +1446,40 @@ namespace ODC.Web.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasConstraintName("fk_news_views_news_articles_article_id");
 
-                    b.HasOne("ODC.Web.Shared.Domain.Users.User", null)
+                    b.HasOne("ODC.Web.Shared.Domain.Users.Member", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_news_views_users_user_id");
+                        .HasConstraintName("fk_news_views_members_user_id");
                 });
 
             modelBuilder.Entity("ODC.Web.Features.Notifications.Domain.Notification", b =>
                 {
-                    b.HasOne("ODC.Web.Shared.Domain.Users.User", "Actor")
+                    b.HasOne("ODC.Web.Shared.Domain.Users.Member", "Actor")
                         .WithMany()
                         .HasForeignKey("ActorId")
                         .OnDelete(DeleteBehavior.SetNull)
-                        .HasConstraintName("fk_notifications_users_actor_id");
+                        .HasConstraintName("fk_notifications_members_actor_id");
 
-                    b.HasOne("ODC.Web.Shared.Domain.Users.User", null)
+                    b.HasOne("ODC.Web.Shared.Domain.Users.Member", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_notifications_users_user_id");
+                        .HasConstraintName("fk_notifications_members_user_id");
 
                     b.Navigation("Actor");
+                });
+
+            modelBuilder.Entity("ODC.Web.Shared.Domain.Access.UserPermissionOverride", b =>
+                {
+                    b.HasOne("ODC.Web.Shared.Domain.Users.Member", null)
+                        .WithMany("PermissionOverrides")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_permission_overrides_members_user_id");
                 });
 
             modelBuilder.Entity("ODC.Web.Shared.Domain.Organization.OrganizationUnit", b =>
@@ -2210,65 +1490,7 @@ namespace ODC.Web.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .HasConstraintName("fk_organization_units_organization_units_parent_id");
 
-                    b.HasOne("ODC.Web.Shared.Domain.Organization.UnitType", "Type")
-                        .WithMany()
-                        .HasForeignKey("TypeId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
-                        .HasConstraintName("fk_organization_units_unit_types_type_id");
-
                     b.Navigation("Parent");
-
-                    b.Navigation("Type");
-                });
-
-            modelBuilder.Entity("ODC.Web.Features.Tickets.Domain.Ticket", b =>
-                {
-                    b.HasOne("ODC.Web.Shared.Domain.Users.User", "Assignee")
-                        .WithMany()
-                        .HasForeignKey("AssigneeId")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .HasConstraintName("fk_tickets_users_assignee_id");
-
-                    b.HasOne("ODC.Web.Shared.Domain.Users.User", "Author")
-                        .WithMany()
-                        .HasForeignKey("AuthorId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
-                        .HasConstraintName("fk_tickets_users_author_id");
-
-                    b.Navigation("Assignee");
-
-                    b.Navigation("Author");
-                });
-
-            modelBuilder.Entity("ODC.Web.Features.Tickets.Domain.TicketAttachment", b =>
-                {
-                    b.HasOne("ODC.Web.Features.Tickets.Domain.TicketMessage", null)
-                        .WithMany("Attachments")
-                        .HasForeignKey("MessageId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_ticket_attachments_ticket_messages_message_id");
-                });
-
-            modelBuilder.Entity("ODC.Web.Features.Tickets.Domain.TicketMessage", b =>
-                {
-                    b.HasOne("ODC.Web.Shared.Domain.Users.User", "Author")
-                        .WithMany()
-                        .HasForeignKey("AuthorId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
-                        .HasConstraintName("fk_ticket_messages_users_author_id");
-
-                    b.HasOne("ODC.Web.Features.Tickets.Domain.Ticket", null)
-                        .WithMany()
-                        .HasForeignKey("TicketId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_ticket_messages_tickets_ticket_id");
-
-                    b.Navigation("Author");
                 });
 
             modelBuilder.Entity("ODC.Web.Shared.Domain.Users.StaffPosition", b =>
@@ -2278,60 +1500,18 @@ namespace ODC.Web.Infrastructure.Persistence.Migrations
                         .HasForeignKey("OrganizationUnitId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
-                        .HasConstraintName("fk_user_roles_organization_units_organization_unit_id");
+                        .HasConstraintName("fk_staff_positions_organization_units_organization_unit_id");
 
-                    b.HasOne("ODC.Web.Shared.Domain.Access.Role", "Role")
-                        .WithMany()
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
-                        .HasConstraintName("fk_user_roles_roles_role_id");
-
-                    b.HasOne("ODC.Web.Shared.Domain.Users.User", "User")
+                    b.HasOne("ODC.Web.Shared.Domain.Users.Member", "Member")
                         .WithMany("Positions")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_user_roles_users_user_id");
+                        .HasConstraintName("fk_staff_positions_members_user_id");
+
+                    b.Navigation("Member");
 
                     b.Navigation("OrganizationUnit");
-
-                    b.Navigation("Role");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("ODC.Web.Shared.Domain.Users.User", b =>
-                {
-                    b.HasOne("ODC.Web.Shared.Domain.Media.MediaFile", null)
-                        .WithMany()
-                        .HasForeignKey("PhotoId")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .HasConstraintName("fk_users_media_files_photo_id");
-                });
-
-            modelBuilder.Entity("ODC.Web.Features.Auth.Activation.ActivationChallenge", b =>
-                {
-                    b.HasOne("ODC.Web.Shared.Domain.Users.User", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .HasConstraintName("fk_activation_challenges_users_user_id");
-                });
-
-            modelBuilder.Entity("ODC.Web.Infrastructure.Identity.Tokens.RefreshTokenFamily", b =>
-                {
-                    b.HasOne("ODC.Web.Shared.Domain.Users.User", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_refresh_token_families_users_user_id");
-                });
-
-            modelBuilder.Entity("ODC.Web.Shared.Domain.Access.Role", b =>
-                {
-                    b.Navigation("Permissions");
                 });
 
             modelBuilder.Entity("ODC.Web.Features.Chats.Domain.Chat", b =>
@@ -2356,12 +1536,7 @@ namespace ODC.Web.Infrastructure.Persistence.Migrations
                     b.Navigation("Children");
                 });
 
-            modelBuilder.Entity("ODC.Web.Features.Tickets.Domain.TicketMessage", b =>
-                {
-                    b.Navigation("Attachments");
-                });
-
-            modelBuilder.Entity("ODC.Web.Shared.Domain.Users.User", b =>
+            modelBuilder.Entity("ODC.Web.Shared.Domain.Users.Member", b =>
                 {
                     b.Navigation("PermissionOverrides");
 

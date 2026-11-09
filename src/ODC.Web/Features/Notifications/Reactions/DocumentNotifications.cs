@@ -14,7 +14,7 @@ namespace ODC.Web.Features.Notifications.Reactions;
 /// <param name="db">The database context.</param>
 /// <param name="currentUser">The one who acted.</param>
 /// <param name="notifier">Creates the notifications.</param>
-internal sealed class DocumentNotifications(ApplicationDbContext db, ICurrentUser currentUser, INotifier notifier)
+internal sealed class DocumentNotifications(OrganizationDbContext db, ICurrentUser currentUser, INotifier notifier)
     : IDomainEventHandler<DocumentSigningProgressed>
 {
     /// <inheritdoc />

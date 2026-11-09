@@ -4,6 +4,7 @@ using ODC.Web.Endpoints;
 using ODC.Web.Features.Tickets.Domain;
 using ODC.Web.Infrastructure.Persistence;
 using ODC.Web.Messaging;
+using ODC.Web.Shared.Access;
 using ODC.Web.Shared.Identity;
 using ODC.Web.Shared.Kernel;
 using ODC.Web.Shared.Models;
@@ -26,10 +27,11 @@ public static class GetTicket
     /// Reads the request; handlers also see the author's position and e-mail.
     /// </summary>
     /// <param name="db">The database context.</param>
+    /// <param name="directory">The positions of people.</param>
     /// <param name="currentUser">The current user.</param>
     /// <param name="desk">The shared request rules.</param>
     /// <param name="domainEvents">Raises what the user has seen (their notifications about it are done).</param>
-    internal sealed class Handler(ApplicationDbContext db, ICurrentUser currentUser, TicketDesk desk, DomainEvents domainEvents) : IRequestHandler<Query, Result<TicketDetails>>
+    internal sealed class Handler(MasterDbContext db, PositionDirectory directory, ICurrentUser currentUser, TicketDesk desk, DomainEvents domainEvents) : IRequestHandler<Query, Result<TicketDetails>>
     {
         /// <inheritdoc />
         public async Task<Result<TicketDetails>> HandleAsync(Query request, CancellationToken cancellationToken)
@@ -56,9 +58,6 @@ public static class GetTicket
                     t.AuthorId,
                     Author = new UserRef(t.AuthorId, t.Author!.LastName + " " + t.Author.FirstName + (t.Author.MiddleName != null ? " " + t.Author.MiddleName : string.Empty), t.Author.PhotoId),
                     t.Author.Email,
-                    Title = t.Author.Positions.Where(static p => p.IsPrimary).Select(static p => p.Title).FirstOrDefault(),
-                    RoleName = t.Author.Positions.Where(static p => p.IsPrimary).Select(static p => p.Role!.Name).FirstOrDefault(),
-                    UnitName = t.Author.Positions.Where(static p => p.IsPrimary).Select(static p => p.OrganizationUnit!.Name).FirstOrDefault(),
                     Assignee = t.AssigneeId == null
                         ? null
                         : new UserRef(t.Assignee!.Id, t.Assignee.LastName + " " + t.Assignee.FirstName + (t.Assignee.MiddleName != null ? " " + t.Assignee.MiddleName : string.Empty), t.Assignee.PhotoId),
@@ -84,7 +83,7 @@ public static class GetTicket
                 row.Priority,
                 row.Status,
                 row.Author,
-                handler ? StoredText.PositionInUnit(row.Title, row.RoleName, row.UnitName) : null,
+                handler ? (await directory.PrimaryAsync(row.AuthorId, cancellationToken))?.InUnit : null,
                 handler ? row.Email : null,
                 row.Assignee,
                 row.CreatedAt,

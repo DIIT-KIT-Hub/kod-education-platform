@@ -41,7 +41,7 @@ internal static class RoleRules
     /// <param name="exceptId">The role being edited.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns><see langword="true"/> when the name is taken.</returns>
-    public static async Task<bool> NameTakenAsync(ApplicationDbContext db, string? name, Guid? exceptId, CancellationToken cancellationToken)
+    public static async Task<bool> NameTakenAsync(MasterDbContext db, string? name, Guid? exceptId, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(name))
         {

@@ -19,13 +19,15 @@ namespace ODC.Web.Features.Documents;
 /// signature file.
 /// </summary>
 /// <param name="db">The database context.</param>
+/// <param name="catalog">The shared catalogs (which unit types are organizations).</param>
 /// <param name="currentUser">The current user.</param>
 /// <param name="accessScope">The data-level access rules.</param>
 /// <param name="fileStorage">The private file storage.</param>
 /// <param name="signatureInspector">The signature container inspector.</param>
 /// <param name="audit">The audit logger.</param>
 internal sealed class DocumentDesk(
-    ApplicationDbContext db,
+    OrganizationDbContext db,
+    Catalog catalog,
     ICurrentUser currentUser,
     IAccessScope accessScope,
     IFileStorage fileStorage,
@@ -96,10 +98,11 @@ internal sealed class DocumentDesk(
     /// <returns>The units.</returns>
     public async Task<IReadOnlyList<UnitOption>> GetAuthorUnitsAsync(CancellationToken cancellationToken)
     {
+        var organizationTypes = await catalog.OrganizationTypeIdsAsync(cancellationToken);
         var units = await db.OrganizationUnits
             .AsNoTracking()
             .Where(static u => u.IsActive)
-            .Select(static u => new { u.Id, u.ParentId, u.Name, u.Code, u.Type!.IsOrganization, u.SortOrder })
+            .Select(u => new { u.Id, u.ParentId, u.Name, u.Code, IsOrganization = organizationTypes.Contains(u.TypeId), u.SortOrder })
             .ToListAsync(cancellationToken);
 
         IReadOnlySet<Guid>? allowed = currentUser.Has(Permissions.Documents.ViewAll)

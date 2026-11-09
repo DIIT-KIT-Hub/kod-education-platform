@@ -32,16 +32,6 @@ internal sealed class UserConfiguration : IEntityTypeConfiguration<User>
         builder.HasIndex(static u => u.NormalizedEmail).HasDatabaseName("ix_users_normalized_email");
         builder.HasIndex(static u => u.NormalizedUserName).HasDatabaseName("ix_users_normalized_user_name");
 
-        builder.HasMany(static u => u.Positions)
-            .WithOne(static p => p.User)
-            .HasForeignKey(static p => p.UserId)
-            .OnDelete(DeleteBehavior.Cascade);
-
-        builder.HasMany(static u => u.PermissionOverrides)
-            .WithOne()
-            .HasForeignKey(static o => o.UserId)
-            .OnDelete(DeleteBehavior.Cascade);
-
         builder.HasOne<MediaFile>()
             .WithMany()
             .HasForeignKey(static u => u.PhotoId)

@@ -5,6 +5,7 @@ using ODC.Web.Infrastructure.Persistence;
 using ODC.Web.Messaging;
 using ODC.Web.Security;
 using ODC.Web.Shared.Domain.Access;
+using ODC.Web.Shared.Domain.Audit;
 using ODC.Web.Shared.Kernel;
 using ODC.Web.Shared.Paging;
 using ODC.Web.Shared.Text;
@@ -39,17 +40,58 @@ public static class ListAuditEntries
     }
 
     /// <summary>
-    /// Filters and pages the entries.
+    /// Filters and pages the entries of both trails: the platform's (master database) and the organizations' (their
+    /// database), merged by time.
     /// </summary>
-    /// <param name="db">The database context.</param>
-    internal sealed class Handler(ApplicationDbContext db) : IRequestHandler<Query, Result<PagedResult<AuditEntryDto>>>
+    /// <param name="db">The master database.</param>
+    /// <param name="organization">The organizations' database.</param>
+    internal sealed class Handler(MasterDbContext db, OrganizationDbContext organization) : IRequestHandler<Query, Result<PagedResult<AuditEntryDto>>>
     {
         /// <inheritdoc />
         public async Task<Result<PagedResult<AuditEntryDto>>> HandleAsync(Query request, CancellationToken cancellationToken)
         {
             ArgumentNullException.ThrowIfNull(request);
 
-            var entries = db.AuditEntries.AsNoTracking();
+            var descending = request.SortBy != "occurred" || request.IsDescending;
+            var size = request.CurrentPageSize;
+            var needed = request.CurrentPage * size;
+            var platform = Filter(db.AuditEntries.AsNoTracking(), request);
+            var organizations = Filter(organization.AuditEntries.AsNoTracking(), request);
+            var total = await platform.CountAsync(cancellationToken) + await organizations.CountAsync(cancellationToken);
+
+            // Each trail gives at most the entries up to the end of the page; the merge takes the page from them.
+            List<AuditEntry> candidates =
+            [
+                .. await platform.OrderByDirection(static e => e.OccurredAt, descending).Take(needed).ToListAsync(cancellationToken),
+                .. await organizations.OrderByDirection(static e => e.OccurredAt, descending).Take(needed).ToListAsync(cancellationToken),
+            ];
+            var page = (descending ? candidates.OrderByDescending(static e => e.OccurredAt) : candidates.OrderBy(static e => e.OccurredAt))
+                .ThenBy(static e => e.Id)
+                .Skip((request.CurrentPage - 1) * size)
+                .Take(size)
+                .ToList();
+            var userIds = page.Select(static e => e.UserId).OfType<Guid>().Distinct().ToList();
+            var photos = await db.Users
+                .AsNoTracking()
+                .Where(u => userIds.Contains(u.Id))
+                .Select(static u => new { u.Id, u.PhotoId })
+                .ToDictionaryAsync(static u => u.Id, static u => u.PhotoId, cancellationToken);
+
+            return new PagedResult<AuditEntryDto>(
+                [.. page.Select(e => new AuditEntryDto(e.Id, e.OccurredAt, e.Action, e.UserId, e.UserName, e.EntityType, e.EntityId, e.Details, e.IpAddress, e.UserId is { } user ? photos.GetValueOrDefault(user) : null))],
+                request.CurrentPage,
+                size,
+                total);
+        }
+
+        /// <summary>
+        /// Applies the filters of the log to one trail.
+        /// </summary>
+        /// <param name="entries">The trail.</param>
+        /// <param name="request">The filters.</param>
+        /// <returns>The filtered trail.</returns>
+        private static IQueryable<AuditEntry> Filter(IQueryable<AuditEntry> entries, Query request)
+        {
             if (!string.IsNullOrWhiteSpace(request.Action))
             {
                 var prefix = request.Action.Trim();
@@ -78,20 +120,7 @@ public static class ListAuditEntries
                     || (e.IpAddress != null && e.IpAddress.Contains(term)));
             }
 
-            return await entries
-                .OrderByDirection(static e => e.OccurredAt, request.SortBy != "occurred" || request.IsDescending)
-                .Select(e => new AuditEntryDto(
-                    e.Id,
-                    e.OccurredAt,
-                    e.Action,
-                    e.UserId,
-                    e.UserName,
-                    e.EntityType,
-                    e.EntityId,
-                    e.Details,
-                    e.IpAddress,
-                    db.Users.Where(u => u.Id == e.UserId).Select(static u => u.PhotoId).FirstOrDefault()))
-                .ToPagedResultAsync(request, cancellationToken);
+            return entries;
         }
     }
 

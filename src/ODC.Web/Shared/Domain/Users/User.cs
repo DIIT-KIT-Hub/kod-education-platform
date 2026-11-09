@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Identity;
-using ODC.Web.Shared.Domain.Access;
 using ODC.Web.Shared.Kernel;
 using ODC.Web.Shared.Localization;
 
@@ -21,16 +20,6 @@ public sealed class User : IdentityUser<Guid>, IAuditable
     /// Maximum length of an e-mail address.
     /// </summary>
     public const int EmailMaxLength = 256;
-
-    /// <summary>
-    /// The positions held by the user.
-    /// </summary>
-    private readonly List<StaffPosition> _positions = [];
-
-    /// <summary>
-    /// The individual permission adjustments.
-    /// </summary>
-    private readonly List<UserPermissionOverride> _permissionOverrides = [];
 
     /// <summary>
     /// Initializes a new instance of the <see cref="User"/> class.
@@ -77,14 +66,12 @@ public sealed class User : IdentityUser<Guid>, IAuditable
     /// <summary>
     /// Gets the full name in the official Ukrainian order: «Прізвище Ім'я По батькові».
     /// </summary>
-    public string FullName => MiddleName is null ? $"{LastName} {FirstName}" : $"{LastName} {FirstName} {MiddleName}";
+    public string FullName => PersonName.Full(LastName, FirstName, MiddleName);
 
     /// <summary>
     /// Gets the short name with initials: «Прізвище І. П.».
     /// </summary>
-    public string ShortName => MiddleName is null
-        ? $"{LastName} {FirstName[0]}."
-        : $"{LastName} {FirstName[0]}. {MiddleName[0]}.";
+    public string ShortName => PersonName.Short(LastName, FirstName, MiddleName);
 
     /// <summary>
     /// Gets a value indicating whether the account may sign in.
@@ -119,16 +106,6 @@ public sealed class User : IdentityUser<Guid>, IAuditable
 
     /// <inheritdoc />
     public DateTimeOffset? UpdatedAt { get; set; }
-
-    /// <summary>
-    /// Gets the positions held by the user.
-    /// </summary>
-    public IReadOnlyCollection<StaffPosition> Positions => _positions;
-
-    /// <summary>
-    /// Gets the individual permission adjustments.
-    /// </summary>
-    public IReadOnlyCollection<UserPermissionOverride> PermissionOverrides => _permissionOverrides;
 
     /// <summary>
     /// Updates the personal data.
@@ -169,66 +146,4 @@ public sealed class User : IdentityUser<Guid>, IAuditable
     /// </summary>
     /// <param name="photoId">The uploaded avatar image.</param>
     public void SetPhoto(Guid photoId) => PhotoId = photoId;
-
-    /// <summary>
-    /// Replaces the positions held by the user.
-    /// </summary>
-    /// <param name="positions">The new positions (unit, role, title, primary flag).</param>
-    public void SetPositions(IEnumerable<(Guid UnitId, Guid RoleId, string? Title, bool IsPrimary)> positions)
-    {
-        ArgumentNullException.ThrowIfNull(positions);
-
-        var list = positions.DistinctBy(static p => (p.UnitId, p.RoleId)).ToList();
-        if (list.Count(static p => p.IsPrimary) > 1)
-        {
-            throw new DomainException(Texts.T("Основною може бути лише одна посада."));
-        }
-
-        _positions.RemoveAll(existing => !list.Exists(p => p.UnitId == existing.OrganizationUnitId && p.RoleId == existing.RoleId));
-        foreach (var (unitId, roleId, title, isPrimary) in list)
-        {
-            var existing = _positions.Find(p => p.OrganizationUnitId == unitId && p.RoleId == roleId);
-            if (existing is null)
-            {
-                _positions.Add(new StaffPosition(Id, unitId, roleId, title, isPrimary));
-            }
-            else
-            {
-                existing.Update(title, isPrimary);
-            }
-        }
-
-        if (_positions.Count > 0 && !_positions.Exists(static p => p.IsPrimary))
-        {
-            _positions[0].Update(_positions[0].Title, isPrimary: true);
-        }
-    }
-
-    /// <summary>
-    /// Replaces the individual permission adjustments.
-    /// </summary>
-    /// <param name="granted">Permissions granted in addition to the roles.</param>
-    /// <param name="denied">Permissions denied regardless of the roles.</param>
-    public void SetPermissionOverrides(IEnumerable<string> granted, IEnumerable<string> denied)
-    {
-        ArgumentNullException.ThrowIfNull(granted);
-        ArgumentNullException.ThrowIfNull(denied);
-
-        var grantSet = granted.ToHashSet(StringComparer.Ordinal);
-        var denySet = denied.ToHashSet(StringComparer.Ordinal);
-        if (grantSet.Overlaps(denySet))
-        {
-            throw new DomainException(Texts.T("Дозвіл не може бути одночасно наданий і заборонений."));
-        }
-
-        var unknown = grantSet.Concat(denySet).FirstOrDefault(static p => !Permissions.Codes.Contains(p));
-        if (unknown is not null)
-        {
-            throw new DomainException(Texts.T("Невідомий дозвіл «{0}».", unknown));
-        }
-
-        _permissionOverrides.Clear();
-        _permissionOverrides.AddRange(grantSet.Select(p => new UserPermissionOverride(Id, p, isGranted: true)));
-        _permissionOverrides.AddRange(denySet.Select(p => new UserPermissionOverride(Id, p, isGranted: false)));
-    }
 }

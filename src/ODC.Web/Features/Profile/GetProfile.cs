@@ -31,12 +31,13 @@ public static class GetProfile
         /// <inheritdoc />
         public async Task<Result<ProfileDto>> HandleAsync(Query request, CancellationToken cancellationToken)
         {
-            var user = await account.LoadWithPositionsAsync(cancellationToken);
+            var user = await account.LoadAsync(cancellationToken);
             if (user is null)
             {
                 return Error.Unauthorized();
             }
 
+            var positions = await account.PositionsAsync(cancellationToken);
             var effective = await permissions.GetEffectivePermissionsAsync(user.Id, cancellationToken);
             var definitions = Permissions.All.Where(p => effective.Contains(p.Code)).ToList();
             return new ProfileDto(
@@ -47,9 +48,8 @@ public static class GetProfile
                 user.MiddleName,
                 user.Email!,
                 user.PhoneNumber,
-                user.Positions
-                    .OrderByDescending(static p => p.IsPrimary)
-                    .Select(static p => new PositionDto(p.OrganizationUnitId, p.OrganizationUnit!.Name, p.RoleId, StoredText.Display(p.Role!.Name), p.Title, p.IsPrimary))
+                positions
+                    .Select(static p => new PositionDto(p.UnitId, p.UnitName, p.RoleId, StoredText.Display(p.RoleName) ?? p.RoleName, p.Title, p.IsPrimary))
                     .ToList(),
                 [.. definitions.Select(static d => d.Module).Distinct().Order()],
                 definitions,
@@ -59,7 +59,7 @@ public static class GetProfile
                 user.LastSignInAt,
                 user.Language,
                 user.PhotoId,
-                await account.CanEditPersonalDataAsync(user, cancellationToken));
+                await account.CanEditPersonalDataAsync(positions, cancellationToken));
         }
     }
 

@@ -4,6 +4,7 @@ using ODC.Web.Endpoints;
 using ODC.Web.Infrastructure.Persistence;
 using ODC.Web.Messaging;
 using ODC.Web.Security;
+using ODC.Web.Shared.Access;
 using ODC.Web.Shared.Domain.Access;
 using ODC.Web.Shared.Kernel;
 using ODC.Web.Shared.Paging;
@@ -28,33 +29,53 @@ public static class ListUnitStaff
     /// Reads the page.
     /// </summary>
     /// <param name="db">The database context.</param>
-    internal sealed class Handler(ApplicationDbContext db) : IRequestHandler<Query, Result<PagedResult<UnitStaffItem>>>
+    /// <param name="catalog">The shared catalogs (roles).</param>
+    internal sealed class Handler(OrganizationDbContext db, Catalog catalog) : IRequestHandler<Query, Result<PagedResult<UnitStaffItem>>>
     {
         /// <inheritdoc />
         public async Task<Result<PagedResult<UnitStaffItem>>> HandleAsync(Query request, CancellationToken cancellationToken)
         {
             ArgumentNullException.ThrowIfNull(request);
-            var positions = db.StaffPositions.AsNoTracking().Where(p => p.OrganizationUnitId == request.UnitId && p.User!.IsActive);
+            var roles = await catalog.RolesAsync(cancellationToken);
+            var leaders = roles.Values.Where(static r => r.IsLeadership).Select(static r => r.Id).ToList();
+            var positions = db.StaffPositions.AsNoTracking().Where(p => p.OrganizationUnitId == request.UnitId && p.Member!.IsActive);
             if (request.Paging.Search is { } search)
             {
                 var term = search;
-                positions = positions.Where(p => p.User!.LastName.Contains(term) || p.User.FirstName.Contains(term));
+                positions = positions.Where(p => p.Member!.LastName.Contains(term) || p.Member.FirstName.Contains(term));
             }
 
-            return await positions
-                .OrderByDescending(static p => p.Role!.IsLeadership)
-                .ThenBy(static p => p.User!.LastName)
-                .ThenBy(static p => p.User!.FirstName)
-                .Select(static p => new UnitStaffItem(
+            var page = await positions
+                .OrderByDescending(p => leaders.Contains(p.RoleId))
+                .ThenBy(static p => p.Member!.LastName)
+                .ThenBy(static p => p.Member!.FirstName)
+                .Select(static p => new
+                {
                     p.UserId,
-                    p.User!.LastName + " " + p.User.FirstName + (p.User.MiddleName != null ? " " + p.User.MiddleName : string.Empty),
-                    p.Title ?? StoredText.Display(p.Role!.Name),
-                    p.User.Email!,
-                    p.User.PhoneNumber,
+                    Name = p.Member!.LastName + " " + p.Member.FirstName + (p.Member.MiddleName != null ? " " + p.Member.MiddleName : string.Empty),
+                    p.Title,
+                    p.RoleId,
+                    p.Member.Email,
+                    p.Member.PhoneNumber,
                     p.IsPrimary,
-                    p.Role!.IsLeadership,
-                    p.User.PhotoId))
+                    p.Member.PhotoId,
+                })
                 .ToPagedResultAsync(request.Paging, cancellationToken);
+            return new PagedResult<UnitStaffItem>(
+                [
+                    .. page.Items.Select(p => new UnitStaffItem(
+                        p.UserId,
+                        p.Name,
+                        StoredText.PositionTitle(p.Title, roles.GetValueOrDefault(p.RoleId)?.Name) ?? string.Empty,
+                        p.Email,
+                        p.PhoneNumber,
+                        p.IsPrimary,
+                        roles.GetValueOrDefault(p.RoleId)?.IsLeadership ?? false,
+                        p.PhotoId)),
+                ],
+                page.Page,
+                page.PageSize,
+                page.TotalCount);
         }
     }
 

@@ -22,7 +22,7 @@ public static class ListChats
     /// </summary>
     /// <param name="db">The database context.</param>
     /// <param name="room">The shared chat rules.</param>
-    internal sealed class Handler(ApplicationDbContext db, ChatRoom room) : IRequestHandler<Query, IReadOnlyList<ChatSummary>>
+    internal sealed class Handler(OrganizationDbContext db, ChatRoom room) : IRequestHandler<Query, IReadOnlyList<ChatSummary>>
     {
         /// <inheritdoc />
         public async Task<IReadOnlyList<ChatSummary>> HandleAsync(Query request, CancellationToken cancellationToken)

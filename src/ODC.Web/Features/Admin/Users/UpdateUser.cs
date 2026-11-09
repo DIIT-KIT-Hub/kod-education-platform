@@ -40,7 +40,7 @@ public static class UpdateUser
     /// <param name="directory">The user administration rules.</param>
     /// <param name="audit">The audit logger.</param>
     internal sealed class Handler(
-        ApplicationDbContext db,
+        MasterDbContext db,
         ICurrentUser currentUser,
         IIdentityService identity,
         IAccessScope accessScope,
@@ -73,7 +73,8 @@ public static class UpdateUser
 
             // Positions outside the managed organizations stay as they are; the command may only repeat them.
             var entity = user.Value;
-            var foreign = entity.Positions.Where(p => !scope.Contains(p.OrganizationUnitId)).ToList();
+            var member = await directory.MemberOfAsync(entity, cancellationToken);
+            var foreign = member.Positions.Where(p => !scope.Contains(p.OrganizationUnitId)).ToList();
             if (command.Positions.Any(p => !scope.Contains(p.UnitId) && !foreign.Exists(f => f.OrganizationUnitId == p.UnitId && f.RoleId == p.RoleId)))
             {
                 return Error.Forbidden(Texts.T(UserDirectory.OutsideScopeMessage));
@@ -86,7 +87,7 @@ public static class UpdateUser
             }
 
             var wholeAccount = foreign.Count == 0;
-            if (!wholeAccount && !directory.IsAccountUnchanged(entity, email, command))
+            if (!wholeAccount && !directory.IsAccountUnchanged(entity, member, email, command))
             {
                 return Error.Forbidden(Texts.T(UserDirectory.SharedAccountMessage));
             }
@@ -111,13 +112,19 @@ public static class UpdateUser
                     entity.UpdatePersonalData(command.LastName, command.FirstName, command.MiddleName, command.PhoneNumber);
                     if (currentUser.Has(Permissions.Roles.Manage))
                     {
-                        entity.SetPermissionOverrides(command.GrantedPermissions, command.DeniedPermissions);
+                        member.SetPermissionOverrides(command.GrantedPermissions, command.DeniedPermissions);
                     }
                 }
 
-                entity.SetPositions(positions);
+                member.SetPositions(positions);
                 audit.Add(AuditActions.UserUpdated, nameof(User), entity.Id.ToString(), $"Змінено {entity.Email}");
-                return await identity.UpdateAsync(entity);
+                var updated = await identity.UpdateAsync(entity);
+                if (updated.IsSuccess)
+                {
+                    await directory.SaveMembersAsync(cancellationToken);
+                }
+
+                return updated;
             });
         }
     }

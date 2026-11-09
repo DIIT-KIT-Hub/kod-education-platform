@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using ODC.Web.Endpoints;
 using ODC.Web.Messaging;
+using ODC.Web.Shared.Access;
 using ODC.Web.Shared.Models;
 using ODC.Web.Shared.Text;
 
@@ -22,7 +23,8 @@ public static class SearchChatPeople
     /// Handles the request.
     /// </summary>
     /// <param name="room">The shared chat rules.</param>
-    internal sealed class Handler(ChatRoom room) : IRequestHandler<Query, IReadOnlyList<UserLookupItem>>
+    /// <param name="directory">The positions of people.</param>
+    internal sealed class Handler(ChatRoom room, PositionDirectory directory) : IRequestHandler<Query, IReadOnlyList<UserLookupItem>>
     {
         /// <inheritdoc />
         public async Task<IReadOnlyList<UserLookupItem>> HandleAsync(Query request, CancellationToken cancellationToken)
@@ -36,26 +38,13 @@ public static class SearchChatPeople
             }
 
             // Every word must match a part of the name or the e-mail ("Іван Петренко" finds "Петренко Іван").
-            var people = room.ChatUsers().Where(u => u.Id != me);
+            var people = (await room.ChatUsersAsync(cancellationToken)).Where(u => u.Id != me);
             foreach (var word in words.Take(4))
             {
-                people = people.Where(u => u.LastName.Contains(word) || u.FirstName.Contains(word) || (u.MiddleName != null && u.MiddleName.Contains(word)) || u.Email!.Contains(word));
+                people = people.Where(u => u.LastName.Contains(word) || u.FirstName.Contains(word) || (u.MiddleName != null && u.MiddleName.Contains(word)) || u.Email.Contains(word));
             }
 
-            return await people
-                .AsNoTracking()
-                .OrderBy(static u => u.LastName).ThenBy(static u => u.FirstName)
-                .Take(20)
-                .Select(static u => new UserLookupItem(
-                    u.Id,
-                    u.LastName + " " + u.FirstName + (u.MiddleName != null ? " " + u.MiddleName : string.Empty),
-                    u.Email!,
-                    StoredText.PositionInUnit(
-                        u.Positions.Where(static p => p.IsPrimary).Select(static p => p.Title).FirstOrDefault(),
-                        u.Positions.Where(static p => p.IsPrimary).Select(static p => p.Role!.Name).FirstOrDefault(),
-                        u.Positions.Where(static p => p.IsPrimary).Select(static p => p.OrganizationUnit!.Name).FirstOrDefault()),
-                    u.PhotoId))
-                .ToListAsync(cancellationToken);
+            return await directory.LookupAsync(people.OrderBy(static u => u.LastName).ThenBy(static u => u.FirstName).Take(20), cancellationToken);
         }
     }
 

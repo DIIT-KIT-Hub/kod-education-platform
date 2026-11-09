@@ -16,7 +16,7 @@ namespace ODC.Web.Features.News.Discussion;
 /// <param name="db">The database context.</param>
 /// <param name="currentUser">The current user.</param>
 /// <param name="accessScope">The administration scopes.</param>
-internal sealed class DiscussionAccess(ApplicationDbContext db, ICurrentUser currentUser, IAccessScope accessScope)
+internal sealed class DiscussionAccess(OrganizationDbContext db, ICurrentUser currentUser, IAccessScope accessScope)
 {
     /// <summary>
     /// The default number of threads per page.

@@ -28,7 +28,7 @@ public static class HideChatMessage
     /// <param name="events">Delivers changes to the members' pages.</param>
     /// <param name="timeProvider">The clock.</param>
     /// <param name="room">The shared chat rules.</param>
-    internal sealed class Handler(ApplicationDbContext db, IChatEvents events, TimeProvider timeProvider, ChatRoom room) : IRequestHandler<Command, Result<ChatMessageDto>>
+    internal sealed class Handler(OrganizationDbContext db, IChatEvents events, TimeProvider timeProvider, ChatRoom room) : IRequestHandler<Command, Result<ChatMessageDto>>
     {
         /// <inheritdoc />
         public async Task<Result<ChatMessageDto>> HandleAsync(Command request, CancellationToken cancellationToken)

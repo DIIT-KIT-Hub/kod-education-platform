@@ -14,7 +14,8 @@ namespace ODC.Web.Features.Profile;
 /// <param name="db">The database context.</param>
 /// <param name="currentUser">The current user.</param>
 /// <param name="accessScope">The administration scopes.</param>
-internal sealed class ProfileAccount(ApplicationDbContext db, ICurrentUser currentUser, IAccessScope accessScope)
+/// <param name="directory">The positions of people.</param>
+internal sealed class ProfileAccount(MasterDbContext db, ICurrentUser currentUser, IAccessScope accessScope, PositionDirectory directory)
 {
     /// <summary>
     /// The route group of the profile endpoints.
@@ -40,17 +41,12 @@ internal sealed class ProfileAccount(ApplicationDbContext db, ICurrentUser curre
     }
 
     /// <summary>
-    /// Loads the tracked current user with positions.
+    /// The positions of the current user, the primary one first.
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>The user or <see langword="null"/>.</returns>
-    public async Task<User?> LoadWithPositionsAsync(CancellationToken cancellationToken)
-        => currentUser.Id is { } me
-            ? await db.Users
-                .Include(static u => u.Positions).ThenInclude(static p => p.OrganizationUnit)
-                .Include(static u => u.Positions).ThenInclude(static p => p.Role)
-                .FirstOrDefaultAsync(u => u.Id == me, cancellationToken)
-            : null;
+    /// <returns>The positions.</returns>
+    public async Task<List<HeldPosition>> PositionsAsync(CancellationToken cancellationToken)
+        => currentUser.Id is { } me ? await directory.AllAsync(me, cancellationToken) : [];
 
     /// <summary>
     /// Loads the tracked current user without related data.
@@ -64,10 +60,10 @@ internal sealed class ProfileAccount(ApplicationDbContext db, ICurrentUser curre
     /// Determines whether the user may change own name and e-mail: like in the user administration, only an
     /// administrator of users whose scope covers every position of the account (a system administrator always).
     /// </summary>
-    /// <param name="user">The current user with positions.</param>
+    /// <param name="positions">The current user's positions.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns><see langword="true"/> when allowed.</returns>
-    public async Task<bool> CanEditPersonalDataAsync(User user, CancellationToken cancellationToken)
+    public async Task<bool> CanEditPersonalDataAsync(IReadOnlyCollection<HeldPosition> positions, CancellationToken cancellationToken)
     {
         if (!currentUser.Has(Permissions.Users.Manage))
         {
@@ -75,6 +71,6 @@ internal sealed class ProfileAccount(ApplicationDbContext db, ICurrentUser curre
         }
 
         var scope = await accessScope.GetAdministrationScopeAsync(Permissions.Users.Manage, cancellationToken);
-        return scope.Covers([.. user.Positions.Select(static p => p.OrganizationUnitId)]);
+        return scope.Covers([.. positions.Select(static p => p.UnitId)]);
     }
 }

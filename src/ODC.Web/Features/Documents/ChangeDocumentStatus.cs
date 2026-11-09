@@ -34,7 +34,7 @@ public static class ChangeDocumentStatus
     /// <param name="desk">The shared document rules.</param>
     /// <param name="audit">The audit logger.</param>
     /// <param name="timeProvider">The clock.</param>
-    internal sealed class Handler(ApplicationDbContext db, ICurrentUser currentUser, DocumentDesk desk, IAuditLogger audit, TimeProvider timeProvider)
+    internal sealed class Handler(OrganizationDbContext db, ICurrentUser currentUser, DocumentDesk desk, IAuditLogger audit, TimeProvider timeProvider)
         : IRequestHandler<Command, Result>
     {
         /// <inheritdoc />

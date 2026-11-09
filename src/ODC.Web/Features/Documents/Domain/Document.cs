@@ -115,7 +115,7 @@ public sealed class Document : AuditableEntity
     /// <summary>
     /// Gets the author.
     /// </summary>
-    public User? Author { get; private set; }
+    public Member? Author { get; private set; }
 
     /// <summary>
     /// Gets the identifier of the unit the document belongs to.

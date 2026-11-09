@@ -9,9 +9,10 @@ namespace ODC.Web.Shared.Access;
 /// <summary>
 /// Default <see cref="IAccessScope"/>; caches the scopes for the lifetime of the scope (request or circuit).
 /// </summary>
-/// <param name="db">The database context.</param>
+/// <param name="db">The organization's database.</param>
+/// <param name="catalog">The shared catalogs (roles, unit types).</param>
 /// <param name="currentUser">The current user.</param>
-internal sealed class AccessScope(ApplicationDbContext db, ICurrentUser currentUser) : IAccessScope
+internal sealed class AccessScope(OrganizationDbContext db, Catalog catalog, ICurrentUser currentUser) : IAccessScope
 {
     /// <summary>
     /// The cached administration scopes by permission.
@@ -175,13 +176,9 @@ internal sealed class AccessScope(ApplicationDbContext db, ICurrentUser currentU
         var positions = await db.StaffPositions
             .AsNoTracking()
             .Where(p => p.UserId == userId)
-            .Select(static p => new
-            {
-                p.OrganizationUnitId,
-                p.Role!.Code,
-                Permissions = p.Role.Permissions.Where(static rp => rp.ClaimType == PermissionClaimTypes.Permission).Select(static rp => rp.ClaimValue!).ToList(),
-            })
+            .Select(static p => new { p.OrganizationUnitId, p.RoleId })
             .ToListAsync(cancellationToken);
+        var roles = await catalog.RolesAsync(cancellationToken);
 
         var granted = await db.UserPermissionOverrides
             .AsNoTracking()
@@ -191,10 +188,9 @@ internal sealed class AccessScope(ApplicationDbContext db, ICurrentUser currentU
 
         return _positions =
         [
-            .. positions.Select(p => new PositionGrant(
-                p.OrganizationUnitId,
-                p.Code == SystemRoles.Administrator,
-                p.Permissions.Concat(granted).ToHashSet(StringComparer.Ordinal))),
+            .. positions.Select(p => roles.GetValueOrDefault(p.RoleId) is { } role
+                ? new PositionGrant(p.OrganizationUnitId, role.IsAdministrator, role.Permissions.Concat(granted).ToHashSet(StringComparer.Ordinal))
+                : new PositionGrant(p.OrganizationUnitId, IsAdministrator: false, granted.ToHashSet(StringComparer.Ordinal))),
         ];
     }
 
@@ -204,7 +200,7 @@ internal sealed class AccessScope(ApplicationDbContext db, ICurrentUser currentU
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The hierarchy.</returns>
     private async Task<UnitHierarchy> GetHierarchyAsync(CancellationToken cancellationToken)
-        => _hierarchy ??= await UnitHierarchy.LoadAsync(db, cancellationToken);
+        => _hierarchy ??= await UnitHierarchy.LoadAsync(db, catalog, cancellationToken);
 
     /// <summary>
     /// A position of the current user and the permissions it grants (its role's permissions and the individual grants).

@@ -29,7 +29,7 @@ public static class DownloadChatAttachment
     /// <param name="db">The database context.</param>
     /// <param name="files">The private file storage.</param>
     /// <param name="room">The shared chat rules.</param>
-    internal sealed class Handler(ApplicationDbContext db, IFileStorage files, ChatRoom room) : IRequestHandler<Query, Result<DownloadableFile>>
+    internal sealed class Handler(OrganizationDbContext db, IFileStorage files, ChatRoom room) : IRequestHandler<Query, Result<DownloadableFile>>
     {
         /// <inheritdoc />
         public async Task<Result<DownloadableFile>> HandleAsync(Query request, CancellationToken cancellationToken)

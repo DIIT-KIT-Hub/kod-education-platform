@@ -28,6 +28,8 @@ namespace ODC.UnitTests.Application;
 
 /// <summary>
 /// An in-memory cabinet with two organizations, A (with a nested subsidiary S) and B, and the services as seen by one of its users.
+/// Accounts, roles and unit types live in <see cref="Master"/>; the structure, members with their positions and everything
+/// the organizations do in <see cref="Db"/> (the organizations' database), as in production.
 /// </summary>
 internal sealed class TwoOrganizations : IDisposable
 {
@@ -35,10 +37,15 @@ internal sealed class TwoOrganizations : IDisposable
     /// Initializes a new instance of the <see cref="TwoOrganizations"/> class.
     /// </summary>
     public TwoOrganizations()
-        : this(new DbContextOptionsBuilder<ApplicationDbContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .ConfigureWarnings(static w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning))
-            .Options)
+        : this(
+            new DbContextOptionsBuilder<MasterDbContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .ConfigureWarnings(static w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning))
+                .Options,
+            new DbContextOptionsBuilder<OrganizationDbContext>()
+                .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                .ConfigureWarnings(static w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning))
+                .Options)
     {
     }
 
@@ -46,14 +53,19 @@ internal sealed class TwoOrganizations : IDisposable
     /// Initializes a new instance of the <see cref="TwoOrganizations"/> class on a given database (PostgreSQL for the
     /// slices the in-memory provider cannot run).
     /// </summary>
-    /// <param name="options">The options of the context.</param>
-    public TwoOrganizations(DbContextOptions<ApplicationDbContext> options)
+    /// <param name="master">The options of the master database.</param>
+    /// <param name="organization">The options of the organizations' database.</param>
+    public TwoOrganizations(DbContextOptions<MasterDbContext> master, DbContextOptions<OrganizationDbContext> organization)
     {
-        Db = new ApplicationDbContext(options);
+        Db = new OrganizationDbContext(organization);
+
+        // The organization's copies of the accounts follow the accounts, as MemberSync does in production.
+        var scopes = new ServiceCollection().AddSingleton(Db).BuildServiceProvider().GetRequiredService<IServiceScopeFactory>();
+        Master = new MasterDbContext(new DbContextOptionsBuilder<MasterDbContext>(master).AddInterceptors(new MemberSync(scopes)).Options);
 
         OrganizationType = new UnitType("ORGANIZATION", "Організація", isOrganization: true);
         DivisionType = new UnitType("DIVISION", "Відділ", isOrganization: false);
-        Db.UnitTypes.AddRange(OrganizationType, DivisionType);
+        Master.UnitTypes.AddRange(OrganizationType, DivisionType);
 
         A = Unit("A", OrganizationType, null);
         AHr = Unit("A-HR", DivisionType, A);
@@ -77,11 +89,17 @@ internal sealed class TwoOrganizations : IDisposable
         StewardA = Person("steward.a@example.com", (AHr, Steward, true));
         Admin = Person("admin@example.com", (A, Administrator, true));
         HelpDeskB = Person("help.b@example.com", (BProj, HelpDesk, true));
+
+        // The members first: saving the accounts copies them into the organizations' database.
         Db.SaveChanges();
+        Master.SaveChanges();
     }
 
-    /// <summary>Gets the database.</summary>
-    public ApplicationDbContext Db { get; }
+    /// <summary>Gets the master database (accounts, roles, unit types, requests, images).</summary>
+    public MasterDbContext Master { get; }
+
+    /// <summary>Gets the organizations' database (structure, members, documents, news, chats, notifications).</summary>
+    public OrganizationDbContext Db { get; }
 
     /// <summary>Gets the organization type.</summary>
     public UnitType OrganizationType { get; }
@@ -176,7 +194,11 @@ internal sealed class TwoOrganizations : IDisposable
     public (IReadOnlyList<UserSheetRow> Rows, SpreadsheetFormat Format)? Written { get; internal set; }
 
     /// <inheritdoc />
-    public void Dispose() => Db.Dispose();
+    public void Dispose()
+    {
+        Master.Dispose();
+        Db.Dispose();
+    }
 
     /// <summary>
     /// Builds the services as seen by a user with the effective permissions of their roles.
@@ -186,13 +208,15 @@ internal sealed class TwoOrganizations : IDisposable
     /// <returns>The services.</returns>
     public Services As(User user, Action<IServiceCollection>? configure = null)
     {
-        var permissions = Task.Run(() => new PermissionResolver(Db).GetEffectivePermissionsAsync(user.Id, CancellationToken.None)).GetAwaiter().GetResult();
+        var permissions = Task.Run(() => new PermissionResolver(Db, new Catalog(Master)).GetEffectivePermissionsAsync(user.Id, CancellationToken.None)).GetAwaiter().GetResult();
         var services = new ServiceCollection()
             .AddLogging()
             .AddApplication();
 
         // The infrastructure of production (AddInfrastructure) is replaced by the shared in-memory database and fakes.
+        services.AddSingleton(Master);
         services.AddSingleton(Db);
+        services.AddSingleton<IDomainEventSource>(Master);
         services.AddSingleton<IDomainEventSource>(Db);
         services.AddSingleton<ICurrentUser>(new FakeCurrentUser(user.Id, permissions));
         services.AddSingleton(TimeProvider.System);
@@ -203,7 +227,7 @@ internal sealed class TwoOrganizations : IDisposable
         services.AddSingleton<INotificationEvents>(NotificationEvents);
         services.AddSingleton<INewsDiscussionEvents, SilentDiscussionEvents>();
         services.AddSingleton<IEmailOutbox>(Emails);
-        services.AddSingleton<IIdentityService>(new FakeIdentity(Db));
+        services.AddSingleton<IIdentityService>(new FakeIdentity(Master));
         services.AddSingleton<IUserSpreadsheet>(new FakeSpreadsheet(this));
         services.AddSingleton<IAuditLogger, FakeAudit>();
         services.AddSingleton<IMarkdownRenderer, FakeMarkdown>();
@@ -214,6 +238,13 @@ internal sealed class TwoOrganizations : IDisposable
         var provider = services.BuildServiceProvider();
         return new Services(provider);
     }
+
+    /// <summary>
+    /// The current positions of a person (the organizations' database).
+    /// </summary>
+    /// <param name="user">The person.</param>
+    /// <returns>The positions.</returns>
+    public List<StaffPosition> PositionsOf(User user) => [.. Db.StaffPositions.Where(p => p.UserId == user.Id)];
 
     /// <summary>
     /// Adds a news article.
@@ -255,7 +286,7 @@ internal sealed class TwoOrganizations : IDisposable
     {
         var role = new Role(code, code, null, isSystem: false);
         role.SetPermissions(permissions);
-        Db.Roles.Add(role);
+        Master.Roles.Add(role);
         return role;
     }
 
@@ -268,8 +299,10 @@ internal sealed class TwoOrganizations : IDisposable
     private User Person(string email, params (OrganizationUnit Unit, Role Role, bool IsPrimary)[] positions)
     {
         var user = new User(email, "Тест", email.Split('@')[0], null) { NormalizedEmail = email.ToUpperInvariant() };
-        user.SetPositions(positions.Select(static p => (p.Unit.Id, p.Role.Id, (string?)null, p.IsPrimary)));
-        Db.Users.Add(user);
+        Master.Users.Add(user);
+        var member = new Member(MemberProfile.Of(user));
+        member.SetPositions(positions.Select(static p => (p.Unit.Id, p.Role.Id, (string?)null, p.IsPrimary)));
+        Db.Members.Add(member);
         return user;
     }
 
@@ -469,8 +502,8 @@ internal sealed class TwoOrganizations : IDisposable
     /// <summary>
     /// Identity operations that only save the context.
     /// </summary>
-    /// <param name="db">The database context.</param>
-    private sealed class FakeIdentity(ApplicationDbContext db) : IIdentityService
+    /// <param name="db">The master database.</param>
+    private sealed class FakeIdentity(MasterDbContext db) : IIdentityService
     {
         /// <inheritdoc />
         public async Task<Result> CreateAsync(User user)

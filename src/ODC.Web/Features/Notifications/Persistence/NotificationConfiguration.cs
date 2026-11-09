@@ -24,7 +24,7 @@ internal sealed class NotificationConfiguration : IEntityTypeConfiguration<Notif
         builder.HasIndex(static n => new { n.UserId, n.EntityId });
         builder.HasIndex(static n => n.UserId).HasFilter("read_at IS NULL").HasDatabaseName("ix_notifications_user_id_unread");
 
-        builder.HasOne<User>()
+        builder.HasOne<Member>()
             .WithMany()
             .HasForeignKey(static n => n.UserId)
             .OnDelete(DeleteBehavior.Cascade);

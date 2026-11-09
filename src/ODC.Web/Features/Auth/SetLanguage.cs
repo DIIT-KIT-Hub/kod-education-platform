@@ -29,7 +29,7 @@ public static class SetLanguage
     /// </summary>
     /// <param name="db">The database context.</param>
     /// <param name="currentUser">The current user.</param>
-    internal sealed class Handler(ApplicationDbContext db, ICurrentUser currentUser) : IRequestHandler<Command, Result>
+    internal sealed class Handler(MasterDbContext db, ICurrentUser currentUser) : IRequestHandler<Command, Result>
     {
         /// <inheritdoc />
         public async Task<Result> HandleAsync(Command request, CancellationToken cancellationToken)

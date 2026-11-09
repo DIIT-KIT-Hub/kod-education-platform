@@ -25,7 +25,7 @@ public static class MarkAllNotificationsRead
     /// <param name="currentUser">The current user.</param>
     /// <param name="inbox">The user's notifications.</param>
     /// <param name="timeProvider">The clock.</param>
-    internal sealed class Handler(ApplicationDbContext db, ICurrentUser currentUser, NotificationInbox inbox, TimeProvider timeProvider)
+    internal sealed class Handler(OrganizationDbContext db, ICurrentUser currentUser, NotificationInbox inbox, TimeProvider timeProvider)
         : IRequestHandler<Command, Result>
     {
         /// <inheritdoc />

@@ -109,7 +109,7 @@ public sealed class ChatMessage : AuditableEntity
     /// <summary>
     /// Gets the author.
     /// </summary>
-    public User? Author { get; private set; }
+    public Member? Author { get; private set; }
 
     /// <summary>
     /// Gets the author of the original message when this one was forwarded from another chat (the first author: a
@@ -120,7 +120,7 @@ public sealed class ChatMessage : AuditableEntity
     /// <summary>
     /// Gets the author of the original message of a forwarded one.
     /// </summary>
-    public User? ForwardedFrom { get; private set; }
+    public Member? ForwardedFrom { get; private set; }
 
     /// <summary>
     /// Gets the identifier the author's browser gave the message (unique per author and chat).

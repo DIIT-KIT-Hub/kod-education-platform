@@ -30,7 +30,7 @@ public static class RecordFilesSigned
     /// </summary>
     /// <param name="db">The database context.</param>
     /// <param name="audit">The audit logger.</param>
-    internal sealed class Handler(ApplicationDbContext db, IAuditLogger audit) : IRequestHandler<FileSigningRecord, Result>
+    internal sealed class Handler(MasterDbContext db, IAuditLogger audit) : IRequestHandler<FileSigningRecord, Result>
     {
         /// <inheritdoc />
         public async Task<Result> HandleAsync(FileSigningRecord request, CancellationToken cancellationToken)

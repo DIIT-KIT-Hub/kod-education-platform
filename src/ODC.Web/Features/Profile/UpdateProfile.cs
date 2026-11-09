@@ -33,14 +33,14 @@ public static class UpdateProfile
     /// <param name="account">The current user's account.</param>
     /// <param name="identity">The identity store.</param>
     /// <param name="audit">The audit logger.</param>
-    internal sealed class Handler(ApplicationDbContext db, ProfileAccount account, IIdentityService identity, IAuditLogger audit) : IRequestHandler<Command, Result>
+    internal sealed class Handler(MasterDbContext db, ProfileAccount account, IIdentityService identity, IAuditLogger audit) : IRequestHandler<Command, Result>
     {
         /// <inheritdoc />
         public async Task<Result> HandleAsync(Command request, CancellationToken cancellationToken)
         {
             ArgumentNullException.ThrowIfNull(request);
             var update = request.Changes;
-            var user = await account.LoadWithPositionsAsync(cancellationToken);
+            var user = await account.LoadAsync(cancellationToken);
             if (user is null)
             {
                 return Error.Unauthorized();
@@ -69,7 +69,7 @@ public static class UpdateProfile
                 });
             }
 
-            if (!await account.CanEditPersonalDataAsync(user, cancellationToken))
+            if (!await account.CanEditPersonalDataAsync(await account.PositionsAsync(cancellationToken), cancellationToken))
             {
                 return Error.Forbidden(Texts.T("ПІБ та електронну пошту змінює адміністратор Вашої організації або відділ кадрів."));
             }

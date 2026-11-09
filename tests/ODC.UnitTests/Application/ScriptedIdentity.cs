@@ -10,7 +10,7 @@ namespace ODC.UnitTests.Application;
 /// An identity service whose answers the test sets and whose calls it records.
 /// </summary>
 /// <param name="db">The database (creating and updating users saves it).</param>
-internal sealed class ScriptedIdentity(ApplicationDbContext db) : IIdentityService
+internal sealed class ScriptedIdentity(MasterDbContext db) : IIdentityService
 {
     /// <summary>Gets or sets the authenticator code accepted by <see cref="VerifyAuthenticatorCodeAsync"/>.</summary>
     public string ValidCode { get; set; } = "123456";

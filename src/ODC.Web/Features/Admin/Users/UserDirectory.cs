@@ -18,14 +18,18 @@ namespace ODC.Web.Features.Admin.Users;
 /// administrator's positions (<see cref="AdministrationScope"/>), and nobody manages an account with more permissions
 /// than their own (no privilege escalation).
 /// </summary>
-/// <param name="db">The database context.</param>
+/// <param name="db">The master database (accounts, roles).</param>
+/// <param name="organization">The organization's database (members, positions, units).</param>
+/// <param name="catalog">The shared catalogs (which unit types are organizations).</param>
 /// <param name="currentUser">The current user.</param>
 /// <param name="permissions">Resolves effective permissions.</param>
 /// <param name="accessScope">The administration scopes.</param>
 /// <param name="outbox">The e-mail outbox.</param>
 /// <param name="emailOptions">The e-mail settings (site address for the links).</param>
 internal sealed class UserDirectory(
-    ApplicationDbContext db,
+    MasterDbContext db,
+    OrganizationDbContext organization,
+    Catalog catalog,
     ICurrentUser currentUser,
     IPermissionResolver permissions,
     IAccessScope accessScope,
@@ -98,20 +102,20 @@ internal sealed class UserDirectory(
         : new DownloadableFile(new MemoryStream(content), $"{baseName}.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
 
     /// <summary>
-    /// Restricts a query to the accounts with at least one position in the scope.
+    /// Restricts a query to the people with at least one position in the scope.
     /// </summary>
-    /// <param name="users">The query.</param>
+    /// <param name="members">The query.</param>
     /// <param name="scope">The administration scope.</param>
     /// <returns>The restricted query.</returns>
-    public static IQueryable<User> InScope(IQueryable<User> users, AdministrationScope scope)
+    public static IQueryable<Member> InScope(IQueryable<Member> members, AdministrationScope scope)
     {
         if (scope.Units is not { } scoped)
         {
-            return users;
+            return members;
         }
 
         var units = scoped.ToList();
-        return users.Where(u => u.Positions.Any(p => units.Contains(p.OrganizationUnitId)));
+        return members.Where(u => u.Positions.Any(p => units.Contains(p.OrganizationUnitId)));
     }
 
     /// <summary>
@@ -122,13 +126,13 @@ internal sealed class UserDirectory(
     public static List<Guid> ScopeUnits(AdministrationScope scope) => scope.Units is { } units ? [.. units] : [];
 
     /// <summary>
-    /// Gets the individually granted or denied permissions of a loaded user.
+    /// Gets the individually granted or denied permissions of a loaded member.
     /// </summary>
-    /// <param name="user">The user with permission overrides.</param>
+    /// <param name="member">The member with permission overrides.</param>
     /// <param name="claimType">The override claim type (<see cref="PermissionClaimTypes"/>).</param>
     /// <returns>The permission codes.</returns>
-    public static HashSet<string> Overrides(User user, string claimType)
-        => user.PermissionOverrides.Where(o => o.ClaimType == claimType).Select(static o => o.ClaimValue!).ToHashSet(StringComparer.Ordinal);
+    public static HashSet<string> Overrides(Member member, string claimType)
+        => member.PermissionOverrides.Where(o => o.ClaimType == claimType).Select(static o => o.ClaimValue).ToHashSet(StringComparer.Ordinal);
 
     /// <summary>
     /// Applies the grid filters.
@@ -137,19 +141,20 @@ internal sealed class UserDirectory(
     /// <param name="filter">The filters.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The filtered query.</returns>
-    public async Task<IQueryable<User>> FilterAsync(IQueryable<User> users, UserQuery filter, CancellationToken cancellationToken)
+    public async Task<IQueryable<Member>> FilterAsync(IQueryable<Member> users, UserQuery filter, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(filter);
         users = filter.Status switch
         {
             UserStatusFilter.Active => users.Where(static u => u.IsActive),
             UserStatusFilter.Blocked => users.Where(static u => !u.IsActive),
-            UserStatusFilter.AwaitingActivation => users.Where(static u => u.IsActive && u.PasswordHash == null),
+            UserStatusFilter.AwaitingActivation => users.Where(static u => u.IsActive && u.AwaitsActivation),
             _ => users,
         };
 
         if (filter.UnitId is { } unitId)
         {
-            var hierarchy = await UnitHierarchy.LoadAsync(db, cancellationToken);
+            var hierarchy = await UnitHierarchy.LoadAsync(organization, catalog, cancellationToken);
             var subtree = hierarchy.WithDescendants([unitId]).ToList();
             users = users.Where(u => u.Positions.Any(p => subtree.Contains(p.OrganizationUnitId)));
         }
@@ -166,7 +171,7 @@ internal sealed class UserDirectory(
                 u.LastName.Contains(term)
                 || u.FirstName.Contains(term)
                 || (u.MiddleName != null && u.MiddleName.Contains(term))
-                || u.Email!.Contains(term));
+                || u.Email.Contains(term));
         }
 
         return users;
@@ -192,7 +197,7 @@ internal sealed class UserDirectory(
         var unitIds = positions.Select(static p => p.UnitId).Distinct().ToList();
         var roleIds = positions.Select(static p => p.RoleId).Distinct().ToList();
 
-        if (await db.OrganizationUnits.CountAsync(u => unitIds.Contains(u.Id), cancellationToken) != unitIds.Count)
+        if (await organization.OrganizationUnits.CountAsync(u => unitIds.Contains(u.Id), cancellationToken) != unitIds.Count)
         {
             return Error.Validation(Texts.T("Обраний підрозділ не знайдено."));
         }
@@ -214,18 +219,19 @@ internal sealed class UserDirectory(
     /// for owners of <c>roles.manage</c>, the individual permissions.
     /// </summary>
     /// <param name="user">The stored account.</param>
+    /// <param name="member">The account's member with the individual permissions.</param>
     /// <param name="email">The normalized requested e-mail.</param>
     /// <param name="command">The command.</param>
     /// <returns><see langword="true"/> when only the positions may change.</returns>
-    public bool IsAccountUnchanged(User user, string email, SaveUserCommand command)
+    public bool IsAccountUnchanged(User user, Member member, string email, SaveUserCommand command)
         => string.Equals(user.Email, email, StringComparison.OrdinalIgnoreCase)
             && Same(user.LastName, command.LastName)
             && Same(user.FirstName, command.FirstName)
             && Same(user.MiddleName, command.MiddleName)
             && Same(user.PhoneNumber, command.PhoneNumber)
             && (!currentUser.Has(Permissions.Roles.Manage)
-                || (Overrides(user, PermissionClaimTypes.Permission).SetEquals(command.GrantedPermissions)
-                    && Overrides(user, PermissionClaimTypes.DeniedPermission).SetEquals(command.DeniedPermissions)));
+                || (Overrides(member, PermissionClaimTypes.Permission).SetEquals(command.GrantedPermissions)
+                    && Overrides(member, PermissionClaimTypes.DeniedPermission).SetEquals(command.DeniedPermissions)));
 
     /// <summary>
     /// Loads a user for a credential operation (<c>users.security</c>).
@@ -251,11 +257,9 @@ internal sealed class UserDirectory(
     /// <returns>The tracked user.</returns>
     public async Task<Result<User>> LoadForManagementAsync(Guid id, AdministrationScope scope, bool requireWholeAccount, CancellationToken cancellationToken)
     {
-        var user = await db.Users
-            .Include(static u => u.Positions)
-            .Include(static u => u.PermissionOverrides)
-            .FirstOrDefaultAsync(u => u.Id == id, cancellationToken);
-        var units = user?.Positions.Select(static p => p.OrganizationUnitId).ToList() ?? [];
+        ArgumentNullException.ThrowIfNull(scope);
+        var user = await db.Users.FirstOrDefaultAsync(u => u.Id == id, cancellationToken);
+        var units = await organization.StaffPositions.Where(p => p.UserId == id).Select(static p => p.OrganizationUnitId).ToListAsync(cancellationToken);
         if (user is null || !scope.Overlaps(units))
         {
             return NotFound();
@@ -277,6 +281,51 @@ internal sealed class UserDirectory(
 
         return user;
     }
+
+    /// <summary>
+    /// Loads the tracked member of an account with its positions and individual permissions, creating it from the account
+    /// when the organization does not know the person yet.
+    /// </summary>
+    /// <param name="user">The account.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The tracked member.</returns>
+    public async Task<Member> MemberOfAsync(User user, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(user);
+        var member = await organization.Members
+            .Include(static m => m.Positions)
+            .Include(static m => m.PermissionOverrides)
+            .FirstOrDefaultAsync(m => m.Id == user.Id, cancellationToken);
+        if (member is null)
+        {
+            member = new Member(MemberProfile.Of(user));
+            organization.Members.Add(member);
+        }
+
+        return member;
+    }
+
+    /// <summary>
+    /// The units of the positions of each account.
+    /// </summary>
+    /// <param name="userIds">The accounts.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The units by account (accounts without positions are left out).</returns>
+    public async Task<Dictionary<Guid, List<Guid>>> PositionUnitsAsync(IReadOnlyCollection<Guid> userIds, CancellationToken cancellationToken)
+    {
+        var positions = await organization.StaffPositions
+            .Where(p => userIds.Contains(p.UserId))
+            .Select(static p => new { p.UserId, p.OrganizationUnitId })
+            .ToListAsync(cancellationToken);
+        return positions.GroupBy(static p => p.UserId).ToDictionary(static g => g.Key, static g => g.Select(static p => p.OrganizationUnitId).ToList());
+    }
+
+    /// <summary>
+    /// Saves the changed positions and individual permissions (the organization's database).
+    /// </summary>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task.</returns>
+    public Task SaveMembersAsync(CancellationToken cancellationToken) => organization.SaveChangesAsync(cancellationToken);
 
     /// <summary>
     /// Sends an account the invitation to activate it (when e-mail is configured).

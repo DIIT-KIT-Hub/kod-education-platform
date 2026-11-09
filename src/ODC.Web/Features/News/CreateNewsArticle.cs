@@ -38,7 +38,7 @@ public static class CreateNewsArticle
     /// <param name="audit">The audit logger.</param>
     /// <param name="timeProvider">The clock.</param>
     internal sealed class Handler(
-        ApplicationDbContext db,
+        OrganizationDbContext db,
         ICurrentUser currentUser,
         NewsDesk desk,
         IRichTextSanitizer sanitizer,
@@ -87,6 +87,7 @@ public static class CreateNewsArticle
                 db.NewsArticles.Add(article);
                 await desk.SyncImagesAsync(article, cancellationToken);
                 audit.Add(AuditActions.NewsChanged, nameof(NewsArticle), article.Id.ToString(), $"Створено «{article.Title}»");
+                await db.SaveChangesAsync(cancellationToken);
                 await media.SaveChangesAsync(cancellationToken);
                 return article.Id;
             });

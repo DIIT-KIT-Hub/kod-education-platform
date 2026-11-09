@@ -29,7 +29,7 @@ public static class ListNotifications
     /// </summary>
     /// <param name="db">The database context.</param>
     /// <param name="currentUser">The current user.</param>
-    internal sealed class Handler(ApplicationDbContext db, ICurrentUser currentUser) : IRequestHandler<Query, PagedResult<NotificationDto>>
+    internal sealed class Handler(OrganizationDbContext db, ICurrentUser currentUser) : IRequestHandler<Query, PagedResult<NotificationDto>>
     {
         /// <inheritdoc />
         public async Task<PagedResult<NotificationDto>> HandleAsync(Query request, CancellationToken cancellationToken)

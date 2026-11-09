@@ -38,7 +38,7 @@ public static class CreateUser
     /// <param name="directory">The user administration rules.</param>
     /// <param name="audit">The audit logger.</param>
     internal sealed class Handler(
-        ApplicationDbContext db,
+        MasterDbContext db,
         ICurrentUser currentUser,
         IIdentityService identity,
         IAccessScope accessScope,
@@ -82,22 +82,39 @@ public static class CreateUser
             {
                 var user = new User(email, command.LastName, command.FirstName, command.MiddleName);
                 user.UpdatePersonalData(command.LastName, command.FirstName, command.MiddleName, command.PhoneNumber);
-                user.SetPositions(command.Positions.Select(static p => (p.UnitId, p.RoleId, p.Title, p.IsPrimary)));
-                if (currentUser.Has(Permissions.Roles.Manage))
-                {
-                    user.SetPermissionOverrides(command.GrantedPermissions, command.DeniedPermissions);
-                }
+                var positions = command.Positions.Select(static p => (p.UnitId, p.RoleId, p.Title, p.IsPrimary)).ToList();
+                var adjustsPermissions = currentUser.Has(Permissions.Roles.Manage);
 
+                // The rules of positions and permissions are checked before the account exists.
+                Apply(new Member(MemberProfile.Of(user)), positions, adjustsPermissions ? command : null);
                 var created = await identity.CreateAsync(user);
                 if (!created.IsSuccess)
                 {
                     return created.Error;
                 }
 
+                Apply(await directory.MemberOfAsync(user, cancellationToken), positions, adjustsPermissions ? command : null);
+                await directory.SaveMembersAsync(cancellationToken);
+
                 await audit.WriteAsync(AuditActions.UserCreated, currentUser.Id, currentUser.DisplayName, $"Створено {user.Email} ({user.FullName})", cancellationToken);
                 directory.Invite(user);
                 return user.Id;
             });
+        }
+
+        /// <summary>
+        /// Gives a member the positions and, when the administrator may adjust them, the individual permissions.
+        /// </summary>
+        /// <param name="member">The member.</param>
+        /// <param name="positions">The positions.</param>
+        /// <param name="permissions">The command with the individual permissions, or null to keep none.</param>
+        private static void Apply(Member member, List<(Guid UnitId, Guid RoleId, string? Title, bool IsPrimary)> positions, SaveUserCommand? permissions)
+        {
+            member.SetPositions(positions);
+            if (permissions is not null)
+            {
+                member.SetPermissionOverrides(permissions.GrantedPermissions, permissions.DeniedPermissions);
+            }
         }
     }
 

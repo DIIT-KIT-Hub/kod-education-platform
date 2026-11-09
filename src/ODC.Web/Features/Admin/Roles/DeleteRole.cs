@@ -28,8 +28,9 @@ public static class DeleteRole
     /// Deletes the role when allowed.
     /// </summary>
     /// <param name="db">The database context.</param>
+    /// <param name="organization">The organization's database (positions with the role).</param>
     /// <param name="audit">The audit logger.</param>
-    internal sealed class Handler(ApplicationDbContext db, IAuditLogger audit) : IRequestHandler<Command, Result>
+    internal sealed class Handler(MasterDbContext db, OrganizationDbContext organization, IAuditLogger audit) : IRequestHandler<Command, Result>
     {
         /// <inheritdoc />
         public async Task<Result> HandleAsync(Command request, CancellationToken cancellationToken)
@@ -46,7 +47,7 @@ public static class DeleteRole
                 return Error.Validation(Texts.T("Системну роль не можна видалити."));
             }
 
-            if (await db.StaffPositions.AnyAsync(p => p.RoleId == request.Id, cancellationToken))
+            if (await organization.StaffPositions.AnyAsync(p => p.RoleId == request.Id, cancellationToken))
             {
                 return Error.Conflict(Texts.T("Роль призначена користувачам — спочатку змініть їхні посади."));
             }

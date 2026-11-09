@@ -25,7 +25,8 @@ public static class GetRole
     /// Reads the role.
     /// </summary>
     /// <param name="db">The database context.</param>
-    internal sealed class Handler(ApplicationDbContext db) : IRequestHandler<Query, Result<RoleDetails>>
+    /// <param name="organization">The organization's database (positions with the role).</param>
+    internal sealed class Handler(MasterDbContext db, OrganizationDbContext organization) : IRequestHandler<Query, Result<RoleDetails>>
     {
         /// <inheritdoc />
         public async Task<Result<RoleDetails>> HandleAsync(Query request, CancellationToken cancellationToken)
@@ -37,7 +38,7 @@ public static class GetRole
                 return RoleRules.NotFound();
             }
 
-            var users = await db.StaffPositions.Where(p => p.RoleId == request.Id).Select(static p => p.UserId).Distinct().CountAsync(cancellationToken);
+            var users = await organization.StaffPositions.Where(p => p.RoleId == request.Id).Select(static p => p.UserId).Distinct().CountAsync(cancellationToken);
             return new RoleDetails(
                 role.Id,
                 role.Code,

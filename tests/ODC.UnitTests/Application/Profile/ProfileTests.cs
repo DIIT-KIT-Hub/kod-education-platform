@@ -34,7 +34,7 @@ public sealed class ProfileTests : IDisposable
     /// </summary>
     public ProfileTests()
     {
-        _identity = new ScriptedIdentity(_world.Db);
+        _identity = new ScriptedIdentity(_world.Master);
     }
 
     public void Dispose() => _world.Dispose();
@@ -201,5 +201,5 @@ public sealed class ProfileTests : IDisposable
     /// </summary>
     /// <param name="user">The user.</param>
     /// <returns>The current state.</returns>
-    private User Reload(User user) => _world.Db.Users.Single(u => u.Id == user.Id);
+    private User Reload(User user) => _world.Master.Users.Single(u => u.Id == user.Id);
 }

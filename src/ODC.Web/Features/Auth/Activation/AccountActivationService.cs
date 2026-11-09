@@ -44,7 +44,7 @@ namespace ODC.Web.Features.Auth.Activation;
 /// <param name="timeProvider">The clock.</param>
 /// <param name="logger">The logger.</param>
 public sealed partial class AccountActivationService(
-    ApplicationDbContext db,
+    MasterDbContext db,
     UserManager<User> userManager,
     IEmailOutbox outbox,
     IOptions<EmailOptions> emailOptions,

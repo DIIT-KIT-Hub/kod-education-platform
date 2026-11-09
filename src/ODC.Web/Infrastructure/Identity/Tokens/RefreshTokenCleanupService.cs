@@ -29,7 +29,7 @@ internal sealed partial class RefreshTokenCleanupService(
             try
             {
                 await using var scope = scopeFactory.CreateAsyncScope();
-                var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                var db = scope.ServiceProvider.GetRequiredService<MasterDbContext>();
                 var now = timeProvider.GetUtcNow();
                 var deleted = await db.RefreshTokenFamilies.Where(f => f.ExpiresAt <= now).ExecuteDeleteAsync(stoppingToken);
 

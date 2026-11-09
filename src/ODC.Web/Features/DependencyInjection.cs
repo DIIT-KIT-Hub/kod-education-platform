@@ -31,6 +31,8 @@ public static class DependencyInjection
             services.AddMessaging(typeof(DependencyInjection).Assembly);
             services.AddScoped<IPermissionResolver, PermissionResolver>();
             services.AddScoped<IAccessScope, AccessScope>();
+            services.AddScoped<Catalog>();
+            services.AddScoped<PositionDirectory>();
 
             services.AddScoped<DocumentDesk>();
             services.AddScoped<NewsDesk>();

@@ -6,8 +6,9 @@ using ODC.Web.Shared.Identity;
 namespace ODC.UnitTests.Infrastructure;
 
 /// <summary>
-/// The audit log writer: who acted, from where and when; <c>Add</c> joins the request's save, <c>WriteAsync</c> saves
-/// at once (sign-in events that happen without a signed-in user).
+/// The audit log writer: who acted, from where and when; <c>Add</c> joins the next save of either database (the change
+/// it describes), <c>WriteAsync</c> saves to the master database at once (sign-in events that happen without a signed-in
+/// user).
 /// </summary>
 public sealed class AuditLoggerTests : IDisposable
 {
@@ -17,22 +18,45 @@ public sealed class AuditLoggerTests : IDisposable
     private static readonly DateTimeOffset Now = new(2026, 5, 1, 8, 30, 0, TimeSpan.Zero);
 
     /// <summary>
-    /// The database.
+    /// The entries waiting for the next save.
     /// </summary>
-    private readonly ApplicationDbContext _db = new(new DbContextOptionsBuilder<ApplicationDbContext>().UseInMemoryDatabase($"audit-{Guid.NewGuid():N}").Options);
+    private readonly PendingAudit _pending = new();
+
+    /// <summary>
+    /// The master database.
+    /// </summary>
+    private readonly MasterDbContext _db;
+
+    /// <summary>
+    /// The organizations' database.
+    /// </summary>
+    private readonly OrganizationDbContext _organization;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="AuditLoggerTests"/> class.
+    /// </summary>
+    public AuditLoggerTests()
+    {
+        _db = new(new DbContextOptionsBuilder<MasterDbContext>().UseInMemoryDatabase($"audit-{Guid.NewGuid():N}").AddInterceptors(new PendingAuditInterceptor(_pending)).Options);
+        _organization = new(new DbContextOptionsBuilder<OrganizationDbContext>().UseInMemoryDatabase($"audit-org-{Guid.NewGuid():N}").AddInterceptors(new PendingAuditInterceptor(_pending)).Options);
+    }
 
     /// <summary>
     /// Gets the cancellation token of the test.
     /// </summary>
     private static CancellationToken Token => TestContext.Current.CancellationToken;
 
-    public void Dispose() => _db.Dispose();
+    public void Dispose()
+    {
+        _db.Dispose();
+        _organization.Dispose();
+    }
 
     [Fact]
     public async Task An_added_entry_names_the_current_user_and_address_and_is_saved_with_the_request()
     {
         var userId = Guid.NewGuid();
-        var logger = new AuditLogger(_db, new Actor(userId, "Петренко Іван", "203.0.113.7"), new Clock());
+        var logger = new AuditLogger(_db, _pending, new Actor(userId, "Петренко Іван", "203.0.113.7"), new Clock());
 
         logger.Add("document.created", "Document", "42", "Наказ № 1");
 
@@ -50,9 +74,22 @@ public sealed class AuditLoggerTests : IDisposable
     }
 
     [Fact]
+    public async Task An_added_entry_is_saved_by_the_database_that_saves_the_change()
+    {
+        var logger = new AuditLogger(_db, _pending, new Actor(Guid.NewGuid(), "Петренко Іван", "203.0.113.7"), new Clock());
+
+        logger.Add("document.created", "Document", "42", "Наказ № 1");
+        await _organization.SaveChangesAsync(Token);
+        await _db.SaveChangesAsync(Token);
+
+        Assert.Equal("document.created", Assert.Single(await _organization.AuditEntries.ToListAsync(Token)).Action);
+        Assert.Empty(await _db.AuditEntries.ToListAsync(Token));
+    }
+
+    [Fact]
     public async Task An_entry_without_a_signed_in_user_keeps_only_the_address()
     {
-        var logger = new AuditLogger(_db, new Actor(null, null, "198.51.100.1"), new Clock());
+        var logger = new AuditLogger(_db, _pending, new Actor(null, null, "198.51.100.1"), new Clock());
 
         logger.Add("auth.activation-failed");
         await _db.SaveChangesAsync(Token);
@@ -68,7 +105,7 @@ public sealed class AuditLoggerTests : IDisposable
     public async Task A_written_entry_is_saved_at_once_for_the_named_user()
     {
         var userId = Guid.NewGuid();
-        var logger = new AuditLogger(_db, new Actor(null, null, "192.0.2.10"), new Clock());
+        var logger = new AuditLogger(_db, _pending, new Actor(null, null, "192.0.2.10"), new Clock());
 
         await logger.WriteAsync("auth.sign-in", userId, "user@example.com", "Пароль і код", Token);
 
@@ -83,7 +120,7 @@ public sealed class AuditLoggerTests : IDisposable
     [Fact]
     public async Task A_written_entry_for_an_unknown_account_has_no_user()
     {
-        var logger = new AuditLogger(_db, new Actor(null, null, null), new Clock());
+        var logger = new AuditLogger(_db, _pending, new Actor(null, null, null), new Clock());
 
         await logger.WriteAsync("auth.sign-in-failed", null, "nobody@example.com", null, Token);
 

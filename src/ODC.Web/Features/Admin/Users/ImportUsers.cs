@@ -41,7 +41,8 @@ public static class ImportUsers
     /// <summary>
     /// Validates every row, then creates and updates the accounts in one transaction and sends the invitations.
     /// </summary>
-    /// <param name="db">The database context.</param>
+    /// <param name="db">The master database (accounts, roles).</param>
+    /// <param name="organization">The organization's database (units).</param>
     /// <param name="currentUser">The current user.</param>
     /// <param name="identity">The identity store.</param>
     /// <param name="permissions">Resolves effective permissions.</param>
@@ -50,7 +51,8 @@ public static class ImportUsers
     /// <param name="directory">The user administration rules.</param>
     /// <param name="audit">The audit logger.</param>
     internal sealed class Handler(
-        ApplicationDbContext db,
+        MasterDbContext db,
+        OrganizationDbContext organization,
         ICurrentUser currentUser,
         IIdentityService identity,
         IPermissionResolver permissions,
@@ -91,7 +93,7 @@ public static class ImportUsers
             }
 
             var scope = await accessScope.GetAdministrationScopeAsync(Permissions.Users.Import, cancellationToken);
-            var units = await db.OrganizationUnits.AsNoTracking().Select(static u => new { u.Id, u.Code }).ToDictionaryAsync(static u => u.Code, static u => u.Id, StringComparer.OrdinalIgnoreCase, cancellationToken);
+            var units = await organization.OrganizationUnits.AsNoTracking().Select(static u => new { u.Id, u.Code }).ToDictionaryAsync(static u => u.Code, static u => u.Id, StringComparer.OrdinalIgnoreCase, cancellationToken);
             var roles = await db.Roles.AsNoTracking().Include(static r => r.Permissions).ToDictionaryAsync(static r => r.Code, StringComparer.OrdinalIgnoreCase, cancellationToken);
             var errors = new List<ImportRowError>();
             var plans = new List<ImportPlan>();
@@ -149,9 +151,9 @@ public static class ImportUsers
 
             var emails = plans.Select(static p => p.Email.ToUpperInvariant()).ToList();
             var existing = await db.Users
-                .Include(static u => u.Positions)
                 .Where(u => emails.Contains(u.NormalizedEmail!))
                 .ToDictionaryAsync(static u => u.Email!, StringComparer.OrdinalIgnoreCase, cancellationToken);
+            var existingUnits = await directory.PositionUnitsAsync([.. existing.Values.Select(static u => u.Id)], cancellationToken);
 
             foreach (var plan in plans)
             {
@@ -167,7 +169,7 @@ public static class ImportUsers
 
                 // Import replaces the personal data and positions, so it may change only accounts that belong entirely to
                 // the importer's organizations.
-                if (!scope.Covers([.. user.Positions.Select(static p => p.OrganizationUnitId)]))
+                if (!scope.Covers(existingUnits.GetValueOrDefault(user.Id) ?? []))
                 {
                     errors.Add(new ImportRowError(plan.Row, plan.Email, Texts.T("Обліковий запис із цією поштою вже існує й має посади в організаціях, якими Ви не керуєте, тому імпорт не може його змінювати.")));
                     continue;
@@ -200,9 +202,11 @@ public static class ImportUsers
 
             try
             {
+                var assigned = new List<(User User, IReadOnlyList<PositionInput> Positions)>();
                 var invited = await db.InTransactionAsync<List<User>>(
                     async ct =>
                     {
+                        assigned.Clear();
                         var issued = new List<User>();
                         foreach (var plan in plans)
                         {
@@ -212,7 +216,7 @@ public static class ImportUsers
                                 user.UpdatePersonalData(data.LastName, data.FirstName, data.MiddleName, data.PhoneNumber ?? user.PhoneNumber);
                                 if (plan.Positions.Count > 0)
                                 {
-                                    user.SetPositions(plan.Positions.Select(static p => (p.UnitId, p.RoleId, p.Title, p.IsPrimary)));
+                                    assigned.Add((user, plan.Positions));
                                 }
 
                                 var blocked = user.IsActive && !plan.IsActive;
@@ -233,7 +237,7 @@ public static class ImportUsers
                             {
                                 var created = new User(plan.Email, data.LastName, data.FirstName, data.MiddleName);
                                 created.UpdatePersonalData(data.LastName, data.FirstName, data.MiddleName, data.PhoneNumber);
-                                created.SetPositions(plan.Positions.Select(static p => (p.UnitId, p.RoleId, p.Title, p.IsPrimary)));
+                                assigned.Add((created, plan.Positions));
                                 created.SetActive(plan.IsActive);
                                 var result = await identity.CreateAsync(created);
                                 if (!result.IsSuccess)
@@ -250,6 +254,14 @@ public static class ImportUsers
                         return issued;
                     },
                     cancellationToken);
+
+                // Positions live in the organization's database: they are written once the accounts are committed.
+                foreach (var (user, positions) in assigned)
+                {
+                    (await directory.MemberOfAsync(user, cancellationToken)).SetPositions(positions.Select(static p => (p.UnitId, p.RoleId, p.Title, p.IsPrimary)));
+                }
+
+                await directory.SaveMembersAsync(cancellationToken);
 
                 // The invitations go only after the transaction is committed.
                 foreach (var user in invited.Where(static u => u.IsActive))

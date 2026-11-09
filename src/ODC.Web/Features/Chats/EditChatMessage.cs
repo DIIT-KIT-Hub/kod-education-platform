@@ -28,7 +28,7 @@ public static class EditChatMessage
     /// <param name="sanitizer">Cleans the HTML of messages.</param>
     /// <param name="timeProvider">The clock.</param>
     /// <param name="room">The shared chat rules.</param>
-    internal sealed class Handler(ApplicationDbContext db, IRichTextSanitizer sanitizer, TimeProvider timeProvider, ChatRoom room) : IRequestHandler<Command, Result<ChatMessageDto>>
+    internal sealed class Handler(OrganizationDbContext db, IRichTextSanitizer sanitizer, TimeProvider timeProvider, ChatRoom room) : IRequestHandler<Command, Result<ChatMessageDto>>
     {
         /// <inheritdoc />
         public async Task<Result<ChatMessageDto>> HandleAsync(Command request, CancellationToken cancellationToken)

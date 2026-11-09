@@ -44,7 +44,7 @@ public sealed class ChatMember
     /// <summary>
     /// Gets the person.
     /// </summary>
-    public User? User { get; private set; }
+    public Member? User { get; private set; }
 
     /// <summary>
     /// Gets the role.

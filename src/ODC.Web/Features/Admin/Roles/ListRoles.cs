@@ -26,7 +26,8 @@ public static class ListRoles
     /// Reads the page.
     /// </summary>
     /// <param name="db">The database context.</param>
-    internal sealed class Handler(ApplicationDbContext db) : IRequestHandler<Query, Result<PagedResult<RoleListItem>>>
+    /// <param name="organization">The organization's database (positions with the role).</param>
+    internal sealed class Handler(MasterDbContext db, OrganizationDbContext organization) : IRequestHandler<Query, Result<PagedResult<RoleListItem>>>
     {
         /// <inheritdoc />
         public async Task<Result<PagedResult<RoleListItem>>> HandleAsync(Query request, CancellationToken cancellationToken)
@@ -46,7 +47,7 @@ public static class ListRoles
                 _ => roles.OrderByDescending(static r => r.IsSystem).ThenBy(static r => r.CreatedAt),
             };
 
-            return await roles
+            var page = await roles
                 .Select(r => new RoleListItem(
                     r.Id,
                     r.Code,
@@ -55,8 +56,15 @@ public static class ListRoles
                     r.IsSystem,
                     r.IsLeadership,
                     r.Permissions.Count,
-                    db.StaffPositions.Where(p => p.RoleId == r.Id).Select(static p => p.UserId).Distinct().Count()))
+                    0))
                 .ToPagedResultAsync(request, cancellationToken);
+            var ids = page.Items.Select(static r => r.Id).ToList();
+            var holders = await organization.StaffPositions
+                .Where(p => ids.Contains(p.RoleId))
+                .GroupBy(static p => p.RoleId)
+                .Select(static g => new { g.Key, Count = g.Select(static p => p.UserId).Distinct().Count() })
+                .ToDictionaryAsync(static g => g.Key, static g => g.Count, cancellationToken);
+            return page with { Items = [.. page.Items.Select(r => r with { UserCount = holders.GetValueOrDefault(r.Id) })] };
         }
     }
 

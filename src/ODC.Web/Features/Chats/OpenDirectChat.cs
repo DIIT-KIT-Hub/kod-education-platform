@@ -26,7 +26,7 @@ public static class OpenDirectChat
     /// <param name="db">The database context.</param>
     /// <param name="timeProvider">The clock.</param>
     /// <param name="room">The shared chat rules.</param>
-    internal sealed class Handler(ApplicationDbContext db, TimeProvider timeProvider, ChatRoom room) : IRequestHandler<Command, Result<Guid>>
+    internal sealed class Handler(OrganizationDbContext db, TimeProvider timeProvider, ChatRoom room) : IRequestHandler<Command, Result<Guid>>
     {
         /// <inheritdoc />
         public async Task<Result<Guid>> HandleAsync(Command request, CancellationToken cancellationToken)
@@ -50,7 +50,7 @@ public static class OpenDirectChat
                 return id;
             }
 
-            if (!await room.ChatUsers().AnyAsync(u => u.Id == userId, cancellationToken))
+            if (!await (await room.ChatUsersAsync(cancellationToken)).AnyAsync(u => u.Id == userId, cancellationToken))
             {
                 return Error.Validation(Texts.T("Цій людині не можна написати: обліковий запис заблоковано або чати для неї вимкнено."));
             }

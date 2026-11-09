@@ -10,17 +10,21 @@ using ODC.Web.Shared.Email;
 namespace ODC.Web.Infrastructure.Persistence.Seeding;
 
 /// <summary>
-/// Applies migrations and creates the mandatory initial data: predefined roles, the default unit types, the first organization and the first administrator.
-/// Optionally creates a demo structure, demo staff and news.
+/// Applies the migrations of both databases and creates the mandatory initial data: predefined roles and the default
+/// unit types (master database), the first organization and the first administrator with the position there.
+/// Optionally creates a demo structure, demo staff and news. Brings the organization's copies of the accounts
+/// (<see cref="Member"/>) up to date on every start.
 /// </summary>
-/// <param name="db">The database context.</param>
+/// <param name="db">The master database.</param>
+/// <param name="organization">The organization's database.</param>
 /// <param name="userManager">The user manager.</param>
 /// <param name="options">The seed options.</param>
 /// <param name="emailOptions">The e-mail settings (the address of the activation page).</param>
 /// <param name="timeProvider">The clock.</param>
 /// <param name="logger">The logger.</param>
 public sealed partial class DatabaseInitializer(
-    ApplicationDbContext db,
+    MasterDbContext db,
+    OrganizationDbContext organization,
     UserManager<User> userManager,
     IOptions<SeedOptions> options,
     IOptions<EmailOptions> emailOptions,
@@ -95,6 +99,8 @@ public sealed partial class DatabaseInitializer(
     public async Task InitializeAsync(CancellationToken cancellationToken)
     {
         await db.Database.MigrateAsync(cancellationToken);
+        await organization.Database.MigrateAsync(cancellationToken);
+        await MemberSync.CopyAsync(organization, [.. (await db.Users.AsNoTracking().ToListAsync(cancellationToken)).Select(MemberProfile.Of)], cancellationToken);
 
         var roles = await SeedRolesAsync(cancellationToken);
         var types = await SeedUnitTypesAsync(cancellationToken);
@@ -189,7 +195,7 @@ public sealed partial class DatabaseInitializer(
     /// <returns>The first organization.</returns>
     private async Task<OrganizationUnit> SeedRootAsync(Dictionary<string, UnitType> types, CancellationToken cancellationToken)
     {
-        var root = await db.OrganizationUnits
+        var root = await organization.OrganizationUnits
             .Where(static u => u.ParentId == null)
             .OrderBy(static u => u.SortOrder)
             .ThenBy(static u => u.CreatedAt)
@@ -205,13 +211,14 @@ public sealed partial class DatabaseInitializer(
             type = new UnitType("ORGANIZATION", "Організація", isOrganization: true);
             db.UnitTypes.Add(type);
             types[type.Code] = type;
+            await db.SaveChangesAsync(cancellationToken);
         }
 
         var settings = options.Value;
         root = new OrganizationUnit(settings.OrganizationCode, settings.OrganizationName, type.Id, null);
         root.Update(settings.OrganizationCode, settings.OrganizationName, settings.OrganizationShortName, type.Id, 0);
-        db.OrganizationUnits.Add(root);
-        await db.SaveChangesAsync(cancellationToken);
+        organization.OrganizationUnits.Add(root);
+        await organization.SaveChangesAsync(cancellationToken);
         return root;
     }
 
@@ -224,7 +231,7 @@ public sealed partial class DatabaseInitializer(
     /// <returns>A task that completes when the administrator exists.</returns>
     private async Task SeedAdministratorAsync(OrganizationUnit root, Role adminRole, CancellationToken cancellationToken)
     {
-        if (await db.StaffPositions.AnyAsync(p => p.RoleId == adminRole.Id, cancellationToken))
+        if (await organization.StaffPositions.AnyAsync(p => p.RoleId == adminRole.Id, cancellationToken))
         {
             return;
         }
@@ -244,8 +251,8 @@ public sealed partial class DatabaseInitializer(
             LogAdministratorCreated(logger, settings.AdminEmail, emailOptions.Value.SiteUrl.TrimEnd('/') + AccountEmails.ActivationPath);
         }
 
-        admin.SetPositions([(root.Id, adminRole.Id, "Системний адміністратор", true)]);
-        await userManager.UpdateAsync(admin);
+        (await MemberOfAsync(admin, cancellationToken)).SetPositions([(root.Id, adminRole.Id, "Системний адміністратор", true)]);
+        await organization.SaveChangesAsync(cancellationToken);
     }
 
     /// <summary>
@@ -257,7 +264,7 @@ public sealed partial class DatabaseInitializer(
     /// <returns>The units by code.</returns>
     private async Task<Dictionary<string, OrganizationUnit>> SeedDemoUnitsAsync(OrganizationUnit root, Dictionary<string, UnitType> types, CancellationToken cancellationToken)
     {
-        var units = await db.OrganizationUnits.ToDictionaryAsync(static u => u.Code, StringComparer.OrdinalIgnoreCase, cancellationToken);
+        var units = await organization.OrganizationUnits.ToDictionaryAsync(static u => u.Code, StringComparer.OrdinalIgnoreCase, cancellationToken);
         var order = 0;
         foreach (var (code, name, shortName, typeCode, parent) in DemoUnits)
         {
@@ -275,11 +282,11 @@ public sealed partial class DatabaseInitializer(
             };
             var unit = new OrganizationUnit(code, name, type.Id, parentId);
             unit.Update(code, name, shortName, type.Id, ++order);
-            db.OrganizationUnits.Add(unit);
+            organization.OrganizationUnits.Add(unit);
             units[code] = unit;
         }
 
-        await db.SaveChangesAsync(cancellationToken);
+        await organization.SaveChangesAsync(cancellationToken);
         return units;
     }
 
@@ -309,15 +316,20 @@ public sealed partial class DatabaseInitializer(
             }
 
             var user = new User(email, last, first, middle);
-            user.SetPositions([(unit.Id, roles[role].Id, title, true)]);
+            List<(Guid, Guid, string?, bool)> positions = [(unit.Id, roles[role].Id, title, true)];
             if (email == "head.dev@odc.local" && units.TryGetValue("DEV-WEB", out var sector))
             {
                 // A second, part-time position shows how one person can work in several units.
-                user.SetPositions([(unit.Id, roles[role].Id, title, true), (sector.Id, roles[SystemRoles.Employee].Id, "Архітектор програмного забезпечення", false)]);
+                positions.Add((sector.Id, roles[SystemRoles.Employee].Id, "Архітектор програмного забезпечення", false));
             }
 
             var result = await userManager.CreateAsync(user, password);
-            created += result.Succeeded ? 1 : 0;
+            if (result.Succeeded)
+            {
+                (await MemberOfAsync(user, cancellationToken)).SetPositions(positions);
+                await organization.SaveChangesAsync(cancellationToken);
+                created++;
+            }
         }
 
         if (created > 0)
@@ -337,7 +349,7 @@ public sealed partial class DatabaseInitializer(
     /// <returns>A task that completes when the news exist.</returns>
     private async Task SeedDemoNewsAsync(OrganizationUnit root, Dictionary<string, OrganizationUnit> units, CancellationToken cancellationToken)
     {
-        if (await db.NewsArticles.AnyAsync(cancellationToken))
+        if (await organization.NewsArticles.AnyAsync(cancellationToken))
         {
             return;
         }
@@ -391,9 +403,28 @@ public sealed partial class DatabaseInitializer(
             article.Pin(item.Pinned);
             article.AssignTo(item.Organization);
             article.Publish(now.AddDays(-item.DaysAgo));
-            db.NewsArticles.Add(article);
+            organization.NewsArticles.Add(article);
         }
 
-        await db.SaveChangesAsync(cancellationToken);
+        await organization.SaveChangesAsync(cancellationToken);
+    }
+
+    /// <summary>
+    /// Loads the tracked member of an account with its positions, copying the account when the organization does not
+    /// know the person yet.
+    /// </summary>
+    /// <param name="user">The account.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The member.</returns>
+    private async Task<Member> MemberOfAsync(User user, CancellationToken cancellationToken)
+    {
+        var member = await organization.Members.Include(static m => m.Positions).FirstOrDefaultAsync(m => m.Id == user.Id, cancellationToken);
+        if (member is null)
+        {
+            member = new Member(MemberProfile.Of(user));
+            organization.Members.Add(member);
+        }
+
+        return member;
     }
 }

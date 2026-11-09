@@ -23,7 +23,7 @@ public static class ListDocuments
     /// <param name="db">The database context.</param>
     /// <param name="currentUser">The current user.</param>
     /// <param name="accessScope">The data-level access rules.</param>
-    internal sealed class Handler(ApplicationDbContext db, ICurrentUser currentUser, IAccessScope accessScope) : IRequestHandler<DocumentQuery, Result<PagedResult<DocumentListItem>>>
+    internal sealed class Handler(OrganizationDbContext db, ICurrentUser currentUser, IAccessScope accessScope) : IRequestHandler<DocumentQuery, Result<PagedResult<DocumentListItem>>>
     {
         /// <inheritdoc />
         public async Task<Result<PagedResult<DocumentListItem>>> HandleAsync(DocumentQuery request, CancellationToken cancellationToken)

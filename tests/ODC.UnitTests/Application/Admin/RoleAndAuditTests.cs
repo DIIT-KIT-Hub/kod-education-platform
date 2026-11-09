@@ -117,8 +117,8 @@ public sealed class RoleAndAuditTests : IDisposable
 
         Assert.Equal(ErrorType.Conflict, (await admin.SendAsync(new DeleteRole.Command(_world.Steward.Id))).Failure());
         var system = new Role("sys", "Системна", null, isSystem: true);
-        _world.Db.Roles.Add(system);
-        _world.Db.SaveChanges();
+        _world.Master.Roles.Add(system);
+        _world.Master.SaveChanges();
         Assert.Equal(ErrorType.Validation, (await admin.SendAsync(new DeleteRole.Command(system.Id))).Failure());
         Assert.Equal(ErrorType.NotFound, (await admin.SendAsync(new DeleteRole.Command(Guid.NewGuid()))).Failure());
         Assert.True((await admin.SendAsync(new DeleteRole.Command(unused))).IsSuccess);

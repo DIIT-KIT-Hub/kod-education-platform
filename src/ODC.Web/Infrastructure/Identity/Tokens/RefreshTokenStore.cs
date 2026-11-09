@@ -57,7 +57,7 @@ public sealed partial class RefreshTokenStore(
         {
             var family = new RefreshTokenFamily(userId, _protector.Protect(key), securityStamp, authenticationMethod, isPersistent, now, ExpiresAt(now, now), ipAddress, userAgent);
             await using var scope = scopeFactory.CreateAsyncScope();
-            var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+            var db = scope.ServiceProvider.GetRequiredService<MasterDbContext>();
             db.RefreshTokenFamilies.Add(family);
             await db.SaveChangesAsync(cancellationToken);
             return Refreshed(family, RefreshToken.Format(key, family.Id, family.Generation));
@@ -85,7 +85,7 @@ public sealed partial class RefreshTokenStore(
         }
 
         await using var scope = scopeFactory.CreateAsyncScope();
-        var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        var db = scope.ServiceProvider.GetRequiredService<MasterDbContext>();
         var family = await db.RefreshTokenFamilies.FirstOrDefaultAsync(f => f.Id == familyId, cancellationToken);
         if (family is null || TryUnprotect(family.ProtectedKey) is not { } key)
         {
@@ -160,7 +160,7 @@ public sealed partial class RefreshTokenStore(
     public async Task<RefreshResult?> RebindAsync(Guid familyId, Guid userId, string securityStamp, CancellationToken cancellationToken)
     {
         await using var scope = scopeFactory.CreateAsyncScope();
-        var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        var db = scope.ServiceProvider.GetRequiredService<MasterDbContext>();
         var now = timeProvider.GetUtcNow();
         var family = await db.RefreshTokenFamilies.FirstOrDefaultAsync(f => f.Id == familyId && f.UserId == userId && f.ExpiresAt > now, cancellationToken);
         if (family is null)
@@ -188,7 +188,7 @@ public sealed partial class RefreshTokenStore(
     public async Task<bool> IsAliveAsync(Guid familyId, Guid userId, string? securityStamp, CancellationToken cancellationToken)
     {
         await using var scope = scopeFactory.CreateAsyncScope();
-        var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        var db = scope.ServiceProvider.GetRequiredService<MasterDbContext>();
         var now = timeProvider.GetUtcNow();
         return await db.RefreshTokenFamilies.AnyAsync(
             f => f.Id == familyId && f.UserId == userId && f.ExpiresAt > now && f.SecurityStamp == securityStamp,
@@ -204,7 +204,7 @@ public sealed partial class RefreshTokenStore(
     public async Task RevokeAsync(Guid familyId, CancellationToken cancellationToken)
     {
         await using var scope = scopeFactory.CreateAsyncScope();
-        var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        var db = scope.ServiceProvider.GetRequiredService<MasterDbContext>();
         if (await db.RefreshTokenFamilies.FirstOrDefaultAsync(f => f.Id == familyId, cancellationToken) is { } family)
         {
             await DeleteAsync(db, family, cancellationToken);
@@ -225,7 +225,7 @@ public sealed partial class RefreshTokenStore(
         }
 
         await using var scope = scopeFactory.CreateAsyncScope();
-        var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        var db = scope.ServiceProvider.GetRequiredService<MasterDbContext>();
         var family = await db.RefreshTokenFamilies.FirstOrDefaultAsync(f => f.Id == familyId, cancellationToken);
         if (family is not null && TryUnprotect(family.ProtectedKey) is { } key)
         {
@@ -267,7 +267,7 @@ public sealed partial class RefreshTokenStore(
     /// <param name="family">The family.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task that completes when the family is deleted.</returns>
-    private static async Task DeleteAsync(ApplicationDbContext db, RefreshTokenFamily family, CancellationToken cancellationToken)
+    private static async Task DeleteAsync(MasterDbContext db, RefreshTokenFamily family, CancellationToken cancellationToken)
     {
         db.RefreshTokenFamilies.Remove(family);
         try

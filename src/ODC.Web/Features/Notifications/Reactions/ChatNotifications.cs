@@ -11,7 +11,7 @@ namespace ODC.Web.Features.Notifications.Reactions;
 /// </summary>
 /// <param name="db">The database context.</param>
 /// <param name="notifier">Creates the notifications.</param>
-internal sealed class ChatNotifications(ApplicationDbContext db, INotifier notifier) : IDomainEventHandler<ChatMessagesPosted>
+internal sealed class ChatNotifications(OrganizationDbContext db, INotifier notifier) : IDomainEventHandler<ChatMessagesPosted>
 {
     /// <inheritdoc />
     public async Task HandleAsync(ChatMessagesPosted domainEvent, CancellationToken cancellationToken)
@@ -22,7 +22,7 @@ internal sealed class ChatNotifications(ApplicationDbContext db, INotifier notif
         if (title is null)
         {
             // A one-to-one chat is called after the person who writes.
-            var author = await db.Users
+            var author = await db.Members
                 .Where(u => u.Id == domainEvent.AuthorId)
                 .Select(static u => new { u.LastName, u.FirstName, u.MiddleName })
                 .FirstAsync(cancellationToken);

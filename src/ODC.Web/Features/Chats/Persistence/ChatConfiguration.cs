@@ -104,7 +104,7 @@ internal sealed class ChatConfiguration :
             .HasForeignKey(static r => r.MessageId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        builder.HasOne<User>()
+        builder.HasOne<Member>()
             .WithMany()
             .HasForeignKey(static r => r.UserId)
             .OnDelete(DeleteBehavior.Cascade);
@@ -129,7 +129,7 @@ internal sealed class ChatConfiguration :
             .HasForeignKey(static h => h.ChatId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        builder.HasOne<User>()
+        builder.HasOne<Member>()
             .WithMany()
             .HasForeignKey(static h => h.UserId)
             .OnDelete(DeleteBehavior.Cascade);

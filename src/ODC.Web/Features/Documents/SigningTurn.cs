@@ -40,7 +40,7 @@ public static class SigningTurn
     /// <param name="db">The database context.</param>
     /// <param name="currentUser">The current user.</param>
     /// <param name="timeProvider">The clock.</param>
-    internal sealed class BeginHandler(ApplicationDbContext db, ICurrentUser currentUser, TimeProvider timeProvider) : IRequestHandler<BeginCommand, Result<SigningSession>>
+    internal sealed class BeginHandler(OrganizationDbContext db, ICurrentUser currentUser, TimeProvider timeProvider) : IRequestHandler<BeginCommand, Result<SigningSession>>
     {
         /// <inheritdoc />
         public async Task<Result<SigningSession>> HandleAsync(BeginCommand request, CancellationToken cancellationToken)
@@ -75,7 +75,7 @@ public static class SigningTurn
                 var now = timeProvider.GetUtcNow();
                 if (document.IsSigningTurnHeldByOther(me, now))
                 {
-                    var holder = await db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == document.SigningTurnUserId, cancellationToken);
+                    var holder = await db.Members.AsNoTracking().FirstOrDefaultAsync(u => u.Id == document.SigningTurnUserId, cancellationToken);
                     return new Error(
                         SigningTurnErrorCode,
                         Texts.T("Документ зараз підписує {0}. Додати свій підпис можна буде, щойно він завершить.", holder?.FullName ?? Texts.T("інший підписант")),
@@ -105,7 +105,7 @@ public static class SigningTurn
     /// </summary>
     /// <param name="db">The database context.</param>
     /// <param name="currentUser">The current user.</param>
-    internal sealed class EndHandler(ApplicationDbContext db, ICurrentUser currentUser) : IRequestHandler<EndCommand, Result>
+    internal sealed class EndHandler(OrganizationDbContext db, ICurrentUser currentUser) : IRequestHandler<EndCommand, Result>
     {
         /// <inheritdoc />
         public async Task<Result> HandleAsync(EndCommand request, CancellationToken cancellationToken)

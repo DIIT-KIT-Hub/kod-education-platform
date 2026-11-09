@@ -31,7 +31,7 @@ public sealed class AccountSettingsTests : IDisposable
     /// </summary>
     public AccountSettingsTests()
     {
-        _identity = new ScriptedIdentity(_world.Db);
+        _identity = new ScriptedIdentity(_world.Master);
     }
 
     public void Dispose() => _world.Dispose();
@@ -73,7 +73,7 @@ public sealed class AccountSettingsTests : IDisposable
     {
         Assert.True((await As(_world.EmployeeA).SendAsync(new SetLanguage.Command(language))).IsSuccess);
 
-        Assert.Equal(language, _world.Db.Users.Single(u => u.Id == _world.EmployeeA.Id).Language);
+        Assert.Equal(language, _world.Master.Users.Single(u => u.Id == _world.EmployeeA.Id).Language);
     }
 
     [Fact]
@@ -82,7 +82,7 @@ public sealed class AccountSettingsTests : IDisposable
         var result = await As(_world.EmployeeA).SendAsync(new SetLanguage.Command("de"));
 
         Assert.Equal(ErrorType.Validation, result.Failure());
-        Assert.Null(_world.Db.Users.Single(u => u.Id == _world.EmployeeA.Id).Language);
+        Assert.Null(_world.Master.Users.Single(u => u.Id == _world.EmployeeA.Id).Language);
     }
 
     /// <summary>

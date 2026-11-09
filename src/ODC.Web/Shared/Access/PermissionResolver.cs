@@ -5,25 +5,25 @@ using ODC.Web.Shared.Domain.Access;
 namespace ODC.Web.Shared.Access;
 
 /// <summary>
-/// Default <see cref="IPermissionResolver"/> backed by the database.
+/// Default <see cref="IPermissionResolver"/>: the roles of the person's positions in the organization's database, looked
+/// up in the master database's catalog, plus the individual adjustments.
 /// </summary>
-/// <param name="db">The database context.</param>
-internal sealed class PermissionResolver(ApplicationDbContext db) : IPermissionResolver
+/// <param name="db">The organization's database.</param>
+/// <param name="catalog">The shared catalogs.</param>
+internal sealed class PermissionResolver(OrganizationDbContext db, Catalog catalog) : IPermissionResolver
 {
     /// <inheritdoc />
     public async Task<IReadOnlySet<string>> GetEffectivePermissionsAsync(Guid userId, CancellationToken cancellationToken)
     {
-        var roles = await db.StaffPositions
+        var roleIds = await db.StaffPositions
             .AsNoTracking()
             .Where(p => p.UserId == userId)
-            .Select(p => new
-            {
-                p.Role!.Code,
-                Permissions = p.Role.Permissions.Where(static rp => rp.ClaimType == PermissionClaimTypes.Permission).Select(static rp => rp.ClaimValue!),
-            })
+            .Select(static p => p.RoleId)
+            .Distinct()
             .ToListAsync(cancellationToken);
-
-        if (roles.Exists(static r => r.Code == SystemRoles.Administrator))
+        var catalogRoles = await catalog.RolesAsync(cancellationToken);
+        var roles = roleIds.Select(id => catalogRoles.GetValueOrDefault(id)).OfType<CatalogRole>().ToList();
+        if (roles.Exists(static r => r.IsAdministrator))
         {
             return Permissions.Codes;
         }
@@ -35,10 +35,9 @@ internal sealed class PermissionResolver(ApplicationDbContext db) : IPermissionR
             .ToListAsync(cancellationToken);
 
         var effective = roles.SelectMany(static r => r.Permissions).ToHashSet(StringComparer.Ordinal);
-        effective.UnionWith(overrides.Where(static o => o.ClaimType == PermissionClaimTypes.Permission).Select(static o => o.ClaimValue!));
-        effective.ExceptWith(overrides.Where(static o => o.ClaimType == PermissionClaimTypes.DeniedPermission).Select(static o => o.ClaimValue!));
+        effective.UnionWith(overrides.Where(static o => o.ClaimType == PermissionClaimTypes.Permission).Select(static o => o.ClaimValue));
+        effective.ExceptWith(overrides.Where(static o => o.ClaimType == PermissionClaimTypes.DeniedPermission).Select(static o => o.ClaimValue));
         effective.IntersectWith(Permissions.Codes);
-
         return effective;
     }
 }

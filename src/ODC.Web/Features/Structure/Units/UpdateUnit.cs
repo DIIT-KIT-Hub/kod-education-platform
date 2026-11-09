@@ -32,9 +32,10 @@ public static class UpdateUnit
     /// Validates, checks the scope and saves the unit.
     /// </summary>
     /// <param name="db">The database context.</param>
+    /// <param name="catalog">The shared catalogs (unit types).</param>
     /// <param name="accessScope">The administration scopes.</param>
     /// <param name="audit">The audit logger.</param>
-    internal sealed class Handler(ApplicationDbContext db, IAccessScope accessScope, IAuditLogger audit) : IRequestHandler<Command, Result>
+    internal sealed class Handler(OrganizationDbContext db, Catalog catalog, IAccessScope accessScope, IAuditLogger audit) : IRequestHandler<Command, Result>
     {
         /// <inheritdoc />
         public async Task<Result> HandleAsync(Command request, CancellationToken cancellationToken)
@@ -53,7 +54,7 @@ public static class UpdateUnit
                 return Error.Forbidden(Texts.T(UnitTree.OutsideScopeMessage));
             }
 
-            if (await UnitTree.ValidateAsync(db, id, data, cancellationToken) is { } invalid)
+            if (await UnitTree.ValidateAsync(db, catalog, id, data, cancellationToken) is { } invalid)
             {
                 return invalid;
             }
@@ -76,8 +77,8 @@ public static class UpdateUnit
             // Turning an organization into an ordinary unit merges it into the organization above and widens the scope
             // of its staff.
             if (!scope.IsCabinetWide
-                && await db.UnitTypes.AnyAsync(t => t.Id == unit.TypeId && t.IsOrganization, cancellationToken)
-                && !await db.UnitTypes.AnyAsync(t => t.Id == data.TypeId && t.IsOrganization, cancellationToken))
+                && (await catalog.UnitTypesAsync(cancellationToken)).GetValueOrDefault(unit.TypeId)?.IsOrganization == true
+                && (await catalog.UnitTypesAsync(cancellationToken)).GetValueOrDefault(data.TypeId)?.IsOrganization != true)
             {
                 return Error.Forbidden(Texts.T("Перетворити організацію на звичайний підрозділ може лише адміністратор усіх організацій: це змінює межі організацій і права їхніх працівників."));
             }

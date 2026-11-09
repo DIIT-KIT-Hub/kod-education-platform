@@ -31,7 +31,7 @@ public static class RejectDocument
     /// <param name="currentUser">The current user.</param>
     /// <param name="audit">The audit logger.</param>
     /// <param name="timeProvider">The clock.</param>
-    internal sealed class Handler(ApplicationDbContext db, ICurrentUser currentUser, IAuditLogger audit, TimeProvider timeProvider)
+    internal sealed class Handler(OrganizationDbContext db, ICurrentUser currentUser, IAuditLogger audit, TimeProvider timeProvider)
         : IRequestHandler<Command, Result>
     {
         /// <inheritdoc />

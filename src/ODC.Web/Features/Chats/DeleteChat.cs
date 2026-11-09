@@ -25,7 +25,7 @@ public static class DeleteChat
     /// </summary>
     /// <param name="db">The database context.</param>
     /// <param name="room">The shared chat rules.</param>
-    internal sealed class Handler(ApplicationDbContext db, ChatRoom room) : IRequestHandler<Command, Result>
+    internal sealed class Handler(OrganizationDbContext db, ChatRoom room) : IRequestHandler<Command, Result>
     {
         /// <inheritdoc />
         public async Task<Result> HandleAsync(Command request, CancellationToken cancellationToken)

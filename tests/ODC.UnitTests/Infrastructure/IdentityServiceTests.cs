@@ -55,7 +55,7 @@ public sealed class IdentityServiceTests : IAsyncDisposable
         var database = Guid.NewGuid().ToString();
         var services = new ServiceCollection();
         services.AddLogging();
-        services.AddDbContext<ApplicationDbContext>(options => options
+        services.AddDbContext<MasterDbContext>(options => options
             .UseInMemoryDatabase(database)
             .ConfigureWarnings(static w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning)));
         services.AddIdentityCore<User>(static options =>
@@ -72,7 +72,7 @@ public sealed class IdentityServiceTests : IAsyncDisposable
                 options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
             })
             .AddRoles<Role>()
-            .AddEntityFrameworkStores<ApplicationDbContext>()
+            .AddEntityFrameworkStores<MasterDbContext>()
             .AddUserStore<ProtectedUserStore>()
             .AddErrorDescriber<UkrainianIdentityErrorDescriber>()
             .AddPasswordValidator<MaximumLengthPasswordValidator>()
@@ -376,7 +376,7 @@ public sealed class IdentityServiceTests : IAsyncDisposable
         Assert.False((await Users.RedeemTwoFactorRecoveryCodeAsync(user, codes[0])).Succeeded);
         Assert.Equal(9, await Identity.CountRecoveryCodesAsync(user));
 
-        var stored = await _scope.ServiceProvider.GetRequiredService<ApplicationDbContext>().UserTokens
+        var stored = await _scope.ServiceProvider.GetRequiredService<MasterDbContext>().UserTokens
             .Where(t => t.UserId == user.Id)
             .Select(static t => t.Value)
             .ToListAsync(TestContext.Current.CancellationToken);

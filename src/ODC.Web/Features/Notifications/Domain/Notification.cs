@@ -85,7 +85,7 @@ public sealed class Notification : Entity
     /// <summary>
     /// Gets who did it.
     /// </summary>
-    public User? Actor { get; private set; }
+    public Member? Actor { get; private set; }
 
     /// <summary>
     /// Gets the document, article, chat or request concerned.

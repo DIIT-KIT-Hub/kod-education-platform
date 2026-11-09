@@ -35,7 +35,7 @@ public static class DownloadDocumentFiles
     /// <param name="db">The database context.</param>
     /// <param name="desk">The shared document rules.</param>
     /// <param name="fileStorage">The private file storage.</param>
-    internal sealed class FileHandler(ApplicationDbContext db, DocumentDesk desk, IFileStorage fileStorage) : IRequestHandler<FileQuery, Result<DownloadableFile>>
+    internal sealed class FileHandler(OrganizationDbContext db, DocumentDesk desk, IFileStorage fileStorage) : IRequestHandler<FileQuery, Result<DownloadableFile>>
     {
         /// <inheritdoc />
         public async Task<Result<DownloadableFile>> HandleAsync(FileQuery request, CancellationToken cancellationToken)
@@ -58,7 +58,7 @@ public static class DownloadDocumentFiles
     /// <param name="db">The database context.</param>
     /// <param name="desk">The shared document rules.</param>
     /// <param name="fileStorage">The private file storage.</param>
-    internal sealed class SignatureHandler(ApplicationDbContext db, DocumentDesk desk, IFileStorage fileStorage) : IRequestHandler<SignatureQuery, Result<DownloadableFile>>
+    internal sealed class SignatureHandler(OrganizationDbContext db, DocumentDesk desk, IFileStorage fileStorage) : IRequestHandler<SignatureQuery, Result<DownloadableFile>>
     {
         /// <inheritdoc />
         public async Task<Result<DownloadableFile>> HandleAsync(SignatureQuery request, CancellationToken cancellationToken)

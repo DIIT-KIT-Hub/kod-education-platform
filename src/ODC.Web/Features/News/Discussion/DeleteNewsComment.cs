@@ -33,7 +33,7 @@ public static class DeleteNewsComment
     /// <param name="access">The discussion rights.</param>
     /// <param name="events">Tells the open pages of the article.</param>
     /// <param name="audit">The audit logger (moderation).</param>
-    internal sealed class Handler(ApplicationDbContext db, ICurrentUser currentUser, DiscussionAccess access, INewsDiscussionEvents events, IAuditLogger audit)
+    internal sealed class Handler(OrganizationDbContext db, ICurrentUser currentUser, DiscussionAccess access, INewsDiscussionEvents events, IAuditLogger audit)
         : IRequestHandler<Command, Result>
     {
         /// <inheritdoc />

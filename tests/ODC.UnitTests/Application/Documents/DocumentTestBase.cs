@@ -22,7 +22,7 @@ public abstract class DocumentTestBase : IDisposable
     {
         ArgumentNullException.ThrowIfNull(database);
         database.Reset();
-        World = new DocumentWorld(database.Options);
+        World = new DocumentWorld(database.MasterOptions, database.OrganizationOptions);
     }
 
     /// <summary>

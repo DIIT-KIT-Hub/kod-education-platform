@@ -29,7 +29,7 @@ public static class CreateRole
     /// </summary>
     /// <param name="db">The database context.</param>
     /// <param name="audit">The audit logger.</param>
-    internal sealed class Handler(ApplicationDbContext db, IAuditLogger audit) : IRequestHandler<Command, Result<Guid>>
+    internal sealed class Handler(MasterDbContext db, IAuditLogger audit) : IRequestHandler<Command, Result<Guid>>
     {
         /// <inheritdoc />
         public async Task<Result<Guid>> HandleAsync(Command request, CancellationToken cancellationToken)

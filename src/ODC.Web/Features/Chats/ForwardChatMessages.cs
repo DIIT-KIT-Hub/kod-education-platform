@@ -30,7 +30,7 @@ public static class ForwardChatMessages
     /// <param name="domainEvents">Raises the new messages (the notification of the members).</param>
     /// <param name="timeProvider">The clock.</param>
     /// <param name="room">The shared chat rules.</param>
-    internal sealed class Handler(ApplicationDbContext db, IChatEvents events, DomainEvents domainEvents, TimeProvider timeProvider, ChatRoom room) : IRequestHandler<Command, Result<IReadOnlyList<ChatMessageDto>>>
+    internal sealed class Handler(OrganizationDbContext db, IChatEvents events, DomainEvents domainEvents, TimeProvider timeProvider, ChatRoom room) : IRequestHandler<Command, Result<IReadOnlyList<ChatMessageDto>>>
     {
         /// <inheritdoc />
         public async Task<Result<IReadOnlyList<ChatMessageDto>>> HandleAsync(Command request, CancellationToken cancellationToken)

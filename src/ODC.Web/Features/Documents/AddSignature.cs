@@ -42,7 +42,7 @@ public static class AddSignature
     /// <param name="audit">The audit logger.</param>
     /// <param name="timeProvider">The clock.</param>
     internal sealed class Handler(
-        ApplicationDbContext db,
+        OrganizationDbContext db,
         ICurrentUser currentUser,
         DocumentDesk desk,
         IFileStorage fileStorage,

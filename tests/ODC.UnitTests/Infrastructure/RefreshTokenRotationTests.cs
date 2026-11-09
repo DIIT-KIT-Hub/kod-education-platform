@@ -46,7 +46,7 @@ public sealed class RefreshTokenRotationTests : IDisposable
     {
         var database = Guid.NewGuid().ToString();
         _services = new ServiceCollection()
-            .AddDbContext<ApplicationDbContext>(options => options.UseInMemoryDatabase(database))
+            .AddDbContext<MasterDbContext>(options => options.UseInMemoryDatabase(database))
             .BuildServiceProvider();
         _store = new RefreshTokenStore(
             _services.GetRequiredService<IServiceScopeFactory>(),
@@ -198,7 +198,7 @@ public sealed class RefreshTokenRotationTests : IDisposable
     private async Task<int> FamiliesAsync()
     {
         await using var scope = _services.CreateAsyncScope();
-        return await scope.ServiceProvider.GetRequiredService<ApplicationDbContext>().RefreshTokenFamilies.CountAsync();
+        return await scope.ServiceProvider.GetRequiredService<MasterDbContext>().RefreshTokenFamilies.CountAsync();
     }
 
     /// <summary>

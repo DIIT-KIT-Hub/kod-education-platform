@@ -172,7 +172,7 @@ public sealed class DocumentAccessTests(PostgresDatabase database) : DocumentTes
         Assert.Contains(await author.SendAsync(new GetDocumentForEdit.SignersQuery("signer.a2@")), u => u.Id == World.SignerA2.Id);
 
         World.SignerA.SetActive(false);
-        World.Db.SaveChanges();
+        World.World.Master.SaveChanges();
         Assert.DoesNotContain(await author.SendAsync(new GetDocumentForEdit.SignersQuery("Бонд")), u => u.Id == World.SignerA.Id);
         Assert.Empty(await World.As(World.ReaderA).SendAsync(new GetDocumentForEdit.SignersQuery("Бонд")));
     }

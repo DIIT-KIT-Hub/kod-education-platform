@@ -6,16 +6,20 @@ using ODC.Web.Shared.Identity;
 namespace ODC.Web.Infrastructure.Auditing;
 
 /// <summary>
-/// Writes audit entries through the scoped database context.
+/// Writes the audit trail. <see cref="Add"/> keeps the entry until the request saves its changes: the database that
+/// saves next takes it (<see cref="PendingAuditInterceptor"/>), so an organization's action is audited in the
+/// organization's database together with the change, and an account or catalog change in the master database.
+/// <see cref="WriteAsync"/> (sign-in events) writes to the master database at once.
 /// </summary>
-/// <param name="db">The database context.</param>
+/// <param name="master">The master database.</param>
+/// <param name="pending">The entries waiting for the next save.</param>
 /// <param name="currentUser">The current user.</param>
 /// <param name="timeProvider">The clock.</param>
-internal sealed class AuditLogger(ApplicationDbContext db, ICurrentUser currentUser, TimeProvider timeProvider) : IAuditLogger
+internal sealed class AuditLogger(MasterDbContext master, PendingAudit pending, ICurrentUser currentUser, TimeProvider timeProvider) : IAuditLogger
 {
     /// <inheritdoc />
     public void Add(string action, string? entityType = null, string? entityId = null, string? details = null)
-        => db.AuditEntries.Add(new AuditEntry(
+        => pending.Add(new AuditEntry(
             timeProvider.GetUtcNow(),
             action,
             currentUser.Id,
@@ -28,7 +32,7 @@ internal sealed class AuditLogger(ApplicationDbContext db, ICurrentUser currentU
     /// <inheritdoc />
     public async Task WriteAsync(string action, Guid? userId, string? userName, string? details, CancellationToken cancellationToken)
     {
-        db.AuditEntries.Add(new AuditEntry(timeProvider.GetUtcNow(), action, userId, userName, null, userId?.ToString(), details, currentUser.IpAddress));
-        await db.SaveChangesAsync(cancellationToken);
+        master.AuditEntries.Add(new AuditEntry(timeProvider.GetUtcNow(), action, userId, userName, null, userId?.ToString(), details, currentUser.IpAddress));
+        await master.SaveChangesAsync(cancellationToken);
     }
 }

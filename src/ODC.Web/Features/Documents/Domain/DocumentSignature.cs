@@ -77,7 +77,7 @@ public sealed class DocumentSignature : Entity
     /// <summary>
     /// Gets the signer.
     /// </summary>
-    public User? User { get; private set; }
+    public Member? User { get; private set; }
 
     /// <summary>
     /// Gets the signature format.

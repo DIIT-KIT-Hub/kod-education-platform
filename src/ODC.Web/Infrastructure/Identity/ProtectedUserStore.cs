@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using ODC.Web.Infrastructure.Persistence;
-using ODC.Web.Shared.Domain.Access;
 using ODC.Web.Shared.Domain.Users;
 
 namespace ODC.Web.Infrastructure.Identity;
@@ -13,8 +12,8 @@ namespace ODC.Web.Infrastructure.Identity;
 /// <param name="context">The database context.</param>
 /// <param name="protector">The token protector.</param>
 /// <param name="describer">The error describer.</param>
-internal sealed class ProtectedUserStore(ApplicationDbContext context, UserTokenProtector protector, IdentityErrorDescriber? describer = null)
-    : UserStore<User, Role, ApplicationDbContext, Guid, UserPermissionOverride, StaffPosition, IdentityUserLogin<Guid>, IdentityUserToken<Guid>, RolePermission>(context, describer)
+internal sealed class ProtectedUserStore(MasterDbContext context, UserTokenProtector protector, IdentityErrorDescriber? describer = null)
+    : UserOnlyStore<User, MasterDbContext, Guid, IdentityUserClaim<Guid>, IdentityUserLogin<Guid>, IdentityUserToken<Guid>>(context, describer)
 {
     /// <inheritdoc />
     public override Task SetTokenAsync(User user, string loginProvider, string name, string? value, CancellationToken cancellationToken)

@@ -35,7 +35,7 @@ public static class GetDashboard
     /// <param name="news">Lists news.</param>
     /// <param name="timeProvider">The clock.</param>
     internal sealed class Handler(
-        ApplicationDbContext db,
+        OrganizationDbContext db,
         ICurrentUser currentUser,
         IRequestHandler<DocumentQuery, Result<PagedResult<DocumentListItem>>> documents,
         IRequestHandler<ListNews.Query, Result<PagedResult<NewsListItem>>> news,

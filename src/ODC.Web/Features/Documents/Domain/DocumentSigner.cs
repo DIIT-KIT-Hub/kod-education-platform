@@ -46,7 +46,7 @@ public sealed class DocumentSigner : Entity
     /// <summary>
     /// Gets the signer.
     /// </summary>
-    public User? User { get; private set; }
+    public Member? User { get; private set; }
 
     /// <summary>
     /// Gets the 1-based position in the route.

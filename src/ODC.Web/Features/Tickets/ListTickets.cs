@@ -41,7 +41,7 @@ public static class ListTickets
     /// <param name="db">The database context.</param>
     /// <param name="currentUser">The current user.</param>
     /// <param name="desk">The shared request rules.</param>
-    internal sealed class MineHandler(ApplicationDbContext db, ICurrentUser currentUser, TicketDesk desk) : IRequestHandler<MineQuery, PagedResult<TicketListItem>>
+    internal sealed class MineHandler(MasterDbContext db, ICurrentUser currentUser, TicketDesk desk) : IRequestHandler<MineQuery, PagedResult<TicketListItem>>
     {
         /// <inheritdoc />
         public async Task<PagedResult<TicketListItem>> HandleAsync(MineQuery request, CancellationToken cancellationToken)
@@ -62,7 +62,7 @@ public static class ListTickets
     /// <param name="db">The database context.</param>
     /// <param name="currentUser">The current user.</param>
     /// <param name="desk">The shared request rules.</param>
-    internal sealed class AllHandler(ApplicationDbContext db, ICurrentUser currentUser, TicketDesk desk) : IRequestHandler<AllQuery, Result<PagedResult<TicketListItem>>>
+    internal sealed class AllHandler(MasterDbContext db, ICurrentUser currentUser, TicketDesk desk) : IRequestHandler<AllQuery, Result<PagedResult<TicketListItem>>>
     {
         /// <inheritdoc />
         public async Task<Result<PagedResult<TicketListItem>>> HandleAsync(AllQuery request, CancellationToken cancellationToken)
@@ -81,13 +81,16 @@ public static class ListTickets
     /// Reads the handlers (a system administrator always holds every permission).
     /// </summary>
     /// <param name="db">The database context.</param>
-    internal sealed class HandlersHandler(ApplicationDbContext db) : IRequestHandler<HandlersQuery, Result<IReadOnlyList<UserRef>>>
+    /// <param name="desk">The shared request rules (who handles requests).</param>
+    internal sealed class HandlersHandler(MasterDbContext db, TicketDesk desk) : IRequestHandler<HandlersQuery, Result<IReadOnlyList<UserRef>>>
     {
         /// <inheritdoc />
         public async Task<Result<IReadOnlyList<UserRef>>> HandleAsync(HandlersQuery request, CancellationToken cancellationToken)
         {
-            var handlers = await db.UsersWith(Permissions.Tickets.Manage)
+            var ids = await desk.HandlerIdsAsync(cancellationToken);
+            var handlers = await db.Users
                 .AsNoTracking()
+                .Where(u => ids.Contains(u.Id))
                 .OrderBy(static u => u.LastName).ThenBy(static u => u.FirstName)
                 .Select(static u => new UserRef(u.Id, u.LastName + " " + u.FirstName + (u.MiddleName != null ? " " + u.MiddleName : string.Empty), u.PhotoId))
                 .ToListAsync(cancellationToken);

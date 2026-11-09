@@ -141,12 +141,12 @@ public sealed class NewsDiscussionTests : IDisposable
         var command = new SaveNewsCommand("Фото", "Анонс", $"<p>Текст</p><img src=\"{first.Url}\">{gallery}", NewsCategory.News, false, true, null, false, _world.A.Id);
 
         var id = (await services.SendAsync(new CreateNewsArticle.Command(command))).Ok();
-        Assert.All(_world.Db.MediaFiles, m => Assert.Equal(id, m.NewsArticleId));
+        Assert.All(_world.Master.MediaFiles, m => Assert.Equal(id, m.NewsArticleId));
 
         Assert.True((await services.SendAsync(new UpdateNewsArticle.Command(id, command with { Body = gallery }))).IsSuccess);
         Assert.DoesNotContain(first.Id, _world.Storage.Stored);
         Assert.Contains(second.Id, _world.Storage.Stored);
-        Assert.Equal(second.Id, Assert.Single(_world.Db.MediaFiles).Id);
+        Assert.Equal(second.Id, Assert.Single(_world.Master.MediaFiles).Id);
         Assert.Contains(MediaUrls.Of(second.Id), (await services.SendAsync(new GetNewsArticle.ForEditingQuery(id))).Ok().BodyHtml, StringComparison.Ordinal);
     }
 

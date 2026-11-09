@@ -32,7 +32,7 @@ public static class GetNewsDiscussion
     /// <param name="db">The database context.</param>
     /// <param name="currentUser">The current user.</param>
     /// <param name="access">The discussion rights.</param>
-    internal sealed class Handler(ApplicationDbContext db, ICurrentUser currentUser, DiscussionAccess access) : IRequestHandler<Query, Result<NewsDiscussion>>
+    internal sealed class Handler(OrganizationDbContext db, ICurrentUser currentUser, DiscussionAccess access) : IRequestHandler<Query, Result<NewsDiscussion>>
     {
         /// <inheritdoc />
         public async Task<Result<NewsDiscussion>> HandleAsync(Query request, CancellationToken cancellationToken)

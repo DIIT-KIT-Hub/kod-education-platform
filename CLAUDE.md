@@ -36,10 +36,11 @@ dotnet test tests/ODC.IntegrationTests -c Lead --no-build
 # for your own verification use the launch config "odc-web-verify" (port 7181, -c Lead) in .claude/launch.json.
 dotnet run --project src/ODC.Web --launch-profile https
 
-# Migrations (local tool). Build with a non-Debug configuration if the app is running.
+# Migrations (local tool), one set per database. Build with a non-Debug configuration if the app is running.
 dotnet tool restore
 # (environment variable SkipClientBuild=true: -p: is not passed through dotnet ef)
-dotnet ef migrations add <Name> --project src/ODC.Web --configuration Lead --output-dir Infrastructure/Persistence/Migrations
+dotnet ef migrations add <Name> --project src/ODC.Web --configuration Lead --context MasterDbContext --output-dir Infrastructure/Persistence/Migrations/Master
+dotnet ef migrations add <Name> --project src/ODC.Web --configuration Lead --context OrganizationDbContext --output-dir Infrastructure/Persistence/Migrations/Organization
 ```
 
 ```bash
@@ -65,8 +66,11 @@ or commit them. There is no admin password anywhere: the first administrator (`S
 password and activates the account by e-mail like everyone else. For your own runs set `Email:PickupDirectory` so
 codes land in `.eml` files instead of real mailboxes (the user's secrets contain a real SMTP server).
 
-There is one migration (`InitialCreate`, history squashed on 2026-11-07). An existing database created from the old
-history cannot be migrated: it has to be dropped and recreated (ask the user first — it is their data).
+Two databases (phase 2 of the move to a database per organization, see "Databases" below): the master database
+(`ConnectionStrings:Database`, e.g. `odc`) and the organizations' database (`ConnectionStrings:OrganizationDatabase`,
+by default the same server with the name `<master>_org`). Each has one migration (`InitialCreate`, 2026-11-09). A
+database created before the split cannot be migrated: drop it and let the start create both again (ask the user first —
+it is their data).
 
 Tooling on this machine: Windows, Git Bash + PowerShell, Node.js available (use it for scripts), `python` is only the
 Store stub. Bash heredocs with Ukrainian text and quotes sometimes break — write scripts to the scratchpad with the
@@ -89,8 +93,9 @@ src/ODC.Web             The server.
   Messaging/            Our own mediator: IRequestHandler<,> injected directly, decorators
                         Logging(Authorization(DomainEvents(handler))), domain event delivery. No MediatR.
   Endpoints/            IEndpoint, the secure /api/v1 group (signed-in + antiforgery by default), Result → HTTP.
-  Infrastructure/       EF Core + PostgreSQL (ApplicationDbContext, the migration, seeding), Identity + JWT,
-                        e-mail outbox, file/media storage (libvips → AVIF), CMS signatures, sanitizer, audit.
+  Infrastructure/       EF Core + PostgreSQL (MasterDbContext, OrganizationDbContext, DataPlacement, MemberSync, the
+                        migrations, seeding), Identity + JWT, e-mail outbox, file/media storage (libvips → AVIF), CMS
+                        signatures, sanitizer, audit.
   Security/, Hosting/,  Middleware and permission policies; DI, pipeline, SPA hosting, logging; SignalR hub.
   Realtime/
 src/ODC.Client          React SPA at / (see "React client").
@@ -104,8 +109,40 @@ tests/ODC.IntegrationTests  The real host over HTTP (WebApplicationFactory) on a
 - Features meet only along the edges listed in `tests/ODC.UnitTests/Architecture/SliceArchitectureTests.cs`; side
   effects in other features go through **domain events** (e.g. notifications react to `DocumentSigningProgressed`,
   `TicketSubmitted`, `ChatMessagesPosted`, `NewsCommentPosted`, `ItemSeen`), delivered after the request succeeded.
-- Pragmatic DDD: aggregates with invariants and domain events; no repositories (slices use `ApplicationDbContext`),
-  no separate bounded-context projects, no outbox.
+- Pragmatic DDD: aggregates with invariants and domain events; no repositories (slices use `MasterDbContext` and
+  `OrganizationDbContext`), no separate bounded-context projects, no outbox.
+
+### Databases (master + organizations)
+
+The plan (`docs`: the published "Бази організацій ODC" page) moves every organization into a database of its own; phase
+2 is done: the code is split into two contexts on two databases, every organization still shares the second one.
+
+- `DataPlacement` lists where every entity lives; each context applies only the configurations of its entities, and
+  `DataPlacementTests` fail for an unplaced entity, a model that holds a foreign entity or a shared table name.
+  - **Master** (`MasterDbContext : IdentityUserContext`): accounts (`users`, `user_logins`, `user_tokens`, an unused
+    `user_claims`), refresh token families, activation challenges, Data Protection keys, the catalogs every organization
+    shares (roles with their permissions, unit types), images (`media_files`), requests to the platform support, the
+    platform's audit trail.
+  - **Organization** (`OrganizationDbContext`): the structure, **members** with their positions and individual
+    permissions, documents, news with discussions, chats, notifications, the organization's audit trail, the document
+    number sequence.
+- `Member` (table `members`) is the organization's copy of an account's profile (name, e-mail, phone, photo, active,
+  awaiting activation, last sign-in). Authors, signers, chat members and notification actors point at members, so the
+  organization's queries never join the master database. `MemberSync` (an interceptor of the master context) copies
+  every added or changed `User` after the save — after the commit inside a transaction, nothing on a rollback — and the
+  seeding repairs missing copies at every start. Never edit a member's profile on the organization's side.
+- Positions (`StaffPosition`, table `staff_positions`) and individual permissions (`UserPermissionOverride`, table
+  `permission_overrides`) belong to the member: `Member.SetPositions` / `SetPermissionOverrides`. They refer to roles
+  and unit types by identifier only.
+- The organization's side reads the catalogs through `Catalog` (scoped, loaded once per request: `RolesAsync`,
+  `UnitTypesAsync`, `OrganizationTypeIdsAsync`, `RoleIdsGrantingAsync`) and people's positions through
+  `PositionDirectory` (`PrimaryAsync`, `AllAsync`, `LookupAsync` for people pickers). Who holds a permission:
+  `db.MembersWithAsync(catalog, permission)`.
+- A slice that changes both databases saves them one after another (no transaction spans both): the master first when
+  an account is created (the member must exist), the organization first otherwise. `IAuditLogger.Add` keeps the entry
+  until the next save of either database (`PendingAudit`), so an organization's action is audited in its database and
+  an account change in the master one; the audit log merges both trails.
+- No foreign key crosses the databases (e.g. `media_files.news_article_id`): the code keeps those references.
 
 ### Hosting
 
@@ -119,14 +156,13 @@ tests/ODC.IntegrationTests  The real host over HTTP (WebApplicationFactory) on a
 
 ### Identity tables and authentication
 
-- `ApplicationDbContext` is a full `IdentityDbContext<User, Role, Guid, UserPermissionOverride, StaffPosition,
-  IdentityUserLogin<Guid>, RolePermission, IdentityUserToken<Guid>>`; tables `users`, `roles`, `user_roles`, `role_claims`,
-  `user_claims`, `user_logins`, `user_tokens` (snake_case names of the AspNet* tables). Domain types are the Identity types:
-  `Role : IdentityRole` (`Name` = unique display name, `NormalizedName` via `Role.NormalizeName`; `Code` stays the stable
-  key), `RolePermission : IdentityRoleClaim` and `UserPermissionOverride : IdentityUserClaim` (claim types in
-  `PermissionClaimTypes`: `odc:permission` granted, `odc:permission.denied`), `StaffPosition : IdentityUserRole` with its
-  own `Id` key and the unit (a user may hold one role in several units). Query permissions through `ClaimType`/`ClaimValue`
-  in LINQ. Positions change only through `User.SetPositions` (`UserManager.AddToRoleAsync` cannot choose a unit).
+- `MasterDbContext` is an `IdentityUserContext<User, Guid, …>` (users, logins, tokens; no Identity role store:
+  `ProtectedUserStore : UserOnlyStore`). `Role : IdentityRole` (`Name` = unique display name, `NormalizedName` via
+  `Role.NormalizeName`; `Code` stays the stable key) and `RolePermission : IdentityRoleClaim` are mapped by
+  `RoleConfiguration`, never through a `RoleManager`. Permission claim types are in `PermissionClaimTypes`
+  (`odc:permission` granted, `odc:permission.denied`); query them through `ClaimType`/`ClaimValue` in LINQ. Positions
+  and individual permissions live in the organization's database (see "Databases"); `PermissionResolver` combines them
+  with the role catalog.
 - **Stateless JWT access tokens + rotating refresh tokens (RFC 9700 §4.14.2).** `JwtTokenService` issues ES256 JWTs (key:
   `JwtSigningKey`, PEM from `Authentication:Jwt:SigningKeyPath` or generated into `App_Data/keys` encrypted with Data
   Protection): access `at+jwt` (5 min; `sub`, `sid`, `auth_time`, `amr`, all user claims incl. permissions) and `2fa+jwt`

@@ -24,7 +24,7 @@ public static class DeleteReadNotifications
     /// <param name="db">The database context.</param>
     /// <param name="currentUser">The current user.</param>
     /// <param name="inbox">The user's notifications.</param>
-    internal sealed class Handler(ApplicationDbContext db, ICurrentUser currentUser, NotificationInbox inbox) : IRequestHandler<Command, Result>
+    internal sealed class Handler(OrganizationDbContext db, ICurrentUser currentUser, NotificationInbox inbox) : IRequestHandler<Command, Result>
     {
         /// <inheritdoc />
         public async Task<Result> HandleAsync(Command request, CancellationToken cancellationToken)

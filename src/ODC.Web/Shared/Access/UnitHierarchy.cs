@@ -37,16 +37,19 @@ internal sealed class UnitHierarchy
     /// <summary>
     /// Loads the hierarchy of every unit.
     /// </summary>
-    /// <param name="db">The database context.</param>
+    /// <param name="db">The organization's database.</param>
+    /// <param name="catalog">The shared catalogs (which unit types are organizations).</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The hierarchy.</returns>
-    public static async Task<UnitHierarchy> LoadAsync(ApplicationDbContext db, CancellationToken cancellationToken)
+    public static async Task<UnitHierarchy> LoadAsync(OrganizationDbContext db, Catalog catalog, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(db);
+        ArgumentNullException.ThrowIfNull(catalog);
+        var organizationTypes = await catalog.OrganizationTypeIdsAsync(cancellationToken);
 
         var units = await db.OrganizationUnits
             .AsNoTracking()
-            .Select(static u => new UnitNode(u.Id, u.ParentId, u.Type!.IsOrganization, u.Name))
+            .Select(u => new UnitNode(u.Id, u.ParentId, organizationTypes.Contains(u.TypeId), u.Name))
             .ToListAsync(cancellationToken);
         return new UnitHierarchy(units);
     }

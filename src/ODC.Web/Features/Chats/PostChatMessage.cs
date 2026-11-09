@@ -33,7 +33,7 @@ public static class PostChatMessage
     /// <param name="domainEvents">Raises the new messages (the notification of the members).</param>
     /// <param name="timeProvider">The clock.</param>
     /// <param name="room">The shared chat rules.</param>
-    internal sealed class Handler(ApplicationDbContext db, IRichTextSanitizer sanitizer, IChatEvents events, DomainEvents domainEvents, TimeProvider timeProvider, ChatRoom room) : IRequestHandler<Command, Result<ChatMessageDto>>
+    internal sealed class Handler(OrganizationDbContext db, IRichTextSanitizer sanitizer, IChatEvents events, DomainEvents domainEvents, TimeProvider timeProvider, ChatRoom room) : IRequestHandler<Command, Result<ChatMessageDto>>
     {
         /// <inheritdoc />
         public async Task<Result<ChatMessageDto>> HandleAsync(Command request, CancellationToken cancellationToken)

@@ -19,7 +19,7 @@ public static class ListRoleOptions
     /// Reads the roles.
     /// </summary>
     /// <param name="db">The database context.</param>
-    internal sealed class Handler(ApplicationDbContext db) : IRequestHandler<Query, IReadOnlyList<RoleOption>>
+    internal sealed class Handler(MasterDbContext db) : IRequestHandler<Query, IReadOnlyList<RoleOption>>
     {
         /// <inheritdoc />
         public async Task<IReadOnlyList<RoleOption>> HandleAsync(Query request, CancellationToken cancellationToken)

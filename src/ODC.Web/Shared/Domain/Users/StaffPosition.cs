@@ -1,22 +1,16 @@
-using Microsoft.AspNetCore.Identity;
-using ODC.Web.Shared.Domain.Access;
 using ODC.Web.Shared.Domain.Organization;
 using ODC.Web.Shared.Kernel;
 
 namespace ODC.Web.Shared.Domain.Users;
 
 /// <summary>
-/// A position held by a user in an organization unit (e.g. «начальник відділу продажу»): the Identity user role
-/// (table <c>user_roles</c>) extended with the unit, the official title and the primary flag. A user may hold the same
+/// A position held by a person in a unit of the organization (e.g. «начальник відділу продажу»): the unit, the role
+/// (from the catalog of the master database), the official title and the primary flag. A person may hold the same
 /// role in several units, so a position is identified by its own <see cref="Id"/>.
 /// The position's role defines the permissions; the unit defines the scope of unit-level permissions.
 /// </summary>
-/// <remarks>
-/// Positions are changed only through <see cref="User.SetPositions"/>: <see cref="UserManager{TUser}.AddToRoleAsync"/>
-/// cannot choose a unit. The read operations of the user manager (<c>GetRolesAsync</c>, <c>IsInRoleAsync</c>,
-/// <c>GetUsersInRoleAsync</c>) work as usual.
-/// </remarks>
-public sealed class StaffPosition : IdentityUserRole<Guid>
+/// <remarks>Positions are changed only through <see cref="Member.SetPositions"/>.</remarks>
+public sealed class StaffPosition
 {
     /// <summary>
     /// Maximum length of <see cref="Title"/>.
@@ -24,17 +18,9 @@ public sealed class StaffPosition : IdentityUserRole<Guid>
     public const int TitleMaxLength = 128;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="StaffPosition"/> class for EF Core and the generic constraint of the
-    /// Identity user store.
-    /// </summary>
-    public StaffPosition()
-    {
-    }
-
-    /// <summary>
     /// Initializes a new instance of the <see cref="StaffPosition"/> class.
     /// </summary>
-    /// <param name="userId">The user identifier.</param>
+    /// <param name="userId">The person (member) identifier.</param>
     /// <param name="organizationUnitId">The unit identifier.</param>
     /// <param name="roleId">The role identifier.</param>
     /// <param name="title">The official position title.</param>
@@ -49,14 +35,26 @@ public sealed class StaffPosition : IdentityUserRole<Guid>
     }
 
     /// <summary>
+    /// Initializes a new instance of the <see cref="StaffPosition"/> class for EF Core materialization.
+    /// </summary>
+    private StaffPosition()
+    {
+    }
+
+    /// <summary>
     /// Gets the identifier of the position (UUID v7, index friendly; also orders positions by creation).
     /// </summary>
     public Guid Id { get; private init; } = Guid.CreateVersion7();
 
     /// <summary>
-    /// Gets the user.
+    /// Gets the identifier of the person holding the position (the account's identifier).
     /// </summary>
-    public User? User { get; private set; }
+    public Guid UserId { get; private set; }
+
+    /// <summary>
+    /// Gets the person holding the position.
+    /// </summary>
+    public Member? Member { get; private set; }
 
     /// <summary>
     /// Gets the unit identifier.
@@ -69,9 +67,9 @@ public sealed class StaffPosition : IdentityUserRole<Guid>
     public OrganizationUnit? OrganizationUnit { get; private set; }
 
     /// <summary>
-    /// Gets the role.
+    /// Gets the role identifier (a role of the master database's catalog).
     /// </summary>
-    public Role? Role { get; private set; }
+    public Guid RoleId { get; private set; }
 
     /// <summary>
     /// Gets the official position title (free text), falls back to the role name when empty.

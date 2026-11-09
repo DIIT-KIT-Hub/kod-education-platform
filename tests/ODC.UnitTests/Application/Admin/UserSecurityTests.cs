@@ -34,7 +34,7 @@ public sealed class UserSecurityTests : IDisposable
     /// </summary>
     public UserSecurityTests()
     {
-        _identity = new ScriptedIdentity(_world.Db);
+        _identity = new ScriptedIdentity(_world.Master);
     }
 
     public void Dispose() => _world.Dispose();
@@ -123,7 +123,7 @@ public sealed class UserSecurityTests : IDisposable
     {
         _world.EmployeeA.PasswordHash = "hash";
         _world.EmployeeS.SetActive(false);
-        _world.Db.SaveChanges();
+        _world.Master.SaveChanges();
         var hr = As(_world.HrA);
 
         Assert.Equal(ErrorType.Validation, (await hr.SendAsync(new SendUserInvitation.Command(_world.EmployeeA.Id))).Failure());
@@ -160,7 +160,7 @@ public sealed class UserSecurityTests : IDisposable
     public async Task The_export_follows_the_filter_and_marks_blocked_accounts()
     {
         _world.EmployeeA.SetActive(false);
-        _world.Db.SaveChanges();
+        _world.Master.SaveChanges();
 
         await As(_world.HrA).SendAsync(new ExportUsers.Query(new UserQuery { Search = "employee.a" }, SpreadsheetFormat.Xlsx));
 

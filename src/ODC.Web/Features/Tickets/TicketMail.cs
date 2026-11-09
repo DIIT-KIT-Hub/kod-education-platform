@@ -15,10 +15,13 @@ namespace ODC.Web.Features.Tickets;
 /// E-mails about requests: everyone who handles requests learns about a new one by e-mail, in their own language (a
 /// reaction to <see cref="TicketSubmitted"/>, so submitting a request never waits for it).
 /// </summary>
-/// <param name="db">The database context.</param>
+/// <param name="db">The master database (requests, accounts).</param>
+/// <param name="organization">The organization's database (who handles requests).</param>
+/// <param name="catalog">The shared catalogs (roles).</param>
+/// <param name="directory">The positions of people.</param>
 /// <param name="outbox">Sends the e-mails in the background.</param>
 /// <param name="options">The e-mail settings (the address of the cabinet).</param>
-internal sealed class TicketMail(ApplicationDbContext db, IEmailOutbox outbox, IOptions<EmailOptions> options) : IDomainEventHandler<TicketSubmitted>
+internal sealed class TicketMail(MasterDbContext db, OrganizationDbContext organization, Catalog catalog, PositionDirectory directory, IEmailOutbox outbox, IOptions<EmailOptions> options) : IDomainEventHandler<TicketSubmitted>
 {
     /// <summary>
     /// The length of the beginning of the description quoted in the e-mail.
@@ -41,8 +44,9 @@ internal sealed class TicketMail(ApplicationDbContext db, IEmailOutbox outbox, I
 
         var ticket = await db.Tickets.FirstAsync(t => t.Id == domainEvent.TicketId, cancellationToken);
 
-        var recipients = await db.UsersWith(Permissions.Tickets.Manage)
-            .Where(u => u.Id != ticket.AuthorId && u.Email != null)
+        var handlers = await organization.MemberIdsWithAsync(catalog, Permissions.Tickets.Manage, cancellationToken);
+        var recipients = await db.Users
+            .Where(u => handlers.Contains(u.Id) && u.Id != ticket.AuthorId && u.Email != null)
             .Select(static u => new { Email = u.Email!, Name = u.LastName + " " + u.FirstName, u.Language })
             .ToListAsync(cancellationToken);
         if (recipients.Count == 0)
@@ -55,11 +59,9 @@ internal sealed class TicketMail(ApplicationDbContext db, IEmailOutbox outbox, I
             .Select(static u => new
             {
                 Name = u.LastName + " " + u.FirstName + (u.MiddleName != null ? " " + u.MiddleName : string.Empty),
-                Title = u.Positions.Where(static p => p.IsPrimary).Select(static p => p.Title).FirstOrDefault(),
-                Role = u.Positions.Where(static p => p.IsPrimary).Select(static p => p.Role!.Name).FirstOrDefault(),
-                Unit = u.Positions.Where(static p => p.IsPrimary).Select(static p => p.OrganizationUnit!.Name).FirstOrDefault(),
             })
             .FirstAsync(cancellationToken);
+        var position = (await directory.PrimaryAsync(ticket.AuthorId, cancellationToken))?.InUnit;
         var url = $"{options.Value.SiteUrl.TrimEnd('/')}/requests/{ticket.Id}";
         var description = domainEvent.Description;
         var quote = description.Length > QuoteLength ? description[..QuoteLength].TrimEnd() + "…" : description;
@@ -75,7 +77,7 @@ internal sealed class TicketMail(ApplicationDbContext db, IEmailOutbox outbox, I
                     new(Texts.T("Номер"), $"№{ticket.Number}"),
                     new(Texts.T("Категорія"), CategoryName(ticket.Category)),
                     new(Texts.T("Пріоритет"), PriorityName(ticket.Priority)),
-                    new(Texts.T("Автор"), StoredText.PositionInUnit(author.Title, author.Role, author.Unit) is { } position ? $"{author.Name}, {position}" : author.Name),
+                    new(Texts.T("Автор"), position is not null ? $"{author.Name}, {position}" : author.Name),
                     new(Texts.T("Подано"), TimeZoneInfo.ConvertTime(ticket.CreatedAt, KyivTime.Zone).ToString("d MMMM yyyy, HH:mm", System.Globalization.CultureInfo.CurrentCulture)),
                 ],
                 quote,

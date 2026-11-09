@@ -47,12 +47,12 @@ public sealed partial class AccountActivationTests : IAsyncDisposable
         var database = Guid.NewGuid().ToString();
         var services = new ServiceCollection();
         services.AddLogging();
-        services.AddDbContext<ApplicationDbContext>(options => options
+        services.AddDbContext<MasterDbContext>(options => options
             .UseInMemoryDatabase(database)
             .ConfigureWarnings(static w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning)));
         services.AddIdentityCore<User>(static options => options.User.RequireUniqueEmail = true)
             .AddRoles<Role>()
-            .AddEntityFrameworkStores<ApplicationDbContext>();
+            .AddEntityFrameworkStores<MasterDbContext>();
         services.AddSingleton<IDataProtectionProvider>(new EphemeralDataProtectionProvider());
         services.AddSingleton<IEmailOutbox>(_emails);
         services.AddSingleton<IAuditLogger, SilentAudit>();
@@ -94,7 +94,7 @@ public sealed partial class AccountActivationTests : IAsyncDisposable
 
         // The activation is used up: the same browser cannot set a password again.
         Assert.Equal(AccountActivationService.ExpiredCode, (await activation.CompleteAsync(flow, "Another-Password-77", TestContext.Current.CancellationToken)).Error?.Code);
-        Assert.Empty(await scope.ServiceProvider.GetRequiredService<ApplicationDbContext>().ActivationChallenges.ToListAsync(TestContext.Current.CancellationToken));
+        Assert.Empty(await scope.ServiceProvider.GetRequiredService<MasterDbContext>().ActivationChallenges.ToListAsync(TestContext.Current.CancellationToken));
     }
 
     [Fact]

@@ -18,10 +18,11 @@ namespace ODC.Web.Features.News;
 /// manager also the news of the whole cabinet), the cover and the images of an article, slugs and the DTO.
 /// </summary>
 /// <param name="db">The database context.</param>
+/// <param name="catalog">The shared catalogs (which unit types are organizations).</param>
 /// <param name="accessScope">The administration scopes.</param>
 /// <param name="markdown">The Markdown renderer (articles written before the rich text editor).</param>
 /// <param name="media">The image library.</param>
-internal sealed class NewsDesk(ApplicationDbContext db, IAccessScope accessScope, IMarkdownRenderer markdown, MediaLibrary media)
+internal sealed class NewsDesk(OrganizationDbContext db, Catalog catalog, IAccessScope accessScope, IMarkdownRenderer markdown, MediaLibrary media)
 {
     /// <summary>
     /// The error shown when an article belongs to an organization the current user does not manage the news of.
@@ -91,7 +92,8 @@ internal sealed class NewsDesk(ApplicationDbContext db, IAccessScope accessScope
             return scope.IsCabinetWide ? null : Error.Forbidden(Texts.T("Новини для всього кабінету публікує лише адміністратор усіх організацій. Оберіть свою організацію."));
         }
 
-        if (!await db.OrganizationUnits.AnyAsync(u => u.Id == id && u.Type!.IsOrganization, cancellationToken))
+        var organizationTypes = await catalog.OrganizationTypeIdsAsync(cancellationToken);
+        if (!await db.OrganizationUnits.AnyAsync(u => u.Id == id && organizationTypes.Contains(u.TypeId), cancellationToken))
         {
             return Error.Validation(Texts.T("Оберіть організацію новини."));
         }
@@ -144,7 +146,7 @@ internal sealed class NewsDesk(ApplicationDbContext db, IAccessScope accessScope
         }
 
         var ids = used.ToList();
-        var candidates = await db.MediaFiles
+        var candidates = await media.Files
             .Where(m => m.Purpose == MediaPurpose.News && (m.NewsArticleId == article.Id || (m.NewsArticleId == null && ids.Contains(m.Id))))
             .ToListAsync(cancellationToken);
         foreach (var image in candidates)

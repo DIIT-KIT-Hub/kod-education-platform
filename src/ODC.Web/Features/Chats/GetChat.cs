@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using ODC.Web.Endpoints;
 using ODC.Web.Infrastructure.Persistence;
 using ODC.Web.Messaging;
+using ODC.Web.Shared.Access;
 using ODC.Web.Shared.Kernel;
 using ODC.Web.Shared.Text;
 
@@ -24,7 +25,8 @@ public static class GetChat
     /// </summary>
     /// <param name="db">The database context.</param>
     /// <param name="room">The shared chat rules.</param>
-    internal sealed class Handler(ApplicationDbContext db, ChatRoom room) : IRequestHandler<Query, Result<ChatDetails>>
+    /// <param name="directory">The positions of people.</param>
+    internal sealed class Handler(OrganizationDbContext db, ChatRoom room, PositionDirectory directory) : IRequestHandler<Query, Result<ChatDetails>>
     {
         /// <inheritdoc />
         public async Task<Result<ChatDetails>> HandleAsync(Query request, CancellationToken cancellationToken)
@@ -55,17 +57,15 @@ public static class GetChat
                     m.Role,
                     m.LastReadSequence,
                     m.User.IsActive,
-                    Title = m.User.Positions.Where(static p => p.IsPrimary).Select(static p => p.Title).FirstOrDefault(),
-                    RoleName = m.User.Positions.Where(static p => p.IsPrimary).Select(static p => p.Role!.Name).FirstOrDefault(),
-                    UnitName = m.User.Positions.Where(static p => p.IsPrimary).Select(static p => p.OrganizationUnit!.Name).FirstOrDefault(),
                 })
                 .ToListAsync(cancellationToken);
 
+            var positions = await directory.PrimaryAsync(members.Select(static m => m.Person.Id), cancellationToken);
             var list = members
                 .OrderByDescending(static m => m.Role)
                 .ThenBy(static m => m.Person.LastName, StringComparer.CurrentCulture)
                 .ThenBy(static m => m.Person.FirstName, StringComparer.CurrentCulture)
-                .Select(static m => new ChatMemberDto(m.Person.ToRef(), m.Role, StoredText.PositionInUnit(m.Title, m.RoleName, m.UnitName), m.LastReadSequence, m.IsActive))
+                .Select(m => new ChatMemberDto(m.Person.ToRef(), m.Role, positions.GetValueOrDefault(m.Person.Id)?.InUnit, m.LastReadSequence, m.IsActive))
                 .ToList();
             var myRole = members.First(m => m.Person.Id == me).Role;
             return new ChatDetails(chat.Id, chat.Kind, chat.Title, list, chat.LastSequence, myRole);

@@ -14,7 +14,7 @@ namespace ODC.Web.Shared.Media;
 /// <param name="db">The database context.</param>
 /// <param name="processor">The image processor.</param>
 /// <param name="storage">The image storage.</param>
-internal sealed class MediaLibrary(ApplicationDbContext db, IImageProcessor processor, IMediaStorage storage)
+internal sealed class MediaLibrary(MasterDbContext db, IImageProcessor processor, IMediaStorage storage)
 {
     /// <summary>
     /// The images stored since the last save.
@@ -25,6 +25,11 @@ internal sealed class MediaLibrary(ApplicationDbContext db, IImageProcessor proc
     /// The images whose files are deleted after the next save.
     /// </summary>
     private readonly List<Guid> _removed = [];
+
+    /// <summary>
+    /// Gets the images (master database), e.g. to find those of a news article.
+    /// </summary>
+    public IQueryable<MediaFile> Files => db.MediaFiles;
 
     /// <summary>
     /// Optimizes and stores an uploaded image and tracks its new row (saved by <see cref="SaveChangesAsync"/>).

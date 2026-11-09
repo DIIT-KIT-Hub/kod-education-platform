@@ -14,7 +14,7 @@ namespace ODC.Web.Features.Notifications;
 /// <param name="db">The database context.</param>
 /// <param name="currentUser">The current user.</param>
 /// <param name="events">Delivers the unread count to the open pages.</param>
-internal sealed class NotificationInbox(ApplicationDbContext db, ICurrentUser currentUser, INotificationEvents events)
+internal sealed class NotificationInbox(OrganizationDbContext db, ICurrentUser currentUser, INotificationEvents events)
 {
     /// <summary>
     /// The error of a notification the current user does not have.

@@ -30,16 +30,17 @@ public static class CreateUnit
     /// Validates, checks the scope and saves the unit.
     /// </summary>
     /// <param name="db">The database context.</param>
+    /// <param name="catalog">The shared catalogs (unit types).</param>
     /// <param name="accessScope">The administration scopes.</param>
     /// <param name="audit">The audit logger.</param>
-    internal sealed class Handler(ApplicationDbContext db, IAccessScope accessScope, IAuditLogger audit) : IRequestHandler<Command, Result<Guid>>
+    internal sealed class Handler(OrganizationDbContext db, Catalog catalog, IAccessScope accessScope, IAuditLogger audit) : IRequestHandler<Command, Result<Guid>>
     {
         /// <inheritdoc />
         public async Task<Result<Guid>> HandleAsync(Command request, CancellationToken cancellationToken)
         {
             ArgumentNullException.ThrowIfNull(request);
             var data = request.Unit;
-            if (await UnitTree.ValidateAsync(db, null, data, cancellationToken) is { } invalid)
+            if (await UnitTree.ValidateAsync(db, catalog, null, data, cancellationToken) is { } invalid)
             {
                 return invalid;
             }
