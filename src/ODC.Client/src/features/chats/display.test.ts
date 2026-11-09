@@ -94,7 +94,9 @@ describe("previewText", () => {
     });
 
     it("uses the full name of an author with one name in a group", () => {
-        expect(previewText(preview({ author: { ...maria, fullName: "Адміністратор" } }), "Group", me.id)).toBe("Адміністратор: Добрий день");
+        expect(previewText(preview({ author: { ...maria, fullName: "Адміністратор" } }), "Group", me.id)).toBe(
+            "Адміністратор: Добрий день",
+        );
     });
 
     it("prefixes the own messages with «Ви»", () => {

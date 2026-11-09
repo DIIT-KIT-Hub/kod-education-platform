@@ -53,7 +53,10 @@ describe("AdminPage", () => {
         [["audit.view"], ["Журнал аудиту"]],
         [["users.manage", "users.security"], []],
         [["administration.all"], []],
-        [["users.view", "audit.view"], ["Користувачі", "Журнал аудиту"]],
+        [
+            ["users.view", "audit.view"],
+            ["Користувачі", "Журнал аудиту"],
+        ],
     ])("with %j shows only %j", async (permissions, expected) => {
         renderPage(<AdminPage />, { path: "/admin", user: userWith(...permissions) });
 

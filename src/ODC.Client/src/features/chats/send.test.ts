@@ -76,7 +76,9 @@ describe("sendDraft", () => {
         mockApi("post", "/api/v1/chats/{id}/messages", () => problem(400, "invalid", "Порожнє повідомлення."));
         const file = makeFile("a.pdf");
 
-        await expect(sendDraft(queryClient, chatId, meRef, draft({ files: [file] }))).rejects.toMatchObject({ detail: "Порожнє повідомлення." });
+        await expect(sendDraft(queryClient, chatId, meRef, draft({ files: [file] }))).rejects.toMatchObject({
+            detail: "Порожнє повідомлення.",
+        });
 
         expect(threadOf(queryClient)?.messages.at(-1)?.pending).toEqual({ failed: true, files: [file] });
     });

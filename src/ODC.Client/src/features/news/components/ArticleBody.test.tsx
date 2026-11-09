@@ -170,7 +170,9 @@ describe("ArticleBody", () => {
     });
 
     it("opens a lazy in-text image that has not loaded yet by its address", async () => {
-        const { user } = renderBody('<img src="/media/a" alt="Перше фото"><p>Довгий текст</p><img src="/media/far" alt="Далеке" loading="lazy">');
+        const { user } = renderBody(
+            '<img src="/media/a" alt="Перше фото"><p>Довгий текст</p><img src="/media/far" alt="Далеке" loading="lazy">',
+        );
 
         await user.click(screen.getByAltText("Перше фото"));
         await user.click(within(viewer()).getByRole("button", { name: "Наступне фото" }));

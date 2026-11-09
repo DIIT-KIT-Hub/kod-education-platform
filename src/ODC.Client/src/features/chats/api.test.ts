@@ -331,7 +331,10 @@ describe("touchList", () => {
     });
 
     it("moves the chat to the top with the preview and one more unread message", () => {
-        queryClient.setQueryData<ChatSummary[]>(chatKeys.list, [other, makeSummary({ lastSequence: 4, lastReadSequence: 3, unreadCount: 1 })]);
+        queryClient.setQueryData<ChatSummary[]>(chatKeys.list, [
+            other,
+            makeSummary({ lastSequence: 4, lastReadSequence: 3, unreadCount: 1 }),
+        ]);
         const message = makeMessage(5, {
             attachments: [
                 {
@@ -574,6 +577,10 @@ describe("chatApi", () => {
     it("turns a failure into an error with the server's message", async () => {
         mockApi("post", "/api/v1/chats/direct", () => problem(404, "not_found", "Користувача не знайдено."));
 
-        await expect(chatApi.openDirect(maria.id)).rejects.toMatchObject({ status: 404, code: "not_found", detail: "Користувача не знайдено." });
+        await expect(chatApi.openDirect(maria.id)).rejects.toMatchObject({
+            status: 404,
+            code: "not_found",
+            detail: "Користувача не знайдено.",
+        });
     });
 });

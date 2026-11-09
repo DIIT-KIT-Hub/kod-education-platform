@@ -1,0 +1,3 @@
+# Generated files: pnpm writes the lockfile, openapi-typescript the API types (pnpm api:types).
+pnpm-lock.yaml
+src/shared/api/schema.d.ts

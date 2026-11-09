@@ -34,7 +34,10 @@ function makeItem(overrides: Partial<Schemas["DocumentListItem"]> = {}): Schemas
  * @param paging The paging of the answer.
  * @returns The recorded calls.
  */
-function mockList(items: Schemas["DocumentListItem"][] = [makeItem()], paging: { page?: number; pageSize?: number; totalCount?: number } = {}) {
+function mockList(
+    items: Schemas["DocumentListItem"][] = [makeItem()],
+    paging: { page?: number; pageSize?: number; totalCount?: number } = {},
+) {
     return mockApi("get", "/api/v1/documents", makePage(items, paging));
 }
 
@@ -44,7 +47,12 @@ function mockList(items: Schemas["DocumentListItem"][] = [makeItem()], paging: {
  * @returns The rendered page.
  */
 function renderList(options: { user?: Schemas["CurrentUserResponse"]; url?: string; state?: unknown } = {}) {
-    return renderPage(<DocumentsPage />, { path: "/documents", url: options.url ?? "/documents", user: options.user, state: options.state });
+    return renderPage(<DocumentsPage />, {
+        path: "/documents",
+        url: options.url ?? "/documents",
+        user: options.user,
+        state: options.state,
+    });
 }
 
 /**
