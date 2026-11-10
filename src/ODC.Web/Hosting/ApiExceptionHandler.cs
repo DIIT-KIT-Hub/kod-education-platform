@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using ODC.Web.Infrastructure.Tenancy;
 using ODC.Web.Shared.Kernel;
 using ODC.Web.Shared.Localization;
 
@@ -28,6 +29,7 @@ internal sealed partial class ApiExceptionHandler(IProblemDetailsService problem
             DomainException domain => (StatusCodes.Status400BadRequest, domain.Message),
             BadHttpRequestException bad => (bad.StatusCode, Texts.T("Некоректний запит.")),
             UnauthorizedAccessException => (StatusCodes.Status403Forbidden, Texts.T("Недостатньо прав для виконання дії.")),
+            NoOrganizationException => (StatusCodes.Status409Conflict, Texts.T("Оберіть організацію: Ви не працюєте в жодній.")),
             _ => (StatusCodes.Status500InternalServerError, Texts.T("Сталася внутрішня помилка. Спробуйте пізніше.")),
         };
 
@@ -36,12 +38,18 @@ internal sealed partial class ApiExceptionHandler(IProblemDetailsService problem
             LogUnhandled(logger, httpContext.Request.Path, exception);
         }
 
+        var problem = new ProblemDetails { Status = status, Detail = detail };
+        if (exception is NoOrganizationException)
+        {
+            problem.Extensions["code"] = "no_organization";
+        }
+
         httpContext.Response.StatusCode = status;
         return await problemDetails.TryWriteAsync(new ProblemDetailsContext
         {
             HttpContext = httpContext,
             Exception = exception,
-            ProblemDetails = new ProblemDetails { Status = status, Detail = detail },
+            ProblemDetails = problem,
         });
     }
 

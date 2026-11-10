@@ -16,9 +16,12 @@ As with the unit tests, a failed build keeps the old DLL and `--no-build` runs t
 
 ## The host (`Hosting/OdcApplication`)
 
-- Databases: `odc_it_<guid>` (master) and `odc_it_<guid>_org` (organizations) on the server of `ODC_TEST_DATABASE` (a connection string; CI) or the user secrets of
-  ODC.Web (`ConnectionStrings:Database`); only the database name is replaced. Without either every test skips. Both
-  databases are dropped at the end (`WITH (FORCE)`).
+- Databases: `odc_it_<guid>` (master) and one per organization (`odc_it_<guid>_org_org`, `…_org_fund`) on the server of `ODC_TEST_DATABASE` (a connection string; CI) or the user secrets of
+  ODC.Web (`ConnectionStrings:Database`); only the database name is replaced. Without either every test skips. All of
+  them (the master and every `…_org_*`, including organizations a test creates) are dropped at the end (`WITH (FORCE)`).
+- Addresses: a plain `/api/v1/…` works in the person's default organization (their earliest one: `ORG` for the
+  administrator); another organization's data is at `/o/{code}/api/v1/…` (`People.In(code, path)`). A person of another
+  organization signs and chats there as a guest.
 - Everything else lives in a temporary folder: its own P-256 JWT key (never `App_Data/keys`, shared with the running
   app), storage, logs, the trust list cache, an empty client (`Spa:Root`) and the e-mail pickup folder.
 - Settings: environment Development (Data Protection keys may stay unencrypted off Windows), `Seed:DemoData=true` with a
@@ -45,9 +48,10 @@ As with the unit tests, a failed build keeps the old DLL and `--no-build` runs t
 - `Demo`: the demo accounts (`DatabaseInitializer.DemoStaff`) — first organization `ORG` (director, deputy, engineer,
   clerk, HR, heads of IT and finance, press), second organization `FUND` (head, HR, project coordinator).
   `Demo.LockedOut` is locked by the sign-in tests: no other test may use it.
-- `People`: `CreateUserAsync(admin, email, unitCode, roleCode)` (the administrator's form; an invitation e-mail follows —
-  take it with `Mailbox.WaitForAsync` before activating, or the activation reads the invitation instead of the code) and
-  `FindAsync(client, email)` (the user list the client may see).
+- `People`: `CreateUserAsync(admin, email, unitCode, roleCode, organization)` (the administrator's form in that
+  organization; an invitation e-mail follows — take it with `Mailbox.WaitForAsync` before activating, or the activation
+  reads the invitation instead of the code), `FindAsync(client, email, organization)` (the user list the client may see
+  there) and `In(organization, path)`.
 - `Mailbox`: the pickup folder. `WaitForAsync(address)` waits up to 15 s for the next e-mail to an address and hands
   each file out once; `WaitForCodeAsync` takes the six-digit code; `HasMailTo` checks that nothing was sent.
 - Request and response types are the server's own contracts (`LoginRequest`, `DocumentDetails`, …), so a contract change
@@ -62,9 +66,10 @@ As with the unit tests, a failed build keeps the old DLL and `--no-build` runs t
 | `Documents/` | registration with a file and a route, the signer's list, the file, hidden from another organization, rejection, a signer from another organization, refused file types |
 | `Chats/` | a one-to-one chat across organizations and its privacy, idempotent resend |
 | `Tickets/` | a request answered by support, seen only by the author and support |
+| `Tenancy/` | every organization's structure in its own database, an unknown organization (404), a person of one organization in another (no administration, no documents of their own) |
 
-These pin today's behaviour before the move to a database per organization (the cross-organization signer and chat
-tests in particular must keep passing).
+The cross-organization signer and chat tests pin what the database per organization must keep: the signer and the
+chat partner from the fund work in the first organization as guests (`/o/ORG/…`).
 
 ## Rules
 

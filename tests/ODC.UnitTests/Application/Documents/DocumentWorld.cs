@@ -13,6 +13,7 @@ using ODC.Web.Features.Documents.Domain;
 using ODC.Web.Features.News.Discussion;
 using ODC.Web.Features.Notifications;
 using ODC.Web.Infrastructure.Persistence;
+using ODC.Web.Infrastructure.Tenancy;
 using ODC.Web.Infrastructure.Text;
 using ODC.Web.Messaging;
 using ODC.Web.Shared.Access;
@@ -20,6 +21,7 @@ using ODC.Web.Shared.Auditing;
 using ODC.Web.Shared.Domain.Access;
 using ODC.Web.Shared.Domain.Media;
 using ODC.Web.Shared.Domain.Organization;
+using ODC.Web.Shared.Domain.Tenancy;
 using ODC.Web.Shared.Domain.Users;
 using ODC.Web.Shared.Email;
 using ODC.Web.Shared.Files;
@@ -265,6 +267,13 @@ internal sealed class DocumentWorld : IDisposable
         services.AddSingleton<IRichTextSanitizer, RichTextSanitizer>();
         services.AddSingleton<ISignatureInspector>(Inspector);
         services.AddSingleton<IDocumentNumberGenerator>(Numbers);
+
+        // The request works in organization A; signers from elsewhere are admitted as in production.
+        var organization = new OrganizationContext();
+        organization.Enter(new Organization(World.A.Id, World.A.Code, World.A.Name, "odc_tests_org_a"), OrganizationAccess.Member);
+        services.AddSingleton(organization);
+        services.AddSingleton<IAccountPermissions>(static provider => new ResolvedPermissions(provider.GetRequiredService<IPermissionResolver>()));
+        services.AddSingleton<ExternalParticipants>();
         services.AddSingleton(Options.Create(new EmailOptions { SiteUrl = "https://odc.test/" }));
         return new Session(services.BuildServiceProvider());
     }

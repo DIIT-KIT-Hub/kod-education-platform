@@ -50,9 +50,9 @@ public static class OpenDirectChat
                 return id;
             }
 
-            if (!await (await room.ChatUsersAsync(cancellationToken)).AnyAsync(u => u.Id == userId, cancellationToken))
+            if (await room.CheckPeopleAsync([userId], cancellationToken) is { } invalid)
             {
-                return Error.Validation(Texts.T("Цій людині не можна написати: обліковий запис заблоковано або чати для неї вимкнено."));
+                return invalid;
             }
 
             var chat = Chat.Direct(me, userId, timeProvider.GetUtcNow());

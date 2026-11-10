@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using ODC.Web.Endpoints;
 using ODC.Web.Infrastructure.Persistence;
+using ODC.Web.Infrastructure.Tenancy;
 using ODC.Web.Messaging;
 using ODC.Web.Security;
 using ODC.Web.Shared.Access;
@@ -35,7 +36,8 @@ public static class UpdateUnit
     /// <param name="catalog">The shared catalogs (unit types).</param>
     /// <param name="accessScope">The administration scopes.</param>
     /// <param name="audit">The audit logger.</param>
-    internal sealed class Handler(OrganizationDbContext db, Catalog catalog, IAccessScope accessScope, IAuditLogger audit) : IRequestHandler<Command, Result>
+    /// <param name="provisioning">Keeps the registry of organizations in line with their root units.</param>
+    internal sealed class Handler(OrganizationDbContext db, Catalog catalog, IAccessScope accessScope, IAuditLogger audit, IOrganizationProvisioning provisioning) : IRequestHandler<Command, Result>
     {
         /// <inheritdoc />
         public async Task<Result> HandleAsync(Command request, CancellationToken cancellationToken)
@@ -57,6 +59,12 @@ public static class UpdateUnit
             if (await UnitTree.ValidateAsync(db, catalog, id, data, cancellationToken) is { } invalid)
             {
                 return invalid;
+            }
+
+            // The root is the organization (its own database): it stays at the top, and nothing else gets there.
+            if ((unit.ParentId is null) != (data.ParentId is null))
+            {
+                return Error.Validation(Texts.T("Організація лишається на верхньому рівні, а підрозділ — у своїй організації: кожна організація має власну базу даних."));
             }
 
             if (data.ParentId != unit.ParentId)
@@ -94,6 +102,11 @@ public static class UpdateUnit
                 unit.SetActive(data.IsActive);
                 audit.Add(AuditActions.UnitChanged, nameof(OrganizationUnit), unit.Id.ToString(), $"Змінено {unit.Code} «{unit.Name}»");
                 await db.SaveChangesAsync(cancellationToken);
+                if (unit.ParentId is null)
+                {
+                    await provisioning.RenameAsync(unit.Id, unit.Code, unit.Name, cancellationToken);
+                }
+
                 return Result.Success();
             });
         }

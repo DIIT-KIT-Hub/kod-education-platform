@@ -48,5 +48,10 @@
   "Коментарі до цієї новини вимкнено.": "Comments on this post are turned off.",
   "Активацію не розпочато або час на неї минув. Почніть знову.": "The activation has not started or its time has run out. Start again.",
   "Пароль збережено, але увійти зараз не вдалося. Увійдіть зі сторінки входу.": "The password is saved, but signing in failed. Sign in from the sign-in page.",
-  "Оберіть фото.": "Choose a photo."
+  "Оберіть фото.": "Choose a photo.",
+  "Організацію не знайдено.": "Organization not found.",
+  "Оберіть організацію: Ви не працюєте в жодній.": "Choose an organization: you do not work in any.",
+  "Організація з кодом «{0}» вже існує.": "An organization with the code \"{0}\" already exists.",
+  "Організація лишається на верхньому рівні, а підрозділ — у своїй організації: кожна організація має власну базу даних.": "An organization stays at the top level and a unit stays in its organization: every organization has a database of its own.",
+  "База даних": "Database"
 }

@@ -27,9 +27,10 @@ public sealed class ChatTests(OdcApplication app)
             [("ClientId", Guid.NewGuid().ToString()), ("Body", "<p>Добрий день! Надсилаю договір.</p>")]);
         var message = await ApiClient.ReadAsync<ChatMessageDto>(sent);
 
-        var again = await fundEmployee.PostAsync<ChatIdResponse>("/api/v1/chats/direct", new OpenDirectChatRequest(engineer.Context!.User!.Id));
+        // The chat lives in the engineer's organization: the fund's employee takes part there as a guest.
+        var again = await fundEmployee.PostAsync<ChatIdResponse>("/o/ORG/api/v1/chats/direct", new OpenDirectChatRequest(engineer.Context!.User!.Id));
         Assert.Equal(chat.Id, again.Id);
-        var page = await fundEmployee.GetAsync<ChatMessagePage>($"/api/v1/chats/{chat.Id}/messages");
+        var page = await fundEmployee.GetAsync<ChatMessagePage>($"/o/ORG/api/v1/chats/{chat.Id}/messages");
         Assert.Contains(page.Messages, m => m.Id == message.Id && m.Text.Contains("Надсилаю договір", StringComparison.Ordinal));
 
         using var foreign = await clerk.GetAsync($"/api/v1/chats/{chat.Id}/messages");

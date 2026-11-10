@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Http.HttpResults;
 using ODC.Web.Endpoints;
 using ODC.Web.Infrastructure.Persistence;
+using ODC.Web.Infrastructure.Tenancy;
 using ODC.Web.Messaging;
 using ODC.Web.Security;
 using ODC.Web.Shared.Access;
@@ -33,7 +34,8 @@ public static class CreateUnit
     /// <param name="catalog">The shared catalogs (unit types).</param>
     /// <param name="accessScope">The administration scopes.</param>
     /// <param name="audit">The audit logger.</param>
-    internal sealed class Handler(OrganizationDbContext db, Catalog catalog, IAccessScope accessScope, IAuditLogger audit) : IRequestHandler<Command, Result<Guid>>
+    /// <param name="provisioning">Creates organizations (a unit at the top level is a new organization with its own database).</param>
+    internal sealed class Handler(OrganizationDbContext db, Catalog catalog, IAccessScope accessScope, IAuditLogger audit, IOrganizationProvisioning provisioning) : IRequestHandler<Command, Result<Guid>>
     {
         /// <inheritdoc />
         public async Task<Result<Guid>> HandleAsync(Command request, CancellationToken cancellationToken)
@@ -52,6 +54,9 @@ public static class CreateUnit
                 {
                     return Error.Forbidden(Texts.T(UnitTree.TopLevelMessage));
                 }
+
+                audit.Add(AuditActions.UnitChanged, nameof(OrganizationUnit), null, $"Створено організацію {data.Code} «{data.Name}»");
+                return await DomainErrors.GuardAsync(() => provisioning.CreateAsync(data.Code, data.Name, data.ShortName, data.TypeId, data.SortOrder, cancellationToken));
             }
             else if (!scope.Contains(parentId))
             {

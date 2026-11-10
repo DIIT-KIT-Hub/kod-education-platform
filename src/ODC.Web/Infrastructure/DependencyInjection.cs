@@ -14,6 +14,7 @@ using ODC.Web.Infrastructure.Media;
 using ODC.Web.Infrastructure.Persistence;
 using ODC.Web.Infrastructure.Persistence.Seeding;
 using ODC.Web.Infrastructure.Signatures;
+using ODC.Web.Infrastructure.Tenancy;
 using ODC.Web.Infrastructure.Text;
 using ODC.Web.Messaging;
 using ODC.Web.Shared.Auditing;
@@ -49,13 +50,22 @@ public static class DependencyInjection
             var connectionString = configuration.GetConnectionString("Database")
                 ?? throw new InvalidOperationException("Connection string 'ConnectionStrings:Database' is not configured.");
 
-            var organizationConnectionString = OrganizationDatabase.ConnectionString(configuration.GetConnectionString("OrganizationDatabase"), connectionString);
-
             services.AddSingleton(TimeProvider.System);
+            services.AddMemoryCache();
+            services.AddSingleton(new OrganizationDatabases(connectionString));
+            services.AddSingleton<OrganizationRegistry>();
+            services.AddSingleton<OrganizationScopes>();
+            services.AddSingleton<AccessCache>();
+            services.AddSingleton<MemberCopies>();
+            services.AddSingleton<IAccountPermissions, AccountPermissions>();
+            services.AddScoped<OrganizationContext>();
+            services.AddScoped<Memberships>();
+            services.AddScoped<ExternalParticipants>();
+            services.AddScoped<IOrganizationProvisioning, OrganizationProvisioning>();
             services.AddSingleton<AuditableEntityInterceptor>();
             services.AddScoped<PendingAudit>();
             services.AddScoped<PendingAuditInterceptor>();
-            services.AddScoped<MemberSync>();
+            services.AddScoped(static provider => new MemberSync(provider.GetRequiredService<MemberCopies>().CopyAsync));
             services.AddDbContext<MasterDbContext>((provider, options) => options
                 .UseNpgsql(connectionString, npgsql => npgsql
                     .UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)
@@ -65,8 +75,11 @@ public static class DependencyInjection
                     provider.GetRequiredService<AuditableEntityInterceptor>(),
                     provider.GetRequiredService<PendingAuditInterceptor>(),
                     provider.GetRequiredService<MemberSync>()));
+
+            // The database of the request's organization: none chosen, none opened (NoOrganizationException → 409). The EF
+            // Core tools have no request; migrations never connect.
             services.AddDbContext<OrganizationDbContext>((provider, options) => options
-                .UseNpgsql(organizationConnectionString, npgsql => npgsql
+                .UseNpgsql(EF.IsDesignTime ? connectionString : provider.GetRequiredService<OrganizationDatabases>().ConnectionStringOf(provider.GetRequiredService<OrganizationContext>().Require()), npgsql => npgsql
                     .UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)
                     .EnableRetryOnFailure(maxRetryCount: 3))
                 .UseSnakeCaseNamingConvention()
@@ -74,7 +87,7 @@ public static class DependencyInjection
                     provider.GetRequiredService<AuditableEntityInterceptor>(),
                     provider.GetRequiredService<PendingAuditInterceptor>()));
             services.AddScoped<IDomainEventSource>(static provider => provider.GetRequiredService<MasterDbContext>());
-            services.AddScoped<IDomainEventSource>(static provider => provider.GetRequiredService<OrganizationDbContext>());
+            services.AddScoped<IDomainEventSource>(static provider => new OrganizationEvents(provider));
 
             services.AddIdentityServices();
             services.AddKeyProtection(configuration, environment);

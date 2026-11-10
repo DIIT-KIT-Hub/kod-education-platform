@@ -15,6 +15,7 @@ using ODC.Web.Features.Notifications;
 using ODC.Web.Features.Signing;
 using ODC.Web.Infrastructure.Identity.Authentication;
 using ODC.Web.Infrastructure.Identity.Tokens;
+using ODC.Web.Infrastructure.Tenancy;
 using ODC.Web.Realtime;
 using ODC.Web.Security;
 using ODC.Web.Shared.Identity;
@@ -48,7 +49,7 @@ internal static class WebServiceCollectionExtensions
             services.AddOpenApi(static options => options.AddSchemaTransformer<NonNullableEnumSchemaTransformer>());
 
             // Hub messages carry the same DTOs as the REST API: the same JSON conventions.
-            services.AddSignalR().AddJsonProtocol(static options => ConfigureJson(options.PayloadSerializerOptions));
+            services.AddSignalR(static options => options.AddFilter<OrganizationHubFilter>()).AddJsonProtocol(static options => ConfigureJson(options.PayloadSerializerOptions));
             services.AddSingleton<IUserIdProvider, SubjectUserIdProvider>();
             services.AddSingleton<INewsDiscussionEvents, LiveNewsDiscussionEvents>();
             services.AddSingleton<IChatEvents, LiveChatEvents>();

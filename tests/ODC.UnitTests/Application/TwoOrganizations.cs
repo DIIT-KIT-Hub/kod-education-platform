@@ -9,6 +9,7 @@ using ODC.Web.Features.News.Discussion;
 using ODC.Web.Features.News.Domain;
 using ODC.Web.Features.Notifications;
 using ODC.Web.Infrastructure.Persistence;
+using ODC.Web.Infrastructure.Tenancy;
 using ODC.Web.Infrastructure.Text;
 using ODC.Web.Messaging;
 using ODC.Web.Shared.Access;
@@ -16,6 +17,7 @@ using ODC.Web.Shared.Auditing;
 using ODC.Web.Shared.Domain.Access;
 using ODC.Web.Shared.Domain.Media;
 using ODC.Web.Shared.Domain.Organization;
+using ODC.Web.Shared.Domain.Tenancy;
 using ODC.Web.Shared.Domain.Users;
 using ODC.Web.Shared.Email;
 using ODC.Web.Shared.Files;
@@ -60,8 +62,9 @@ internal sealed class TwoOrganizations : IDisposable
         Db = new OrganizationDbContext(organization);
 
         // The organization's copies of the accounts follow the accounts, as MemberSync does in production.
-        var scopes = new ServiceCollection().AddSingleton(Db).BuildServiceProvider().GetRequiredService<IServiceScopeFactory>();
-        Master = new MasterDbContext(new DbContextOptionsBuilder<MasterDbContext>(master).AddInterceptors(new MemberSync(scopes)).Options);
+        Master = new MasterDbContext(new DbContextOptionsBuilder<MasterDbContext>(master)
+            .AddInterceptors(new MemberSync((profiles, cancellationToken) => MemberSync.CopyAsync(Db, profiles, cancellationToken)))
+            .Options);
 
         OrganizationType = new UnitType("ORGANIZATION", "Організація", isOrganization: true);
         DivisionType = new UnitType("DIVISION", "Відділ", isOrganization: false);
@@ -216,6 +219,17 @@ internal sealed class TwoOrganizations : IDisposable
         // The infrastructure of production (AddInfrastructure) is replaced by the shared in-memory database and fakes.
         services.AddSingleton(Master);
         services.AddSingleton(Db);
+
+        // The request works in organization A (the tests keep every organization in one database).
+        var organization = new OrganizationContext();
+        organization.Enter(new Organization(A.Id, A.Code, A.Name, "odc_tests_org_a"), OrganizationAccess.Member);
+        services.AddSingleton(organization);
+        services.AddMemoryCache();
+        services.AddSingleton<AccessCache>();
+        services.AddSingleton<Memberships>();
+        services.AddSingleton<IAccountPermissions>(static provider => new ResolvedPermissions(provider.GetRequiredService<IPermissionResolver>()));
+        services.AddSingleton<ExternalParticipants>();
+        services.AddSingleton<IOrganizationProvisioning>(new FakeProvisioning(Db));
         services.AddSingleton<IDomainEventSource>(Master);
         services.AddSingleton<IDomainEventSource>(Db);
         services.AddSingleton<ICurrentUser>(new FakeCurrentUser(user.Id, permissions));

@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using ODC.Web.Endpoints;
 using ODC.Web.Features.Chats.Domain;
 using ODC.Web.Infrastructure.Persistence;
+using ODC.Web.Infrastructure.Tenancy;
 using ODC.Web.Messaging;
 using ODC.Web.Shared.Access;
 using ODC.Web.Shared.Domain.Access;
@@ -20,21 +21,25 @@ namespace ODC.Web.Features.Chats;
 /// </summary>
 /// <param name="db">The database context.</param>
 /// <param name="catalog">The shared catalogs (who may use chats).</param>
+/// <param name="organization">The organization of the request (attachment addresses stay inside it).</param>
 /// <param name="currentUser">The current user.</param>
 /// <param name="attachmentStore">Checks and stores the files of messages.</param>
 /// <param name="files">The private file storage.</param>
 /// <param name="events">Delivers changes to the members' pages.</param>
 /// <param name="domainEvents">Raises what the user has seen (their notifications about it are done).</param>
 /// <param name="timeProvider">The clock.</param>
+/// <param name="participants">Admits chat members from other organizations.</param>
 internal sealed class ChatRoom(
     OrganizationDbContext db,
     Catalog catalog,
+    OrganizationContext organization,
     ICurrentUser currentUser,
     AttachmentStore attachmentStore,
     IFileStorage files,
     IChatEvents events,
     DomainEvents domainEvents,
-    TimeProvider timeProvider)
+    TimeProvider timeProvider,
+    ExternalParticipants participants)
 {
     /// <summary>
     /// The default number of messages per page.
@@ -87,12 +92,13 @@ internal sealed class ChatRoom(
     /// <summary>
     /// Builds the address of an attachment.
     /// </summary>
+    /// <param name="organizationCode">The code of the chat's organization (the address stays inside it), or null.</param>
     /// <param name="chatId">The chat.</param>
     /// <param name="attachmentId">The attachment.</param>
     /// <param name="thumbnail">Whether the thumbnail is meant.</param>
     /// <returns>The address.</returns>
-    public static string AttachmentUrl(Guid chatId, Guid attachmentId, bool thumbnail)
-        => $"/api/v1/chats/{chatId}/attachments/{attachmentId}{(thumbnail ? "/thumb" : string.Empty)}";
+    public static string AttachmentUrl(string? organizationCode, Guid chatId, Guid attachmentId, bool thumbnail)
+        => $"{(organizationCode is null ? string.Empty : $"/o/{organizationCode}")}/api/v1/chats/{chatId}/attachments/{attachmentId}{(thumbnail ? "/thumb" : string.Empty)}";
 
     /// <summary>
     /// The error of a chat or message the current user cannot see.
@@ -108,7 +114,8 @@ internal sealed class ChatRoom(
     public Task<IQueryable<Member>> ChatUsersAsync(CancellationToken cancellationToken) => db.MembersWithAsync(catalog, Permissions.Chats.Use, cancellationToken);
 
     /// <summary>
-    /// Checks that everyone may be added to a chat.
+    /// Checks that everyone may be added to a chat: people of the organization who may use chats, or people of other
+    /// organizations who may use them in their own (their profiles are copied here).
     /// </summary>
     /// <param name="userIds">The people.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
@@ -121,8 +128,14 @@ internal sealed class ChatRoom(
             return Error.Validation(Texts.T("У груповому чаті може бути не більше {0} учасників.", Chat.MaxMembers));
         }
 
-        var allowed = await (await ChatUsersAsync(cancellationToken)).CountAsync(u => ids.Contains(u.Id), cancellationToken);
-        return allowed == ids.Count
+        var allowed = await (await ChatUsersAsync(cancellationToken)).Where(u => ids.Contains(u.Id)).Select(static u => u.Id).ToListAsync(cancellationToken);
+        var rest = ids.Except(allowed).ToList();
+        if (rest.Count > 0)
+        {
+            rest = [.. rest.Except(await participants.AdmitAsync(rest, Permissions.Chats.Use, cancellationToken))];
+        }
+
+        return rest.Count == 0
             ? null
             : Error.Validation(Texts.T("Цій людині не можна написати: обліковий запис заблоковано або чати для неї вимкнено."));
     }
@@ -381,7 +394,7 @@ internal sealed class ChatRoom(
         static ChatMessageDto Placeholder(ChatMessageDto m)
             => m with { Body = string.Empty, Text = string.Empty, EditedAt = null, Attachments = [], Reactions = [], IsHidden = true, ForwardedFrom = null };
 
-        static ChatAttachmentDto ToDto(Guid chatId, ChatAttachment a) => new(
+        ChatAttachmentDto ToDto(Guid chatId, ChatAttachment a) => new(
             a.Id,
             a.Kind,
             a.FileName,
@@ -389,8 +402,8 @@ internal sealed class ChatRoom(
             a.Size,
             a.Width,
             a.Height,
-            AttachmentUrl(chatId, a.Id, thumbnail: false),
-            a.ThumbnailKey is null ? null : AttachmentUrl(chatId, a.Id, thumbnail: true));
+            AttachmentUrl(organization.Current?.Code, chatId, a.Id, thumbnail: false),
+            a.ThumbnailKey is null ? null : AttachmentUrl(organization.Current?.Code, chatId, a.Id, thumbnail: true));
     }
 
     /// <summary>

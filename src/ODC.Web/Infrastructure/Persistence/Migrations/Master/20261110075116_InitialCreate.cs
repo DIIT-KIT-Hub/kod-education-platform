@@ -68,6 +68,23 @@ namespace ODC.Web.Infrastructure.Persistence.Migrations.Master
                 });
 
             migrationBuilder.CreateTable(
+                name: "organizations",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    code = table.Column<string>(type: "citext", maxLength: 32, nullable: false),
+                    name = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: false),
+                    database_name = table.Column<string>(type: "character varying(63)", maxLength: 63, nullable: false),
+                    is_active = table.Column<bool>(type: "boolean", nullable: false),
+                    created_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    updated_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_organizations", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "roles",
                 columns: table => new
                 {
@@ -186,6 +203,31 @@ namespace ODC.Web.Infrastructure.Persistence.Migrations.Master
                     table.PrimaryKey("pk_activation_challenges", x => x.id);
                     table.ForeignKey(
                         name: "fk_activation_challenges_users_user_id",
+                        column: x => x.user_id,
+                        principalTable: "users",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "memberships",
+                columns: table => new
+                {
+                    user_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    organization_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    created_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_memberships", x => new { x.user_id, x.organization_id });
+                    table.ForeignKey(
+                        name: "fk_memberships_organizations_organization_id",
+                        column: x => x.organization_id,
+                        principalTable: "organizations",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "fk_memberships_users_user_id",
                         column: x => x.user_id,
                         principalTable: "users",
                         principalColumn: "id",
@@ -414,6 +456,23 @@ namespace ODC.Web.Infrastructure.Persistence.Migrations.Master
                 columns: new[] { "purpose", "created_at" });
 
             migrationBuilder.CreateIndex(
+                name: "ix_memberships_organization_id",
+                table: "memberships",
+                column: "organization_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_organizations_code",
+                table: "organizations",
+                column: "code",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "ix_organizations_database_name",
+                table: "organizations",
+                column: "database_name",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "ix_refresh_token_families_expires_at",
                 table: "refresh_token_families",
                 column: "expires_at");
@@ -538,6 +597,9 @@ namespace ODC.Web.Infrastructure.Persistence.Migrations.Master
                 name: "data_protection_keys");
 
             migrationBuilder.DropTable(
+                name: "memberships");
+
+            migrationBuilder.DropTable(
                 name: "refresh_token_families");
 
             migrationBuilder.DropTable(
@@ -557,6 +619,9 @@ namespace ODC.Web.Infrastructure.Persistence.Migrations.Master
 
             migrationBuilder.DropTable(
                 name: "user_tokens");
+
+            migrationBuilder.DropTable(
+                name: "organizations");
 
             migrationBuilder.DropTable(
                 name: "roles");

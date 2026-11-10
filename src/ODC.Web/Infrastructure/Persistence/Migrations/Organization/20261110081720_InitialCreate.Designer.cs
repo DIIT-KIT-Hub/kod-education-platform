@@ -13,7 +13,7 @@ using ODC.Web.Infrastructure.Persistence;
 namespace ODC.Web.Infrastructure.Persistence.Migrations.Organization
 {
     [DbContext(typeof(OrganizationDbContext))]
-    [Migration("20261109220943_InitialCreate")]
+    [Migration("20261110081720_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />

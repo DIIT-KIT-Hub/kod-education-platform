@@ -69,9 +69,10 @@ public sealed class DocumentTests(OdcApplication app)
         var id = await CreateAsync(engineer, "Договір про співпрацю", "Текст договору", fundHead.Context!.User!.Id);
         var unrelated = await CreateAsync(engineer, "Внутрішній наказ", "Лише для своїх", director.Context!.User!.Id);
 
-        var details = await fundHead.GetAsync<DocumentDetails>($"/api/v1/documents/{id}");
+        // The document lives in the engineer's organization: the head of the fund signs there as a guest.
+        var details = await fundHead.GetAsync<DocumentDetails>($"/o/ORG/api/v1/documents/{id}");
         Assert.True(details.Actions.CanSign);
-        using var other = await fundHead.GetAsync($"/api/v1/documents/{unrelated}");
+        using var other = await fundHead.GetAsync($"/o/ORG/api/v1/documents/{unrelated}");
         Assert.Equal(HttpStatusCode.NotFound, other.StatusCode);
     }
 

@@ -66,11 +66,11 @@ or commit them. There is no admin password anywhere: the first administrator (`S
 password and activates the account by e-mail like everyone else. For your own runs set `Email:PickupDirectory` so
 codes land in `.eml` files instead of real mailboxes (the user's secrets contain a real SMTP server).
 
-Two databases (phase 2 of the move to a database per organization, see "Databases" below): the master database
-(`ConnectionStrings:Database`, e.g. `odc`) and the organizations' database (`ConnectionStrings:OrganizationDatabase`,
-by default the same server with the name `<master>_org`). Each has one migration (`InitialCreate`, 2026-11-09). A
-database created before the split cannot be migrated: drop it and let the start create both again (ask the user first —
-it is their data).
+A master database (`ConnectionStrings:Database`, e.g. `odc`) and one database per organization on the same server
+(`<master>_org_<code>`, e.g. `odc_org_org`, `odc_org_fund`; see "Databases" below). Each context has one migration
+(`InitialCreate`, 2026-11-10); the start migrates the master and every organization's database. A database created
+before 2026-11-10 cannot be migrated: drop the master and every `<master>_org*` database and let the start create them
+again (ask the user first — it is their data).
 
 Tooling on this machine: Windows, Git Bash + PowerShell, Node.js available (use it for scripts), `python` is only the
 Store stub. Bash heredocs with Ukrainian text and quotes sometimes break — write scripts to the scratchpad with the
@@ -114,22 +114,54 @@ tests/ODC.IntegrationTests  The real host over HTTP (WebApplicationFactory) on a
 
 ### Databases (master + organizations)
 
-The plan (`docs`: the published "Бази організацій ODC" page) moves every organization into a database of its own; phase
-2 is done: the code is split into two contexts on two databases, every organization still shares the second one.
+The plan (`docs`: the published "Бази організацій ODC" page) moves every organization into a database of its own.
+Phases 2 (two contexts) and 3 (registry and routing) are done: every organization has its own database; the client
+(phase 4: addresses `/o/:code/…`, the switcher, aggregated lists) and the cross-organization indexes (phase 5) follow.
+
+- **Registry** (master): `organizations` (`Organization`: code, name, `DatabaseName`, active) and `memberships`
+  (`Membership`: who works in which organization — kept by `Memberships.SyncAsync` whenever positions change: a person
+  with a position there is a member). `OrganizationRegistry` (singleton) keeps the registry in memory for a minute
+  (`Invalidate` after a change). The root unit of an organization's structure has the organization's identifier.
+- **Routing** (`Infrastructure/Tenancy`): `/o/{code}/…` addresses are served as the plain ones
+  (`OrganizationPathMiddleware` moves the code into `PathBase`); `OrganizationMiddleware` (after authentication)
+  chooses the organization — the one of the address, else the person's earliest membership, else (a platform
+  administrator) the first one — and enters it into the scoped `OrganizationContext`. An unknown or suspended code
+  answers 404 `organization_not_found`. `OrganizationDbContext` opens the database of `OrganizationContext.Require()`;
+  without an organization it throws `NoOrganizationException` (409 `no_organization`): fail closed.
+- **Permissions per organization**: the access token carries the union over the person's organizations
+  (`IAccountPermissions`); `OrganizationMiddleware` replaces the permission claims of the request with those of the
+  chosen organization (`OrganizationPermissions.Effective`, cached for a minute in `AccessCache`, `Changed()` drops
+  it): a member gets their positions' permissions there; a platform administrator (`administration.all`) gets every
+  permission everywhere and the platform-wide ones (`roles.manage`, `audit.view`, `tickets.manage`) follow the person;
+  anyone else is a **guest** with at most `documents.view`, `documents.sign`, `chats.use` (data rules decide what they
+  see: the documents they sign, the chats they are in).
+- **People of other organizations** (`ExternalParticipants.AdmitAsync`): a signer or chat member from another
+  organization who holds the permission in their own is copied into this organization's `members` (no membership) and
+  works there as a guest through `/o/{code}/…`.
+- **Creating an organization** = creating a top-level unit (`CreateUnit` → `IOrganizationProvisioning`): the registry
+  row, a new database (migrated) and its root unit; a failure drops the database and the row. Renaming the root unit
+  renames the organization; a unit never moves between organizations.
+- **The server's own work** in an organization: `OrganizationScopes.RunAsync(organization, work)` (a scope with the
+  organization entered); seeding, `MemberCopies` and `AccountPermissions` use it. SignalR runs hub calls in scopes of
+  their own: `OrganizationHubFilter` enters the organization of the connection's request, so hubs resolve handlers
+  inside their methods (the hub is created before the filters run).
+- Known gaps until phases 4–5: the client always works in the default organization; cabinet-wide news live in the
+  first organization; the role and unit-type usage counts, the audit log, ticket notifications and people pickers see
+  the current organization only.
 
 - `DataPlacement` lists where every entity lives; each context applies only the configurations of its entities, and
   `DataPlacementTests` fail for an unplaced entity, a model that holds a foreign entity or a shared table name.
   - **Master** (`MasterDbContext : IdentityUserContext`): accounts (`users`, `user_logins`, `user_tokens`, an unused
-    `user_claims`), refresh token families, activation challenges, Data Protection keys, the catalogs every organization
-    shares (roles with their permissions, unit types), images (`media_files`), requests to the platform support, the
-    platform's audit trail.
+    `user_claims`), refresh token families, activation challenges, Data Protection keys, the registry of organizations
+    and memberships, the catalogs every organization shares (roles with their permissions, unit types), images
+    (`media_files`), requests to the platform support, the platform's audit trail.
   - **Organization** (`OrganizationDbContext`): the structure, **members** with their positions and individual
     permissions, documents, news with discussions, chats, notifications, the organization's audit trail, the document
     number sequence.
 - `Member` (table `members`) is the organization's copy of an account's profile (name, e-mail, phone, photo, active,
   awaiting activation, last sign-in). Authors, signers, chat members and notification actors point at members, so the
   organization's queries never join the master database. `MemberSync` (an interceptor of the master context) copies
-  every added or changed `User` after the save — after the commit inside a transaction, nothing on a rollback — and the
+  every added or changed `User` into the databases of the account's organizations (`MemberCopies`) after the save — after the commit inside a transaction, nothing on a rollback — and the
   seeding repairs missing copies at every start. Never edit a member's profile on the organization's side.
 - Positions (`StaffPosition`, table `staff_positions`) and individual permissions (`UserPermissionOverride`, table
   `permission_overrides`) belong to the member: `Member.SetPositions` / `SetPermissionOverrides`. They refer to roles

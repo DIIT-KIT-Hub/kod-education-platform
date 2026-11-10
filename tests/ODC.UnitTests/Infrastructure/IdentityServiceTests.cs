@@ -512,13 +512,13 @@ public sealed class IdentityServiceTests : IAsyncDisposable
     }
 
     /// <summary>
-    /// A permission resolver with a fixed answer.
+    /// The permissions of an account, a fixed answer.
     /// </summary>
     /// <param name="permissions">The effective permissions.</param>
-    private sealed class FixedPermissions(params string[] permissions) : ODC.Web.Shared.Access.IPermissionResolver
+    private sealed class FixedPermissions(params string[] permissions) : ODC.Web.Infrastructure.Tenancy.IAccountPermissions
     {
         /// <inheritdoc />
-        public Task<IReadOnlySet<string>> GetEffectivePermissionsAsync(Guid userId, CancellationToken cancellationToken)
+        public Task<IReadOnlySet<string>> UnionAsync(Guid userId, CancellationToken cancellationToken)
             => Task.FromResult<IReadOnlySet<string>>(permissions.ToHashSet());
     }
 

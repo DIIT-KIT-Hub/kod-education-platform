@@ -7,16 +7,17 @@ namespace ODC.Web.Infrastructure.Persistence;
 
 /// <summary>
 /// Keeps the organizations' copies of the accounts (<see cref="Member"/>) up to date: after the master database saved new
-/// or changed accounts, their profiles are written to the organization's database in a scope of its own (so the
-/// request's own pending changes there are not saved early). Inside a transaction the copies wait for the commit and are
-/// dropped on a rollback. Catches every way an account changes, the Identity managers included.
+/// or changed accounts, their profiles go to the databases of the organizations they work in (<see cref="Tenancy.MemberCopies"/>),
+/// each in a scope of its own (so the request's own pending changes there are not saved early). Inside a transaction the
+/// copies wait for the commit and are dropped on a rollback. Catches every way an account changes, the Identity managers
+/// included.
 /// </summary>
 /// <remarks>
-/// Until there is a database per organization (phase 3) every account is a member of the one shared database. A crash
-/// between the two saves leaves an old copy until the account changes again; the seeding repairs missing members.
+/// A crash between the two saves leaves an old copy until the account changes again; the seeding repairs the copies of
+/// the members of every organization at start.
 /// </remarks>
-/// <param name="scopes">Creates the scope of the organization's database.</param>
-internal sealed class MemberSync(IServiceScopeFactory scopes) : SaveChangesInterceptor, IDbTransactionInterceptor
+/// <param name="copy">Writes profiles to the organizations' databases.</param>
+internal sealed class MemberSync(Func<IReadOnlyCollection<MemberProfile>, CancellationToken, Task> copy) : SaveChangesInterceptor, IDbTransactionInterceptor
 {
     /// <summary>
     /// The profiles of the accounts the current save adds or changes.
@@ -191,7 +192,6 @@ internal sealed class MemberSync(IServiceScopeFactory scopes) : SaveChangesInter
             return;
         }
 
-        await using var scope = scopes.CreateAsyncScope();
-        await CopyAsync(scope.ServiceProvider.GetRequiredService<OrganizationDbContext>(), waiting, cancellationToken);
+        await copy(waiting, cancellationToken);
     }
 }

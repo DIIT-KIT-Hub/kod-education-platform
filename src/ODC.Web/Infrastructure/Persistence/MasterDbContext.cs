@@ -10,6 +10,7 @@ using ODC.Web.Shared.Domain.Access;
 using ODC.Web.Shared.Domain.Audit;
 using ODC.Web.Shared.Domain.Media;
 using ODC.Web.Shared.Domain.Organization;
+using ODC.Web.Shared.Domain.Tenancy;
 using ODC.Web.Shared.Domain.Users;
 using ODC.Web.Shared.Kernel;
 
@@ -28,6 +29,16 @@ public sealed class MasterDbContext(DbContextOptions<MasterDbContext> options)
         IDataProtectionKeyContext,
         IDomainEventSource
 {
+    /// <summary>
+    /// Gets the registry of organizations (where each one's database is).
+    /// </summary>
+    public DbSet<Organization> Organizations => Set<Organization>();
+
+    /// <summary>
+    /// Gets the memberships of accounts in organizations.
+    /// </summary>
+    public DbSet<Membership> Memberships => Set<Membership>();
+
     /// <summary>
     /// Gets the roles.
     /// </summary>

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Connections.Features;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
 using ODC.Web.Features.Chats;
 using ODC.Web.Features.Chats.Domain;
@@ -242,7 +243,10 @@ public sealed class RealtimeTests
     /// <param name="members">The members of the chat asked about (null: the user is not a member).</param>
     /// <returns>The hub.</returns>
     private LiveHub Hub(FakeCallerContext context, bool canRead = false, IReadOnlyList<Guid>? members = null)
-        => new(new Answer<CanReadNewsDiscussion.Query, bool>(canRead), new Answer<GetChatMemberIds.Query, IReadOnlyList<Guid>?>(members))
+        => new(new ServiceCollection()
+            .AddSingleton<IRequestHandler<CanReadNewsDiscussion.Query, bool>>(new Answer<CanReadNewsDiscussion.Query, bool>(canRead))
+            .AddSingleton<IRequestHandler<GetChatMemberIds.Query, IReadOnlyList<Guid>?>>(new Answer<GetChatMemberIds.Query, IReadOnlyList<Guid>?>(members))
+            .BuildServiceProvider())
         {
             Context = context,
             Clients = new FakeClients(_sent, fail: false),

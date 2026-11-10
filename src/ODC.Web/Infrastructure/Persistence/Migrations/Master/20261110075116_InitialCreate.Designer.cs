@@ -12,7 +12,7 @@ using ODC.Web.Infrastructure.Persistence;
 namespace ODC.Web.Infrastructure.Persistence.Migrations.Master
 {
     [DbContext(typeof(MasterDbContext))]
-    [Migration("20261109220935_InitialCreate")]
+    [Migration("20261110075116_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -725,6 +725,79 @@ namespace ODC.Web.Infrastructure.Persistence.Migrations.Master
                     b.ToTable("unit_types", (string)null);
                 });
 
+            modelBuilder.Entity("ODC.Web.Shared.Domain.Tenancy.Membership", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("organization_id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.HasKey("UserId", "OrganizationId")
+                        .HasName("pk_memberships");
+
+                    b.HasIndex("OrganizationId")
+                        .HasDatabaseName("ix_memberships_organization_id");
+
+                    b.ToTable("memberships", (string)null);
+                });
+
+            modelBuilder.Entity("ODC.Web.Shared.Domain.Tenancy.Organization", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("citext")
+                        .HasColumnName("code");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("DatabaseName")
+                        .IsRequired()
+                        .HasMaxLength(63)
+                        .HasColumnType("character varying(63)")
+                        .HasColumnName("database_name");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)")
+                        .HasColumnName("name");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_organizations");
+
+                    b.HasIndex("Code")
+                        .IsUnique()
+                        .HasDatabaseName("ix_organizations_code");
+
+                    b.HasIndex("DatabaseName")
+                        .IsUnique()
+                        .HasDatabaseName("ix_organizations_database_name");
+
+                    b.ToTable("organizations", (string)null);
+                });
+
             modelBuilder.Entity("ODC.Web.Shared.Domain.Users.User", b =>
                 {
                     b.Property<Guid>("Id")
@@ -960,6 +1033,23 @@ namespace ODC.Web.Infrastructure.Persistence.Migrations.Master
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_role_claims_roles_role_id");
+                });
+
+            modelBuilder.Entity("ODC.Web.Shared.Domain.Tenancy.Membership", b =>
+                {
+                    b.HasOne("ODC.Web.Shared.Domain.Tenancy.Organization", null)
+                        .WithMany()
+                        .HasForeignKey("OrganizationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_memberships_organizations_organization_id");
+
+                    b.HasOne("ODC.Web.Shared.Domain.Users.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_memberships_users_user_id");
                 });
 
             modelBuilder.Entity("ODC.Web.Shared.Domain.Users.User", b =>

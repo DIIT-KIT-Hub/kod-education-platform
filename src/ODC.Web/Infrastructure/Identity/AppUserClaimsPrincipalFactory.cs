@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
+using ODC.Web.Infrastructure.Tenancy;
 using ODC.Web.Shared.Access;
 using ODC.Web.Shared.Domain.Access;
 using ODC.Web.Shared.Domain.Users;
@@ -13,12 +14,12 @@ namespace ODC.Web.Infrastructure.Identity;
 /// </summary>
 /// <param name="userManager">The user manager.</param>
 /// <param name="optionsAccessor">The Identity options.</param>
-/// <param name="permissionResolver">The permission resolver.</param>
+/// <param name="permissions">The permissions of the account in all its organizations (the request narrows them).</param>
 /// <param name="httpContextAccessor">The current request (its cancellation token), if any.</param>
 internal sealed class AppUserClaimsPrincipalFactory(
     UserManager<User> userManager,
     IOptions<IdentityOptions> optionsAccessor,
-    IPermissionResolver permissionResolver,
+    IAccountPermissions permissions,
     IHttpContextAccessor httpContextAccessor) : UserClaimsPrincipalFactory<User>(userManager, optionsAccessor)
 {
     /// <inheritdoc />
@@ -46,8 +47,8 @@ internal sealed class AppUserClaimsPrincipalFactory(
             identity.AddClaim(new Claim(AppClaimTypes.Photo, photo.ToString("N")));
         }
 
-        var permissions = await permissionResolver.GetEffectivePermissionsAsync(user.Id, httpContextAccessor.HttpContext?.RequestAborted ?? CancellationToken.None);
-        foreach (var permission in permissions.Order(StringComparer.Ordinal))
+        var held = await permissions.UnionAsync(user.Id, httpContextAccessor.HttpContext?.RequestAborted ?? CancellationToken.None);
+        foreach (var permission in held.Order(StringComparer.Ordinal))
         {
             identity.AddClaim(new Claim(AppClaimTypes.Permission, permission));
         }

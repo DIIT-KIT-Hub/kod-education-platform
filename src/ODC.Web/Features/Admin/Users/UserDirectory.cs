@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using ODC.Web.Endpoints;
 using ODC.Web.Infrastructure.Persistence;
+using ODC.Web.Infrastructure.Tenancy;
 using ODC.Web.Shared.Access;
 using ODC.Web.Shared.Domain.Access;
 using ODC.Web.Shared.Domain.Users;
@@ -21,6 +22,8 @@ namespace ODC.Web.Features.Admin.Users;
 /// <param name="db">The master database (accounts, roles).</param>
 /// <param name="organization">The organization's database (members, positions, units).</param>
 /// <param name="catalog">The shared catalogs (which unit types are organizations).</param>
+/// <param name="context">The organization of the request.</param>
+/// <param name="memberships">The memberships of accounts (who works in which organization).</param>
 /// <param name="currentUser">The current user.</param>
 /// <param name="permissions">Resolves effective permissions.</param>
 /// <param name="accessScope">The administration scopes.</param>
@@ -30,6 +33,8 @@ internal sealed class UserDirectory(
     MasterDbContext db,
     OrganizationDbContext organization,
     Catalog catalog,
+    OrganizationContext context,
+    Memberships memberships,
     ICurrentUser currentUser,
     IPermissionResolver permissions,
     IAccessScope accessScope,
@@ -321,11 +326,18 @@ internal sealed class UserDirectory(
     }
 
     /// <summary>
-    /// Saves the changed positions and individual permissions (the organization's database).
+    /// Saves the changed positions and individual permissions (the organization's database) and records who works in the
+    /// organization now (the memberships of the master database).
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task.</returns>
-    public Task SaveMembersAsync(CancellationToken cancellationToken) => organization.SaveChangesAsync(cancellationToken);
+    public async Task SaveMembersAsync(CancellationToken cancellationToken)
+    {
+        var people = organization.ChangeTracker.Entries<Member>().Select(static e => e.Entity.Id).Distinct().ToList();
+        await organization.SaveChangesAsync(cancellationToken);
+        var placed = await organization.StaffPositions.Where(p => people.Contains(p.UserId)).Select(static p => p.UserId).Distinct().ToListAsync(cancellationToken);
+        await memberships.SyncAsync(context.Require().Id, [.. people.Select(id => (id, placed.Contains(id)))], cancellationToken);
+    }
 
     /// <summary>
     /// Sends an account the invitation to activate it (when e-mail is configured).

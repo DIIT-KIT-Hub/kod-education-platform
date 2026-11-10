@@ -12,6 +12,7 @@ using ODC.Web.Shared.Domain.Access;
 using ODC.Web.Shared.Domain.Audit;
 using ODC.Web.Shared.Domain.Media;
 using ODC.Web.Shared.Domain.Organization;
+using ODC.Web.Shared.Domain.Tenancy;
 using ODC.Web.Shared.Domain.Users;
 
 namespace ODC.Web.Infrastructure.Persistence;
@@ -24,7 +25,7 @@ namespace ODC.Web.Infrastructure.Persistence;
 /// </summary>
 /// <remarks>
 /// The audit trail is in both: what an organization does is audited in its own database, the sign-in and the platform in
-/// the master database. Until there is a database per organization (phase 3) every organization shares one.
+/// the master database. Every organization has a database of its own (the registry: <see cref="Organization"/>).
 /// </remarks>
 public static class DataPlacement
 {
@@ -46,7 +47,9 @@ public static class DataPlacement
         typeof(AuditEntry),
         typeof(RefreshTokenFamily),
         typeof(ActivationChallenge),
-        typeof(DataProtectionKey));
+        typeof(DataProtectionKey),
+        typeof(Organization),
+        typeof(Membership));
 
     /// <summary>
     /// Gets the entities of an organization's database.

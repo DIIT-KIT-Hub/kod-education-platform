@@ -20,9 +20,9 @@ public sealed class UserAdministrationTests(OdcApplication app)
         const string email = "new.employee@odc.local";
         using var admin = await app.Accounts.AdminAsync();
 
-        var id = await People.CreateUserAsync(admin, email, "FUND-PROJ", SystemRoles.Employee);
+        var id = await People.CreateUserAsync(admin, email, "FUND-PROJ", SystemRoles.Employee, "FUND");
         var invitation = await app.Mailbox.WaitForAsync(email);
-        var waiting = await People.FindAsync(admin, email);
+        var waiting = await People.FindAsync(admin, email, "FUND");
         Assert.True(waiting?.AwaitsActivation);
 
         using var employee = await app.Accounts.ActivateAsync(email, "New-Employee-Pass-42");
@@ -31,7 +31,7 @@ public sealed class UserAdministrationTests(OdcApplication app)
         Assert.Contains("/account/activate", invitation.TextBody, StringComparison.Ordinal);
         using var documents = await employee.GetAsync("/api/v1/documents");
         Assert.Equal(HttpStatusCode.OK, documents.StatusCode);
-        var active = await People.FindAsync(admin, email);
+        var active = await People.FindAsync(admin, email, "FUND");
         Assert.False(active?.AwaitsActivation);
         Assert.True(active?.TwoFactorEnabled);
     }

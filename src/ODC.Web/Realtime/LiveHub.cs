@@ -17,10 +17,10 @@ namespace ODC.Web.Realtime;
 /// closes when its access token expires and the client reconnects with a fresh one, so a revoked sign-in stops
 /// receiving within minutes.
 /// </summary>
-/// <param name="discussion">Checks that the user may read an article's discussion.</param>
-/// <param name="chatMembers">Lists the members of a chat of the current user.</param>
+/// <param name="services">The services of the call: the handlers are resolved inside the methods, after the call got the
+/// organization of its connection (<c>OrganizationHubFilter</c>; the hub is created before the filters run).</param>
 [Authorize]
-public sealed class LiveHub(IRequestHandler<CanReadNewsDiscussion.Query, bool> discussion, IRequestHandler<GetChatMemberIds.Query, IReadOnlyList<Guid>?> chatMembers) : Hub<ILiveClient>
+public sealed class LiveHub(IServiceProvider services) : Hub<ILiveClient>
 {
     /// <summary>
     /// The address of the hub (under the API: 401 without a sign-in, 403 until the account setup is finished).
@@ -68,7 +68,7 @@ public sealed class LiveHub(IRequestHandler<CanReadNewsDiscussion.Query, bool> d
     /// <returns><see langword="true"/> when joined; <see langword="false"/> when the article is not readable.</returns>
     public async Task<bool> JoinNewsDiscussion(Guid articleId)
     {
-        if (Context.User?.HasPermission(Permissions.News.View) != true || !await discussion.HandleAsync(new CanReadNewsDiscussion.Query(articleId), Context.ConnectionAborted))
+        if (Context.User?.HasPermission(Permissions.News.View) != true || !await services.GetRequiredService<IRequestHandler<CanReadNewsDiscussion.Query, bool>>().HandleAsync(new CanReadNewsDiscussion.Query(articleId), Context.ConnectionAborted))
         {
             return false;
         }
@@ -105,7 +105,7 @@ public sealed class LiveHub(IRequestHandler<CanReadNewsDiscussion.Query, bool> d
         }
 
         Context.Items[TypingItem] = now;
-        var members = await chatMembers.HandleAsync(new GetChatMemberIds.Query(chatId), Context.ConnectionAborted);
+        var members = await services.GetRequiredService<IRequestHandler<GetChatMemberIds.Query, IReadOnlyList<Guid>?>>().HandleAsync(new GetChatMemberIds.Query(chatId), Context.ConnectionAborted);
         if (members is null)
         {
             return;

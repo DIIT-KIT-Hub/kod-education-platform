@@ -2,6 +2,7 @@ using ODC.Web.Endpoints;
 using ODC.Web.Features.Media;
 using ODC.Web.Features.Signing;
 using ODC.Web.Infrastructure.Persistence.Seeding;
+using ODC.Web.Infrastructure.Tenancy;
 using ODC.Web.Realtime;
 using ODC.Web.Security;
 using ODC.Web.Shared.Localization;
@@ -35,6 +36,9 @@ internal static class WebApplicationExtensions
         {
             // First: the client address and scheme from trusted reverse proxies (rate limits, audit, session IPs, HTTPS).
             app.UseForwardedHeaders();
+
+            // An organization's addresses (/o/{code}/…) are served as the plain ones with the organization remembered.
+            app.UseMiddleware<OrganizationPathMiddleware>();
             app.UseRequestLogging();
 
             // Failures answer with problem details (RFC 9457); the pages are the static client.
@@ -50,6 +54,9 @@ internal static class WebApplicationExtensions
 
             app.UseRouting();
             app.UseAuthentication();
+
+            // After authentication, before authorization: the organization of the request and the permissions there.
+            app.UseMiddleware<OrganizationMiddleware>();
 
             // After authentication: the language saved in the user's profile is a claim.
             app.UseRequestLocalization();

@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using ODC.Web.Endpoints;
 using ODC.Web.Features.Documents.Domain;
 using ODC.Web.Infrastructure.Persistence;
+using ODC.Web.Infrastructure.Tenancy;
 using ODC.Web.Shared.Access;
 using ODC.Web.Shared.Auditing;
 using ODC.Web.Shared.Domain.Access;
@@ -25,6 +26,7 @@ namespace ODC.Web.Features.Documents;
 /// <param name="fileStorage">The private file storage.</param>
 /// <param name="signatureInspector">The signature container inspector.</param>
 /// <param name="audit">The audit logger.</param>
+/// <param name="participants">Admits signers from other organizations.</param>
 internal sealed class DocumentDesk(
     OrganizationDbContext db,
     Catalog catalog,
@@ -32,7 +34,8 @@ internal sealed class DocumentDesk(
     IAccessScope accessScope,
     IFileStorage fileStorage,
     ISignatureInspector signatureInspector,
-    IAuditLogger audit)
+    IAuditLogger audit,
+    ExternalParticipants participants)
 {
     /// <summary>
     /// How many times a change is saved again when concurrent signers of a parallel route keep saving first.
@@ -88,6 +91,21 @@ internal sealed class DocumentDesk(
 
         var visible = await accessScope.VisibleDocumentsAsync(db.Documents.AsNoTracking().Where(d => d.Id == id), cancellationToken);
         return await visible.AnyAsync(cancellationToken);
+    }
+
+    /// <summary>
+    /// Checks the signers of a route: active members of the organization or people of other organizations who sign
+    /// documents in their own (their profiles are copied here, see <see cref="ExternalParticipants"/>).
+    /// </summary>
+    /// <param name="signerIds">The signers (distinct).</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>An error, or <see langword="null"/> when every signer may sign.</returns>
+    public async Task<Error?> CheckSignersAsync(List<Guid> signerIds, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(signerIds);
+        await participants.AdmitAsync(signerIds, Permissions.Documents.Sign, cancellationToken);
+        var active = await db.Members.CountAsync(u => signerIds.Contains(u.Id) && u.IsActive, cancellationToken);
+        return active == signerIds.Count ? null : Error.Validation(Texts.T("Серед підписантів є неактивні або неіснуючі користувачі."));
     }
 
     /// <summary>

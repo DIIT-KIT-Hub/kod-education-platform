@@ -99,6 +99,16 @@ public sealed class OrganizationUnit : AuditableEntity
     public bool IsActive { get; private set; } = true;
 
     /// <summary>
+    /// Creates the root unit of an organization's database: it has the identifier of the organization in the registry.
+    /// </summary>
+    /// <param name="id">The organization's identifier.</param>
+    /// <param name="code">Unique short code.</param>
+    /// <param name="name">Full official name.</param>
+    /// <param name="typeId">The unit type identifier (an organization type).</param>
+    /// <returns>The root unit.</returns>
+    public static OrganizationUnit Root(Guid id, string code, string name, Guid typeId) => new(code, name, typeId, null) { Id = id };
+
+    /// <summary>
     /// Updates the descriptive data of the unit.
     /// </summary>
     /// <param name="code">The new unique code.</param>

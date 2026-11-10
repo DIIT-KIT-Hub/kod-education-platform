@@ -151,8 +151,8 @@ public sealed class OdcApplication : WebApplicationFactory<Program>, IAsyncLifet
             return;
         }
 
-        // Pooled connections keep the databases open: close them and force the drop (PostgreSQL 13+). The organizations'
-        // database is named after the master one (OrganizationDatabase).
+        // Pooled connections keep the databases open: close them and force the drop (PostgreSQL 13+). Every organization's
+        // database is named after the master one (<master>_org_<code>, OrganizationDatabases).
         NpgsqlConnection.ClearAllPools();
         var builder = new NpgsqlConnectionStringBuilder(_connectionString);
         var name = builder.Database;
@@ -160,7 +160,20 @@ public sealed class OdcApplication : WebApplicationFactory<Program>, IAsyncLifet
         await using (var connection = new NpgsqlConnection(builder.ConnectionString))
         {
             await connection.OpenAsync(CancellationToken.None);
-            foreach (var database in new[] { name, name + OrganizationDatabase.NameSuffix })
+            var databases = new List<string>();
+            await using (var list = connection.CreateCommand())
+            {
+                list.CommandText = "SELECT datname FROM pg_database WHERE datname = @name OR starts_with(datname, @prefix)";
+                list.Parameters.AddWithValue("name", name!);
+                list.Parameters.AddWithValue("prefix", name + "_org_");
+                await using var reader = await list.ExecuteReaderAsync(CancellationToken.None);
+                while (await reader.ReadAsync(CancellationToken.None))
+                {
+                    databases.Add(reader.GetString(0));
+                }
+            }
+
+            foreach (var database in databases)
             {
                 await using var command = connection.CreateCommand();
                 command.CommandText = $"DROP DATABASE IF EXISTS \"{database}\" WITH (FORCE)";

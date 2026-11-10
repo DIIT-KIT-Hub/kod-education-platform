@@ -50,7 +50,7 @@ public sealed class PostgresDatabase : IAsyncLifetime
         {
             var name = $"odc_tests_{Guid.NewGuid():N}";
             _masterConnectionString = new NpgsqlConnectionStringBuilder(configured) { Database = name, Options = "-c synchronous_commit=off" }.ConnectionString;
-            _organizationConnectionString = new NpgsqlConnectionStringBuilder(configured) { Database = name + OrganizationDatabase.NameSuffix, Options = "-c synchronous_commit=off" }.ConnectionString;
+            _organizationConnectionString = new NpgsqlConnectionStringBuilder(configured) { Database = name + "_org", Options = "-c synchronous_commit=off" }.ConnectionString;
         }
     }
 
