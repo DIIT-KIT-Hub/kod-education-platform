@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using ODC.Web.Endpoints;
 using ODC.Web.Infrastructure.Persistence;
+using ODC.Web.Infrastructure.Tenancy;
 using ODC.Web.Messaging;
 using ODC.Web.Security;
 using ODC.Web.Shared.Domain.Access;
@@ -25,8 +26,8 @@ public static class GetRole
     /// Reads the role.
     /// </summary>
     /// <param name="db">The database context.</param>
-    /// <param name="organization">The organization's database (positions with the role).</param>
-    internal sealed class Handler(MasterDbContext db, OrganizationDbContext organization) : IRequestHandler<Query, Result<RoleDetails>>
+    /// <param name="across">Reads every organization (positions with the role).</param>
+    internal sealed class Handler(MasterDbContext db, IAcrossOrganizations across) : IRequestHandler<Query, Result<RoleDetails>>
     {
         /// <inheritdoc />
         public async Task<Result<RoleDetails>> HandleAsync(Query request, CancellationToken cancellationToken)
@@ -38,7 +39,10 @@ public static class GetRole
                 return RoleRules.NotFound();
             }
 
-            var users = await organization.StaffPositions.Where(p => p.RoleId == request.Id).Select(static p => p.UserId).Distinct().CountAsync(cancellationToken);
+            var users = (await across.EveryAsync(organization => organization.StaffPositions.Where(p => p.RoleId == request.Id).Select(static p => p.UserId).Distinct().ToListAsync(cancellationToken), cancellationToken))
+                .SelectMany(static p => p.Value)
+                .Distinct()
+                .Count();
             return new RoleDetails(
                 role.Id,
                 role.Code,

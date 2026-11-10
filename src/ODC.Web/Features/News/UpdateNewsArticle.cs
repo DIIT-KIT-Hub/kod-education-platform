@@ -105,6 +105,7 @@ public static class UpdateNewsArticle
                 audit.Add(AuditActions.NewsChanged, nameof(NewsArticle), article.Id.ToString(), $"Змінено «{article.Title}»");
                 await db.SaveChangesAsync(cancellationToken);
                 await media.SaveChangesAsync(cancellationToken);
+                await desk.IndexAsync(article, deleted: false, cancellationToken);
                 return Result.Success();
             });
         }

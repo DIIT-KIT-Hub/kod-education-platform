@@ -33,7 +33,8 @@ public static class OrganizationPermissions
         StringComparer.Ordinal,
         Permissions.Documents.View,
         Permissions.Documents.Sign,
-        Permissions.Chats.Use);
+        Permissions.Chats.Use,
+        Permissions.News.View);
 
     /// <summary>
     /// Whether the token makes its owner a platform administrator.

@@ -59,6 +59,7 @@ public static class DeleteNewsArticle
             audit.Add(AuditActions.NewsDeleted, nameof(NewsArticle), article.Id.ToString(), $"Видалено «{article.Title}»");
             await db.SaveChangesAsync(cancellationToken);
             await media.SaveChangesAsync(cancellationToken);
+            await desk.IndexAsync(article, deleted: true, cancellationToken);
             return Result.Success();
         }
     }

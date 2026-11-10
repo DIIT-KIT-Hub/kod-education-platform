@@ -45,6 +45,21 @@ authenticator reset), `ActivationPage` (the activation wizard), `PhotoPage`, `Ch
 Profile → Security), `LockoutPage`; shared pieces in `components/`: `AuthenticatorEnrollment.tsx`
 (`LinkAuthenticator`, `RecoveryCodes`, `AuthenticatorCodeForm`), `PhotoForm`, `AuthHeader`, `AuthLayout`.
 
+## Organizations (`/o/:code/…`)
+
+Every organization has a database of its own; the server serves its pages and API under `/o/{code}/…` (a plain address
+is the user's default organization). `shared/api/organization.ts` reads the code from the address once at start
+(`organizationBase`): the router's `basename`, the API client's `baseUrl` and the hub address use it, so routes and
+`api.GET("/api/v1/…")` stay as they are. Links the browser fetches itself (files, exports) go through `apiUrl(path)`.
+The auth context carries `organization` (the page's) and `organizations` (where the user may go: `Member`, `Guest`,
+`Platform`); `useOrganization()` / `useOrganizationNames()` in `shared/session`. `OrganizationSwitcher` (app
+layout, sidebar and drawer) shows the current organization and switches by loading the cabinet again at the other
+address (`openInOrganization`: a fresh cache for another database). Lists gathered from several organizations
+(notifications, the home page, chats, news of the whole cabinet) carry `organizationCode`: `linkTo` /
+`OrganizationLink` open an item of another organization with a full load there, and calls about such an item pass
+`baseUrl: organizationApi(code)` (notifications). The unread count of a live notification is that of its organization
+only, so `NotificationSync` reads the badge again.
+
 ## Account activation (`/account/activate`)
 
 There are no temporary passwords. `ActivationPage` is one form with a read-only stepper (`shared/ui/StepProgress`):

@@ -17,6 +17,9 @@ namespace ODC.Web.Features.Notifications;
 /// <param name="Count">How many events it collects (messages of a chat).</param>
 /// <param name="CreatedAt">The moment of the last event.</param>
 /// <param name="ReadAt">The moment it was read.</param>
+/// <param name="OrganizationId">The organization it comes from (the user's notifications are gathered from all their
+/// organizations).</param>
+/// <param name="OrganizationCode">The code of that organization (its pages are at <c>/o/{code}/…</c>).</param>
 public sealed record NotificationDto(
     Guid Id,
     NotificationKind Kind,
@@ -28,4 +31,6 @@ public sealed record NotificationDto(
     string Link,
     int Count,
     DateTimeOffset CreatedAt,
-    DateTimeOffset? ReadAt);
+    DateTimeOffset? ReadAt,
+    Guid OrganizationId,
+    string OrganizationCode);

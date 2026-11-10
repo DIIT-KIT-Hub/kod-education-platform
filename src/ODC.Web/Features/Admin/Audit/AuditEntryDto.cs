@@ -13,6 +13,8 @@ namespace ODC.Web.Features.Admin.Audit;
 /// <param name="Details">The description.</param>
 /// <param name="IpAddress">The client IP address.</param>
 /// <param name="UserPhotoId">The current profile photo of the user.</param>
+/// <param name="OrganizationCode">The organization whose trail holds the entry, or <see langword="null"/> for the
+/// platform's trail (accounts, catalogs, requests to the support).</param>
 public sealed record AuditEntryDto(
     Guid Id,
     DateTimeOffset OccurredAt,
@@ -23,4 +25,5 @@ public sealed record AuditEntryDto(
     string? EntityId,
     string? Details,
     string? IpAddress,
-    Guid? UserPhotoId);
+    Guid? UserPhotoId,
+    string? OrganizationCode);

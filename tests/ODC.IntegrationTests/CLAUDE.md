@@ -66,7 +66,7 @@ As with the unit tests, a failed build keeps the old DLL and `--no-build` runs t
 | `Documents/` | registration with a file and a route, the signer's list, the file, hidden from another organization, rejection, a signer from another organization, refused file types |
 | `Chats/` | a one-to-one chat across organizations and its privacy, idempotent resend |
 | `Tickets/` | a request answered by support, seen only by the author and support |
-| `Tenancy/` | every organization's structure in its own database, an unknown organization (404), a person of one organization in another (no administration, no documents of their own) |
+| `Tenancy/` | every organization's structure in its own database, an unknown organization (404), a person of one organization in another (no administration, no documents of their own); across organizations: the start context, the home page and notifications of a signer from another organization, chats in both lists, people of other organizations in the pickers, the news of the whole cabinet everywhere, the double audit of a platform administrator |
 
 The cross-organization signer and chat tests pin what the database per organization must keep: the signer and the
 chat partner from the fund work in the first organization as guests (`/o/ORG/…`).

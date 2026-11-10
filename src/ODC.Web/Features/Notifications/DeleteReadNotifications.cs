@@ -9,7 +9,7 @@ using ODC.Web.Shared.Kernel;
 namespace ODC.Web.Features.Notifications;
 
 /// <summary>
-/// Deletes the read notifications of the current user.
+/// Deletes the read notifications of the current user, in all their organizations.
 /// </summary>
 public static class DeleteReadNotifications
 {
@@ -21,26 +21,23 @@ public static class DeleteReadNotifications
     /// <summary>
     /// Deletes them.
     /// </summary>
-    /// <param name="db">The database context.</param>
-    /// <param name="currentUser">The current user.</param>
     /// <param name="inbox">The user's notifications.</param>
-    internal sealed class Handler(OrganizationDbContext db, ICurrentUser currentUser, NotificationInbox inbox) : IRequestHandler<Command, Result>
+    internal sealed class Handler(NotificationInbox inbox) : IRequestHandler<Command, Result>
     {
         /// <inheritdoc />
         public async Task<Result> HandleAsync(Command request, CancellationToken cancellationToken)
         {
-            if (currentUser.Id is not { } me)
-            {
-                return Result.Success();
-            }
-
-            var read = await db.Notifications.Where(n => n.UserId == me && n.ReadAt != null).ToListAsync(cancellationToken);
-            if (read.Count > 0)
-            {
-                db.Notifications.RemoveRange(read);
-                await inbox.SaveAsync(cancellationToken);
-            }
-
+            await inbox.ChangeEverywhereAsync(
+                async (db, me) =>
+                {
+                    var read = await db.Notifications.Where(n => n.UserId == me && n.ReadAt != null).ToListAsync(cancellationToken);
+                    if (read.Count > 0)
+                    {
+                        db.Notifications.RemoveRange(read);
+                        await db.SaveChangesAsync(cancellationToken);
+                    }
+                },
+                cancellationToken);
             return Result.Success();
         }
     }

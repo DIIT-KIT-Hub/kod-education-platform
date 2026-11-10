@@ -1,4 +1,5 @@
 import { useLingui } from "@lingui/react/macro";
+import { apiUrl } from "@/shared/api/organization";
 import { useQuery } from "@tanstack/react-query";
 import { CircleCheck, FileSpreadsheet, ListChecks, MailCheck, Table, Upload, UserCog, UserPlus } from "lucide-react";
 import { useState } from "react";
@@ -155,7 +156,7 @@ export function UsersImportPage() {
                                 {templateFormats.map((format) => (
                                     <DownloadButton
                                         key={format}
-                                        href={`/api/v1/user-imports/template?format=${format}`}
+                                        href={apiUrl(`/api/v1/user-imports/template?format=${format}`)}
                                         fileName={`users-import-template.${format.toLowerCase()}`}
                                         messages={templateMessages}
                                         variant="secondary"
@@ -186,7 +187,7 @@ export function UsersImportPage() {
                                 {t`Вивантажує всіх користувачів у форматі, сумісному з імпортом (без паролів).`}
                             </p>
                             <div className={layout.cluster}>
-                                <UserExportButtons href={(format) => `/api/v1/user-exports?format=${format}`} size="sm" primaryFirst />
+                                <UserExportButtons href={(format) => apiUrl(`/api/v1/user-exports?format=${format}`)} size="sm" primaryFirst />
                             </div>
                         </Card>
                     )}

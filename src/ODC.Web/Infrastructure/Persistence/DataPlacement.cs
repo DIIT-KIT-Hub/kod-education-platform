@@ -49,7 +49,9 @@ public static class DataPlacement
         typeof(ActivationChallenge),
         typeof(DataProtectionKey),
         typeof(Organization),
-        typeof(Membership));
+        typeof(Membership),
+        typeof(Participation),
+        typeof(GeneralArticle));
 
     /// <summary>
     /// Gets the entities of an organization's database.

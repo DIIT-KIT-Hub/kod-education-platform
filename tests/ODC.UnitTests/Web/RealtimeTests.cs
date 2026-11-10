@@ -177,7 +177,7 @@ public sealed class RealtimeTests
     {
         var events = new LiveNotificationEvents(Context(), NullLogger<LiveNotificationEvents>.Instance);
         var user = Guid.NewGuid();
-        var notification = new NotificationDto(Guid.NewGuid(), NotificationKind.TicketReply, null, Guid.NewGuid(), "Запит № 5", null, null, "/requests/x", 1, DateTimeOffset.UnixEpoch, null);
+        var notification = new NotificationDto(Guid.NewGuid(), NotificationKind.TicketReply, null, Guid.NewGuid(), "Запит № 5", null, null, "/requests/x", 1, DateTimeOffset.UnixEpoch, null, Guid.NewGuid(), "ORG");
 
         events.Received(user, notification, 3);
         events.Changed(user, 0);

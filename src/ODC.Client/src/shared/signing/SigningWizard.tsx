@@ -1,4 +1,5 @@
 import { useLingui } from "@lingui/react/macro";
+import { apiUrl } from "@/shared/api/organization";
 import { BadgeCheck, Download, FileText, RefreshCw, Signature } from "lucide-react";
 import { useEffect, useEffectEvent, useRef, useState, type ReactNode } from "react";
 import { api } from "@/shared/api/client";
@@ -232,7 +233,7 @@ export function SigningWizard({ target, active, onBusyChange, onSigned }: Signin
 
         previous.current = null;
         if (fresh.baseSignatureId) {
-            const buffer = await download(`/api/v1/documents/${target.documentId}/signatures/${fresh.baseSignatureId}/file`).catch(() => {
+            const buffer = await download(apiUrl(`/api/v1/documents/${target.documentId}/signatures/${fresh.baseSignatureId}/file`)).catch(() => {
                 throw new Error(t`Не вдалося завантажити останню підписану версію документа.`);
             });
             if ((await sha256(buffer)) !== (fresh.baseSha256 ?? "").toLowerCase()) {
@@ -289,7 +290,7 @@ export function SigningWizard({ target, active, onBusyChange, onSigned }: Signin
             return;
         }
 
-        download(`/api/v1/documents/${target.documentId}/file`)
+        download(apiUrl(`/api/v1/documents/${target.documentId}/file`))
             .catch(() => {
                 throw new DataStepError(t`Не вдалося завантажити файл документа.`, false);
             })

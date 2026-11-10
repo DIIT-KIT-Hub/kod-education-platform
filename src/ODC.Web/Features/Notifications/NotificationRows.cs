@@ -1,5 +1,6 @@
 using System.Linq.Expressions;
 using ODC.Web.Features.Notifications.Domain;
+using ODC.Web.Shared.Domain.Tenancy;
 using ODC.Web.Shared.Models;
 
 namespace ODC.Web.Features.Notifications;
@@ -25,5 +26,16 @@ internal static class NotificationRows
         n.Link,
         n.Count,
         n.CreatedAt,
-        n.ReadAt);
+        n.ReadAt,
+        Guid.Empty,
+        string.Empty);
+
+    /// <summary>
+    /// Names the organization a notification comes from.
+    /// </summary>
+    /// <param name="notification">The notification.</param>
+    /// <param name="organization">Its organization.</param>
+    /// <returns>The notification with its organization.</returns>
+    public static NotificationDto In(NotificationDto notification, Organization organization)
+        => notification with { OrganizationId = organization.Id, OrganizationCode = organization.Code };
 }

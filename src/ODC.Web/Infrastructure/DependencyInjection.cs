@@ -61,6 +61,8 @@ public static class DependencyInjection
             services.AddScoped<OrganizationContext>();
             services.AddScoped<Memberships>();
             services.AddScoped<ExternalParticipants>();
+            services.AddScoped<Workplaces>();
+            services.AddScoped<IAcrossOrganizations, AcrossOrganizations>();
             services.AddScoped<IOrganizationProvisioning, OrganizationProvisioning>();
             services.AddSingleton<AuditableEntityInterceptor>();
             services.AddScoped<PendingAudit>();

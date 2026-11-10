@@ -99,7 +99,7 @@ public sealed class DocumentTests(OdcApplication app)
     /// <param name="text">The file text.</param>
     /// <param name="signerId">The signer.</param>
     /// <returns>The document identifier.</returns>
-    private static async Task<Guid> CreateAsync(ApiClient author, string title, string text, Guid signerId)
+    internal static async Task<Guid> CreateAsync(ApiClient author, string title, string text, Guid signerId)
     {
         var unit = (await author.GetAsync<List<UnitOption>>("/api/v1/documents/author-units"))[0];
         using var response = await author.SendFormAsync(

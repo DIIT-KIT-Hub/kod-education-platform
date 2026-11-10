@@ -42,6 +42,7 @@ public static class DependencyInjection
             services.AddScoped<NotificationInbox>();
             services.AddScoped<ChatRoom>();
             services.AddScoped<TicketDesk>();
+            services.AddScoped<GeneralNews>();
             services.AddScoped<MediaLibrary>();
             services.AddScoped<UserDirectory>();
             services.AddScoped<ProfileAccount>();

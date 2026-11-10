@@ -21,10 +21,10 @@ export function NotificationSync() {
     /**
      * Applies a new notification.
      * @param notification The notification.
-     * @param unreadCount The number of unread notifications now.
      */
-    function onReceived(notification: NotificationDto, unreadCount: number): void {
-        applyUnreadCount(queryClient, unreadCount);
+    function onReceived(notification: NotificationDto): void {
+        // The count it carries is that of its own organization: the badge counts every organization of the user.
+        void queryClient.invalidateQueries({ queryKey: unreadCountQuery.queryKey });
         if (notification.kind.startsWith("Ticket")) {
             void queryClient.invalidateQueries({ queryKey: ["tickets"] });
         } else if (notification.kind.startsWith("Document")) {

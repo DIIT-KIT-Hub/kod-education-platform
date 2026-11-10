@@ -1,0 +1,21 @@
+.block {
+    display: grid;
+    gap: 0.25rem;
+    margin: 0 0.75rem 0.75rem;
+    padding: 0.625rem 0.75rem;
+    border: 1px solid var(--ds-color-border);
+    border-radius: var(--ds-radius-md);
+    background: var(--ds-color-surface);
+    min-width: 0;
+}
+
+.rail {
+    display: grid;
+    place-items: center;
+    margin: 0 auto 0.75rem;
+    width: 2.5rem;
+    height: 2.5rem;
+    border: 1px solid var(--ds-color-border);
+    border-radius: var(--ds-radius-md);
+    color: var(--ds-color-text-muted);
+}

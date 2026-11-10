@@ -60,6 +60,7 @@ public static class CommentOnNews
                 }
             }
 
+            await access.MakePresentAsync(cancellationToken);
             return await DomainErrors.GuardAsync<Guid>(async () =>
             {
                 var comment = new NewsComment(articleId, me, parent, request.Body);

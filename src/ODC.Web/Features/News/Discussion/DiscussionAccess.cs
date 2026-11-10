@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using ODC.Web.Endpoints;
 using ODC.Web.Infrastructure.Persistence;
+using ODC.Web.Infrastructure.Tenancy;
 using ODC.Web.Shared.Access;
 using ODC.Web.Shared.Domain.Access;
 using ODC.Web.Shared.Identity;
@@ -16,7 +17,9 @@ namespace ODC.Web.Features.News.Discussion;
 /// <param name="db">The database context.</param>
 /// <param name="currentUser">The current user.</param>
 /// <param name="accessScope">The administration scopes.</param>
-internal sealed class DiscussionAccess(OrganizationDbContext db, ICurrentUser currentUser, IAccessScope accessScope)
+/// <param name="organization">The organization of the request (a guest reads only its news of the whole cabinet).</param>
+/// <param name="participants">Copies the profile of a reader from another organization.</param>
+internal sealed class DiscussionAccess(OrganizationDbContext db, ICurrentUser currentUser, IAccessScope accessScope, OrganizationContext organization, ExternalParticipants participants)
 {
     /// <summary>
     /// The default number of threads per page.
@@ -62,7 +65,7 @@ internal sealed class DiscussionAccess(OrganizationDbContext db, ICurrentUser cu
         }
 
         var article = await db.NewsArticles.AsNoTracking().FirstOrDefaultAsync(a => a.Id == articleId, cancellationToken);
-        if (article is null)
+        if (article is null || (organization.Access == OrganizationAccess.Guest && article.OrganizationId is not null))
         {
             return null;
         }
@@ -75,6 +78,20 @@ internal sealed class DiscussionAccess(OrganizationDbContext db, ICurrentUser cu
         }
 
         return new Rights(article.IsPublished, article.IsPublished && article.AllowComments, canManage);
+    }
+
+    /// <summary>
+    /// Makes sure a reader from another organization (a guest of a news of the whole cabinet) has a profile copy here
+    /// before their comment or reaction points at it.
+    /// </summary>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task.</returns>
+    public async Task MakePresentAsync(CancellationToken cancellationToken)
+    {
+        if (organization.Access is OrganizationAccess.Guest or OrganizationAccess.Platform && currentUser.Id is { } me)
+        {
+            await participants.EnsurePresentAsync(me, cancellationToken);
+        }
     }
 
     /// <summary>

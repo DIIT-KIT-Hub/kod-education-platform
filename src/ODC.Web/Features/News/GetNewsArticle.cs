@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using ODC.Web.Endpoints;
 using ODC.Web.Infrastructure.Persistence;
+using ODC.Web.Infrastructure.Tenancy;
 using ODC.Web.Messaging;
 using ODC.Web.Security;
 using ODC.Web.Shared.Domain.Access;
@@ -34,7 +35,8 @@ public static class GetNewsArticle
     /// </summary>
     /// <param name="db">The database context.</param>
     /// <param name="desk">The shared news rules.</param>
-    internal sealed class BySlugHandler(OrganizationDbContext db, NewsDesk desk) : IRequestHandler<BySlugQuery, Result<NewsArticleDto>>
+    /// <param name="organization">The organization of the request (a guest reads only its news of the whole cabinet).</param>
+    internal sealed class BySlugHandler(OrganizationDbContext db, NewsDesk desk, OrganizationContext organization) : IRequestHandler<BySlugQuery, Result<NewsArticleDto>>
     {
         /// <inheritdoc />
         public async Task<Result<NewsArticleDto>> HandleAsync(BySlugQuery request, CancellationToken cancellationToken)
@@ -42,7 +44,7 @@ public static class GetNewsArticle
             ArgumentNullException.ThrowIfNull(request);
             var article = await db.NewsArticles.AsNoTracking().Include(static a => a.Author).Include(static a => a.Organization).FirstOrDefaultAsync(a => a.Slug == request.Slug, cancellationToken);
             var canManage = article is not null && NewsDesk.CanManage(article, await desk.ManageScopeAsync(cancellationToken));
-            if (article is null || (!article.IsPublished && !canManage))
+            if (article is null || (!article.IsPublished && !canManage) || (organization.Access == OrganizationAccess.Guest && article.OrganizationId is not null))
             {
                 return NewsDesk.NotFound();
             }

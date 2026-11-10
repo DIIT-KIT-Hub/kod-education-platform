@@ -45,6 +45,26 @@ export function useAuthContext(): AuthContextResponse {
 }
 
 /**
+ * The organization the page works in (null before signing in or without one).
+ * @returns The organization.
+ */
+export function useOrganization(): AuthContextResponse["organization"] {
+    return useAuthContext().organization;
+}
+
+/**
+ * Names organizations by code for the labels of lists gathered from several (the abbreviation when there is one).
+ * @returns The function that names an organization (its code when it is not among the user's).
+ */
+export function useOrganizationNames(): (code: string | null | undefined) => string {
+    const { organizations } = useAuthContext();
+    return (code) => {
+        const found = organizations.find((o) => o.code.toLowerCase() === (code ?? "").toLowerCase());
+        return found ? (found.shortName ?? found.name) : (code ?? "");
+    };
+}
+
+/**
  * The signed-in user; only for routes behind the sign-in guard.
  * @returns The user.
  */

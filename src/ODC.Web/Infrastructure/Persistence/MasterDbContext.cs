@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using ODC.Web.Features.Auth.Activation;
+using ODC.Web.Features.News.Domain;
 using ODC.Web.Features.Tickets.Domain;
 using ODC.Web.Infrastructure.Identity.Tokens;
 using ODC.Web.Messaging;
@@ -38,6 +39,16 @@ public sealed class MasterDbContext(DbContextOptions<MasterDbContext> options)
     /// Gets the memberships of accounts in organizations.
     /// </summary>
     public DbSet<Membership> Memberships => Set<Membership>();
+
+    /// <summary>
+    /// Gets the participation of accounts in organizations they do not work in (guests).
+    /// </summary>
+    public DbSet<Participation> Participations => Set<Participation>();
+
+    /// <summary>
+    /// Gets the index of the news of the whole cabinet.
+    /// </summary>
+    public DbSet<GeneralArticle> GeneralArticles => Set<GeneralArticle>();
 
     /// <summary>
     /// Gets the roles.

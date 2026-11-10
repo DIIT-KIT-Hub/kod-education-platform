@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using ODC.Web.Endpoints;
 using ODC.Web.Infrastructure.Persistence;
+using ODC.Web.Infrastructure.Tenancy;
 using ODC.Web.Messaging;
 using ODC.Web.Security;
 using ODC.Web.Shared.Domain.Access;
@@ -40,12 +41,12 @@ public static class ListAuditEntries
     }
 
     /// <summary>
-    /// Filters and pages the entries of both trails: the platform's (master database) and the organizations' (their
-    /// database), merged by time.
+    /// Filters and pages the entries of every trail: the platform's (master database) and each organization's (its
+    /// database), merged by time (<c>audit.view</c> is platform-wide).
     /// </summary>
     /// <param name="db">The master database.</param>
-    /// <param name="organization">The organizations' database.</param>
-    internal sealed class Handler(MasterDbContext db, OrganizationDbContext organization) : IRequestHandler<Query, Result<PagedResult<AuditEntryDto>>>
+    /// <param name="across">Reads every organization.</param>
+    internal sealed class Handler(MasterDbContext db, IAcrossOrganizations across) : IRequestHandler<Query, Result<PagedResult<AuditEntryDto>>>
     {
         /// <inheritdoc />
         public async Task<Result<PagedResult<AuditEntryDto>>> HandleAsync(Query request, CancellationToken cancellationToken)
@@ -56,21 +57,30 @@ public static class ListAuditEntries
             var size = request.CurrentPageSize;
             var needed = request.CurrentPage * size;
             var platform = Filter(db.AuditEntries.AsNoTracking(), request);
-            var organizations = Filter(organization.AuditEntries.AsNoTracking(), request);
-            var total = await platform.CountAsync(cancellationToken) + await organizations.CountAsync(cancellationToken);
+            var total = await platform.CountAsync(cancellationToken);
 
             // Each trail gives at most the entries up to the end of the page; the merge takes the page from them.
-            List<AuditEntry> candidates =
-            [
-                .. await platform.OrderByDirection(static e => e.OccurredAt, descending).Take(needed).ToListAsync(cancellationToken),
-                .. await organizations.OrderByDirection(static e => e.OccurredAt, descending).Take(needed).ToListAsync(cancellationToken),
-            ];
-            var page = (descending ? candidates.OrderByDescending(static e => e.OccurredAt) : candidates.OrderBy(static e => e.OccurredAt))
-                .ThenBy(static e => e.Id)
+            var candidates = (await platform.OrderByDirection(static e => e.OccurredAt, descending).Take(needed).ToListAsync(cancellationToken))
+                .ConvertAll(static e => (Entry: e, Code: (string?)null));
+            var organizations = await across.EveryAsync(
+                async organization =>
+                {
+                    var entries = Filter(organization.AuditEntries.AsNoTracking(), request);
+                    return (Count: await entries.CountAsync(cancellationToken), Top: await entries.OrderByDirection(static e => e.OccurredAt, descending).Take(needed).ToListAsync(cancellationToken));
+                },
+                cancellationToken);
+            foreach (var part in organizations)
+            {
+                total += part.Value.Count;
+                candidates.AddRange(part.Value.Top.Select(e => (Entry: e, Code: (string?)part.Organization.Code)));
+            }
+
+            var page = (descending ? candidates.OrderByDescending(static e => e.Entry.OccurredAt) : candidates.OrderBy(static e => e.Entry.OccurredAt))
+                .ThenBy(static e => e.Entry.Id)
                 .Skip((request.CurrentPage - 1) * size)
                 .Take(size)
                 .ToList();
-            var userIds = page.Select(static e => e.UserId).OfType<Guid>().Distinct().ToList();
+            var userIds = page.Select(static e => e.Entry.UserId).OfType<Guid>().Distinct().ToList();
             var photos = await db.Users
                 .AsNoTracking()
                 .Where(u => userIds.Contains(u.Id))
@@ -78,7 +88,18 @@ public static class ListAuditEntries
                 .ToDictionaryAsync(static u => u.Id, static u => u.PhotoId, cancellationToken);
 
             return new PagedResult<AuditEntryDto>(
-                [.. page.Select(e => new AuditEntryDto(e.Id, e.OccurredAt, e.Action, e.UserId, e.UserName, e.EntityType, e.EntityId, e.Details, e.IpAddress, e.UserId is { } user ? photos.GetValueOrDefault(user) : null))],
+                page.ConvertAll(p => new AuditEntryDto(
+                    p.Entry.Id,
+                    p.Entry.OccurredAt,
+                    p.Entry.Action,
+                    p.Entry.UserId,
+                    p.Entry.UserName,
+                    p.Entry.EntityType,
+                    p.Entry.EntityId,
+                    p.Entry.Details,
+                    p.Entry.IpAddress,
+                    p.Entry.UserId is { } user ? photos.GetValueOrDefault(user) : null,
+                    p.Code)),
                 request.CurrentPage,
                 size,
                 total);

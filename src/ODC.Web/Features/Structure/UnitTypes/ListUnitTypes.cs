@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using ODC.Web.Endpoints;
 using ODC.Web.Infrastructure.Persistence;
+using ODC.Web.Infrastructure.Tenancy;
 using ODC.Web.Messaging;
 using ODC.Web.Security;
 using ODC.Web.Shared.Domain.Access;
@@ -25,13 +26,13 @@ public static class ListUnitTypes
     /// Reads the types; seeded names are shown in the user's language.
     /// </summary>
     /// <param name="db">The database context.</param>
-    /// <param name="organization">The organization's database (units of the type).</param>
-    internal sealed class Handler(MasterDbContext db, OrganizationDbContext organization) : IRequestHandler<Query, Result<IReadOnlyList<UnitTypeItem>>>
+    /// <param name="across">Reads every organization (the units of the type).</param>
+    internal sealed class Handler(MasterDbContext db, IAcrossOrganizations across) : IRequestHandler<Query, Result<IReadOnlyList<UnitTypeItem>>>
     {
         /// <inheritdoc />
         public async Task<Result<IReadOnlyList<UnitTypeItem>>> HandleAsync(Query request, CancellationToken cancellationToken)
         {
-            var types = await UnitTypeCatalog.ItemsAsync(db, organization, null, cancellationToken);
+            var types = await UnitTypeCatalog.ItemsAsync(db, across, null, cancellationToken);
             return Result<IReadOnlyList<UnitTypeItem>>.Success([.. types.Select(static t => t with { Name = StoredText.Display(t.Name), Description = StoredText.Display(t.Description) })]);
         }
     }

@@ -20,12 +20,13 @@ public interface IOrganizationProvisioning
     Task<Result<Guid>> CreateAsync(string code, string name, string? shortName, Guid typeId, int sortOrder, CancellationToken cancellationToken);
 
     /// <summary>
-    /// Takes the new code and name of an organization's root unit into the registry.
+    /// Takes the new code and names of an organization's root unit into the registry.
     /// </summary>
     /// <param name="id">The organization (its root unit).</param>
     /// <param name="code">The code.</param>
     /// <param name="name">The name.</param>
+    /// <param name="shortName">The abbreviation.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task.</returns>
-    Task RenameAsync(Guid id, string code, string name, CancellationToken cancellationToken);
+    Task RenameAsync(Guid id, string code, string name, string? shortName, CancellationToken cancellationToken);
 }

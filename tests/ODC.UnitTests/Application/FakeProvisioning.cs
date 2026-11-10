@@ -35,7 +35,7 @@ internal sealed class FakeProvisioning(OrganizationDbContext db) : IOrganization
     }
 
     /// <inheritdoc />
-    public Task RenameAsync(Guid id, string code, string name, CancellationToken cancellationToken)
+    public Task RenameAsync(Guid id, string code, string name, string? shortName, CancellationToken cancellationToken)
     {
         Renamed.Add(code);
         return Task.CompletedTask;

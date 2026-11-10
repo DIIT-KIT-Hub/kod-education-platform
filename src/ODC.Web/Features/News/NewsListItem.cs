@@ -22,6 +22,8 @@ namespace ODC.Web.Features.News;
 /// <param name="CommentCount">The number of comments (deleted ones excluded).</param>
 /// <param name="ReactionCount">The number of reactions to the article.</param>
 /// <param name="ViewCount">The number of readers who opened the article.</param>
+/// <param name="OrganizationCode">The organization whose database holds a news of the whole cabinet written elsewhere
+/// (the article opens at <c>/o/{code}/news/{slug}</c>), or <see langword="null"/> for an article of this organization.</param>
 public sealed record NewsListItem(
     Guid Id,
     string Slug,
@@ -37,7 +39,8 @@ public sealed record NewsListItem(
     UnitRef? Organization,
     int CommentCount,
     int ReactionCount,
-    int ViewCount)
+    int ViewCount,
+    string? OrganizationCode = null)
 {
     /// <summary>
     /// Gets the URL of a small cover for cards (the thumbnail of the cover image).

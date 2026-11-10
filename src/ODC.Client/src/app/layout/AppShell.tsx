@@ -16,6 +16,7 @@ import styles from "./AppShell.module.css";
 import { navigationFor } from "./navigation";
 import { NavGroups } from "./NavGroups";
 import { NavLinks } from "./NavLinks";
+import { OrganizationSwitcher } from "./OrganizationSwitcher";
 import { UserMenu } from "./UserMenu";
 
 /**
@@ -89,6 +90,7 @@ export function AppShell() {
                             </small>
                         </span>
                     </Link>
+                    <OrganizationSwitcher rail={collapsed} />
                     <nav className={styles.nav}>
                         <NavLinks
                             items={[navigation.home]}
@@ -145,6 +147,7 @@ export function AppShell() {
                             {t`Закрити меню`}
                         </Button>
                     </div>
+                    <OrganizationSwitcher />
                     <nav className={styles.nav}>
                         <NavLinks
                             items={[navigation.home]}

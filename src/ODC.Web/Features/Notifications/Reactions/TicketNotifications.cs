@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using ODC.Web.Features.Notifications.Domain;
 using ODC.Web.Features.Tickets.Domain;
 using ODC.Web.Infrastructure.Persistence;
+using ODC.Web.Infrastructure.Tenancy;
 using ODC.Web.Messaging;
 using ODC.Web.Shared.Access;
 using ODC.Web.Shared.Domain.Access;
@@ -13,10 +14,9 @@ namespace ODC.Web.Features.Notifications.Reactions;
 /// change, a handler about a request assigned to them.
 /// </summary>
 /// <param name="master">The master database (the requests).</param>
-/// <param name="db">The organization's database (who handles requests).</param>
-/// <param name="catalog">The shared catalogs (roles).</param>
+/// <param name="across">Finds who handles requests (in every organization).</param>
 /// <param name="notifier">Creates the notifications.</param>
-internal sealed class TicketNotifications(MasterDbContext master, OrganizationDbContext db, Catalog catalog, INotifier notifier) :
+internal sealed class TicketNotifications(MasterDbContext master, IAcrossOrganizations across, INotifier notifier) :
     IDomainEventHandler<TicketSubmitted>,
     IDomainEventHandler<TicketCommented>,
     IDomainEventHandler<TicketStatusChanged>,
@@ -27,7 +27,7 @@ internal sealed class TicketNotifications(MasterDbContext master, OrganizationDb
     {
         ArgumentNullException.ThrowIfNull(domainEvent);
         var ticket = await master.Tickets.FirstAsync(t => t.Id == domainEvent.TicketId, cancellationToken);
-        await notifier.NotifyAsync(Draft(NotificationKind.TicketCreated, domainEvent.AuthorId, ticket, domainEvent.Description), await HandlersAsync(cancellationToken), cancellationToken);
+        await notifier.NotifyWhereTheyWorkAsync(Draft(NotificationKind.TicketCreated, domainEvent.AuthorId, ticket, domainEvent.Description), await HandlersAsync(cancellationToken), cancellationToken);
     }
 
     /// <inheritdoc />
@@ -36,7 +36,7 @@ internal sealed class TicketNotifications(MasterDbContext master, OrganizationDb
         ArgumentNullException.ThrowIfNull(domainEvent);
         var ticket = await master.Tickets.FirstAsync(t => t.Id == domainEvent.TicketId, cancellationToken);
         var draft = Draft(NotificationKind.TicketReply, domainEvent.AuthorId, ticket, domainEvent.Preview);
-        await notifier.NotifyAsync(draft, await CounterpartsAsync(ticket, domainEvent.AuthorId, cancellationToken), cancellationToken);
+        await notifier.NotifyWhereTheyWorkAsync(draft, await CounterpartsAsync(ticket, domainEvent.AuthorId, cancellationToken), cancellationToken);
     }
 
     /// <inheritdoc />
@@ -45,7 +45,7 @@ internal sealed class TicketNotifications(MasterDbContext master, OrganizationDb
         ArgumentNullException.ThrowIfNull(domainEvent);
         var ticket = await master.Tickets.FirstAsync(t => t.Id == domainEvent.TicketId, cancellationToken);
         var draft = Draft(NotificationKind.TicketStatusChanged, domainEvent.ActorId, ticket, null) with { Code = domainEvent.Status.ToString() };
-        await notifier.NotifyAsync(draft, await CounterpartsAsync(ticket, domainEvent.ActorId, cancellationToken), cancellationToken);
+        await notifier.NotifyWhereTheyWorkAsync(draft, await CounterpartsAsync(ticket, domainEvent.ActorId, cancellationToken), cancellationToken);
     }
 
     /// <inheritdoc />
@@ -53,7 +53,7 @@ internal sealed class TicketNotifications(MasterDbContext master, OrganizationDb
     {
         ArgumentNullException.ThrowIfNull(domainEvent);
         var ticket = await master.Tickets.FirstAsync(t => t.Id == domainEvent.TicketId, cancellationToken);
-        await notifier.NotifyAsync(Draft(NotificationKind.TicketAssigned, domainEvent.ActorId, ticket, null), [domainEvent.AssigneeId], cancellationToken);
+        await notifier.NotifyWhereTheyWorkAsync(Draft(NotificationKind.TicketAssigned, domainEvent.ActorId, ticket, null), [domainEvent.AssigneeId], cancellationToken);
     }
 
     /// <summary>
@@ -83,5 +83,5 @@ internal sealed class TicketNotifications(MasterDbContext master, OrganizationDb
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The people.</returns>
     private async Task<IReadOnlyCollection<Guid>> HandlersAsync(CancellationToken cancellationToken)
-        => await db.MemberIdsWithAsync(catalog, Permissions.Tickets.Manage, cancellationToken);
+        => await across.HoldersAsync(Permissions.Tickets.Manage, cancellationToken);
 }

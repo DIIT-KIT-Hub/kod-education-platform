@@ -88,6 +88,8 @@ export function makeSummary(overrides: Partial<Schemas["ChatSummary"]> = {}): Sc
         lastSequence: 0,
         lastReadSequence: 0,
         unreadCount: 0,
+        organizationId: "00000000-0000-7000-8000-0000000000f1",
+        organizationCode: "ORG",
         ...overrides,
     };
 }

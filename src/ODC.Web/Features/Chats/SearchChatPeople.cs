@@ -1,15 +1,19 @@
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using ODC.Web.Endpoints;
+using ODC.Web.Infrastructure.Tenancy;
 using ODC.Web.Messaging;
 using ODC.Web.Shared.Access;
+using ODC.Web.Shared.Domain.Access;
 using ODC.Web.Shared.Models;
 using ODC.Web.Shared.Text;
 
 namespace ODC.Web.Features.Chats;
 
 /// <summary>
-/// Finds people to write to: every word must match a part of the name or the e-mail.
+/// Finds people to write to: every word must match a part of the name or the e-mail. People of the organization come
+/// first, then people of other organizations who may use chats in theirs (with their organization in place of the
+/// position).
 /// </summary>
 public static class SearchChatPeople
 {
@@ -24,7 +28,8 @@ public static class SearchChatPeople
     /// </summary>
     /// <param name="room">The shared chat rules.</param>
     /// <param name="directory">The positions of people.</param>
-    internal sealed class Handler(ChatRoom room, PositionDirectory directory) : IRequestHandler<Query, IReadOnlyList<UserLookupItem>>
+    /// <param name="external">Finds people of other organizations.</param>
+    internal sealed class Handler(ChatRoom room, PositionDirectory directory, ExternalParticipants external) : IRequestHandler<Query, IReadOnlyList<UserLookupItem>>
     {
         /// <inheritdoc />
         public async Task<IReadOnlyList<UserLookupItem>> HandleAsync(Query request, CancellationToken cancellationToken)
@@ -44,7 +49,13 @@ public static class SearchChatPeople
                 people = people.Where(u => u.LastName.Contains(word) || u.FirstName.Contains(word) || (u.MiddleName != null && u.MiddleName.Contains(word)) || u.Email.Contains(word));
             }
 
-            return await directory.LookupAsync(people.OrderBy(static u => u.LastName).ThenBy(static u => u.FirstName).Take(20), cancellationToken);
+            var own = await external.DescribeGuestsAsync(await directory.LookupAsync(people.OrderBy(static u => u.LastName).ThenBy(static u => u.FirstName).Take(20), cancellationToken), cancellationToken);
+            if (own.Count < 20)
+            {
+                own.AddRange((await external.SearchAsync(words, Permissions.Chats.Use, me, 20 - own.Count, cancellationToken)).Where(p => own.All(o => o.Id != p.Id)));
+            }
+
+            return own;
         }
     }
 

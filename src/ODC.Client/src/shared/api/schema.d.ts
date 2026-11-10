@@ -4511,10 +4511,16 @@ export interface components {
              * @description The current profile photo of the user.
              */
             userPhotoId: null | string;
+            /**
+             * @description The organization whose trail holds the entry, or `null` for the
+             *         platform's trail (accounts, catalogs, requests to the support).
+             */
+            organizationCode: null | string;
         };
         /**
          * @description What the single-page application needs to start: the interface language, the antiforgery token of the current
-         *     identity and the signed-in user, if any.
+         *     identity, the signed-in user, if any, and the organizations: the one the request works in and those the user may
+         *     switch to.
          */
         AuthContextResponse: {
             /** @description The interface language of this request (`uk`, `en`). */
@@ -4525,6 +4531,12 @@ export interface components {
              */
             antiforgeryToken: string;
             user: null | components["schemas"]["CurrentUserResponse"];
+            organization: null | components["schemas"]["OrganizationSummary"];
+            /**
+             * @description The organizations the user may open: where they work (the default one first), where they
+             *         take part as a guest and, for a platform administrator, every other one. Empty when signed out.
+             */
+            organizations: components["schemas"]["OrganizationSummary"][];
         };
         /** @description The key of a new authenticator. */
         AuthenticatorSetupResponse: {
@@ -4798,6 +4810,14 @@ export interface components {
              * @description The number of messages of others the current user has not read.
              */
             unreadCount: number;
+            /**
+             * Format: uuid
+             * @description The organization the chat lives in (the list gathers the chats of all the user's
+             *         organizations).
+             */
+            organizationId: string;
+            /** @description The code of that organization (the chat opens at `/o/{code}/chats/{id}`). */
+            organizationCode: string;
         };
         /** @description Body of `PUT /api/v1/chats/{id}/title`. */
         ChatTitleRequest: {
@@ -4882,7 +4902,25 @@ export interface components {
             /** @description The effective permission codes. */
             permissions: string[];
         };
-        /** @description Data of the home page. */
+        /**
+         * @description A document of the home page with the organization it lives in (the home page gathers the documents waiting for the
+         *     user from all their organizations).
+         */
+        DashboardDocument: {
+            /** @description The document. */
+            document: components["schemas"]["DocumentListItem"];
+            /**
+             * Format: uuid
+             * @description Its organization.
+             */
+            organizationId: string;
+            /** @description The code of its organization (its page is at `/o/{code}/documents/{id}`). */
+            organizationCode: string;
+        };
+        /**
+         * @description Data of the home page. The documents and their counts come from every organization the user works in or takes part
+         *     in; the news from the organization of the request.
+         */
         DashboardSummary: {
             /**
              * Format: int32
@@ -4905,7 +4943,7 @@ export interface components {
              */
             signedThisMonth: number;
             /** @description The newest documents waiting for the user's signature. */
-            awaiting: components["schemas"]["DocumentListItem"][];
+            awaiting: components["schemas"]["DashboardDocument"][];
             /** @description The latest published news. */
             latestNews: components["schemas"]["NewsListItem"][];
         };
@@ -5440,6 +5478,11 @@ export interface components {
              * @description The number of readers who opened the article.
              */
             viewCount: number;
+            /**
+             * @description The organization whose database holds a news of the whole cabinet written elsewhere
+             *         (the article opens at `/o/{code}/news/{slug}`), or `null` for an article of this organization.
+             */
+            organizationCode?: null | string;
             /** @description Gets the URL of a small cover for cards (the thumbnail of the cover image). */
             coverThumbnailUrl?: null | string;
         };
@@ -5515,6 +5558,14 @@ export interface components {
              * @description The moment it was read.
              */
             readAt: null | string;
+            /**
+             * Format: uuid
+             * @description The organization it comes from (the user's notifications are gathered from all their
+             *         organizations).
+             */
+            organizationId: string;
+            /** @description The code of that organization (its pages are at `/o/{code}/…`). */
+            organizationCode: string;
         };
         /**
          * @description What a notification tells about. The client builds the translated title from it.
@@ -5528,6 +5579,30 @@ export interface components {
              * @description The person to chat with.
              */
             userId: string;
+        };
+        /**
+         * @description Why the current user may act in the organization of the request.
+         * @enum {unknown}
+         */
+        OrganizationAccess: "Anonymous" | "Member" | "Platform" | "Guest" | "System";
+        /** @description An organization the signed-in user may open (the switcher, the labels of lists gathered from several organizations). */
+        OrganizationSummary: {
+            /**
+             * Format: uuid
+             * @description The identifier.
+             */
+            id: string;
+            /** @description The code (the address `/o/{code}/…`). */
+            code: string;
+            /** @description The official name. */
+            name: string;
+            /** @description The abbreviation, if any. */
+            shortName: null | string;
+            /**
+             * @description Why the user may act there: `Member` (works there), `Guest` (signs or chats there),
+             *         `Platform` (a platform administrator).
+             */
+            access: components["schemas"]["OrganizationAccess"];
         };
         /** @description A single page of items with the information needed to render pagination. */
         PagedResultOfAuditEntryDto: {
@@ -6994,6 +7069,7 @@ export type CreatedId = components['schemas']['CreatedId'];
 export type CreateDocumentForm = components['schemas']['CreateDocumentForm'];
 export type CreateGroupChatRequest = components['schemas']['CreateGroupChatRequest'];
 export type CurrentUserResponse = components['schemas']['CurrentUserResponse'];
+export type DashboardDocument = components['schemas']['DashboardDocument'];
 export type DashboardSummary = components['schemas']['DashboardSummary'];
 export type DocumentActions = components['schemas']['DocumentActions'];
 export type DocumentDetails = components['schemas']['DocumentDetails'];
@@ -7028,6 +7104,8 @@ export type NewsRequest = components['schemas']['NewsRequest'];
 export type NotificationDto = components['schemas']['NotificationDto'];
 export type NotificationKind = components['schemas']['NotificationKind'];
 export type OpenDirectChatRequest = components['schemas']['OpenDirectChatRequest'];
+export type OrganizationAccess = components['schemas']['OrganizationAccess'];
+export type OrganizationSummary = components['schemas']['OrganizationSummary'];
 export type PagedResultOfAuditEntryDto = components['schemas']['PagedResultOfAuditEntryDto'];
 export type PagedResultOfDocumentListItem = components['schemas']['PagedResultOfDocumentListItem'];
 export type PagedResultOfNewsListItem = components['schemas']['PagedResultOfNewsListItem'];

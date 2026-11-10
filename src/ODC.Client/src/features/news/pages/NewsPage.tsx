@@ -1,7 +1,6 @@
 import { useLingui } from "@lingui/react/macro";
 import { useQuery } from "@tanstack/react-query";
 import { Eye, MessageCircle, Newspaper, Pin, Plus, Settings, SmilePlus } from "lucide-react";
-import { Link } from "react-router";
 import type { NewsCategory, NewsListItem } from "@/shared/api/schema";
 import { newsCategoryNames } from "@/shared/i18n/display";
 import { formatDate } from "@/shared/i18n/format";
@@ -18,6 +17,7 @@ import { Pagination } from "@/shared/ui/Pagination";
 import { PersonName } from "@/shared/ui/PersonName";
 import { SearchInput } from "@/shared/ui/SearchInput";
 import { SkeletonCards } from "@/shared/ui/Skeleton";
+import { OrganizationLink } from "@/shared/ui/OrganizationLink";
 import { Tab, Tabs } from "@/shared/ui/Tabs";
 import { newsListQuery } from "../api";
 import styles from "./news.module.css";
@@ -121,7 +121,7 @@ export function NewsPage() {
 function NewsCard({ article }: { readonly article: NewsListItem }) {
     const { t } = useLingui();
     return (
-        <Link className={styles.card} to={`/news/${article.slug}`}>
+        <OrganizationLink className={styles.card} organizationCode={article.organizationCode} to={`/news/${article.slug}`}>
             <div className={styles.media}>
                 {article.coverImageUrl ? (
                     <img
@@ -170,6 +170,6 @@ function NewsCard({ article }: { readonly article: NewsListItem }) {
                     </span>
                 </span>
             </div>
-        </Link>
+        </OrganizationLink>
     );
 }

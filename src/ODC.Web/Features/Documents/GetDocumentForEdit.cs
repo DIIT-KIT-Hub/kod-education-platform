@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using ODC.Web.Endpoints;
 using ODC.Web.Infrastructure.Persistence;
+using ODC.Web.Infrastructure.Tenancy;
 using ODC.Web.Messaging;
 using ODC.Web.Shared.Access;
 using ODC.Web.Shared.Domain.Access;
@@ -115,7 +116,8 @@ public static class GetDocumentForEdit
     /// <param name="db">The database context.</param>
     /// <param name="directory">The positions of people.</param>
     /// <param name="currentUser">The current user.</param>
-    internal sealed class SignersHandler(OrganizationDbContext db, PositionDirectory directory, ICurrentUser currentUser) : IRequestHandler<SignersQuery, IReadOnlyList<UserLookupItem>>
+    /// <param name="external">Finds signers of other organizations.</param>
+    internal sealed class SignersHandler(OrganizationDbContext db, PositionDirectory directory, ICurrentUser currentUser, ExternalParticipants external) : IRequestHandler<SignersQuery, IReadOnlyList<UserLookupItem>>
     {
         /// <inheritdoc />
         public async Task<IReadOnlyList<UserLookupItem>> HandleAsync(SignersQuery request, CancellationToken cancellationToken)
@@ -128,12 +130,21 @@ public static class GetDocumentForEdit
             }
 
             var lowered = term.Trim();
-            return await directory.LookupAsync(
+            var own = await directory.LookupAsync(
                 db.Members
                     .Where(u => u.IsActive && (u.LastName.Contains(lowered) || u.FirstName.Contains(lowered) || u.Email.Contains(lowered)))
                     .OrderBy(static u => u.LastName).ThenBy(static u => u.FirstName)
                     .Take(10),
                 cancellationToken);
+            own = await external.DescribeGuestsAsync(own, cancellationToken);
+
+            // People of other organizations who sign documents in theirs follow the organization's own.
+            if (own.Count < 10)
+            {
+                own.AddRange((await external.SearchAsync([lowered], Permissions.Documents.Sign, null, 10 - own.Count, cancellationToken)).Where(p => own.All(o => o.Id != p.Id)));
+            }
+
+            return own;
         }
     }
 

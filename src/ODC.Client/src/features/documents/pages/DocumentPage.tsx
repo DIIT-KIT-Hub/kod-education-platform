@@ -1,4 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import { apiUrl } from "@/shared/api/organization";
 import { Trans, useLingui } from "@lingui/react/macro";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -264,7 +265,7 @@ function DocumentView({ document }: { readonly document: DocumentDetails }) {
                                 </span>
                             </span>
                             <ButtonLink
-                                href={`/api/v1/documents/${document.id}/file`}
+                                href={apiUrl(`/api/v1/documents/${document.id}/file`)}
                                 download=""
                                 variant="secondary"
                                 size="sm"
@@ -288,7 +289,7 @@ function DocumentView({ document }: { readonly document: DocumentDetails }) {
                                     >{t`Один файл, що містить документ і всі накладені підписи.`}</span>
                                 </span>
                                 <ButtonLink
-                                    href={`/api/v1/documents/${document.id}/signatures/${document.combinedSignatureId}/file`}
+                                    href={apiUrl(`/api/v1/documents/${document.id}/signatures/${document.combinedSignatureId}/file`)}
                                     download=""
                                     size="sm"
                                     icon={Download}
@@ -351,7 +352,7 @@ function DocumentView({ document }: { readonly document: DocumentDetails }) {
                                                 </span>
                                             </span>
                                             <ButtonLink
-                                                href={`/api/v1/documents/${document.id}/signatures/${signature.id}/file`}
+                                                href={apiUrl(`/api/v1/documents/${document.id}/signatures/${signature.id}/file`)}
                                                 download=""
                                                 variant="secondary"
                                                 size="sm"

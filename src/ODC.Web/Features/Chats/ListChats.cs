@@ -3,12 +3,14 @@ using Microsoft.EntityFrameworkCore;
 using ODC.Web.Endpoints;
 using ODC.Web.Features.Chats.Domain;
 using ODC.Web.Infrastructure.Persistence;
+using ODC.Web.Infrastructure.Tenancy;
 using ODC.Web.Messaging;
 
 namespace ODC.Web.Features.Chats;
 
 /// <summary>
-/// The chats of the current user, the latest activity first, with the unread count and the last message.
+/// The chats of the current user in all their organizations, the latest activity first, with the unread count and the
+/// last message.
 /// </summary>
 public static class ListChats
 {
@@ -20,9 +22,9 @@ public static class ListChats
     /// <summary>
     /// Handles the request.
     /// </summary>
-    /// <param name="db">The database context.</param>
+    /// <param name="across">Reads the user's organizations.</param>
     /// <param name="room">The shared chat rules.</param>
-    internal sealed class Handler(OrganizationDbContext db, ChatRoom room) : IRequestHandler<Query, IReadOnlyList<ChatSummary>>
+    internal sealed class Handler(IAcrossOrganizations across, ChatRoom room) : IRequestHandler<Query, IReadOnlyList<ChatSummary>>
     {
         /// <inheritdoc />
         public async Task<IReadOnlyList<ChatSummary>> HandleAsync(Query request, CancellationToken cancellationToken)
@@ -33,6 +35,23 @@ public static class ListChats
                 return [];
             }
 
+            var parts = await across.GatherAsync(me, db => ReadAsync(db, me, cancellationToken), cancellationToken);
+            return parts
+                .SelectMany(static p => p.Value.Select(c => c with { OrganizationId = p.Organization.Id, OrganizationCode = p.Organization.Code }))
+                .OrderByDescending(static c => c.LastActivityAt)
+                .Take(ChatRoom.MaxChats)
+                .ToList();
+        }
+
+        /// <summary>
+        /// Reads the chats of a person in one organization.
+        /// </summary>
+        /// <param name="db">The organization's database.</param>
+        /// <param name="me">The person.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>The chats, the latest activity first.</returns>
+        private static async Task<List<ChatSummary>> ReadAsync(OrganizationDbContext db, Guid me, CancellationToken cancellationToken)
+        {
             // A one-to-one chat appears for the other person with its first message, and leaves the list of a person who
             // deleted it for themselves until a newer message arrives.
             var rows = await (
@@ -94,7 +113,9 @@ public static class ListChats
                 r.LastActivityAt,
                 r.LastSequence,
                 r.LastReadSequence,
-                r.Unread));
+                r.Unread,
+                Guid.Empty,
+                string.Empty));
         }
     }
 

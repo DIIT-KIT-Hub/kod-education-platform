@@ -56,6 +56,7 @@ public static class ReactToNews
                 return DiscussionAccess.CommentNotFound();
             }
 
+            await access.MakePresentAsync(cancellationToken);
             var existing = await db.NewsReactions.FirstOrDefaultAsync(r => r.ArticleId == articleId && r.CommentId == commentId && r.UserId == me, cancellationToken);
             if (existing is null)
             {

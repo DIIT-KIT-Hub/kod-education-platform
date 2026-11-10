@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using ODC.Web.Features.Tickets.Domain;
 using ODC.Web.Infrastructure.Persistence;
+using ODC.Web.Infrastructure.Tenancy;
 using ODC.Web.Messaging;
 using ODC.Web.Shared.Access;
 using ODC.Web.Shared.Domain.Access;
@@ -16,12 +17,11 @@ namespace ODC.Web.Features.Tickets;
 /// reaction to <see cref="TicketSubmitted"/>, so submitting a request never waits for it).
 /// </summary>
 /// <param name="db">The master database (requests, accounts).</param>
-/// <param name="organization">The organization's database (who handles requests).</param>
-/// <param name="catalog">The shared catalogs (roles).</param>
+/// <param name="across">Finds who handles requests (in every organization).</param>
 /// <param name="directory">The positions of people.</param>
 /// <param name="outbox">Sends the e-mails in the background.</param>
 /// <param name="options">The e-mail settings (the address of the cabinet).</param>
-internal sealed class TicketMail(MasterDbContext db, OrganizationDbContext organization, Catalog catalog, PositionDirectory directory, IEmailOutbox outbox, IOptions<EmailOptions> options) : IDomainEventHandler<TicketSubmitted>
+internal sealed class TicketMail(MasterDbContext db, IAcrossOrganizations across, PositionDirectory directory, IEmailOutbox outbox, IOptions<EmailOptions> options) : IDomainEventHandler<TicketSubmitted>
 {
     /// <summary>
     /// The length of the beginning of the description quoted in the e-mail.
@@ -44,7 +44,7 @@ internal sealed class TicketMail(MasterDbContext db, OrganizationDbContext organ
 
         var ticket = await db.Tickets.FirstAsync(t => t.Id == domainEvent.TicketId, cancellationToken);
 
-        var handlers = await organization.MemberIdsWithAsync(catalog, Permissions.Tickets.Manage, cancellationToken);
+        var handlers = await across.HoldersAsync(Permissions.Tickets.Manage, cancellationToken);
         var recipients = await db.Users
             .Where(u => handlers.Contains(u.Id) && u.Id != ticket.AuthorId && u.Email != null)
             .Select(static u => new { Email = u.Email!, Name = u.LastName + " " + u.FirstName, u.Language })

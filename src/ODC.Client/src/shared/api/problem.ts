@@ -84,9 +84,9 @@ export function describeError(error: unknown, fallback: string): string {
  * Tells whether an answer ended the sign-in: a 401 outside the sign-in steps (`/api/v1/auth/*` answer 401 as part of
  * the flow, with a message). The API client then leads to the sign-in page, so nothing else needs to report it.
  * @param status The HTTP status.
- * @param path The API path.
+ * @param path The API path (an organization's prefix `/o/{code}` is ignored).
  * @returns True when the sign-in ended.
  */
 export function endsSignIn(status: number, path: string): boolean {
-    return status === 401 && !path.startsWith("/api/v1/auth/");
+    return status === 401 && !path.replace(/^\/o\/[A-Za-z0-9-]{1,32}(?=\/)/, "").startsWith("/api/v1/auth/");
 }

@@ -383,6 +383,7 @@ export function makeAuditEntry(overrides: Partial<Schemas["AuditEntryDto"]> = {}
         details: "Chrome, Windows",
         ipAddress: "10.0.0.7",
         userPhotoId: null,
+        organizationCode: null,
         ...overrides,
     };
 }

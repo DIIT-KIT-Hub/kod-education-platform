@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using ODC.Web.Features.Notifications.Domain;
 using ODC.Web.Infrastructure.Persistence;
+using ODC.Web.Infrastructure.Tenancy;
+using ODC.Web.Shared.Domain.Tenancy;
 
 namespace ODC.Web.Features.Notifications;
 
@@ -11,7 +13,15 @@ namespace ODC.Web.Features.Notifications;
 /// <param name="events">Delivers notifications to the open pages.</param>
 /// <param name="timeProvider">The clock.</param>
 /// <param name="logger">The logger.</param>
-internal sealed partial class Notifier(OrganizationDbContext db, INotificationEvents events, TimeProvider timeProvider, ILogger<Notifier> logger) : INotifier
+/// <param name="organization">The organization the notifications are saved in (named in what the pages receive).</param>
+/// <param name="across">Reaches the other organizations of the recipients.</param>
+internal sealed partial class Notifier(
+    OrganizationDbContext db,
+    INotificationEvents events,
+    TimeProvider timeProvider,
+    ILogger<Notifier> logger,
+    OrganizationContext organization,
+    IAcrossOrganizations across) : INotifier
 {
     /// <inheritdoc />
     public async Task NotifyAsync(NotificationDraft draft, IReadOnlyCollection<Guid> recipients, CancellationToken cancellationToken)
@@ -73,20 +83,65 @@ internal sealed partial class Notifier(OrganizationDbContext db, INotificationEv
     }
 
     /// <inheritdoc />
+    public async Task NotifyWhereTheyWorkAsync(NotificationDraft draft, IReadOnlyCollection<Guid> recipients, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(recipients);
+        var here = organization.Current;
+        var groups = new Dictionary<Guid, (Organization Organization, List<Guid> People)>();
+        foreach (var recipient in recipients.Distinct())
+        {
+            if ((await across.HomeOfAsync(recipient, cancellationToken) ?? here) is not { } home)
+            {
+                continue;
+            }
+
+            if (!groups.TryGetValue(home.Id, out var group))
+            {
+                group = (home, []);
+                groups[home.Id] = group;
+            }
+
+            group.People.Add(recipient);
+        }
+
+        foreach (var (home, people) in groups.Values)
+        {
+            if (home.Id == here?.Id)
+            {
+                await NotifyAsync(draft, people, cancellationToken);
+            }
+            else
+            {
+                await across.RunInAsync(home, services => services.GetRequiredService<INotifier>().NotifyAsync(draft, people, cancellationToken));
+            }
+        }
+    }
+
+    /// <inheritdoc />
     public async Task MarkReadAsync(Guid userId, Guid entityId, CancellationToken cancellationToken)
     {
         try
         {
-            var unread = await db.Notifications.Where(n => n.UserId == userId && n.EntityId == entityId && n.ReadAt == null).ToListAsync(cancellationToken);
-            if (unread.Count == 0)
-            {
-                return;
-            }
-
+            var changed = false;
             var moment = timeProvider.GetUtcNow();
-            unread.ForEach(n => n.MarkRead(moment));
-            await db.SaveChangesAsync(cancellationToken);
-            events.Changed(userId, await db.Notifications.CountAsync(n => n.UserId == userId && n.ReadAt == null, cancellationToken));
+            await across.EachAsync(
+                userId,
+                async other =>
+                {
+                    var unread = await other.Notifications.Where(n => n.UserId == userId && n.EntityId == entityId && n.ReadAt == null).ToListAsync(cancellationToken);
+                    if (unread.Count > 0)
+                    {
+                        unread.ForEach(n => n.MarkRead(moment));
+                        await other.SaveChangesAsync(cancellationToken);
+                        changed = true;
+                    }
+                },
+                cancellationToken);
+            if (changed)
+            {
+                var counts = await across.GatherAsync(userId, other => other.Notifications.CountAsync(n => n.UserId == userId && n.ReadAt == null, cancellationToken), cancellationToken);
+                events.Changed(userId, counts.Sum(static c => c.Value));
+            }
         }
         catch (Exception exception) when (exception is DbUpdateException or InvalidOperationException)
         {
@@ -116,7 +171,8 @@ internal sealed partial class Notifier(OrganizationDbContext db, INotificationEv
     private static partial void LogMarkReadFailed(ILogger logger, Guid entityId, Exception exception);
 
     /// <summary>
-    /// Sends saved notifications to the pages of their recipients with their unread counts.
+    /// Sends saved notifications to the pages of their recipients with their unread counts in this organization (the
+    /// pages read the count of all organizations again).
     /// </summary>
     /// <param name="ids">The notifications.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
@@ -134,7 +190,9 @@ internal sealed partial class Notifier(OrganizationDbContext db, INotificationEv
             .GroupBy(static n => n.UserId)
             .Select(static g => new { g.Key, Count = g.Count() })
             .ToDictionaryAsync(static g => g.Key, static g => g.Count, cancellationToken);
-        var notifications = await db.Notifications.AsNoTracking().Where(n => ids.Contains(n.Id)).Select(NotificationRows.Dto).ToListAsync(cancellationToken);
+        var here = organization.Require();
+        var notifications = (await db.Notifications.AsNoTracking().Where(n => ids.Contains(n.Id)).Select(NotificationRows.Dto).ToListAsync(cancellationToken))
+            .Select(n => NotificationRows.In(n, here));
         foreach (var notification in notifications)
         {
             var user = owners[notification.Id];

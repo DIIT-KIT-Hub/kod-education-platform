@@ -31,7 +31,7 @@ internal sealed class OrganizationProvisioning(
             return Error.Conflict(Texts.T("Організація з кодом «{0}» вже існує.", normalized));
         }
 
-        var organization = new Organization(Guid.CreateVersion7(), normalized, name, databaseName);
+        var organization = new Organization(Guid.CreateVersion7(), normalized, name, databaseName, shortName);
         master.Organizations.Add(organization);
         await master.SaveChangesAsync(cancellationToken);
         registry.Invalidate();
@@ -61,14 +61,14 @@ internal sealed class OrganizationProvisioning(
     }
 
     /// <inheritdoc />
-    public async Task RenameAsync(Guid id, string code, string name, CancellationToken cancellationToken)
+    public async Task RenameAsync(Guid id, string code, string name, string? shortName, CancellationToken cancellationToken)
     {
         if (await master.Organizations.FirstOrDefaultAsync(o => o.Id == id, cancellationToken) is not { } organization)
         {
             return;
         }
 
-        organization.Rename(code, name);
+        organization.Rename(code, name, shortName);
         await master.SaveChangesAsync(cancellationToken);
         registry.Invalidate();
     }

@@ -1,4 +1,5 @@
 import { useLingui } from "@lingui/react/macro";
+import { apiUrl } from "@/shared/api/organization";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowRight, Ban, MailQuestion, Timer, Upload, UserPlus, Users } from "lucide-react";
 import { Link } from "react-router";
@@ -41,7 +42,7 @@ function exportHref(filters: UserFilters, format: SpreadsheetFormat): string {
         }
     }
 
-    return `/api/v1/user-exports?${query.toString()}`;
+    return apiUrl(`/api/v1/user-exports?${query.toString()}`);
 }
 
 /**

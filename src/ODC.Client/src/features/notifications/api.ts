@@ -1,5 +1,5 @@
 import { queryOptions, type QueryClient } from "@tanstack/react-query";
-import { api } from "@/shared/api/client";
+import { api, organizationApi } from "@/shared/api/client";
 import { unwrap } from "@/shared/api/problem";
 
 /**
@@ -60,15 +60,26 @@ export function applyUnreadCount(queryClient: QueryClient, count: number): void 
 }
 
 /**
+ * The request option that sends a call to another organization.
+ * @param code The organization's code, or nothing for the page's organization.
+ * @returns The option.
+ */
+function inOrganization(code: string | undefined): { baseUrl?: string } {
+    return code ? { baseUrl: organizationApi(code) } : {};
+}
+
+/**
  * The changes of notifications (each one answers with nothing; the server sends the new unread count to every page).
  */
 export const notificationApi = {
     /**
-     * Marks a notification read.
+     * Marks a notification read (in the organization it comes from).
      * @param id The notification.
+     * @param elsewhere The code of its organization when it is not the page's.
      * @returns Resolves when saved.
      */
-    markRead: (id: string) => unwrap(api.PUT("/api/v1/notifications/{id}/read", { params: { path: { id } } })),
+    markRead: (id: string, elsewhere?: string) =>
+        unwrap(api.PUT("/api/v1/notifications/{id}/read", { ...inOrganization(elsewhere), params: { path: { id } } })),
 
     /**
      * Marks every notification read.
@@ -77,11 +88,13 @@ export const notificationApi = {
     markAllRead: () => unwrap(api.PUT("/api/v1/notifications/read")),
 
     /**
-     * Deletes a notification.
+     * Deletes a notification (in the organization it comes from).
      * @param id The notification.
+     * @param elsewhere The code of its organization when it is not the page's.
      * @returns Resolves when deleted.
      */
-    remove: (id: string) => unwrap(api.DELETE("/api/v1/notifications/{id}", { params: { path: { id } } })),
+    remove: (id: string, elsewhere?: string) =>
+        unwrap(api.DELETE("/api/v1/notifications/{id}", { ...inOrganization(elsewhere), params: { path: { id } } })),
 
     /**
      * Deletes the read notifications.

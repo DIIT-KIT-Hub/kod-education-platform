@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using ODC.Web.Endpoints;
 using ODC.Web.Infrastructure.Persistence;
+using ODC.Web.Infrastructure.Tenancy;
 using ODC.Web.Shared.Domain.Access;
 using ODC.Web.Shared.Identity;
 using ODC.Web.Shared.Kernel;
@@ -43,14 +44,14 @@ internal static class UnitTypeCatalog
     /// translate a filter on a property of the projected record.
     /// </summary>
     /// <param name="db">The master database (the catalog).</param>
-    /// <param name="organization">The organization's database (the units of each type).</param>
+    /// <param name="across">Reads every organization (the units of each type).</param>
     /// <param name="id">The type to load, or <see langword="null"/> for all of them.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The types.</returns>
-    public static async Task<List<UnitTypeItem>> ItemsAsync(MasterDbContext db, OrganizationDbContext organization, Guid? id, CancellationToken cancellationToken)
+    public static async Task<List<UnitTypeItem>> ItemsAsync(MasterDbContext db, IAcrossOrganizations across, Guid? id, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(db);
-        ArgumentNullException.ThrowIfNull(organization);
+        ArgumentNullException.ThrowIfNull(across);
         var types = await db.UnitTypes
             .AsNoTracking()
             .Where(t => id == null || t.Id == id)
@@ -59,11 +60,14 @@ internal static class UnitTypeCatalog
             .Select(static t => new UnitTypeItem(t.Id, t.Code, t.Name, t.Description, t.Icon, t.IsOrganization, t.SortOrder, 0))
             .ToListAsync(cancellationToken);
         var ids = types.Select(static t => t.Id).ToList();
-        var usage = await organization.OrganizationUnits
-            .Where(u => ids.Contains(u.TypeId))
-            .GroupBy(static u => u.TypeId)
-            .Select(static g => new { g.Key, Count = g.Count() })
-            .ToDictionaryAsync(static g => g.Key, static g => g.Count, cancellationToken);
+        var counts = await across.EveryAsync(
+            organization => organization.OrganizationUnits
+                .Where(u => ids.Contains(u.TypeId))
+                .GroupBy(static u => u.TypeId)
+                .Select(static g => new { g.Key, Count = g.Count() })
+                .ToListAsync(cancellationToken),
+            cancellationToken);
+        var usage = counts.SelectMany(static c => c.Value).GroupBy(static c => c.Key).ToDictionary(static g => g.Key, static g => g.Sum(static c => c.Count));
         return [.. types.Select(t => t with { UnitCount = usage.GetValueOrDefault(t.Id) })];
     }
 

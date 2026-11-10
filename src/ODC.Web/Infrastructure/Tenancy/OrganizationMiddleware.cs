@@ -83,14 +83,22 @@ public sealed class OrganizationMiddleware(RequestDelegate next)
         }
         else
         {
-            var access = platform ? OrganizationAccess.Platform : mine.Contains(chosen.Id) ? OrganizationAccess.Member : OrganizationAccess.Guest;
+            // A platform administrator holds every permission everywhere; where they also work they are a member (their
+            // work there is the organization's own), elsewhere they use the platform's powers (audited twice).
+            var access = mine.Contains(chosen.Id) ? OrganizationAccess.Member : platform ? OrganizationAccess.Platform : OrganizationAccess.Guest;
             organization.Enter(chosen, access);
-            IReadOnlySet<string> here = access == OrganizationAccess.Member
+            if (access == OrganizationAccess.Platform)
+            {
+                // What a platform administrator creates there points at their profile copy.
+                await context.RequestServices.GetRequiredService<ExternalParticipants>().EnsurePresentAsync(userId, cancellationToken);
+            }
+
+            IReadOnlySet<string> here = access == OrganizationAccess.Member && !platform
                 ? await cache.GetAsync(
                     $"permissions:{userId}:{chosen.Id}",
                     async () => (IReadOnlySet<string>)(await context.RequestServices.GetRequiredService<IPermissionResolver>().GetEffectivePermissionsAsync(userId, cancellationToken)).ToHashSet(StringComparer.Ordinal))
                 : new HashSet<string>();
-            effective = OrganizationPermissions.Effective(access, token, here);
+            effective = OrganizationPermissions.Effective(platform ? OrganizationAccess.Platform : access, token, here);
         }
 
         context.User = WithPermissions(user, effective);

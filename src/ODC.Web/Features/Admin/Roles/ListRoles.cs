@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using ODC.Web.Endpoints;
 using ODC.Web.Infrastructure.Persistence;
+using ODC.Web.Infrastructure.Tenancy;
 using ODC.Web.Messaging;
 using ODC.Web.Security;
 using ODC.Web.Shared.Domain.Access;
@@ -26,8 +27,8 @@ public static class ListRoles
     /// Reads the page.
     /// </summary>
     /// <param name="db">The database context.</param>
-    /// <param name="organization">The organization's database (positions with the role).</param>
-    internal sealed class Handler(MasterDbContext db, OrganizationDbContext organization) : IRequestHandler<Query, Result<PagedResult<RoleListItem>>>
+    /// <param name="across">Reads every organization (positions with the role).</param>
+    internal sealed class Handler(MasterDbContext db, IAcrossOrganizations across) : IRequestHandler<Query, Result<PagedResult<RoleListItem>>>
     {
         /// <inheritdoc />
         public async Task<Result<PagedResult<RoleListItem>>> HandleAsync(Query request, CancellationToken cancellationToken)
@@ -59,11 +60,13 @@ public static class ListRoles
                     0))
                 .ToPagedResultAsync(request, cancellationToken);
             var ids = page.Items.Select(static r => r.Id).ToList();
-            var holders = await organization.StaffPositions
-                .Where(p => ids.Contains(p.RoleId))
+            var positions = await across.EveryAsync(
+                organization => organization.StaffPositions.Where(p => ids.Contains(p.RoleId)).Select(static p => new { p.RoleId, p.UserId }).Distinct().ToListAsync(cancellationToken),
+                cancellationToken);
+            var holders = positions
+                .SelectMany(static p => p.Value)
                 .GroupBy(static p => p.RoleId)
-                .Select(static g => new { g.Key, Count = g.Select(static p => p.UserId).Distinct().Count() })
-                .ToDictionaryAsync(static g => g.Key, static g => g.Count, cancellationToken);
+                .ToDictionary(static g => g.Key, static g => g.Select(static p => p.UserId).Distinct().Count());
             return page with { Items = [.. page.Items.Select(r => r with { UserCount = holders.GetValueOrDefault(r.Id) })] };
         }
     }

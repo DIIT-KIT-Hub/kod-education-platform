@@ -1,4 +1,5 @@
 import createClient, { type Middleware } from "openapi-fetch";
+import { organizationBase } from "./organization";
 import { endsSignIn } from "./problem";
 import type { paths } from "./schema";
 
@@ -53,7 +54,18 @@ const security: Middleware = {
 };
 
 /**
- * The typed REST client (paths and payloads generated from the OpenAPI document by `pnpm api:types`).
+ * The typed REST client (paths and payloads generated from the OpenAPI document by `pnpm api:types`). Requests go to the
+ * organization of the page (`/o/{code}/api/v1/…`); a call about another organization passes its own `baseUrl`
+ * (`organizationApi`).
  */
-export const api = createClient<paths>({ baseUrl: window.location.origin, credentials: "same-origin" });
+export const api = createClient<paths>({ baseUrl: window.location.origin + organizationBase, credentials: "same-origin" });
+
+/**
+ * The base address of the API calls about another organization (an item of a list gathered from several).
+ * @param code The organization's code.
+ * @returns The base address for the `baseUrl` option of a call.
+ */
+export function organizationApi(code: string): string {
+    return `${window.location.origin}/o/${code}`;
+}
 api.use(security);

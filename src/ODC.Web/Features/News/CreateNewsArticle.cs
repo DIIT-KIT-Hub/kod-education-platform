@@ -89,6 +89,7 @@ public static class CreateNewsArticle
                 audit.Add(AuditActions.NewsChanged, nameof(NewsArticle), article.Id.ToString(), $"Створено «{article.Title}»");
                 await db.SaveChangesAsync(cancellationToken);
                 await media.SaveChangesAsync(cancellationToken);
+                await desk.IndexAsync(article, deleted: false, cancellationToken);
                 return article.Id;
             });
         }

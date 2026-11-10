@@ -250,6 +250,10 @@ msgstr "The author will see the reason and can fix the document."
 msgid "Автор публікації"
 msgstr "Author of the post"
 
+#: src/app/layout/OrganizationSwitcher.tsx
+msgid "адміністратор платформи"
+msgstr "platform administrator"
+
 #: src/features/auth/pages/LoginPage.tsx
 msgid "Адміністратор створив Вам обліковий запис? Підтвердьте пошту кодом і задайте власний пароль."
 msgstr "Has an administrator created an account for you? Confirm your e-mail with a code and set your own password."
@@ -959,6 +963,10 @@ msgstr "Sign-ins, permission changes, document signing."
 msgid "Галерея фото"
 msgstr "Photo gallery"
 
+#: src/app/layout/OrganizationSwitcher.tsx
+msgid "гість"
+msgstr "guest"
+
 #: src/app/layout/navigation.ts
 #: src/features/home/HomePage.tsx
 msgid "Головна"
@@ -1398,6 +1406,10 @@ msgstr "Bold"
 #: src/features/news/components/RichTextEditor.tsx
 msgid "Жирний (Ctrl+B)"
 msgstr "Bold (Ctrl+B)"
+
+#: src/features/admin/pages/AuditPage.tsx
+msgid "Журнал"
+msgstr "Trail"
 
 #: src/features/admin/pages/AdminPage.tsx
 #: src/features/admin/pages/AuditPage.tsx
@@ -3388,6 +3400,7 @@ msgid "організація"
 msgstr "organization"
 
 #: src/app/layout/navigation.ts
+#: src/app/layout/OrganizationSwitcher.tsx
 #: src/features/admin/pages/UnitsPage.tsx
 #: src/features/admin/pages/UnitTypesPage.tsx
 #: src/features/news/pages/NewsEditorPage.tsx
@@ -3650,6 +3663,10 @@ msgstr "Seen"
 #: src/app/layout/AppShell.tsx
 msgid "Перейти до змісту"
 msgstr "Skip to content"
+
+#: src/app/layout/OrganizationSwitcher.tsx
+msgid "Перейти до іншої організації"
+msgstr "Go to another organization"
 
 #: src/features/auth/pages/SetupAuthenticatorPage.tsx
 msgid "Перейти до кабінету"
@@ -3922,6 +3939,10 @@ msgstr "Nobody will be able to write in it after closing."
 #: src/features/auth/pages/ChangePasswordPage.tsx
 msgid "Після зміни пароля всі інші сесії буде завершено."
 msgstr "Changing your password will sign out all your other sessions."
+
+#: src/features/admin/pages/AuditPage.tsx
+msgid "Платформа"
+msgstr "Platform"
 
 #: src/features/admin/pages/UserEditorPage.tsx
 #: src/features/profile/pages/ProfilePage.tsx

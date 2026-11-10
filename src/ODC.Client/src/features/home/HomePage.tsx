@@ -2,10 +2,11 @@ import { useLingui } from "@lingui/react/macro";
 import { queryOptions, useQuery } from "@tanstack/react-query";
 import { ArrowRight, BadgeCheck, ChevronRight, CircleCheck, FilePlus, Hourglass, Newspaper, Pencil, Pin, Signature } from "lucide-react";
 import { api } from "@/shared/api/client";
+import { isElsewhere, linkTo } from "@/shared/api/organization";
 import { unwrap } from "@/shared/api/problem";
 import { documentKindNames, newsCategoryNames } from "@/shared/i18n/display";
 import { formatDate, formatNumber, kyivHour } from "@/shared/i18n/format";
-import { hasPermission, Permissions, useCurrentUser } from "@/shared/session/session";
+import { hasPermission, Permissions, useCurrentUser, useOrganization, useOrganizationNames } from "@/shared/session/session";
 import layout from "@/shared/styles/layout.module.css";
 import { Avatar } from "@/shared/ui/Avatar";
 import { ButtonLink } from "@/shared/ui/Button";
@@ -33,6 +34,8 @@ const dashboardQuery = queryOptions({
 export function HomePage() {
     const { t } = useLingui();
     const user = useCurrentUser();
+    const organization = useOrganization();
+    const nameOf = useOrganizationNames();
     const summary = useQuery(dashboardQuery);
     const canDocuments = hasPermission(user, Permissions.documentsView);
     const canNews = hasPermission(user, Permissions.newsView);
@@ -118,13 +121,20 @@ export function HomePage() {
                                     <EmptyState icon={CircleCheck} title={t`Усе підписано`} text={t`Нових документів на підпис немає.`} />
                                 ) : (
                                     <List>
-                                        {summary.data.awaiting.map((document) => (
+                                        {summary.data.awaiting.map(({ document, organizationCode }) => (
                                             <ListItem
                                                 key={document.id}
-                                                to={`/documents/${document.id}`}
+                                                {...linkTo(organizationCode, organization?.code, `/documents/${document.id}`)}
                                                 start={<Avatar name={document.authorName} photoId={document.authorPhotoId} />}
                                                 title={document.title}
-                                                meta={`${t`№ ${document.registrationNumber}`} · ${t(documentKindNames[document.kind])} · ${document.authorName}`}
+                                                meta={[
+                                                    t`№ ${document.registrationNumber}`,
+                                                    t(documentKindNames[document.kind]),
+                                                    document.authorName,
+                                                    ...(isElsewhere(organizationCode, organization?.code)
+                                                        ? [nameOf(organizationCode)]
+                                                        : []),
+                                                ].join(" · ")}
                                                 end={<Icon icon={ChevronRight} className={layout.muted} />}
                                             />
                                         ))}
@@ -150,7 +160,7 @@ export function HomePage() {
                                         {summary.data.latestNews.map((article) => (
                                             <ListItem
                                                 key={article.id}
-                                                to={`/news/${article.slug}`}
+                                                {...linkTo(article.organizationCode, organization?.code, `/news/${article.slug}`)}
                                                 title={article.title}
                                                 meta={`${t(newsCategoryNames[article.category])} · ${formatDate(article.publishedAt)}`}
                                                 end={article.isPinned ? <Icon icon={Pin} size="sm" /> : undefined}

@@ -74,6 +74,7 @@ namespace ODC.Web.Infrastructure.Persistence.Migrations.Master
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     code = table.Column<string>(type: "citext", maxLength: 32, nullable: false),
                     name = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: false),
+                    short_name = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: true),
                     database_name = table.Column<string>(type: "character varying(63)", maxLength: 63, nullable: false),
                     is_active = table.Column<bool>(type: "boolean", nullable: false),
                     created_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
@@ -164,6 +165,25 @@ namespace ODC.Web.Infrastructure.Persistence.Migrations.Master
                 });
 
             migrationBuilder.CreateTable(
+                name: "general_articles",
+                columns: table => new
+                {
+                    article_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    organization_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    published_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_general_articles", x => x.article_id);
+                    table.ForeignKey(
+                        name: "fk_general_articles_organizations_organization_id",
+                        column: x => x.organization_id,
+                        principalTable: "organizations",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "role_claims",
                 columns: table => new
                 {
@@ -228,6 +248,31 @@ namespace ODC.Web.Infrastructure.Persistence.Migrations.Master
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "fk_memberships_users_user_id",
+                        column: x => x.user_id,
+                        principalTable: "users",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "participations",
+                columns: table => new
+                {
+                    user_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    organization_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    created_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_participations", x => new { x.user_id, x.organization_id });
+                    table.ForeignKey(
+                        name: "fk_participations_organizations_organization_id",
+                        column: x => x.organization_id,
+                        principalTable: "organizations",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "fk_participations_users_user_id",
                         column: x => x.user_id,
                         principalTable: "users",
                         principalColumn: "id",
@@ -446,6 +491,11 @@ namespace ODC.Web.Infrastructure.Persistence.Migrations.Master
                 column: "user_id");
 
             migrationBuilder.CreateIndex(
+                name: "ix_general_articles_organization_id",
+                table: "general_articles",
+                column: "organization_id");
+
+            migrationBuilder.CreateIndex(
                 name: "ix_media_files_news_article_id",
                 table: "media_files",
                 column: "news_article_id");
@@ -471,6 +521,11 @@ namespace ODC.Web.Infrastructure.Persistence.Migrations.Master
                 table: "organizations",
                 column: "database_name",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "ix_participations_organization_id",
+                table: "participations",
+                column: "organization_id");
 
             migrationBuilder.CreateIndex(
                 name: "ix_refresh_token_families_expires_at",
@@ -597,7 +652,13 @@ namespace ODC.Web.Infrastructure.Persistence.Migrations.Master
                 name: "data_protection_keys");
 
             migrationBuilder.DropTable(
+                name: "general_articles");
+
+            migrationBuilder.DropTable(
                 name: "memberships");
+
+            migrationBuilder.DropTable(
+                name: "participations");
 
             migrationBuilder.DropTable(
                 name: "refresh_token_families");

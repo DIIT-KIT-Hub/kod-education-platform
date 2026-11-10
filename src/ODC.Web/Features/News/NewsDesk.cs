@@ -22,7 +22,8 @@ namespace ODC.Web.Features.News;
 /// <param name="accessScope">The administration scopes.</param>
 /// <param name="markdown">The Markdown renderer (articles written before the rich text editor).</param>
 /// <param name="media">The image library.</param>
-internal sealed class NewsDesk(OrganizationDbContext db, Catalog catalog, IAccessScope accessScope, IMarkdownRenderer markdown, MediaLibrary media)
+/// <param name="general">The index of the news of the whole cabinet.</param>
+internal sealed class NewsDesk(OrganizationDbContext db, Catalog catalog, IAccessScope accessScope, IMarkdownRenderer markdown, MediaLibrary media, GeneralNews general)
 {
     /// <summary>
     /// The error shown when an article belongs to an organization the current user does not manage the news of.
@@ -68,6 +69,16 @@ internal sealed class NewsDesk(OrganizationDbContext db, Catalog catalog, IAcces
         var units = scoped.ToList();
         return articles.Where(a => a.OrganizationId != null && units.Contains(a.OrganizationId.Value));
     }
+
+    /// <summary>
+    /// Brings the index of the news of the whole cabinet in line with an article after it was saved or deleted (other
+    /// organizations list such an article from this one).
+    /// </summary>
+    /// <param name="article">The article.</param>
+    /// <param name="deleted">Whether it was deleted.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task.</returns>
+    public Task IndexAsync(NewsArticle article, bool deleted, CancellationToken cancellationToken) => general.SyncAsync(article, deleted, cancellationToken);
 
     /// <summary>
     /// Returns where <c>news.manage</c> of the current user applies.

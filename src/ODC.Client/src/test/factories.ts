@@ -35,7 +35,30 @@ export function makeUser(overrides: Partial<Schemas["CurrentUserResponse"]> = {}
  * @returns The context.
  */
 export function makeAuthContext(user: Schemas["CurrentUserResponse"] | null = makeUser(), language = "uk"): Schemas["AuthContextResponse"] {
-    return { language, antiforgeryToken: "csrf-test-token", user };
+    const organization = makeOrganization();
+    return {
+        language,
+        antiforgeryToken: "csrf-test-token",
+        user,
+        organization: user ? organization : null,
+        organizations: user ? [organization] : [],
+    };
+}
+
+/**
+ * An organization of the user (the page's one by default: code `ORG`).
+ * @param overrides Changed fields.
+ * @returns The organization.
+ */
+export function makeOrganization(overrides: Partial<Schemas["OrganizationSummary"]> = {}): Schemas["OrganizationSummary"] {
+    return {
+        id: "00000000-0000-7000-8000-0000000000f1",
+        code: "ORG",
+        name: "Моя організація",
+        shortName: "МО",
+        access: "Member",
+        ...overrides,
+    };
 }
 
 /**

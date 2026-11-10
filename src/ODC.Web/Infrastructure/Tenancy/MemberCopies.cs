@@ -5,9 +5,8 @@ using ODC.Web.Shared.Domain.Users;
 namespace ODC.Web.Infrastructure.Tenancy;
 
 /// <summary>
-/// Writes the profiles of accounts to the databases of the organizations they work in (their memberships), one
-/// organization at a time. The organization the request works in also gets them when the person is known there (a
-/// participant from another organization: a signer, a chat member).
+/// Writes the profiles of accounts to the databases of the organizations they work in (their memberships) and take part
+/// in as guests (their participations: a signer, a chat member from another organization), one organization at a time.
 /// </summary>
 /// <param name="scopes">Creates scopes of the master database.</param>
 /// <param name="registry">The registry of organizations.</param>
@@ -32,13 +31,18 @@ public sealed class MemberCopies(IServiceScopeFactory scopes, OrganizationRegist
         List<(Guid UserId, Guid OrganizationId)> memberships;
         await using (var scope = scopes.CreateAsyncScope())
         {
-            memberships = (await scope.ServiceProvider.GetRequiredService<MasterDbContext>().Memberships
+            var master = scope.ServiceProvider.GetRequiredService<MasterDbContext>();
+            var members = await master.Memberships
                 .AsNoTracking()
                 .Where(m => ids.Contains(m.UserId))
                 .Select(static m => new { m.UserId, m.OrganizationId })
-                .ToListAsync(cancellationToken))
-                .Select(static m => (m.UserId, m.OrganizationId))
-                .ToList();
+                .ToListAsync(cancellationToken);
+            var guests = await master.Participations
+                .AsNoTracking()
+                .Where(p => ids.Contains(p.UserId))
+                .Select(static p => new { p.UserId, p.OrganizationId })
+                .ToListAsync(cancellationToken);
+            memberships = [.. members.Concat(guests).Select(static m => (m.UserId, m.OrganizationId)).Distinct()];
         }
 
         foreach (var group in memberships.GroupBy(static m => m.OrganizationId))

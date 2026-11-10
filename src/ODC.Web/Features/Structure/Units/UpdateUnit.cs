@@ -104,7 +104,7 @@ public static class UpdateUnit
                 await db.SaveChangesAsync(cancellationToken);
                 if (unit.ParentId is null)
                 {
-                    await provisioning.RenameAsync(unit.Id, unit.Code, unit.Name, cancellationToken);
+                    await provisioning.RenameAsync(unit.Id, unit.Code, unit.Name, unit.ShortName, cancellationToken);
                 }
 
                 return Result.Success();

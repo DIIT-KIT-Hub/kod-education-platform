@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using ODC.Web.Features.News;
 using ODC.Web.Features.News.Domain;
 using ODC.Web.Infrastructure.Tenancy;
 using ODC.Web.Shared.Domain.Access;
@@ -122,6 +123,9 @@ public sealed partial class DatabaseInitializer(
             await SeedDemoStaffAsync(root, units, roles, cancellationToken);
             await SeedDemoNewsAsync(root, fund, cancellationToken);
         }
+
+        // Other organizations list the news of the whole cabinet through the index of the master database.
+        await GeneralNews.RebuildAsync(db, await registry.AllAsync(cancellationToken), scopes, cancellationToken);
     }
 
     /// <summary>

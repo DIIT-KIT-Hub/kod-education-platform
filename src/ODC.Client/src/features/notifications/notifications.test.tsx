@@ -2,7 +2,8 @@ import { screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { i18n } from "@/shared/i18n/i18n";
 import { emitLive, reconnectLive } from "@/shared/realtime/fakeLive";
-import { makePage, makeUserRef, type Schemas } from "@/test/factories";
+import { authContextQuery } from "@/shared/session/session";
+import { makeAuthContext, makeOrganization, makePage, makeUserRef, type Schemas } from "@/test/factories";
 import { renderPage } from "@/test/render";
 import { mockApi, problem, type RecordedRequest } from "@/test/server";
 import { notificationKeys } from "./api";
@@ -30,6 +31,8 @@ function makeNotification(overrides: Partial<Schemas["NotificationDto"]> = {}): 
         count: 1,
         createdAt: "2026-11-09T08:00:00Z",
         readAt: null,
+        organizationId: "00000000-0000-7000-8000-0000000000f1",
+        organizationCode: "ORG",
         ...overrides,
     };
 }
@@ -107,6 +110,26 @@ describe("NotificationsPage", () => {
 
         expect(await screen.findByText("document")).toBeInTheDocument();
         expect(read[0]?.path).toBe("/api/v1/notifications/n-1/read");
+    });
+
+    it("names the organization of a notification from another one and opens it there", async () => {
+        const assign = vi.spyOn(window.location, "assign").mockImplementation(() => undefined);
+        const read = mockApi("put", "/o/FUND/api/v1/notifications/{id}/read" as never);
+        const { user, queryClient } = renderList([makeNotification({ organizationId: "f", organizationCode: "FUND" })]);
+        queryClient.setQueryData(authContextQuery.queryKey, {
+            ...makeAuthContext(),
+            organizations: [
+                makeOrganization(),
+                makeOrganization({ id: "f", code: "FUND", name: "Благодійний фонд", shortName: "БФ", access: "Member" }),
+            ],
+        });
+
+        expect(await screen.findByText("БФ · Наказ № 12")).toBeInTheDocument();
+        await user.click(screen.getByRole("button", { name: /Документ очікує Вашого підпису/ }));
+
+        await waitFor(() => expect(assign).toHaveBeenCalledWith("/o/FUND/documents/doc-1"));
+        expect(read[0]?.path).toBe("/o/FUND/api/v1/notifications/n-1/read");
+        assign.mockRestore();
     });
 
     it("does not mark a read notification again when it is opened", async () => {
@@ -200,13 +223,15 @@ describe("NotificationsPage", () => {
 });
 
 describe("NotificationSync", () => {
-    it("updates the unread count, refreshes the requests and shows a toast for a new notification", async () => {
+    it("reads the unread count of every organization again, refreshes the requests and shows a toast for a new notification", async () => {
         const { queryClient } = renderPage(<NotificationSync />, { path: "/" });
+        queryClient.setQueryData(notificationKeys.unread, 6);
         queryClient.setQueryData(["tickets", "mine"], "stale");
 
+        // The count of the event is that of its own organization: the badge counts all of them, so it is read again.
         emitLive("NotificationReceived", makeNotification({ kind: "TicketReply", subject: "Запит № 5", link: "/requests/t-5" }), 7);
 
-        expect(queryClient.getQueryData(notificationKeys.unread)).toBe(7);
+        expect(queryClient.getQueryState(notificationKeys.unread)?.isInvalidated).toBe(true);
         expect(queryClient.getQueryState(["tickets", "mine"])?.isInvalidated).toBe(true);
         expect(await screen.findByText("Нова відповідь у зверненні: Запит № 5")).toBeInTheDocument();
     });

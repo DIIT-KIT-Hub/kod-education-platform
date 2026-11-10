@@ -12,7 +12,7 @@ using ODC.Web.Infrastructure.Persistence;
 namespace ODC.Web.Infrastructure.Persistence.Migrations.Master
 {
     [DbContext(typeof(MasterDbContext))]
-    [Migration("20261110075116_InitialCreate")]
+    [Migration("20261110095725_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -188,6 +188,29 @@ namespace ODC.Web.Infrastructure.Persistence.Migrations.Master
                         .HasDatabaseName("ix_activation_challenges_email_hash_created_at");
 
                     b.ToTable("activation_challenges", (string)null);
+                });
+
+            modelBuilder.Entity("ODC.Web.Features.News.Domain.GeneralArticle", b =>
+                {
+                    b.Property<Guid>("ArticleId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("article_id");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("organization_id");
+
+                    b.Property<DateTimeOffset>("PublishedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("published_at");
+
+                    b.HasKey("ArticleId")
+                        .HasName("pk_general_articles");
+
+                    b.HasIndex("OrganizationId")
+                        .HasDatabaseName("ix_general_articles_organization_id");
+
+                    b.ToTable("general_articles", (string)null);
                 });
 
             modelBuilder.Entity("ODC.Web.Features.Tickets.Domain.Ticket", b =>
@@ -780,6 +803,11 @@ namespace ODC.Web.Infrastructure.Persistence.Migrations.Master
                         .HasColumnType("character varying(256)")
                         .HasColumnName("name");
 
+                    b.Property<string>("ShortName")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("short_name");
+
                     b.Property<DateTimeOffset?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
@@ -796,6 +824,29 @@ namespace ODC.Web.Infrastructure.Persistence.Migrations.Master
                         .HasDatabaseName("ix_organizations_database_name");
 
                     b.ToTable("organizations", (string)null);
+                });
+
+            modelBuilder.Entity("ODC.Web.Shared.Domain.Tenancy.Participation", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("organization_id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.HasKey("UserId", "OrganizationId")
+                        .HasName("pk_participations");
+
+                    b.HasIndex("OrganizationId")
+                        .HasDatabaseName("ix_participations_organization_id");
+
+                    b.ToTable("participations", (string)null);
                 });
 
             modelBuilder.Entity("ODC.Web.Shared.Domain.Users.User", b =>
@@ -966,6 +1017,16 @@ namespace ODC.Web.Infrastructure.Persistence.Migrations.Master
                         .HasConstraintName("fk_activation_challenges_users_user_id");
                 });
 
+            modelBuilder.Entity("ODC.Web.Features.News.Domain.GeneralArticle", b =>
+                {
+                    b.HasOne("ODC.Web.Shared.Domain.Tenancy.Organization", null)
+                        .WithMany()
+                        .HasForeignKey("OrganizationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_general_articles_organizations_organization_id");
+                });
+
             modelBuilder.Entity("ODC.Web.Features.Tickets.Domain.Ticket", b =>
                 {
                     b.HasOne("ODC.Web.Shared.Domain.Users.User", "Assignee")
@@ -1050,6 +1111,23 @@ namespace ODC.Web.Infrastructure.Persistence.Migrations.Master
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_memberships_users_user_id");
+                });
+
+            modelBuilder.Entity("ODC.Web.Shared.Domain.Tenancy.Participation", b =>
+                {
+                    b.HasOne("ODC.Web.Shared.Domain.Tenancy.Organization", null)
+                        .WithMany()
+                        .HasForeignKey("OrganizationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_participations_organizations_organization_id");
+
+                    b.HasOne("ODC.Web.Shared.Domain.Users.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_participations_users_user_id");
                 });
 
             modelBuilder.Entity("ODC.Web.Shared.Domain.Users.User", b =>

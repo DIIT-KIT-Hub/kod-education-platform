@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using ODC.Web.Endpoints;
 using ODC.Web.Infrastructure.Persistence;
+using ODC.Web.Infrastructure.Tenancy;
 using ODC.Web.Messaging;
 using ODC.Web.Shared.Identity;
 using ODC.Web.Shared.Paging;
@@ -25,11 +26,12 @@ public static class ListNotifications
     }
 
     /// <summary>
-    /// Reads the page.
+    /// Reads the page from every organization of the user (each gives its newest notifications up to the end of the
+    /// page; they are merged by time).
     /// </summary>
-    /// <param name="db">The database context.</param>
+    /// <param name="across">Reads the user's organizations.</param>
     /// <param name="currentUser">The current user.</param>
-    internal sealed class Handler(OrganizationDbContext db, ICurrentUser currentUser) : IRequestHandler<Query, PagedResult<NotificationDto>>
+    internal sealed class Handler(IAcrossOrganizations across, ICurrentUser currentUser) : IRequestHandler<Query, PagedResult<NotificationDto>>
     {
         /// <inheritdoc />
         public async Task<PagedResult<NotificationDto>> HandleAsync(Query request, CancellationToken cancellationToken)
@@ -40,17 +42,37 @@ public static class ListNotifications
                 return PagedResult<NotificationDto>.Empty(request);
             }
 
-            var notifications = db.Notifications.AsNoTracking().Where(n => n.UserId == me);
-            if (request.UnreadOnly == true)
-            {
-                notifications = notifications.Where(static n => n.ReadAt == null);
-            }
+            var unreadOnly = request.UnreadOnly == true;
+            var upTo = request.CurrentPage * request.CurrentPageSize;
+            var parts = await across.GatherAsync(
+                me,
+                async db =>
+                {
+                    var notifications = db.Notifications.AsNoTracking().Where(n => n.UserId == me);
+                    if (unreadOnly)
+                    {
+                        notifications = notifications.Where(static n => n.ReadAt == null);
+                    }
 
-            return await notifications
+                    var count = await notifications.CountAsync(cancellationToken);
+                    var newest = await notifications
+                        .OrderByDescending(static n => n.CreatedAt)
+                        .ThenByDescending(static n => n.Id)
+                        .Take(upTo)
+                        .Select(NotificationRows.Dto)
+                        .ToListAsync(cancellationToken);
+                    return (Count: count, Newest: newest);
+                },
+                cancellationToken);
+
+            var page = parts
+                .SelectMany(static p => p.Value.Newest.Select(n => NotificationRows.In(n, p.Organization)))
                 .OrderByDescending(static n => n.CreatedAt)
                 .ThenByDescending(static n => n.Id)
-                .Select(NotificationRows.Dto)
-                .ToPagedResultAsync(request, cancellationToken);
+                .Skip((request.CurrentPage - 1) * request.CurrentPageSize)
+                .Take(request.CurrentPageSize)
+                .ToList();
+            return new PagedResult<NotificationDto>(page, request.CurrentPage, request.CurrentPageSize, parts.Sum(static p => p.Value.Count));
         }
     }
 

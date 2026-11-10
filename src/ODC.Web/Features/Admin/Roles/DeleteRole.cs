@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using ODC.Web.Endpoints;
 using ODC.Web.Infrastructure.Persistence;
+using ODC.Web.Infrastructure.Tenancy;
 using ODC.Web.Messaging;
 using ODC.Web.Security;
 using ODC.Web.Shared.Auditing;
@@ -28,9 +29,9 @@ public static class DeleteRole
     /// Deletes the role when allowed.
     /// </summary>
     /// <param name="db">The database context.</param>
-    /// <param name="organization">The organization's database (positions with the role).</param>
+    /// <param name="across">Reads every organization (positions with the role).</param>
     /// <param name="audit">The audit logger.</param>
-    internal sealed class Handler(MasterDbContext db, OrganizationDbContext organization, IAuditLogger audit) : IRequestHandler<Command, Result>
+    internal sealed class Handler(MasterDbContext db, IAcrossOrganizations across, IAuditLogger audit) : IRequestHandler<Command, Result>
     {
         /// <inheritdoc />
         public async Task<Result> HandleAsync(Command request, CancellationToken cancellationToken)
@@ -47,7 +48,7 @@ public static class DeleteRole
                 return Error.Validation(Texts.T("Системну роль не можна видалити."));
             }
 
-            if (await organization.StaffPositions.AnyAsync(p => p.RoleId == request.Id, cancellationToken))
+            if ((await across.EveryAsync(organization => organization.StaffPositions.AnyAsync(p => p.RoleId == request.Id, cancellationToken), cancellationToken)).Exists(static p => p.Value))
             {
                 return Error.Conflict(Texts.T("Роль призначена користувачам — спочатку змініть їхні посади."));
             }

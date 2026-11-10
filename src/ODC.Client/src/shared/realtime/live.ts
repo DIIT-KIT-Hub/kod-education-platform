@@ -1,10 +1,11 @@
 import { HubConnectionBuilder, HubConnectionState, LogLevel, type HubConnection, type IRetryPolicy } from "@microsoft/signalr";
 import { useEffect, useEffectEvent } from "react";
+import { organizationBase } from "@/shared/api/organization";
 
 /**
- * The address of the server hub (LiveHub): under the API, signed-in users only.
+ * The address of the server hub (LiveHub): under the API of the page's organization, signed-in users only.
  */
-const hubUrl = "/api/v1/live";
+const hubUrl = `${organizationBase}/api/v1/live`;
 
 /**
  * The pauses between reconnect attempts (the last one repeats): a chat must come back after any outage.

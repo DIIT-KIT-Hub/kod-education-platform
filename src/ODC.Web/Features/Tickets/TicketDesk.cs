@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using ODC.Web.Features.Tickets.Domain;
 using ODC.Web.Infrastructure.Persistence;
+using ODC.Web.Infrastructure.Tenancy;
 using ODC.Web.Shared.Access;
 using ODC.Web.Shared.Domain.Access;
 using ODC.Web.Shared.Files;
@@ -17,11 +18,10 @@ namespace ODC.Web.Features.Tickets;
 /// projection and the files of messages.
 /// </summary>
 /// <param name="db">The master database (the requests).</param>
-/// <param name="organization">The organization's database (who handles requests).</param>
-/// <param name="catalog">The shared catalogs (roles).</param>
+/// <param name="across">Finds who handles requests (in every organization).</param>
 /// <param name="currentUser">The current user.</param>
 /// <param name="attachmentStore">Checks and stores the files of messages.</param>
-internal sealed class TicketDesk(MasterDbContext db, OrganizationDbContext organization, Catalog catalog, ICurrentUser currentUser, AttachmentStore attachmentStore)
+internal sealed class TicketDesk(MasterDbContext db, IAcrossOrganizations across, ICurrentUser currentUser, AttachmentStore attachmentStore)
 {
     /// <summary>
     /// The storage folder of request files.
@@ -116,7 +116,7 @@ internal sealed class TicketDesk(MasterDbContext db, OrganizationDbContext organ
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The identifiers.</returns>
     public Task<List<Guid>> HandlerIdsAsync(CancellationToken cancellationToken)
-        => organization.MemberIdsWithAsync(catalog, Permissions.Tickets.Manage, cancellationToken);
+        => across.HoldersAsync(Permissions.Tickets.Manage, cancellationToken);
 
     /// <summary>
     /// Projects requests for a list.

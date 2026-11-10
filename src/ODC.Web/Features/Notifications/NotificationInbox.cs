@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using ODC.Web.Features.Notifications.Domain;
 using ODC.Web.Infrastructure.Persistence;
+using ODC.Web.Infrastructure.Tenancy;
 using ODC.Web.Shared.Identity;
 using ODC.Web.Shared.Kernel;
 using ODC.Web.Shared.Localization;
@@ -14,7 +15,8 @@ namespace ODC.Web.Features.Notifications;
 /// <param name="db">The database context.</param>
 /// <param name="currentUser">The current user.</param>
 /// <param name="events">Delivers the unread count to the open pages.</param>
-internal sealed class NotificationInbox(OrganizationDbContext db, ICurrentUser currentUser, INotificationEvents events)
+/// <param name="across">Reads the user's organizations (the unread count covers all of them).</param>
+internal sealed class NotificationInbox(OrganizationDbContext db, ICurrentUser currentUser, INotificationEvents events, IAcrossOrganizations across)
 {
     /// <summary>
     /// The error of a notification the current user does not have.
@@ -32,12 +34,39 @@ internal sealed class NotificationInbox(OrganizationDbContext db, ICurrentUser c
         => currentUser.Id is { } me ? await db.Notifications.FirstOrDefaultAsync(n => n.Id == id && n.UserId == me, cancellationToken) : null;
 
     /// <summary>
-    /// Counts the unread notifications of the current user.
+    /// Counts the unread notifications of the current user in all their organizations.
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The number.</returns>
     public async Task<int> CountUnreadAsync(CancellationToken cancellationToken)
-        => currentUser.Id is { } me ? await db.Notifications.CountAsync(n => n.UserId == me && n.ReadAt == null, cancellationToken) : 0;
+    {
+        if (currentUser.Id is not { } me)
+        {
+            return 0;
+        }
+
+        var counts = await across.GatherAsync(me, other => other.Notifications.CountAsync(n => n.UserId == me && n.ReadAt == null, cancellationToken), cancellationToken);
+        return counts.Sum(static c => c.Value);
+    }
+
+    /// <summary>
+    /// Changes the notifications of the current user in all their organizations and tells the user's pages the new
+    /// unread count.
+    /// </summary>
+    /// <param name="change">Changes the user's notifications in one organization's database (and saves).</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that completes when every organization is done.</returns>
+    public async Task ChangeEverywhereAsync(Func<OrganizationDbContext, Guid, Task> change, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(change);
+        if (currentUser.Id is not { } me)
+        {
+            return;
+        }
+
+        await across.EachAsync(me, other => change(other, me), cancellationToken);
+        events.Changed(me, await CountUnreadAsync(cancellationToken));
+    }
 
     /// <summary>
     /// Saves the changes and tells the pages of the user the new unread count.

@@ -274,6 +274,11 @@ internal sealed class DocumentWorld : IDisposable
         services.AddSingleton(organization);
         services.AddSingleton<IAccountPermissions>(static provider => new ResolvedPermissions(provider.GetRequiredService<IPermissionResolver>()));
         services.AddSingleton<ExternalParticipants>();
+        services.AddMemoryCache();
+        services.AddSingleton<AccessCache>();
+        services.AddSingleton<IAcrossOrganizations>(static provider => new SingleOrganization(provider));
+        services.AddSingleton<OrganizationRegistry>();
+        services.AddSingleton<OrganizationScopes>();
         services.AddSingleton(Options.Create(new EmailOptions { SiteUrl = "https://odc.test/" }));
         return new Session(services.BuildServiceProvider());
     }

@@ -16,6 +16,9 @@ namespace ODC.Web.Features.Chats;
 /// <param name="LastSequence">The number of the newest message.</param>
 /// <param name="LastReadSequence">The number of the last message the current user has read.</param>
 /// <param name="UnreadCount">The number of messages of others the current user has not read.</param>
+/// <param name="OrganizationId">The organization the chat lives in (the list gathers the chats of all the user's
+/// organizations).</param>
+/// <param name="OrganizationCode">The code of that organization (the chat opens at <c>/o/{code}/chats/{id}</c>).</param>
 public sealed record ChatSummary(
     Guid Id,
     ChatKind Kind,
@@ -26,4 +29,6 @@ public sealed record ChatSummary(
     DateTimeOffset LastActivityAt,
     long LastSequence,
     long LastReadSequence,
-    int UnreadCount);
+    int UnreadCount,
+    Guid OrganizationId,
+    string OrganizationCode);

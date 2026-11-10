@@ -4,7 +4,8 @@ import { MessagesSquare, SquarePen } from "lucide-react";
 import { useState } from "react";
 import { NavLink } from "react-router";
 import { formatShortMoment } from "@/shared/i18n/format";
-import { useCurrentUser } from "@/shared/session/session";
+import { isElsewhere } from "@/shared/api/organization";
+import { useCurrentUser, useOrganization, useOrganizationNames } from "@/shared/session/session";
 import { Button } from "@/shared/ui/Button";
 import { EmptyState } from "@/shared/ui/EmptyState";
 import { SearchInput } from "@/shared/ui/SearchInput";
@@ -31,6 +32,8 @@ export interface ChatListProps {
 export function ChatList({ onNew }: ChatListProps) {
     const { t } = useLingui();
     const me = useCurrentUser().id;
+    const organization = useOrganization();
+    const nameOf = useOrganizationNames();
     const { data, error, isPending } = useQuery(chatsQuery);
     const [filter, setFilter] = useState("");
 
@@ -69,28 +72,54 @@ export function ChatList({ onNew }: ChatListProps) {
                     <ul className={styles.chatList}>
                         {shown.map(({ chat, title }) => (
                             <li key={chat.id}>
-                                <NavLink
-                                    to={`/chats/${chat.id}`}
-                                    className={({ isActive }) => [styles.chatLink, isActive && styles.chatActive].filter(Boolean).join(" ")}
-                                >
-                                    <ChatAvatar kind={chat.kind} others={chat.members} />
-                                    <span className={styles.chatText}>
-                                        <span className={styles.chatTop}>
-                                            <span className={styles.chatName}>{title}</span>
-                                            <time className={styles.chatTime} dateTime={chat.lastActivityAt}>
-                                                {formatShortMoment(chat.lastActivityAt)}
-                                            </time>
-                                        </span>
-                                        <span className={styles.chatBottom}>
-                                            <span className={styles.chatPreview}>{previewText(chat.lastMessage, chat.kind, me)}</span>
-                                            {chat.unreadCount > 0 && (
-                                                <span className={styles.unread} aria-label={t`Непрочитаних: ${chat.unreadCount}`}>
-                                                    {chat.unreadCount > 99 ? "99+" : chat.unreadCount}
+                                {isElsewhere(chat.organizationCode, organization?.code) ? (
+                                    <a className={styles.chatLink} href={`/o/${chat.organizationCode}/chats/${chat.id}`}>
+                                        <ChatAvatar kind={chat.kind} others={chat.members} />
+                                        <span className={styles.chatText}>
+                                            <span className={styles.chatTop}>
+                                                <span className={styles.chatName}>{title}</span>
+                                                <time className={styles.chatTime} dateTime={chat.lastActivityAt}>
+                                                    {formatShortMoment(chat.lastActivityAt)}
+                                                </time>
+                                            </span>
+                                            <span className={styles.chatBottom}>
+                                                <span className={styles.chatPreview}>
+                                                    {`${nameOf(chat.organizationCode)} · ${previewText(chat.lastMessage, chat.kind, me)}`}
                                                 </span>
-                                            )}
+                                                {chat.unreadCount > 0 && (
+                                                    <span className={styles.unread} aria-label={t`Непрочитаних: ${chat.unreadCount}`}>
+                                                        {chat.unreadCount > 99 ? "99+" : chat.unreadCount}
+                                                    </span>
+                                                )}
+                                            </span>
                                         </span>
-                                    </span>
-                                </NavLink>
+                                    </a>
+                                ) : (
+                                    <NavLink
+                                        to={`/chats/${chat.id}`}
+                                        className={({ isActive }) =>
+                                            [styles.chatLink, isActive && styles.chatActive].filter(Boolean).join(" ")
+                                        }
+                                    >
+                                        <ChatAvatar kind={chat.kind} others={chat.members} />
+                                        <span className={styles.chatText}>
+                                            <span className={styles.chatTop}>
+                                                <span className={styles.chatName}>{title}</span>
+                                                <time className={styles.chatTime} dateTime={chat.lastActivityAt}>
+                                                    {formatShortMoment(chat.lastActivityAt)}
+                                                </time>
+                                            </span>
+                                            <span className={styles.chatBottom}>
+                                                <span className={styles.chatPreview}>{previewText(chat.lastMessage, chat.kind, me)}</span>
+                                                {chat.unreadCount > 0 && (
+                                                    <span className={styles.unread} aria-label={t`Непрочитаних: ${chat.unreadCount}`}>
+                                                        {chat.unreadCount > 99 ? "99+" : chat.unreadCount}
+                                                    </span>
+                                                )}
+                                            </span>
+                                        </span>
+                                    </NavLink>
+                                )}
                             </li>
                         ))}
                     </ul>

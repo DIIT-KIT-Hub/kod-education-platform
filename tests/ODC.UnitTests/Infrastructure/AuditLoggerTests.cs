@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using ODC.Web.Infrastructure.Auditing;
 using ODC.Web.Infrastructure.Persistence;
+using ODC.Web.Infrastructure.Tenancy;
 using ODC.Web.Shared.Identity;
 
 namespace ODC.UnitTests.Infrastructure;
@@ -37,9 +39,14 @@ public sealed class AuditLoggerTests : IDisposable
     /// </summary>
     public AuditLoggerTests()
     {
-        _db = new(new DbContextOptionsBuilder<MasterDbContext>().UseInMemoryDatabase($"audit-{Guid.NewGuid():N}").AddInterceptors(new PendingAuditInterceptor(_pending)).Options);
-        _organization = new(new DbContextOptionsBuilder<OrganizationDbContext>().UseInMemoryDatabase($"audit-org-{Guid.NewGuid():N}").AddInterceptors(new PendingAuditInterceptor(_pending)).Options);
+        _db = new(new DbContextOptionsBuilder<MasterDbContext>().UseInMemoryDatabase($"audit-{Guid.NewGuid():N}").AddInterceptors(new PendingAuditInterceptor(_pending, new OrganizationContext(), Scopes)).Options);
+        _organization = new(new DbContextOptionsBuilder<OrganizationDbContext>().UseInMemoryDatabase($"audit-org-{Guid.NewGuid():N}").AddInterceptors(new PendingAuditInterceptor(_pending, new OrganizationContext(), Scopes)).Options);
     }
+
+    /// <summary>
+    /// Gets a scope factory with no services (the platform copy of an audit entry is not needed here).
+    /// </summary>
+    private static IServiceScopeFactory Scopes { get; } = new ServiceCollection().BuildServiceProvider().GetRequiredService<IServiceScopeFactory>();
 
     /// <summary>
     /// Gets the cancellation token of the test.

@@ -115,8 +115,10 @@ tests/ODC.IntegrationTests  The real host over HTTP (WebApplicationFactory) on a
 ### Databases (master + organizations)
 
 The plan (`docs`: the published "Бази організацій ODC" page) moves every organization into a database of its own.
-Phases 2 (two contexts) and 3 (registry and routing) are done: every organization has its own database; the client
-(phase 4: addresses `/o/:code/…`, the switcher, aggregated lists) and the cross-organization indexes (phase 5) follow.
+Phases 2–5 are done: two contexts, the registry and routing (every organization has its own database), the client
+(addresses `/o/:code/…`, the switcher, lists gathered from all organizations) and the work across organizations.
+Phases 6–8 (PostgreSQL roles and secrets per database, file keys, suspension and deletion, backups, the isolation
+matrix, the operator's and user's guides) follow.
 
 - **Registry** (master): `organizations` (`Organization`: code, name, `DatabaseName`, active) and `memberships`
   (`Membership`: who works in which organization — kept by `Memberships.SyncAsync` whenever positions change: a person
@@ -135,9 +137,31 @@ Phases 2 (two contexts) and 3 (registry and routing) are done: every organizatio
   permission everywhere and the platform-wide ones (`roles.manage`, `audit.view`, `tickets.manage`) follow the person;
   anyone else is a **guest** with at most `documents.view`, `documents.sign`, `chats.use` (data rules decide what they
   see: the documents they sign, the chats they are in).
-- **People of other organizations** (`ExternalParticipants.AdmitAsync`): a signer or chat member from another
-  organization who holds the permission in their own is copied into this organization's `members` (no membership) and
-  works there as a guest through `/o/{code}/…`.
+- **People of other organizations** (`ExternalParticipants`): `AdmitAsync` lets a signer or chat member from another
+  organization who holds the permission in their own take part: a `Participation` (master, written first) and a copy in
+  this organization's `members` (no membership); they work there as guests through `/o/{code}/…`. `EnsurePresentAsync`
+  does the same for a platform administrator at work there (middleware) and a guest who comments on a news of the
+  whole cabinet. `SearchAsync` / `DescribeGuestsAsync` give the pickers (signers, chat partners) people of other
+  organizations with their organization in place of the position. `MemberCopies` writes profile changes to every
+  organization of memberships and participations.
+- **Work across organizations** (`IAcrossOrganizations`, `Workplaces`): a person's organizations are their memberships
+  (the default one first), participations and, for the switcher of a platform administrator, every other one
+  (`OrganizationAccess.Member` / `Guest` / `Platform`; the auth context returns `organization` and `organizations`).
+  `GatherAsync` / `GatherInAsync` / `EachAsync` run a read or change in each of a person's organizations (not every
+  organization of a platform administrator): notifications (list, unread count, mark all read, delete read, items seen),
+  the home page (documents waiting for the signature, counts) and the chat list carry `OrganizationId`/`OrganizationCode`
+  of each item. `EveryAsync` reads every active organization (role and unit-type usage, the audit log of `audit.view`,
+  which names the trail of each entry); `HoldersAsync` finds holders of a platform-wide permission everywhere (request
+  handlers: lists, assignment, mail); `INotifier.NotifyWhereTheyWorkAsync` saves a notification in each recipient's
+  home organization (requests to the support). Unit tests replace it with `SingleOrganization`.
+- **News of the whole cabinet** stay in the organization they were written in; `GeneralArticle` (master, written after
+  the save by `NewsDesk.IndexAsync`, rebuilt at every start) lets every other organization list them (`ListNews` merges
+  them, `OrganizationCode` names where they open). A guest sees only the news of the whole cabinet of an organization.
+- **Double audit**: what a platform administrator does in an organization they do not work in
+  (`OrganizationAccess.Platform`; where they work they are a member) is audited there and, after its save, in the
+  platform's trail with `[CODE]` in front of the details (`PendingAuditInterceptor`).
+- No outbox: the master's pointers (participations, the news index) are written so that a lost write only hides
+  something until the start repairs it, never shows what should not be seen.
 - **Creating an organization** = creating a top-level unit (`CreateUnit` → `IOrganizationProvisioning`): the registry
   row, a new database (migrated) and its root unit; a failure drops the database and the row. Renaming the root unit
   renames the organization; a unit never moves between organizations.
@@ -145,15 +169,12 @@ Phases 2 (two contexts) and 3 (registry and routing) are done: every organizatio
   organization entered); seeding, `MemberCopies` and `AccountPermissions` use it. SignalR runs hub calls in scopes of
   their own: `OrganizationHubFilter` enters the organization of the connection's request, so hubs resolve handlers
   inside their methods (the hub is created before the filters run).
-- Known gaps until phases 4–5: the client always works in the default organization; cabinet-wide news live in the
-  first organization; the role and unit-type usage counts, the audit log, ticket notifications and people pickers see
-  the current organization only.
 
 - `DataPlacement` lists where every entity lives; each context applies only the configurations of its entities, and
   `DataPlacementTests` fail for an unplaced entity, a model that holds a foreign entity or a shared table name.
   - **Master** (`MasterDbContext : IdentityUserContext`): accounts (`users`, `user_logins`, `user_tokens`, an unused
     `user_claims`), refresh token families, activation challenges, Data Protection keys, the registry of organizations
-    and memberships, the catalogs every organization shares (roles with their permissions, unit types), images
+    with memberships and participations, the index of the news of the whole cabinet, the catalogs every organization shares (roles with their permissions, unit types), images
     (`media_files`), requests to the platform support, the platform's audit trail.
   - **Organization** (`OrganizationDbContext`): the structure, **members** with their positions and individual
     permissions, documents, news with discussions, chats, notifications, the organization's audit trail, the document

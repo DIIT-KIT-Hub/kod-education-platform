@@ -49,6 +49,12 @@ export function AuditPage() {
             title: t`Користувач`,
             render: (entry) => (entry.userName ? <PersonName name={entry.userName} photoId={entry.userPhotoId} /> : "—"),
         },
+        {
+            key: "organization",
+            title: t`Журнал`,
+            nowrap: true,
+            render: (entry) => (entry.organizationCode ? <span className={layout.mono}>{entry.organizationCode}</span> : t`Платформа`),
+        },
         { key: "ip", title: "IP", render: (entry) => <span className={layout.mono}>{entry.ipAddress ?? "—"}</span> },
     ];
 

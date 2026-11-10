@@ -77,6 +77,9 @@ internal sealed class TwoOrganizations : IDisposable
         B = Unit("B", OrganizationType, null);
         BProj = Unit("B-PROJ", DivisionType, B);
 
+        // The registry of the master database (the tests keep both organizations in one database).
+        Master.Organizations.AddRange(new Organization(A.Id, A.Code, A.Name, "odc_tests_org_a"), new Organization(B.Id, B.Code, B.Name, "odc_tests_org_b"));
+
         Hr = Role(SystemRoles.HrSpecialist, Permissions.Users.View, Permissions.Users.Manage, Permissions.Users.Import, Permissions.Users.Export, Permissions.Users.Security, Permissions.Documents.View);
         Employee = Role(SystemRoles.Employee, Permissions.Documents.View, Permissions.News.View, Permissions.Chats.Use);
         Steward = Role("steward", Permissions.Structure.View, Permissions.Structure.Manage, Permissions.News.View, Permissions.News.Manage, Permissions.Documents.View);
@@ -229,6 +232,9 @@ internal sealed class TwoOrganizations : IDisposable
         services.AddSingleton<Memberships>();
         services.AddSingleton<IAccountPermissions>(static provider => new ResolvedPermissions(provider.GetRequiredService<IPermissionResolver>()));
         services.AddSingleton<ExternalParticipants>();
+        services.AddSingleton<IAcrossOrganizations>(static provider => new SingleOrganization(provider));
+        services.AddSingleton<OrganizationRegistry>();
+        services.AddSingleton<OrganizationScopes>();
         services.AddSingleton<IOrganizationProvisioning>(new FakeProvisioning(Db));
         services.AddSingleton<IDomainEventSource>(Master);
         services.AddSingleton<IDomainEventSource>(Db);

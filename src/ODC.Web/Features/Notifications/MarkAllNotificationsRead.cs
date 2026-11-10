@@ -9,7 +9,7 @@ using ODC.Web.Shared.Kernel;
 namespace ODC.Web.Features.Notifications;
 
 /// <summary>
-/// Marks every notification of the current user read.
+/// Marks every notification of the current user read, in all their organizations.
 /// </summary>
 public static class MarkAllNotificationsRead
 {
@@ -21,29 +21,26 @@ public static class MarkAllNotificationsRead
     /// <summary>
     /// Marks them.
     /// </summary>
-    /// <param name="db">The database context.</param>
-    /// <param name="currentUser">The current user.</param>
     /// <param name="inbox">The user's notifications.</param>
     /// <param name="timeProvider">The clock.</param>
-    internal sealed class Handler(OrganizationDbContext db, ICurrentUser currentUser, NotificationInbox inbox, TimeProvider timeProvider)
+    internal sealed class Handler(NotificationInbox inbox, TimeProvider timeProvider)
         : IRequestHandler<Command, Result>
     {
         /// <inheritdoc />
         public async Task<Result> HandleAsync(Command request, CancellationToken cancellationToken)
         {
-            if (currentUser.Id is not { } me)
-            {
-                return Result.Success();
-            }
-
-            var unread = await db.Notifications.Where(n => n.UserId == me && n.ReadAt == null).ToListAsync(cancellationToken);
-            if (unread.Count > 0)
-            {
-                var moment = timeProvider.GetUtcNow();
-                unread.ForEach(n => n.MarkRead(moment));
-                await inbox.SaveAsync(cancellationToken);
-            }
-
+            var moment = timeProvider.GetUtcNow();
+            await inbox.ChangeEverywhereAsync(
+                async (db, me) =>
+                {
+                    var unread = await db.Notifications.Where(n => n.UserId == me && n.ReadAt == null).ToListAsync(cancellationToken);
+                    if (unread.Count > 0)
+                    {
+                        unread.ForEach(n => n.MarkRead(moment));
+                        await db.SaveChangesAsync(cancellationToken);
+                    }
+                },
+                cancellationToken);
             return Result.Success();
         }
     }

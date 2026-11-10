@@ -21,11 +21,13 @@ public sealed class Organization : IAuditable
     /// <param name="code">The code (the root unit's).</param>
     /// <param name="name">The name (the root unit's).</param>
     /// <param name="databaseName">The name of the organization's database.</param>
-    public Organization(Guid id, string code, string name, string databaseName)
+    /// <param name="shortName">The abbreviation (the root unit's).</param>
+    public Organization(Guid id, string code, string name, string databaseName, string? shortName = null)
     {
         Id = id;
         Code = Guard.Code(code, OrganizationUnit.CodeMaxLength);
         Name = Guard.Text(name, OrganizationUnit.NameMaxLength, "Назва");
+        ShortName = Guard.OptionalText(shortName, OrganizationUnit.ShortNameMaxLength, "Скорочена назва");
         DatabaseName = Guard.Text(databaseName, DatabaseNameMaxLength, "База даних");
     }
 
@@ -55,6 +57,11 @@ public sealed class Organization : IAuditable
     public string Name { get; private set; }
 
     /// <summary>
+    /// Gets the abbreviation (shown where the organization must stay short: the switcher, list labels).
+    /// </summary>
+    public string? ShortName { get; private set; }
+
+    /// <summary>
     /// Gets the name of the organization's database (fixed at creation: renaming the organization keeps it).
     /// </summary>
     public string DatabaseName { get; private set; }
@@ -71,14 +78,16 @@ public sealed class Organization : IAuditable
     public DateTimeOffset? UpdatedAt { get; set; }
 
     /// <summary>
-    /// Follows the code and name of the root unit.
+    /// Follows the code and names of the root unit.
     /// </summary>
     /// <param name="code">The code.</param>
     /// <param name="name">The name.</param>
-    public void Rename(string code, string name)
+    /// <param name="shortName">The abbreviation.</param>
+    public void Rename(string code, string name, string? shortName)
     {
         Code = Guard.Code(code, OrganizationUnit.CodeMaxLength);
         Name = Guard.Text(name, OrganizationUnit.NameMaxLength, "Назва");
+        ShortName = Guard.OptionalText(shortName, OrganizationUnit.ShortNameMaxLength, "Скорочена назва");
     }
 
     /// <summary>

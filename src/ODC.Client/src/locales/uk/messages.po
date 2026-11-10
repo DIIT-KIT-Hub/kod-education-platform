@@ -250,6 +250,10 @@ msgstr "Автор побачить причину й зможе виправи�
 msgid "Автор публікації"
 msgstr "Автор публікації"
 
+#: src/app/layout/OrganizationSwitcher.tsx
+msgid "адміністратор платформи"
+msgstr "адміністратор платформи"
+
 #: src/features/auth/pages/LoginPage.tsx
 msgid "Адміністратор створив Вам обліковий запис? Підтвердьте пошту кодом і задайте власний пароль."
 msgstr "Адміністратор створив Вам обліковий запис? Підтвердьте пошту кодом і задайте власний пароль."
@@ -959,6 +963,10 @@ msgstr "Входи, зміни прав, підписання документі
 msgid "Галерея фото"
 msgstr "Галерея фото"
 
+#: src/app/layout/OrganizationSwitcher.tsx
+msgid "гість"
+msgstr "гість"
+
 #: src/app/layout/navigation.ts
 #: src/features/home/HomePage.tsx
 msgid "Головна"
@@ -1398,6 +1406,10 @@ msgstr "Жирний"
 #: src/features/news/components/RichTextEditor.tsx
 msgid "Жирний (Ctrl+B)"
 msgstr "Жирний (Ctrl+B)"
+
+#: src/features/admin/pages/AuditPage.tsx
+msgid "Журнал"
+msgstr "Журнал"
 
 #: src/features/admin/pages/AdminPage.tsx
 #: src/features/admin/pages/AuditPage.tsx
@@ -3388,6 +3400,7 @@ msgid "організація"
 msgstr "організація"
 
 #: src/app/layout/navigation.ts
+#: src/app/layout/OrganizationSwitcher.tsx
 #: src/features/admin/pages/UnitsPage.tsx
 #: src/features/admin/pages/UnitTypesPage.tsx
 #: src/features/news/pages/NewsEditorPage.tsx
@@ -3650,6 +3663,10 @@ msgstr "Переглянуто"
 #: src/app/layout/AppShell.tsx
 msgid "Перейти до змісту"
 msgstr "Перейти до змісту"
+
+#: src/app/layout/OrganizationSwitcher.tsx
+msgid "Перейти до іншої організації"
+msgstr "Перейти до іншої організації"
 
 #: src/features/auth/pages/SetupAuthenticatorPage.tsx
 msgid "Перейти до кабінету"
@@ -3922,6 +3939,10 @@ msgstr "Після закриття в ньому не можна буде пи�
 #: src/features/auth/pages/ChangePasswordPage.tsx
 msgid "Після зміни пароля всі інші сесії буде завершено."
 msgstr "Після зміни пароля всі інші сесії буде завершено."
+
+#: src/features/admin/pages/AuditPage.tsx
+msgid "Платформа"
+msgstr "Платформа"
 
 #: src/features/admin/pages/UserEditorPage.tsx
 #: src/features/profile/pages/ProfilePage.tsx

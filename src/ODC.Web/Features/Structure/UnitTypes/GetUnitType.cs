@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using ODC.Web.Endpoints;
 using ODC.Web.Infrastructure.Persistence;
+using ODC.Web.Infrastructure.Tenancy;
 using ODC.Web.Messaging;
 using ODC.Web.Security;
 using ODC.Web.Shared.Domain.Access;
@@ -25,14 +26,14 @@ public static class GetUnitType
     /// Reads the type.
     /// </summary>
     /// <param name="db">The database context.</param>
-    /// <param name="organization">The organization's database (units of the type).</param>
-    internal sealed class Handler(MasterDbContext db, OrganizationDbContext organization) : IRequestHandler<Query, Result<UnitTypeItem>>
+    /// <param name="across">Reads every organization (the units of the type).</param>
+    internal sealed class Handler(MasterDbContext db, IAcrossOrganizations across) : IRequestHandler<Query, Result<UnitTypeItem>>
     {
         /// <inheritdoc />
         public async Task<Result<UnitTypeItem>> HandleAsync(Query request, CancellationToken cancellationToken)
         {
             ArgumentNullException.ThrowIfNull(request);
-            var type = (await UnitTypeCatalog.ItemsAsync(db, organization, request.Id, cancellationToken)).FirstOrDefault();
+            var type = (await UnitTypeCatalog.ItemsAsync(db, across, request.Id, cancellationToken)).FirstOrDefault();
             return type is null ? UnitTypeCatalog.NotFound() : type;
         }
     }
