@@ -18,7 +18,10 @@ As with the unit tests, a failed build keeps the old DLL and `--no-build` runs t
 
 - Databases: `odc_it_<guid>` (master) and one per organization (`odc_it_<guid>_org_org`, `…_org_fund`) on the server of `ODC_TEST_DATABASE` (a connection string; CI) or the user secrets of
   ODC.Web (`ConnectionStrings:Database`); only the database name is replaced. Without either every test skips. All of
-  them (the master and every `…_org_*`, including organizations a test creates) are dropped at the end (`WITH (FORCE)`).
+  them (the master and every `…_org_*`, including organizations a test creates) are dropped at the end (`WITH (FORCE)`),
+  and so are their roles (`…_org_*_owner` / `_app`: roles belong to the server). The account needs `CREATEDB` and
+  `CREATEROLE`. `pg_dump` / `pg_restore` come from `ODC_TEST_PG_TOOLS` or the newest PostgreSQL installation on
+  Windows; without them the backup test skips.
 - Addresses: a plain `/api/v1/…` works in the person's default organization (their earliest one: `ORG` for the
   administrator); another organization's data is at `/o/{code}/api/v1/…` (`People.In(code, path)`). A person of another
   organization signs and chats there as a guest.
@@ -66,7 +69,7 @@ As with the unit tests, a failed build keeps the old DLL and `--no-build` runs t
 | `Documents/` | registration with a file and a route, the signer's list, the file, hidden from another organization, rejection, a signer from another organization, refused file types |
 | `Chats/` | a one-to-one chat across organizations and its privacy, idempotent resend |
 | `Tickets/` | a request answered by support, seen only by the author and support |
-| `Tenancy/` | every organization's structure in its own database, an unknown organization (404), a person of one organization in another (no administration, no documents of their own); across organizations: the start context, the home page and notifications of a signer from another organization, chats in both lists, people of other organizations in the pickers, the news of the whole cabinet everywhere, the double audit of a platform administrator |
+| `Tenancy/` | every organization's structure in its own database, an unknown organization (404), a person of one organization in another (no administration, no documents of their own); across organizations: the start context, the home page and notifications of a signer from another organization, chats in both lists, people of other organizations in the pickers, the news of the whole cabinet everywhere, the double audit of a platform administrator; the life of an organization (`OrganizationLifecycleTests`): own roles and who may connect, create → suspend → resume → new passwords → delete, encrypted files in its folder, restoring one organization from its backup while another keeps its data |
 
 The cross-organization signer and chat tests pin what the database per organization must keep: the signer and the
 chat partner from the fund work in the first organization as guests (`/o/ORG/…`).

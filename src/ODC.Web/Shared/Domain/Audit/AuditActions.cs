@@ -68,6 +68,18 @@ public static class AuditActions
     /// <summary>Organization unit created or changed.</summary>
     public const string UnitChanged = "structure.changed";
 
+    /// <summary>Organization suspended by the platform.</summary>
+    public const string OrganizationSuspended = "organizations.suspended";
+
+    /// <summary>Suspended organization opened again.</summary>
+    public const string OrganizationResumed = "organizations.resumed";
+
+    /// <summary>Organization deleted with its database, files and key.</summary>
+    public const string OrganizationDeleted = "organizations.deleted";
+
+    /// <summary>New passwords of an organization's database roles.</summary>
+    public const string OrganizationPasswordsRotated = "organizations.passwords-rotated";
+
     /// <summary>Unit type created or changed.</summary>
     public const string UnitTypeChanged = "structure.type-changed";
 

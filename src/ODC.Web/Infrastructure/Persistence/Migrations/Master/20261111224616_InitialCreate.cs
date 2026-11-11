@@ -75,14 +75,32 @@ namespace ODC.Web.Infrastructure.Persistence.Migrations.Master
                     code = table.Column<string>(type: "citext", maxLength: 32, nullable: false),
                     name = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: false),
                     short_name = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: true),
-                    database_name = table.Column<string>(type: "character varying(63)", maxLength: 63, nullable: false),
-                    is_active = table.Column<bool>(type: "boolean", nullable: false),
+                    database_name = table.Column<string>(type: "character varying(57)", maxLength: 57, nullable: false),
+                    state = table.Column<string>(type: "character varying(16)", maxLength: 16, nullable: false),
+                    schema_version = table.Column<string>(type: "character varying(150)", maxLength: 150, nullable: true),
+                    migrated_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    owner_password = table.Column<string>(type: "character varying(1024)", maxLength: 1024, nullable: true),
+                    app_password = table.Column<string>(type: "character varying(1024)", maxLength: 1024, nullable: true),
+                    file_key = table.Column<string>(type: "character varying(1024)", maxLength: 1024, nullable: true),
                     created_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     updated_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("pk_organizations", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "platform_secrets",
+                columns: table => new
+                {
+                    name = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false),
+                    value = table.Column<string>(type: "character varying(1024)", maxLength: 1024, nullable: false),
+                    created_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_platform_secrets", x => x.name);
                 });
 
             migrationBuilder.CreateTable(
@@ -659,6 +677,9 @@ namespace ODC.Web.Infrastructure.Persistence.Migrations.Master
 
             migrationBuilder.DropTable(
                 name: "participations");
+
+            migrationBuilder.DropTable(
+                name: "platform_secrets");
 
             migrationBuilder.DropTable(
                 name: "refresh_token_families");

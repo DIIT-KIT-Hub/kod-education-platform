@@ -59,6 +59,7 @@ export const adminKeys = {
     permissions: ["admin", "permissions"] as const,
     importRoles: ["admin", "import-roles"] as const,
     audit: (filters: AuditFilters) => ["admin", "audit", filters] as const,
+    organizations: ["admin", "organizations"] as const,
 };
 
 /**
@@ -265,6 +266,14 @@ function createdId(result: unknown): string {
 /**
  * Changes of the administration data.
  */
+/**
+ * The registry of organizations (platform administrators).
+ */
+export const organizationsQuery = queryOptions({
+    queryKey: adminKeys.organizations,
+    queryFn: ({ signal }) => unwrap(api.GET("/api/v1/organizations", { signal })),
+});
+
 export const adminApi = {
     createUnit: async (command: SaveUnitCommand) => createdId(await unwrap(api.POST("/api/v1/organization-units", { body: command }))),
     updateUnit: (id: string, command: SaveUnitCommand) =>
@@ -286,6 +295,12 @@ export const adminApi = {
     sendInvitation: (id: string) => unwrap(api.POST("/api/v1/users/{id}/invitations", { params: { path: { id } } })),
     resetAuthenticator: (id: string) => unwrap(api.DELETE("/api/v1/users/{id}/authenticator", { params: { path: { id } } })),
     revokeSessions: (id: string) => unwrap(api.DELETE("/api/v1/users/{id}/sessions", { params: { path: { id } } })),
+    suspendOrganization: (id: string) => unwrap(api.POST("/api/v1/organizations/{id}/suspend", { params: { path: { id } } })),
+    resumeOrganization: (id: string) => unwrap(api.POST("/api/v1/organizations/{id}/resume", { params: { path: { id } } })),
+    rotateOrganizationPasswords: (id: string) =>
+        unwrap(api.POST("/api/v1/organizations/{id}/rotate-passwords", { params: { path: { id } } })),
+    deleteOrganization: (id: string, confirmation: string) =>
+        unwrap(api.DELETE("/api/v1/organizations/{id}", { params: { path: { id }, query: { confirmation } } })),
     importUsers: (file: File, dryRun: boolean) => {
         const form = new FormData();
         form.append("file", file);

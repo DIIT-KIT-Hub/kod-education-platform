@@ -7,6 +7,7 @@ using ODC.Web.Features.Documents.Domain;
 using ODC.Web.Features.News.Domain;
 using ODC.Web.Features.Notifications.Domain;
 using ODC.Web.Features.Tickets.Domain;
+using ODC.Web.Infrastructure.Files;
 using ODC.Web.Infrastructure.Identity.Tokens;
 using ODC.Web.Shared.Domain.Access;
 using ODC.Web.Shared.Domain.Audit;
@@ -51,7 +52,8 @@ public static class DataPlacement
         typeof(Organization),
         typeof(Membership),
         typeof(Participation),
-        typeof(GeneralArticle));
+        typeof(GeneralArticle),
+        typeof(PlatformSecret));
 
     /// <summary>
     /// Gets the entities of an organization's database.

@@ -25,5 +25,13 @@
   "Забагато запитів коду для цієї адреси. Спробуйте пізніше.": "Too many code requests for this address. Try again later.",
   "Код застарів або його вже використано. Надішліть новий код.": "The code has expired or was already used. Send a new code.",
   "Код неправильний. Залишилось спроб: {0}.": "The code is wrong. Attempts left: {0}.",
-  "Надсилання листів не налаштовано, тому активація зараз недоступна. Зверніться до адміністратора.": "Sending e-mail is not configured, so activation is unavailable now. Contact your administrator."
+  "Надсилання листів не налаштовано, тому активація зараз недоступна. Зверніться до адміністратора.": "Sending e-mail is not configured, so activation is unavailable now. Contact your administrator.",
+  "Введіть код організації, щоб підтвердити видалення.": "Type the organization's code to confirm the deletion.",
+  "Організацію вже видаляють.": "The organization is being deleted.",
+  "Призупинити можна лише активну організацію.": "Only an active organization can be suspended.",
+  "Спершу призупиніть організацію.": "Suspend the organization first.",
+  "Організація тимчасово недоступна: її базу даних оновлюють.": "The organization is temporarily unavailable: its database is being updated.",
+  "База цієї організації працює з обліковим записом майстер-бази.": "This organization's database works with the master database's account.",
+  "Відновити можна лише призупинену організацію.": "Only a suspended organization can be resumed.",
+  "Не можна призупинити останню активну організацію.": "The last active organization cannot be suspended."
 }

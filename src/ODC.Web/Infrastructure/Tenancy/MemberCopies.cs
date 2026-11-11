@@ -47,7 +47,8 @@ public sealed class MemberCopies(IServiceScopeFactory scopes, OrganizationRegist
 
         foreach (var group in memberships.GroupBy(static m => m.OrganizationId))
         {
-            if (await registry.FindAsync(group.Key, cancellationToken) is not { } organization)
+            // A suspended organization's database refuses connections; its copies are repaired when it is resumed.
+            if (await registry.FindAsync(group.Key, cancellationToken) is not { IsActive: true } organization)
             {
                 continue;
             }

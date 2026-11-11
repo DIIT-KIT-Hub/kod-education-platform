@@ -73,6 +73,7 @@ export const adminPermissions: readonly string[] = [
     Permissions.newsManage,
     Permissions.auditView,
     Permissions.ticketsManage,
+    Permissions.administrationAll,
 ];
 
 /**

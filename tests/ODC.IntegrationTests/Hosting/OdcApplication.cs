@@ -88,6 +88,24 @@ public sealed class OdcApplication : WebApplicationFactory<Program>, IAsyncLifet
     public string DemoPassword { get; }
 
     /// <summary>
+    /// Gets the folder of the private files (a folder per organization and one of the platform).
+    /// </summary>
+    public string StorageRoot => Path.Combine(_folder, "storage");
+
+    /// <summary>
+    /// Gets the folder of <c>pg_dump</c> and <c>pg_restore</c> (<c>ODC_TEST_PG_TOOLS</c>, else the newest PostgreSQL
+    /// installation on Windows), or null when they are not found (the backup tests skip).
+    /// </summary>
+    public string? PostgresTools { get; } = FindPostgresTools();
+
+    /// <summary>
+    /// Gets a connection string of the test server with the master's account to the database <c>postgres</c> (to look at
+    /// databases and roles).
+    /// </summary>
+    public string AdministrationConnectionString
+        => new NpgsqlConnectionStringBuilder(_connectionString) { Database = "postgres", Pooling = false }.ConnectionString;
+
+    /// <summary>
     /// Skips the current test when no PostgreSQL server is configured.
     /// </summary>
     public void RequireServer()
@@ -179,6 +197,27 @@ public sealed class OdcApplication : WebApplicationFactory<Program>, IAsyncLifet
                 command.CommandText = $"DROP DATABASE IF EXISTS \"{database}\" WITH (FORCE)";
                 await command.ExecuteNonQueryAsync(CancellationToken.None);
             }
+
+            // Roles belong to the server, not to a database: every organization's database has an owner and an application
+            // role named after it (<database>_owner, <database>_app).
+            var roles = new List<string>();
+            await using (var list = connection.CreateCommand())
+            {
+                list.CommandText = "SELECT rolname FROM pg_roles WHERE starts_with(rolname, @prefix)";
+                list.Parameters.AddWithValue("prefix", name + "_org_");
+                await using var reader = await list.ExecuteReaderAsync(CancellationToken.None);
+                while (await reader.ReadAsync(CancellationToken.None))
+                {
+                    roles.Add(reader.GetString(0));
+                }
+            }
+
+            foreach (var role in roles)
+            {
+                await using var command = connection.CreateCommand();
+                command.CommandText = $"DROP ROLE IF EXISTS \"{role}\"";
+                await command.ExecuteNonQueryAsync(CancellationToken.None);
+            }
         }
 
         try
@@ -212,6 +251,27 @@ public sealed class OdcApplication : WebApplicationFactory<Program>, IAsyncLifet
     }
 
     /// <summary>
+    /// Finds the folder of the PostgreSQL tools.
+    /// </summary>
+    /// <returns>The folder, or null.</returns>
+    private static string? FindPostgresTools()
+    {
+        if (Environment.GetEnvironmentVariable("ODC_TEST_PG_TOOLS") is { Length: > 0 } configured)
+        {
+            return configured;
+        }
+
+        var installed = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "PostgreSQL");
+        return Directory.Exists(installed)
+            ? Directory.EnumerateDirectories(installed)
+                .Select(static d => Path.Combine(d, "bin"))
+                .Where(static d => File.Exists(Path.Combine(d, OperatingSystem.IsWindows() ? "pg_dump.exe" : "pg_dump")))
+                .OrderByDescending(static d => int.TryParse(Path.GetFileName(Path.GetDirectoryName(d)), out var version) ? version : 0)
+                .FirstOrDefault()
+            : null;
+    }
+
+    /// <summary>
     /// The configuration of the application under test.
     /// </summary>
     /// <returns>The settings.</returns>
@@ -235,5 +295,7 @@ public sealed class OdcApplication : WebApplicationFactory<Program>, IAsyncLifet
         ["Logs:FilePath"] = Path.Combine(_folder, "logs", "odc-.log"),
         ["Spa:Root"] = Path.Combine(_folder, "spa"),
         ["Serilog:MinimumLevel:Default"] = "Warning",
+        ["Organizations:BackupRoot"] = Path.Combine(_folder, "backups"),
+        ["Organizations:PostgresTools"] = PostgresTools ?? string.Empty,
     };
 }

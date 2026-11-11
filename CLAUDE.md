@@ -68,9 +68,14 @@ codes land in `.eml` files instead of real mailboxes (the user's secrets contain
 
 A master database (`ConnectionStrings:Database`, e.g. `odc`) and one database per organization on the same server
 (`<master>_org_<code>`, e.g. `odc_org_org`, `odc_org_fund`; see "Databases" below). Each context has one migration
-(`InitialCreate`, 2026-11-10); the start migrates the master and every organization's database. A database created
-before 2026-11-10 cannot be migrated: drop the master and every `<master>_org*` database and let the start create them
-again (ask the user first — it is their data).
+(`InitialCreate`, 2026-11-11); the start migrates the master and every organization's database. A database created
+before 2026-11-11 cannot be migrated: drop the master and every `<master>_org*` database and the roles
+`<master>_org_*_owner` / `_app`, and let the start create them again (ask the user first — it is their data). Never run
+`dotnet ef database update`: the design-time connection is the master's.
+
+Operator commands (the app with its usual settings does the work and stops; README "Бази організацій: обслуговування"):
+`dotnet run --project src/ODC.Web -c Lead -- migrate` | `backup CODE|--all` | `restore CODE FOLDER` |
+`rotate-passwords CODE|--all` (`Hosting/OperatorCommands`).
 
 Tooling on this machine: Windows, Git Bash + PowerShell, Node.js available (use it for scripts), `python` is only the
 Store stub. Bash heredocs with Ukrainian text and quotes sometimes break — write scripts to the scratchpad with the
@@ -85,7 +90,7 @@ configurations. The client is sliced by feature the same way. Details and rules:
 ```
 src/ODC.Web             The server.
   Features/<Area>/      Slices (Documents, Chats, Tickets, News (+ Discussion), Notifications, Admin (Users, Roles,
-                        Audit), Structure (Units, UnitTypes), Auth (+ Activation), Profile, Media, Signing, Home);
+                        Audit, Organizations), Structure (Units, UnitTypes), Auth (+ Activation), Profile, Media, Signing, Home);
                         Domain/ = the feature's entities and domain events, Persistence/ = their configurations.
   Shared/               Kernel (Entity, Result/Error, Guard, IDomainEvent), Domain/ (entities several features use:
                         User, Role and the permission catalog, OrganizationUnit, UnitType, MediaFile, AuditEntry),
@@ -115,12 +120,13 @@ tests/ODC.IntegrationTests  The real host over HTTP (WebApplicationFactory) on a
 ### Databases (master + organizations)
 
 The plan (`docs`: the published "Бази організацій ODC" page) moves every organization into a database of its own.
-Phases 2–5 are done: two contexts, the registry and routing (every organization has its own database), the client
-(addresses `/o/:code/…`, the switcher, lists gathered from all organizations) and the work across organizations.
-Phases 6–8 (PostgreSQL roles and secrets per database, file keys, suspension and deletion, backups, the isolation
-matrix, the operator's and user's guides) follow.
+Phases 2–6 are done: two contexts, the registry and routing (every organization has its own database), the client
+(addresses `/o/:code/…`, the switcher, lists gathered from all organizations), the work across organizations, and the
+maintenance (roles and secrets per database, encrypted files per organization, suspension and deletion, the migrator,
+backups). Phases 7 (the isolation matrix) and 8 (the user's guide) follow.
 
-- **Registry** (master): `organizations` (`Organization`: code, name, `DatabaseName`, active) and `memberships`
+- **Registry** (master): `organizations` (`Organization`: code, name, `DatabaseName`, `State` (Creating / Active /
+  Suspended / Deleting), `SchemaVersion`, the encrypted passwords of its roles and key of its files) and `memberships`
   (`Membership`: who works in which organization — kept by `Memberships.SyncAsync` whenever positions change: a person
   with a position there is a member). `OrganizationRegistry` (singleton) keeps the registry in memory for a minute
   (`Invalidate` after a change). The root unit of an organization's structure has the organization's identifier.
@@ -162,9 +168,30 @@ matrix, the operator's and user's guides) follow.
   platform's trail with `[CODE]` in front of the details (`PendingAuditInterceptor`).
 - No outbox: the master's pointers (participations, the news index) are written so that a lost write only hides
   something until the start repairs it, never shows what should not be seen.
-- **Creating an organization** = creating a top-level unit (`CreateUnit` → `IOrganizationProvisioning`): the registry
-  row, a new database (migrated) and its root unit; a failure drops the database and the row. Renaming the root unit
-  renames the organization; a unit never moves between organizations.
+- **Creating an organization** = creating a top-level unit (`CreateUnit` → `IOrganizationProvisioning`,
+  `OrganizationProvisioning`): the registry row (`Creating`, new secrets), the roles, the database, the migrations as
+  the owner, the root unit, then `Active`; a failure removes it all. Renaming the root unit renames the organization; a
+  unit never moves between organizations. The platform administrator suspends, resumes, deletes (a suspended one, the
+  code typed again) and rotates the passwords on `/admin/organizations` (`Features/Admin/Organizations`, audited in the
+  platform's trail). A start finishes an interrupted creation or deletion.
+- **PostgreSQL roles** (`OrganizationDatabaseAdmin`, with the master's account: `CREATEDB` + `CREATEROLE`):
+  `<database>_owner` owns the database and runs the migrations and backups, `<database>_app` serves the requests (data
+  only through default privileges, no DDL); `CONNECT` is revoked from `PUBLIC`. Passwords (256 bits) live in the
+  registry encrypted with Data Protection, a purpose per organization (`OrganizationSecrets`);
+  `OrganizationDatabases.ConnectionStringOf` builds the app role's connection, `OwnerConnectionStringOf` the owner's.
+  `Organizations:SeparateRoles=false` uses the master's credentials for every database. A suspension locks the app role
+  (`NOLOGIN`).
+- **Files** (`LocalFileStorage`, scoped): `{PrivateRoot}/orgs/{organization}/…` with the organization's key and
+  `{PrivateRoot}/platform/…` (`tickets`, images) with the platform's key (`PlatformSecret`), every file in the
+  `EncryptedFile` format (AES-256-GCM in 64 KiB chunks, a key per file by HKDF, seekable for ranges). The organization
+  is the unit of work's, so a storage key of another organization opens nothing. The SHA-256 of a document is of the
+  content (the browser checks it before signing).
+- **Migrator**: every start (`DatabaseInitializer.PrepareOrganizationsAsync`, `Organizations:MigrationParallelism` at
+  once) repairs the roles and privileges, migrates as the owner and records `SchemaVersion`; one failure is logged and
+  that organization answers 503 `organization_unavailable` (`OrganizationSchema`) while the others work.
+- **Backups** (`OrganizationBackups`): `pg_dump` as the owner encrypted with the organization's key, its files (already
+  encrypted) and a manifest; a restore replaces one organization only (and reloads the Npgsql types: the extension
+  types get new identifiers — another running process must restart).
 - **The server's own work** in an organization: `OrganizationScopes.RunAsync(organization, work)` (a scope with the
   organization entered); seeding, `MemberCopies` and `AccountPermissions` use it. SignalR runs hub calls in scopes of
   their own: `OrganizationHubFilter` enters the organization of the connection's request, so hubs resolve handlers

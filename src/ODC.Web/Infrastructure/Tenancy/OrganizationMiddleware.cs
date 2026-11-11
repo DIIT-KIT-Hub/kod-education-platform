@@ -31,14 +31,16 @@ public sealed class OrganizationMiddleware(RequestDelegate next)
     /// <param name="organization">The organization of the request.</param>
     /// <param name="memberships">The memberships of people.</param>
     /// <param name="cache">The access cache.</param>
+    /// <param name="schema">The schema the organizations' databases must have.</param>
     /// <returns>A task.</returns>
-    public async Task InvokeAsync(HttpContext context, OrganizationRegistry registry, OrganizationContext organization, Memberships memberships, AccessCache cache)
+    public async Task InvokeAsync(HttpContext context, OrganizationRegistry registry, OrganizationContext organization, Memberships memberships, AccessCache cache, OrganizationSchema schema)
     {
         ArgumentNullException.ThrowIfNull(context);
         ArgumentNullException.ThrowIfNull(registry);
         ArgumentNullException.ThrowIfNull(organization);
         ArgumentNullException.ThrowIfNull(memberships);
         ArgumentNullException.ThrowIfNull(cache);
+        ArgumentNullException.ThrowIfNull(schema);
         var cancellationToken = context.RequestAborted;
         context.Items[ContextItem] = organization;
 
@@ -50,6 +52,12 @@ public sealed class OrganizationMiddleware(RequestDelegate next)
             {
                 await Results.Problem(Texts.T("Організацію не знайдено."), statusCode: StatusCodes.Status404NotFound, extensions: new Dictionary<string, object?> { ["code"] = "organization_not_found" })
                     .ExecuteAsync(context);
+                return;
+            }
+
+            if (!schema.IsCurrent(chosen))
+            {
+                await Unavailable(context);
                 return;
             }
         }
@@ -72,8 +80,8 @@ public sealed class OrganizationMiddleware(RequestDelegate next)
         if (chosen is null)
         {
             var all = await registry.AllAsync(cancellationToken);
-            chosen = mine.Select(id => all.FirstOrDefault(o => o.Id == id)).FirstOrDefault(static o => o is { IsActive: true })
-                ?? (platform ? all.FirstOrDefault(static o => o.IsActive) : null);
+            chosen = mine.Select(id => all.FirstOrDefault(o => o.Id == id)).FirstOrDefault(o => o is { IsActive: true } && schema.IsCurrent(o))
+                ?? (platform ? all.FirstOrDefault(o => o.IsActive && schema.IsCurrent(o)) : null);
         }
 
         HashSet<string> effective;
@@ -104,6 +112,15 @@ public sealed class OrganizationMiddleware(RequestDelegate next)
         context.User = WithPermissions(user, effective);
         await next(context);
     }
+
+    /// <summary>
+    /// Answers that the organization is unavailable for now (its database is not up to date).
+    /// </summary>
+    /// <param name="context">The HTTP context.</param>
+    /// <returns>A task.</returns>
+    private static Task Unavailable(HttpContext context)
+        => Results.Problem(Texts.T("Організація тимчасово недоступна: її базу даних оновлюють."), statusCode: StatusCodes.Status503ServiceUnavailable, extensions: new Dictionary<string, object?> { ["code"] = "organization_unavailable" })
+            .ExecuteAsync(context);
 
     /// <summary>
     /// Replaces the permission claims of the signed-in identity (the other claims and their issuer stay, so the

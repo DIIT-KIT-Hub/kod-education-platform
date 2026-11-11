@@ -371,7 +371,8 @@ internal sealed class TwoOrganizations : IDisposable
         }
 
         /// <inheritdoc />
-        public Stream? OpenRead(Guid id, bool thumbnail) => Stored.Contains(id) ? new MemoryStream([1]) : null;
+        public Task<Stream?> OpenReadAsync(Guid id, bool thumbnail, CancellationToken cancellationToken)
+            => Task.FromResult<Stream?>(Stored.Contains(id) ? new MemoryStream([1]) : null);
 
         /// <inheritdoc />
         public void Delete(Guid id) => Stored.Remove(id);

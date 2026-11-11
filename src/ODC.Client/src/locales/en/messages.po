@@ -265,6 +265,7 @@ msgstr "An administrator has already created your account. Enter your work e-mai
 #: src/app/layout/navigation.ts
 #: src/features/admin/pages/AdminPage.tsx
 #: src/features/admin/pages/AuditPage.tsx
+#: src/features/admin/pages/OrganizationsPage.tsx
 #: src/features/admin/pages/RoleEditorPage.tsx
 #: src/features/admin/pages/RolesPage.tsx
 #: src/features/admin/pages/UnitEditorPage.tsx
@@ -355,6 +356,18 @@ msgstr "Archiving and deleting"
 msgid "Аудит"
 msgstr "Audit"
 
+#: src/features/admin/pages/OrganizationsPage.tsx
+msgid "База даних"
+msgstr "Database"
+
+#: src/features/admin/pages/OrganizationsPage.tsx
+msgid "База не оновлена"
+msgstr "Database not up to date"
+
+#: src/features/admin/pages/AdminPage.tsx
+msgid "Бази організацій: стан, призупинення, видалення, паролі."
+msgstr "Organizations' databases: state, suspension, deletion, passwords."
+
 #: src/features/admin/pages/UnitEditorPage.tsx
 msgid "Батьківський підрозділ"
 msgstr "Parent unit"
@@ -408,6 +421,10 @@ msgctxt "audit"
 msgid "Блокування після спроб входу"
 msgstr "Locked out after failed sign-ins"
 
+#: src/features/admin/pages/OrganizationsPage.tsx
+msgid "Буде видалено базу даних організації, її ролі PostgreSQL, файли та ключ шифрування, а також членства людей у ній. Повернути їх можна лише з резервної копії оператора."
+msgstr "The organization's database, its PostgreSQL roles, files and encryption key will be deleted, together with people's memberships in it. They can only be brought back from the operator's backup."
+
 #: src/features/admin/pages/UsersImportPage.tsx
 msgid "Буде оновлено"
 msgstr "To be updated"
@@ -455,6 +472,11 @@ msgstr "Enter the 6-digit code shown in the app."
 #: src/features/auth/pages/ActivationPage.tsx
 msgid "Введіть код із листа"
 msgstr "Enter the code from the e-mail"
+
+#. placeholder {0}: organization?.code ?? ""
+#: src/features/admin/pages/OrganizationsPage.tsx
+msgid "Введіть код організації ({0})"
+msgstr "Type the organization's code ({0})"
 
 #: src/shared/signing/KeyPanel.tsx
 msgid "Введіть пароль."
@@ -513,6 +535,11 @@ msgstr "News article deleted"
 
 #: src/shared/i18n/display.ts
 msgctxt "audit"
+msgid "Видалення організації"
+msgstr "Organization deleted"
+
+#: src/shared/i18n/display.ts
+msgctxt "audit"
 msgid "Видалення ролі"
 msgstr "Role deleted"
 
@@ -526,6 +553,7 @@ msgctxt "help"
 msgid "Видалення чатів і повідомлень"
 msgstr "Deleting chats and messages"
 
+#: src/features/admin/pages/OrganizationsPage.tsx
 #: src/features/admin/pages/RoleEditorPage.tsx
 #: src/features/admin/pages/UnitTypeEditorPage.tsx
 #: src/features/chats/components/MembersDialog.tsx
@@ -548,6 +576,14 @@ msgstr "Delete the document permanently?"
 #: src/features/news/components/Discussion.tsx
 msgid "Видалити коментар?"
 msgstr "Delete the comment?"
+
+#: src/features/admin/pages/OrganizationsPage.tsx
+msgid "Видалити назавжди"
+msgstr "Delete for good"
+
+#: src/features/admin/pages/OrganizationsPage.tsx
+msgid "Видалити організацію назавжди?"
+msgstr "Delete the organization for good?"
 
 #: src/features/chats/components/MessageItem.tsx
 msgid "Видалити повідомлення?"
@@ -604,6 +640,11 @@ msgstr "Delete the chat for everyone?"
 #: src/features/chats/components/MembersDialog.tsx
 msgid "Видалити чат?"
 msgstr "Delete the chat?"
+
+#: src/shared/i18n/display.ts
+msgctxt "organization-state"
+msgid "Видаляється"
+msgstr "Being deleted"
 
 #: src/shared/signing/KeyPanel.tsx
 msgid "Визначити автоматично"
@@ -748,6 +789,15 @@ msgstr "Decline"
 #: src/features/documents/pages/DocumentPage.tsx
 msgid "Відмову зафіксовано"
 msgstr "Decline recorded"
+
+#: src/features/admin/pages/OrganizationsPage.tsx
+msgid "Відновити"
+msgstr "Resume"
+
+#: src/shared/i18n/display.ts
+msgctxt "audit"
+msgid "Відновлення організації"
+msgstr "Organization resumed"
 
 #: src/features/documents/pages/DocumentPage.tsx
 #: src/features/tickets/pages/TicketPage.tsx
@@ -900,6 +950,10 @@ msgstr "Custom"
 msgid "Власник"
 msgstr "Owner"
 
+#: src/features/admin/pages/OrganizationsPage.tsx
+msgid "Власні ролі PostgreSQL"
+msgstr "Own PostgreSQL roles"
+
 #: src/features/auth/pages/LoginPage.tsx
 msgid "Вперше в КОД?"
 msgstr "New to ODC?"
@@ -1021,6 +1075,7 @@ msgstr "The bell with a counter: replies to comments, documents to sign, new mes
 msgid "діє зараз"
 msgstr "currently in effect"
 
+#: src/features/admin/pages/OrganizationsPage.tsx
 #: src/features/admin/pages/RolesPage.tsx
 #: src/features/admin/pages/UnitsPage.tsx
 #: src/features/admin/pages/UnitTypesPage.tsx
@@ -1822,6 +1877,15 @@ msgstr "Changed your phone? Ask an administrator to reset the authenticator — 
 msgid "Змінити"
 msgstr "Edit"
 
+#: src/features/admin/pages/OrganizationsPage.tsx
+msgid "Змінити паролі"
+msgstr "Change passwords"
+
+#. placeholder {0}: organization.name
+#: src/features/admin/pages/OrganizationsPage.tsx
+msgid "Змінити паролі бази «{0}»? Застосунок одразу почне користуватися новими."
+msgstr "Change the database passwords of “{0}”? The application starts using the new ones at once."
+
 #: src/features/profile/pages/SecurityPage.tsx
 msgid "Змінити пароль"
 msgstr "Change password"
@@ -2083,6 +2147,7 @@ msgctxt "help"
 msgid "Ключі та надавачі"
 msgstr "Keys and providers"
 
+#: src/features/admin/pages/OrganizationsPage.tsx
 #: src/features/admin/pages/RoleEditorPage.tsx
 #: src/features/admin/pages/RolesPage.tsx
 #: src/features/admin/pages/UnitEditorPage.tsx
@@ -2142,6 +2207,10 @@ msgstr "Role codes"
 #: src/features/profile/pages/SecurityPage.tsx
 msgid "кодів залишилось"
 msgstr "codes left"
+
+#: src/features/admin/pages/OrganizationsPage.tsx
+msgid "Кожна організація має власну базу даних, ролі PostgreSQL і ключ шифрування файлів."
+msgstr "Every organization has its own database, PostgreSQL roles and file encryption key."
 
 #: src/features/auth/pages/PhotoPage.tsx
 msgid "Колеги бачать Ваше фото в документах, новинах і структурі. Без фото кабінетом користуватися не можна."
@@ -2637,6 +2706,10 @@ msgstr "Next month"
 msgid "Наступний рік"
 msgstr "Next year"
 
+#: src/features/admin/pages/OrganizationsPage.tsx
+msgid "Не вдалося видалити організацію."
+msgstr "Could not delete the organization."
+
 #: src/features/chats/components/MessageItem.tsx
 msgid "Не вдалося видалити повідомлення."
 msgstr "Could not delete the message."
@@ -2653,6 +2726,7 @@ msgstr "Could not leave the chat."
 msgid "Не вдалося вийти. Спробуйте ще раз."
 msgstr "Could not sign out. Try again."
 
+#: src/features/admin/pages/OrganizationsPage.tsx
 #: src/features/admin/pages/RoleEditorPage.tsx
 #: src/features/admin/pages/UnitTypeEditorPage.tsx
 #: src/features/admin/pages/UserEditorPage.tsx
@@ -2977,11 +3051,16 @@ msgstr "New"
 msgid "Нова відповідь у зверненні"
 msgstr "New reply in a request"
 
+#: src/features/admin/pages/OrganizationsPage.tsx
 #: src/features/admin/pages/UnitEditorPage.tsx
 #: src/features/admin/pages/UnitsPage.tsx
 #: src/features/structure/pages/StructurePage.tsx
 msgid "Нова організація"
 msgstr "New organization"
+
+#: src/features/admin/pages/OrganizationsPage.tsx
+msgid "Нова організація — це новий підрозділ верхнього рівня з типом «організація» у структурі. Видалити можна лише призупинену організацію: разом з нею назавжди зникнуть її база, файли та ключ. Резервні копії робить оператор сервера."
+msgstr "A new organization is a new top-level unit of an organization type in the structure. Only a suspended organization can be deleted: its database, files and key go away with it for good. Backups are made by the server's operator."
 
 #: src/features/news/pages/NewsEditorPage.tsx
 #: src/features/news/pages/NewsManagePage.tsx
@@ -3152,6 +3231,15 @@ msgstr "New codes"
 msgid "Нові коди — збережіть їх зараз, вони більше не відображатимуться:"
 msgstr "New codes — save them now, they will not be shown again:"
 
+#: src/features/admin/pages/OrganizationsPage.tsx
+msgid "Нові паролі бази"
+msgstr "New database passwords"
+
+#: src/shared/i18n/display.ts
+msgctxt "audit"
+msgid "Нові паролі бази організації"
+msgstr "Organization database passwords changed"
+
 #: src/features/chats/components/MessageList.tsx
 msgid "Нові повідомлення"
 msgstr "New messages"
@@ -3259,6 +3347,10 @@ msgstr "Account blocked."
 msgid "Обліковий запис кількох організацій"
 msgstr "Account in several organizations"
 
+#: src/features/admin/pages/OrganizationsPage.tsx
+msgid "Обліковий запис майстер-бази"
+msgstr "Master database account"
+
 #: src/features/admin/pages/UserEditorPage.tsx
 msgid "Обліковий запис розблоковано."
 msgstr "Account unblocked."
@@ -3329,6 +3421,11 @@ msgstr "Reload"
 msgid "Оновлено"
 msgstr "Updated"
 
+#. placeholder {0}: formatDateTime(organization.migratedAt)
+#: src/features/admin/pages/OrganizationsPage.tsx
+msgid "оновлено {0}"
+msgstr "updated {0}"
+
 #: src/features/admin/pages/RoleEditorPage.tsx
 #: src/features/admin/pages/UnitTypeEditorPage.tsx
 #: src/features/documents/pages/DocumentEditorPage.tsx
@@ -3370,6 +3467,11 @@ msgstr "Handling requests"
 msgid "Опубліковано"
 msgstr "Published"
 
+#: src/features/admin/pages/AdminPage.tsx
+#: src/features/admin/pages/OrganizationsPage.tsx
+msgid "Організації"
+msgstr "Organizations"
+
 #: src/features/admin/pages/UnitEditorPage.tsx
 msgid "Організації верхнього рівня створює лише адміністратор усіх організацій. Ви можете додавати підрозділи й дочірні організації у своїх організаціях."
 msgstr "Only the administrator of all organizations can create top-level organizations. You can add units and subsidiary organizations within your organizations."
@@ -3395,12 +3497,27 @@ msgstr "Organizations, their units and staff."
 msgid "Організації, структурою яких Ви керуєте, та їхні підрозділи."
 msgstr "Organizations whose structure you manage, and their units."
 
+#: src/features/admin/pages/OrganizationsPage.tsx
+msgid "Організацій ще немає"
+msgstr "No organizations yet"
+
+#. placeholder {0}: organization.name
+#: src/features/admin/pages/OrganizationsPage.tsx
+msgid "Організацію «{0}» видалено."
+msgstr "The organization “{0}” was deleted."
+
+#. placeholder {0}: organization.name
+#: src/features/admin/pages/OrganizationsPage.tsx
+msgid "Організацію «{0}» призупинено."
+msgstr "The organization “{0}” was suspended."
+
 #: src/features/admin/pages/UnitEditorPage.tsx
 msgid "організація"
 msgstr "organization"
 
 #: src/app/layout/navigation.ts
 #: src/app/layout/OrganizationSwitcher.tsx
+#: src/features/admin/pages/OrganizationsPage.tsx
 #: src/features/admin/pages/UnitsPage.tsx
 #: src/features/admin/pages/UnitTypesPage.tsx
 #: src/features/news/pages/NewsEditorPage.tsx
@@ -3408,6 +3525,11 @@ msgstr "organization"
 #: src/shared/signing/KeyPanel.tsx
 msgid "Організація"
 msgstr "Organization"
+
+#. placeholder {0}: organization.name
+#: src/features/admin/pages/OrganizationsPage.tsx
+msgid "Організація «{0}» знову працює."
+msgstr "The organization “{0}” works again."
 
 #: src/features/admin/pages/UnitsPage.tsx
 msgid "Організація верхнього рівня"
@@ -3545,6 +3667,11 @@ msgstr "Parallel"
 #: src/shared/signing/SigningWizard.tsx
 msgid "Параметри"
 msgstr "Parameters"
+
+#. placeholder {0}: organization.name
+#: src/features/admin/pages/OrganizationsPage.tsx
+msgid "Паролі бази «{0}» змінено."
+msgstr "The database passwords of “{0}” were changed."
 
 #: src/features/auth/pages/ActivationPage.tsx
 #: src/features/auth/pages/ChangePasswordPage.tsx
@@ -4316,6 +4443,7 @@ msgstr "Staff"
 msgid "Працівники підрозділу"
 msgstr "Unit staff"
 
+#: src/features/admin/pages/OrganizationsPage.tsx
 #: src/features/admin/pages/UnitsPage.tsx
 #: src/features/structure/components/UnitTree.tsx
 msgid "Працівників"
@@ -4333,6 +4461,11 @@ msgstr "No staff found"
 #: src/features/structure/pages/UnitPage.tsx
 msgid "працівників: {0}"
 msgstr "staff: {0}"
+
+#: src/shared/i18n/display.ts
+msgctxt "organization-state"
+msgid "Працює"
+msgstr "Active"
 
 #: src/features/chats/components/MessageItem.tsx
 #: src/features/documents/pages/DocumentEditorPage.tsx
@@ -4375,6 +4508,25 @@ msgstr "Assigned to me"
 #: src/features/help/components/RoleReference.tsx
 msgid "Призначення"
 msgstr "Purpose"
+
+#: src/shared/i18n/display.ts
+msgctxt "organization-state"
+msgid "Призупинена"
+msgstr "Suspended"
+
+#: src/shared/i18n/display.ts
+msgctxt "audit"
+msgid "Призупинення організації"
+msgstr "Organization suspended"
+
+#: src/features/admin/pages/OrganizationsPage.tsx
+msgid "Призупинити"
+msgstr "Suspend"
+
+#. placeholder {0}: organization.name
+#: src/features/admin/pages/OrganizationsPage.tsx
+msgid "Призупинити «{0}»? Організація перестане відповідати на запити, а люди, які працюють лише в ній, вийдуть з системи. Дані збережуться."
+msgstr "Suspend “{0}”? The organization will stop answering requests and people who work only there will be signed out. The data stays."
 
 #: src/features/documents/pages/DocumentPage.tsx
 msgid "Причина"
@@ -4737,6 +4889,7 @@ msgstr "The system administrator always has all permissions."
 msgid "Скасовано."
 msgstr "Cancelled."
 
+#: src/features/admin/pages/OrganizationsPage.tsx
 #: src/features/chats/components/Composer.tsx
 #: src/features/chats/components/NewChatDialog.tsx
 #: src/features/documents/pages/DocumentEditorPage.tsx
@@ -4864,6 +5017,7 @@ msgstr "Try another name or code."
 msgid "Сталася помилка"
 msgstr "Something went wrong"
 
+#: src/features/admin/pages/OrganizationsPage.tsx
 #: src/features/tickets/pages/TicketPage.tsx
 #: src/features/tickets/pages/TicketsAdminPage.tsx
 #: src/features/tickets/pages/TicketsPage.tsx
@@ -4972,9 +5126,18 @@ msgstr "Create account"
 msgid "Створіть звернення — його побачать ті, хто опрацьовує звернення, і відповідять у кабінеті."
 msgstr "Create a request: those who handle requests will see it and answer in the cabinet."
 
+#: src/features/admin/pages/OrganizationsPage.tsx
+msgid "Створіть підрозділ верхнього рівня з типом «організація»."
+msgstr "Create a top-level unit of an organization type."
+
 #: src/features/admin/pages/UnitTypesPage.tsx
 msgid "Створіть хоча б один тип, позначений як організація."
 msgstr "Create at least one type marked as an organization."
+
+#: src/shared/i18n/display.ts
+msgctxt "organization-state"
+msgid "Створюється"
+msgstr "Being created"
 
 #: src/features/news/components/RichTextEditor.tsx
 msgid "Стовпець"

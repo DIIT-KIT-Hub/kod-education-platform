@@ -21,6 +21,12 @@ internal sealed class TenancyConfiguration : IEntityTypeConfiguration<Organizati
         builder.Property(static o => o.Name).HasMaxLength(OrganizationUnit.NameMaxLength);
         builder.Property(static o => o.ShortName).HasMaxLength(OrganizationUnit.ShortNameMaxLength);
         builder.Property(static o => o.DatabaseName).HasMaxLength(Organization.DatabaseNameMaxLength);
+        builder.Property(static o => o.State).HasConversion<string>().HasMaxLength(16);
+        builder.Ignore(static o => o.IsActive);
+        builder.Property(static o => o.SchemaVersion).HasMaxLength(Organization.SchemaVersionMaxLength);
+        builder.Property(static o => o.OwnerPassword).HasMaxLength(1024);
+        builder.Property(static o => o.AppPassword).HasMaxLength(1024);
+        builder.Property(static o => o.FileKey).HasMaxLength(1024);
         builder.HasIndex(static o => o.Code).IsUnique();
         builder.HasIndex(static o => o.DatabaseName).IsUnique();
     }

@@ -12,7 +12,7 @@ using ODC.Web.Infrastructure.Persistence;
 namespace ODC.Web.Infrastructure.Persistence.Migrations.Master
 {
     [DbContext(typeof(MasterDbContext))]
-    [Migration("20261110095725_InitialCreate")]
+    [Migration("20261111224616_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -405,6 +405,29 @@ namespace ODC.Web.Infrastructure.Persistence.Migrations.Master
                     b.ToTable("ticket_messages", (string)null);
                 });
 
+            modelBuilder.Entity("ODC.Web.Infrastructure.Files.PlatformSecret", b =>
+                {
+                    b.Property<string>("Name")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("name");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasMaxLength(1024)
+                        .HasColumnType("character varying(1024)")
+                        .HasColumnName("value");
+
+                    b.HasKey("Name")
+                        .HasName("pk_platform_secrets");
+
+                    b.ToTable("platform_secrets", (string)null);
+                });
+
             modelBuilder.Entity("ODC.Web.Infrastructure.Identity.Tokens.RefreshTokenFamily", b =>
                 {
                     b.Property<Guid>("Id")
@@ -777,6 +800,11 @@ namespace ODC.Web.Infrastructure.Persistence.Migrations.Master
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
+                    b.Property<string>("AppPassword")
+                        .HasMaxLength(1024)
+                        .HasColumnType("character varying(1024)")
+                        .HasColumnName("app_password");
+
                     b.Property<string>("Code")
                         .IsRequired()
                         .HasMaxLength(32)
@@ -789,13 +817,18 @@ namespace ODC.Web.Infrastructure.Persistence.Migrations.Master
 
                     b.Property<string>("DatabaseName")
                         .IsRequired()
-                        .HasMaxLength(63)
-                        .HasColumnType("character varying(63)")
+                        .HasMaxLength(57)
+                        .HasColumnType("character varying(57)")
                         .HasColumnName("database_name");
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_active");
+                    b.Property<string>("FileKey")
+                        .HasMaxLength(1024)
+                        .HasColumnType("character varying(1024)")
+                        .HasColumnName("file_key");
+
+                    b.Property<DateTimeOffset?>("MigratedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("migrated_at");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -803,10 +836,26 @@ namespace ODC.Web.Infrastructure.Persistence.Migrations.Master
                         .HasColumnType("character varying(256)")
                         .HasColumnName("name");
 
+                    b.Property<string>("OwnerPassword")
+                        .HasMaxLength(1024)
+                        .HasColumnType("character varying(1024)")
+                        .HasColumnName("owner_password");
+
+                    b.Property<string>("SchemaVersion")
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)")
+                        .HasColumnName("schema_version");
+
                     b.Property<string>("ShortName")
                         .HasMaxLength(64)
                         .HasColumnType("character varying(64)")
                         .HasColumnName("short_name");
+
+                    b.Property<string>("State")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)")
+                        .HasColumnName("state");
 
                     b.Property<DateTimeOffset?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")

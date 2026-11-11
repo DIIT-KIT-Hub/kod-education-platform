@@ -101,7 +101,7 @@ public static class RenameChat                                   // Features/Cha
 ## Persistence
 
 - Schema: snake_case names, `citext` for case-insensitive text, PostgreSQL `xmin` as the concurrency token. Two
-  databases, one migration each (`InitialCreate`, 2026-11-10). A new entity goes into `DataPlacement` and gets its own
+  databases, one migration each (`InitialCreate`, 2026-11-11). A new entity goes into `DataPlacement` and gets its own
   configuration class (a class configures entities of one database only). Add migrations per context:
   `dotnet ef migrations add <Name> --project src/ODC.Web --configuration Lead --context MasterDbContext --output-dir Infrastructure/Persistence/Migrations/Master`
   (and the same with `OrganizationDbContext` / `…/Organization`) with the environment variable `SkipClientBuild=true`

@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using ODC.Web.Features.News;
 using ODC.Web.Features.News.Domain;
+using ODC.Web.Infrastructure.Files;
 using ODC.Web.Infrastructure.Tenancy;
 using ODC.Web.Shared.Domain.Access;
 using ODC.Web.Shared.Domain.Organization;
@@ -20,23 +21,27 @@ namespace ODC.Web.Infrastructure.Persistence.Seeding;
 /// (<see cref="Member"/>) up to date on every start.
 /// </summary>
 /// <param name="db">The master database.</param>
+/// <param name="scopeFactory">Creates the scopes of the organizations prepared in parallel.</param>
 /// <param name="provisioning">Creates organizations.</param>
 /// <param name="registry">The registry of organizations.</param>
 /// <param name="scopes">Runs work in an organization.</param>
 /// <param name="memberships">The memberships of accounts.</param>
 /// <param name="userManager">The user manager.</param>
 /// <param name="options">The seed options.</param>
+/// <param name="organizationOptions">The settings of the organizations' databases.</param>
 /// <param name="emailOptions">The e-mail settings (the address of the activation page).</param>
 /// <param name="timeProvider">The clock.</param>
 /// <param name="logger">The logger.</param>
 public sealed partial class DatabaseInitializer(
     MasterDbContext db,
+    IServiceScopeFactory scopeFactory,
     IOrganizationProvisioning provisioning,
     OrganizationRegistry registry,
     OrganizationScopes scopes,
     Memberships memberships,
     UserManager<User> userManager,
     IOptions<SeedOptions> options,
+    IOptions<OrganizationOptions> organizationOptions,
     IOptions<EmailOptions> emailOptions,
     TimeProvider timeProvider,
     ILogger<DatabaseInitializer> logger)
@@ -142,8 +147,33 @@ public sealed partial class DatabaseInitializer(
     /// </summary>
     /// <param name="logger">The logger.</param>
     /// <param name="code">The organization's code.</param>
-    [LoggerMessage(Level = LogLevel.Warning, Message = "The database of the organization {Code} had no root unit (its creation was interrupted); created it again")]
+    [LoggerMessage(Level = LogLevel.Warning, Message = "The database of the organization {Code} had no root unit; created it again")]
     private static partial void LogRootRestored(ILogger logger, string code);
+
+    /// <summary>
+    /// Logs that an organization could not be prepared (it stays unavailable).
+    /// </summary>
+    /// <param name="logger">The logger.</param>
+    /// <param name="code">The organization's code.</param>
+    /// <param name="exception">The failure.</param>
+    [LoggerMessage(Level = LogLevel.Error, Message = "The database of the organization {Code} could not be prepared; the organization is unavailable until the next start")]
+    private static partial void LogPrepareFailed(ILogger logger, string code, Exception exception);
+
+    /// <summary>
+    /// Logs that an interrupted creation is finished.
+    /// </summary>
+    /// <param name="logger">The logger.</param>
+    /// <param name="code">The organization's code.</param>
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Finishing the interrupted creation of the organization {Code}")]
+    private static partial void LogCreationFinished(ILogger logger, string code);
+
+    /// <summary>
+    /// Logs that an interrupted deletion is finished.
+    /// </summary>
+    /// <param name="logger">The logger.</param>
+    /// <param name="code">The organization's code.</param>
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Finishing the interrupted deletion of the organization {Code}")]
+    private static partial void LogDeletionFinished(ILogger logger, string code);
 
     /// <summary>
     /// Logs that demo data was created.
@@ -290,40 +320,107 @@ public sealed partial class DatabaseInitializer(
     }
 
     /// <summary>
-    /// Brings every organization's database to the latest migration, restores a missing root unit and repairs its
-    /// copies of the members' accounts.
+    /// The migrator of the organizations' databases: brings each to the latest migration as its owner (a few at a time),
+    /// finishes an interrupted creation or deletion, repairs the roles and privileges, a missing root unit and the copies
+    /// of the members' accounts, and records the schema version in the registry. A failure in one organization is logged
+    /// and leaves that organization unavailable (503) without stopping the others.
     /// </summary>
     /// <param name="types">The unit types by code.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task that completes when the databases are ready.</returns>
     private async Task PrepareOrganizationsAsync(Dictionary<string, UnitType> types, CancellationToken cancellationToken)
     {
-        var order = 0;
-        foreach (var organization in await registry.AllAsync(cancellationToken))
+        var typeId = (await OrganizationTypeAsync(types, cancellationToken)).Id;
+        var all = (await registry.AllAsync(cancellationToken)).Select(static (o, i) => (o.Id, o.Code, Order: i)).ToList();
+        var parallel = new ParallelOptions { MaxDegreeOfParallelism = Math.Max(1, organizationOptions.Value.MigrationParallelism), CancellationToken = cancellationToken };
+        await Parallel.ForEachAsync(all, parallel, async (item, token) =>
         {
-            var people = await db.Memberships.Where(m => m.OrganizationId == organization.Id).Select(static m => m.UserId).ToListAsync(cancellationToken);
-            var profiles = (await db.Users.AsNoTracking().Where(u => people.Contains(u.Id)).ToListAsync(cancellationToken)).Select(MemberProfile.Of).ToList();
-            var sortOrder = order++;
-            await scopes.RunAsync(organization, async services =>
+            try
             {
-                var target = services.GetRequiredService<OrganizationDbContext>();
-                await target.Database.MigrateAsync(cancellationToken);
+                await PrepareAsync(item.Id, typeId, item.Order, token);
+            }
+            catch (Exception exception) when (exception is not OperationCanceledException)
+            {
+                LogPrepareFailed(logger, item.Code, exception);
+            }
+        });
+        registry.Invalidate();
+    }
 
-                // A start stopped while the organization was being created leaves its database without the root unit
-                // (the registry row is already saved); everything placed in the organization needs it.
-                if (!await target.OrganizationUnits.AnyAsync(u => u.Id == organization.Id, cancellationToken))
+    /// <summary>
+    /// Prepares one organization in a scope of its own (the work runs in parallel).
+    /// </summary>
+    /// <param name="id">The organization.</param>
+    /// <param name="typeId">The unit type of a root to restore.</param>
+    /// <param name="order">The display order of a root to restore.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task.</returns>
+    private async Task PrepareAsync(Guid id, Guid typeId, int order, CancellationToken cancellationToken)
+    {
+        await using var scope = scopeFactory.CreateAsyncScope();
+        var master = scope.ServiceProvider.GetRequiredService<MasterDbContext>();
+        var lifecycle = scope.ServiceProvider.GetRequiredService<OrganizationProvisioning>();
+        var admin = scope.ServiceProvider.GetRequiredService<OrganizationDatabaseAdmin>();
+        var organization = await master.Organizations.FirstAsync(o => o.Id == id, cancellationToken);
+        switch (organization.State)
+        {
+            case OrganizationState.Deleting:
+                LogDeletionFinished(logger, organization.Code);
+                await lifecycle.RemoveAsync(organization, cancellationToken);
+                return;
+            case OrganizationState.Creating:
+                LogCreationFinished(logger, organization.Code);
+                await lifecycle.CompleteCreationAsync(organization, typeId, order, cancellationToken);
+                break;
+            default:
+                // Roles, the database and the privileges: whatever is missing (a suspended database stays locked).
+                await admin.CreateAsync(organization, cancellationToken);
+                if (organization.State == OrganizationState.Suspended)
                 {
-                    var type = await OrganizationTypeAsync(types, cancellationToken);
-                    var root = OrganizationUnit.Root(organization.Id, organization.Code, organization.Name, type.Id);
-                    root.Update(organization.Code, organization.Name, organization.ShortName, type.Id, sortOrder);
-                    target.OrganizationUnits.Add(root);
-                    await target.SaveChangesAsync(cancellationToken);
-                    LogRootRestored(logger, organization.Code);
+                    await admin.LockAsync(organization, cancellationToken);
                 }
 
-                await MemberSync.CopyAsync(target, profiles, cancellationToken);
-            });
+                break;
         }
+
+        if (organization.FileKey is null)
+        {
+            organization.KeepFilesWith(scope.ServiceProvider.GetRequiredService<FileKeys>().NewFor(organization.Id));
+        }
+
+        var version = await admin.MigrateAsync(organization, cancellationToken);
+        if (version != organization.SchemaVersion)
+        {
+            organization.Migrated(version, timeProvider.GetUtcNow());
+        }
+
+        await master.SaveChangesAsync(cancellationToken);
+        if (!organization.IsActive)
+        {
+            return;
+        }
+
+        var people = await master.Memberships.Where(m => m.OrganizationId == id).Select(static m => m.UserId)
+            .Union(master.Participations.Where(p => p.OrganizationId == id).Select(static p => p.UserId))
+            .ToListAsync(cancellationToken);
+        var profiles = (await master.Users.AsNoTracking().Where(u => people.Contains(u.Id)).ToListAsync(cancellationToken)).Select(MemberProfile.Of).ToList();
+        await scopes.RunAsync(organization, async services =>
+        {
+            var target = services.GetRequiredService<OrganizationDbContext>();
+
+            // A database restored or created again by hand may miss the root unit; everything placed in the organization
+            // needs it.
+            if (!await target.OrganizationUnits.AnyAsync(u => u.Id == id, cancellationToken))
+            {
+                var root = OrganizationUnit.Root(id, organization.Code, organization.Name, typeId);
+                root.Update(organization.Code, organization.Name, organization.ShortName, typeId, order);
+                target.OrganizationUnits.Add(root);
+                await target.SaveChangesAsync(cancellationToken);
+                LogRootRestored(logger, organization.Code);
+            }
+
+            await MemberSync.CopyAsync(target, profiles, cancellationToken);
+        });
     }
 
     /// <summary>

@@ -2,6 +2,7 @@ using System.Security.Cryptography.X509Certificates;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using ODC.Web.Features.Admin.Users;
 using ODC.Web.Features.Auth.Activation;
 using ODC.Web.Features.Documents;
@@ -52,7 +53,13 @@ public static class DependencyInjection
 
             services.AddSingleton(TimeProvider.System);
             services.AddMemoryCache();
-            services.AddSingleton(new OrganizationDatabases(connectionString));
+            services.Configure<OrganizationOptions>(configuration.GetSection(OrganizationOptions.SectionName));
+            services.AddSingleton<OrganizationSecrets>();
+            services.AddSingleton(provider => new OrganizationDatabases(connectionString, provider.GetRequiredService<OrganizationSecrets>(), provider.GetRequiredService<IOptions<OrganizationOptions>>()));
+            services.AddSingleton<OrganizationDatabaseAdmin>();
+            services.AddSingleton<FileKeys>();
+            services.AddSingleton<OrganizationSchema>();
+            services.AddSingleton<OrganizationBackups>();
             services.AddSingleton<OrganizationRegistry>();
             services.AddSingleton<OrganizationScopes>();
             services.AddSingleton<AccessCache>();
@@ -63,7 +70,8 @@ public static class DependencyInjection
             services.AddScoped<ExternalParticipants>();
             services.AddScoped<Workplaces>();
             services.AddScoped<IAcrossOrganizations, AcrossOrganizations>();
-            services.AddScoped<IOrganizationProvisioning, OrganizationProvisioning>();
+            services.AddScoped<OrganizationProvisioning>();
+            services.AddScoped<IOrganizationProvisioning>(static provider => provider.GetRequiredService<OrganizationProvisioning>());
             services.AddSingleton<AuditableEntityInterceptor>();
             services.AddScoped<PendingAudit>();
             services.AddScoped<PendingAuditInterceptor>();
@@ -111,7 +119,7 @@ public static class DependencyInjection
             services.AddScoped<IDocumentNumberGenerator, DocumentNumberGenerator>();
             services.AddScoped<IAuditLogger, AuditLogger>();
             services.AddScoped<DatabaseInitializer>();
-            services.AddSingleton<IFileStorage, LocalFileStorage>();
+            services.AddScoped<IFileStorage, LocalFileStorage>();
             services.AddSingleton<IUserSpreadsheet, UserSpreadsheet>();
             services.AddSingleton<IMarkdownRenderer, MarkdigRenderer>();
             services.AddSingleton<IRichTextSanitizer, RichTextSanitizer>();

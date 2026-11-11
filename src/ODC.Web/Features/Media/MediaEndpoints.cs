@@ -24,8 +24,8 @@ internal static class MediaEndpoints
         public IEndpointConventionBuilder MapMediaEndpoints()
         {
             var group = endpoints.MapGroup("/media");
-            group.MapGet("/{id:guid}", static (Guid id, HttpContext context, IMediaStorage storage) => Serve(id, thumbnail: false, context, storage));
-            group.MapGet("/{id:guid}/thumb", static (Guid id, HttpContext context, IMediaStorage storage) => Serve(id, thumbnail: true, context, storage));
+            group.MapGet("/{id:guid}", static (Guid id, HttpContext context, IMediaStorage storage) => ServeAsync(id, thumbnail: false, context, storage));
+            group.MapGet("/{id:guid}/thumb", static (Guid id, HttpContext context, IMediaStorage storage) => ServeAsync(id, thumbnail: true, context, storage));
             return group;
         }
     }
@@ -38,9 +38,9 @@ internal static class MediaEndpoints
     /// <param name="context">The HTTP context.</param>
     /// <param name="storage">The image storage.</param>
     /// <returns>The image, 304 or 404.</returns>
-    private static IResult Serve(Guid id, bool thumbnail, HttpContext context, IMediaStorage storage)
+    private static async Task<IResult> ServeAsync(Guid id, bool thumbnail, HttpContext context, IMediaStorage storage)
     {
-        var stream = storage.OpenRead(id, thumbnail);
+        var stream = await storage.OpenReadAsync(id, thumbnail, context.RequestAborted);
         if (stream is null)
         {
             return Results.NotFound();

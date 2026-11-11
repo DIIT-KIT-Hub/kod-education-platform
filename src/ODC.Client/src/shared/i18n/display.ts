@@ -5,6 +5,7 @@ import type {
     DocumentKind,
     DocumentStatus,
     NewsCategory,
+    OrganizationState,
     ReactionKind,
     SignaturePackaging,
     SignerStatus,
@@ -172,6 +173,16 @@ export const auditCategories: readonly { readonly prefix: string; readonly name:
 ];
 
 /**
+ * The states of an organization.
+ */
+export const organizationStateNames: Record<OrganizationState, MessageDescriptor> = {
+    Creating: msg({ message: "Створюється", context: "organization-state" }),
+    Active: msg({ message: "Працює", context: "organization-state" }),
+    Suspended: msg({ message: "Призупинена", context: "organization-state" }),
+    Deleting: msg({ message: "Видаляється", context: "organization-state" }),
+};
+
+/**
  * The names of audit events by their codes (the server catalog is ODC.Domain.Audit.AuditActions); an unknown code is
  * shown as it is.
  */
@@ -197,6 +208,10 @@ export const auditActionNames: Readonly<Record<string, MessageDescriptor>> = {
     "users.photo-changed": msg({ message: "Нове фото профілю", context: "audit" }),
     "roles.changed": msg({ message: "Зміна ролі", context: "audit" }),
     "roles.deleted": msg({ message: "Видалення ролі", context: "audit" }),
+    "organizations.suspended": msg({ message: "Призупинення організації", context: "audit" }),
+    "organizations.resumed": msg({ message: "Відновлення організації", context: "audit" }),
+    "organizations.deleted": msg({ message: "Видалення організації", context: "audit" }),
+    "organizations.passwords-rotated": msg({ message: "Нові паролі бази організації", context: "audit" }),
     "structure.changed": msg({ message: "Зміна структури", context: "audit" }),
     "structure.type-changed": msg({ message: "Зміна типу підрозділу", context: "audit" }),
     "structure.type-deleted": msg({ message: "Видалення типу підрозділу", context: "audit" }),

@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using ODC.Web.Features.Auth.Activation;
 using ODC.Web.Features.News.Domain;
 using ODC.Web.Features.Tickets.Domain;
+using ODC.Web.Infrastructure.Files;
 using ODC.Web.Infrastructure.Identity.Tokens;
 using ODC.Web.Messaging;
 using ODC.Web.Shared.Domain.Access;
@@ -102,6 +103,11 @@ public sealed class MasterDbContext(DbContextOptions<MasterDbContext> options)
     /// Gets the requests of activation codes (accounts that wait for their owner to choose the first password).
     /// </summary>
     public DbSet<ActivationChallenge> ActivationChallenges => Set<ActivationChallenge>();
+
+    /// <summary>
+    /// Gets the secrets of the platform (the key of its files), encrypted with Data Protection.
+    /// </summary>
+    public DbSet<PlatformSecret> PlatformSecrets => Set<PlatformSecret>();
 
     /// <summary>
     /// Stops tracking every loaded entity and discards their pending changes (e.g. to reload after a concurrency conflict).

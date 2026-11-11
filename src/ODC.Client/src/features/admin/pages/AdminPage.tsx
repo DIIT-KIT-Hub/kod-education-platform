@@ -1,7 +1,19 @@
 import { msg } from "@lingui/core/macro";
 import type { MessageDescriptor } from "@lingui/core";
 import { useLingui } from "@lingui/react/macro";
-import { ArrowRight, FileSpreadsheet, History, Layers, LifeBuoy, Network, Newspaper, Shield, Users, type LucideIcon } from "lucide-react";
+import {
+    ArrowRight,
+    Building2,
+    FileSpreadsheet,
+    History,
+    Layers,
+    LifeBuoy,
+    Network,
+    Newspaper,
+    Shield,
+    Users,
+    type LucideIcon,
+} from "lucide-react";
 import { Link } from "react-router";
 import { hasPermission, Permissions, useCurrentUser } from "@/shared/session/session";
 import layout from "@/shared/styles/layout.module.css";
@@ -43,6 +55,13 @@ const sections: readonly AdminSection[] = [
         description: msg`Набори дозволів для посад і модулів.`,
         icon: Shield,
         permissions: [Permissions.rolesManage],
+    },
+    {
+        to: "/admin/organizations",
+        title: msg`Організації`,
+        description: msg`Бази організацій: стан, призупинення, видалення, паролі.`,
+        icon: Building2,
+        permissions: [Permissions.administrationAll],
     },
     {
         to: "/admin/units",

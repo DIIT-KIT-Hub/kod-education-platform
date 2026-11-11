@@ -4362,6 +4362,183 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/organizations/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: {
+            parameters: {
+                query?: {
+                    confirmation?: string;
+                };
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/organizations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["OrganizationListItem"][];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/organizations/{id}/resume": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/organizations/{id}/rotate-passwords": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/organizations/{id}/suspend": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/media/{id}": {
         parameters: {
             query?: never;
@@ -5585,6 +5762,50 @@ export interface components {
          * @enum {unknown}
          */
         OrganizationAccess: "Anonymous" | "Member" | "Platform" | "Guest" | "System";
+        /** @description An organization of the registry as the platform administrator sees it. */
+        OrganizationListItem: {
+            /**
+             * Format: uuid
+             * @description The identifier.
+             */
+            id: string;
+            /** @description The code. */
+            code: string;
+            /** @description The name. */
+            name: string;
+            /** @description The abbreviation. */
+            shortName: null | string;
+            /** @description The state. */
+            state: components["schemas"]["OrganizationState"];
+            /** @description The name of its database. */
+            databaseName: string;
+            /** @description The last migration of its database. */
+            schemaVersion: null | string;
+            /** @description Whether its database has the latest schema (otherwise it answers no requests). */
+            isCurrent: boolean;
+            /**
+             * Format: date-time
+             * @description When its database was last migrated.
+             */
+            migratedAt: null | string;
+            /**
+             * Format: date-time
+             * @description When it was created.
+             */
+            createdAt: string;
+            /**
+             * Format: int32
+             * @description How many people work there.
+             */
+            memberCount: number;
+            /** @description Whether its database has PostgreSQL roles of its own. */
+            ownRoles: boolean;
+        };
+        /**
+         * @description Where an organization is in its life: only an active one answers requests.
+         * @enum {unknown}
+         */
+        OrganizationState: "Creating" | "Active" | "Suspended" | "Deleting";
         /** @description An organization the signed-in user may open (the switcher, the labels of lists gathered from several organizations). */
         OrganizationSummary: {
             /**
@@ -7105,6 +7326,8 @@ export type NotificationDto = components['schemas']['NotificationDto'];
 export type NotificationKind = components['schemas']['NotificationKind'];
 export type OpenDirectChatRequest = components['schemas']['OpenDirectChatRequest'];
 export type OrganizationAccess = components['schemas']['OrganizationAccess'];
+export type OrganizationListItem = components['schemas']['OrganizationListItem'];
+export type OrganizationState = components['schemas']['OrganizationState'];
 export type OrganizationSummary = components['schemas']['OrganizationSummary'];
 export type PagedResultOfAuditEntryDto = components['schemas']['PagedResultOfAuditEntryDto'];
 export type PagedResultOfDocumentListItem = components['schemas']['PagedResultOfDocumentListItem'];

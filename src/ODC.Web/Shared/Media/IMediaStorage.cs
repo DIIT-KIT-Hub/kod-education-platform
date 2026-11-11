@@ -19,8 +19,9 @@ public interface IMediaStorage
     /// </summary>
     /// <param name="id">The image identifier.</param>
     /// <param name="thumbnail">Whether to open the thumbnail rather than the main rendition.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The stream, or <see langword="null"/> when the image does not exist.</returns>
-    Stream? OpenRead(Guid id, bool thumbnail);
+    Task<Stream?> OpenReadAsync(Guid id, bool thumbnail, CancellationToken cancellationToken);
 
     /// <summary>
     /// Deletes both renditions (missing files are ignored).

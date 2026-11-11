@@ -287,6 +287,13 @@ export const router = createBrowserRouter(
                                             }),
                                         },
                                         {
+                                            path: "organizations",
+                                            loader: requirePermission(Permissions.administrationAll),
+                                            lazy: async () => ({
+                                                Component: (await import("@/features/admin/pages/OrganizationsPage")).OrganizationsPage,
+                                            }),
+                                        },
+                                        {
                                             path: "roles",
                                             loader: requirePermission(Permissions.rolesManage),
                                             lazy: async () => ({ Component: (await import("@/features/admin/pages/RolesPage")).RolesPage }),

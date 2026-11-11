@@ -30,7 +30,7 @@ internal sealed class GeneralNews(MasterDbContext master, OrganizationContext or
         ArgumentNullException.ThrowIfNull(organizations);
         ArgumentNullException.ThrowIfNull(scopes);
         var wanted = new Dictionary<Guid, GeneralArticle>();
-        foreach (var other in organizations)
+        foreach (var other in organizations.Where(static o => o.IsActive))
         {
             var published = await scopes.RunAsync(other, services => services.GetRequiredService<OrganizationDbContext>().NewsArticles.AsNoTracking()
                 .Where(static a => a.OrganizationId == null && a.PublishedAt != null)
@@ -43,6 +43,14 @@ internal sealed class GeneralNews(MasterDbContext master, OrganizationContext or
         }
 
         var existing = await master.GeneralArticles.ToListAsync(cancellationToken);
+
+        // A suspended organization's database is locked: its news stay in the index as they were (the list skips them).
+        var locked = organizations.Where(static o => !o.IsActive).Select(static o => o.Id).ToHashSet();
+        foreach (var entry in existing.Where(e => locked.Contains(e.OrganizationId)))
+        {
+            wanted[entry.ArticleId] = new GeneralArticle(entry.ArticleId, entry.OrganizationId, entry.PublishedAt);
+        }
+
         master.GeneralArticles.RemoveRange(existing.Where(e => !wanted.ContainsKey(e.ArticleId) || wanted[e.ArticleId].OrganizationId != e.OrganizationId));
         foreach (var entry in existing.Where(e => wanted.TryGetValue(e.ArticleId, out var w) && w.OrganizationId == e.OrganizationId))
         {

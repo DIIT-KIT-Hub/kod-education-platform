@@ -9,6 +9,7 @@ const allSections = [
     ["Користувачі", "/admin/users"],
     ["Імпорт і експорт", "/admin/users/import"],
     ["Ролі та дозволи", "/admin/roles"],
+    ["Організації", "/admin/organizations"],
     ["Структура", "/admin/units"],
     ["Типи підрозділів", "/admin/unit-types"],
     ["Новини", "/news/manage"],
@@ -52,7 +53,7 @@ describe("AdminPage", () => {
         [["tickets.manage"], ["Звернення"]],
         [["audit.view"], ["Журнал аудиту"]],
         [["users.manage", "users.security"], []],
-        [["administration.all"], []],
+        [["administration.all"], ["Організації"]],
         [
             ["users.view", "audit.view"],
             ["Користувачі", "Журнал аудиту"],
