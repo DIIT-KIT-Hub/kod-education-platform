@@ -113,7 +113,7 @@ public sealed partial class DatabaseInitializer(
         var roles = await SeedRolesAsync(cancellationToken);
         var types = await SeedUnitTypesAsync(cancellationToken);
         var root = await SeedRootAsync(types, cancellationToken);
-        await PrepareOrganizationsAsync(cancellationToken);
+        await PrepareOrganizationsAsync(types, cancellationToken);
         await SeedAdministratorAsync(root, roles[SystemRoles.Administrator], cancellationToken);
 
         if (options.Value.DemoData)
@@ -136,6 +136,14 @@ public sealed partial class DatabaseInitializer(
     /// <param name="activationUrl">The address of the activation page.</param>
     [LoggerMessage(Level = LogLevel.Warning, Message = "Created the first administrator {Email}. Activate the account at {ActivationUrl}: a one-time code goes to this e-mail")]
     private static partial void LogAdministratorCreated(ILogger logger, string email, string activationUrl);
+
+    /// <summary>
+    /// Logs that the root unit of an organization was missing and was created again.
+    /// </summary>
+    /// <param name="logger">The logger.</param>
+    /// <param name="code">The organization's code.</param>
+    [LoggerMessage(Level = LogLevel.Warning, Message = "The database of the organization {Code} had no root unit (its creation was interrupted); created it again")]
+    private static partial void LogRootRestored(ILogger logger, string code);
 
     /// <summary>
     /// Logs that demo data was created.
@@ -233,17 +241,29 @@ public sealed partial class DatabaseInitializer(
             return existing[0];
         }
 
-        var type = types.Values.Where(static t => t.IsOrganization).MinBy(static t => t.SortOrder);
-        if (type is null)
-        {
-            type = new UnitType("ORGANIZATION", "Організація", isOrganization: true);
-            db.UnitTypes.Add(type);
-            types[type.Code] = type;
-            await db.SaveChangesAsync(cancellationToken);
-        }
-
+        var type = await OrganizationTypeAsync(types, cancellationToken);
         var settings = options.Value;
         return await CreateOrganizationAsync(settings.OrganizationCode, settings.OrganizationName, settings.OrganizationShortName, type.Id, 0, cancellationToken);
+    }
+
+    /// <summary>
+    /// Returns the first unit type of organizations, creating one when the catalog has none.
+    /// </summary>
+    /// <param name="types">The unit types by code.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The unit type of an organization's root.</returns>
+    private async Task<UnitType> OrganizationTypeAsync(Dictionary<string, UnitType> types, CancellationToken cancellationToken)
+    {
+        if (types.Values.Where(static t => t.IsOrganization).MinBy(static t => t.SortOrder) is { } type)
+        {
+            return type;
+        }
+
+        type = new UnitType("ORGANIZATION", "Організація", isOrganization: true);
+        db.UnitTypes.Add(type);
+        types[type.Code] = type;
+        await db.SaveChangesAsync(cancellationToken);
+        return type;
     }
 
     /// <summary>
@@ -270,20 +290,37 @@ public sealed partial class DatabaseInitializer(
     }
 
     /// <summary>
-    /// Brings every organization's database to the latest migration and repairs its copies of the members' accounts.
+    /// Brings every organization's database to the latest migration, restores a missing root unit and repairs its
+    /// copies of the members' accounts.
     /// </summary>
+    /// <param name="types">The unit types by code.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task that completes when the databases are ready.</returns>
-    private async Task PrepareOrganizationsAsync(CancellationToken cancellationToken)
+    private async Task PrepareOrganizationsAsync(Dictionary<string, UnitType> types, CancellationToken cancellationToken)
     {
+        var order = 0;
         foreach (var organization in await registry.AllAsync(cancellationToken))
         {
             var people = await db.Memberships.Where(m => m.OrganizationId == organization.Id).Select(static m => m.UserId).ToListAsync(cancellationToken);
             var profiles = (await db.Users.AsNoTracking().Where(u => people.Contains(u.Id)).ToListAsync(cancellationToken)).Select(MemberProfile.Of).ToList();
+            var sortOrder = order++;
             await scopes.RunAsync(organization, async services =>
             {
                 var target = services.GetRequiredService<OrganizationDbContext>();
                 await target.Database.MigrateAsync(cancellationToken);
+
+                // A start stopped while the organization was being created leaves its database without the root unit
+                // (the registry row is already saved); everything placed in the organization needs it.
+                if (!await target.OrganizationUnits.AnyAsync(u => u.Id == organization.Id, cancellationToken))
+                {
+                    var type = await OrganizationTypeAsync(types, cancellationToken);
+                    var root = OrganizationUnit.Root(organization.Id, organization.Code, organization.Name, type.Id);
+                    root.Update(organization.Code, organization.Name, organization.ShortName, type.Id, sortOrder);
+                    target.OrganizationUnits.Add(root);
+                    await target.SaveChangesAsync(cancellationToken);
+                    LogRootRestored(logger, organization.Code);
+                }
+
                 await MemberSync.CopyAsync(target, profiles, cancellationToken);
             });
         }
