@@ -62,6 +62,11 @@ export const helpChapters: readonly HelpChapter[] = [
             { id: "intro-about", title: msg({ message: "Що таке Кабінет організаційних документів", context: "help" }), permissions: [] },
             { id: "intro-interface", title: msg({ message: "Інтерфейс: меню, тема, сповіщення", context: "help" }), permissions: [] },
             { id: "intro-access", title: msg({ message: "Ролі та доступ", context: "help" }), permissions: [] },
+            {
+                id: "intro-organizations",
+                title: msg({ message: "Організації: перемикач і робота в кількох організаціях", context: "help" }),
+                permissions: [],
+            },
             { id: "intro-glossary", title: msg({ message: "Словник термінів", context: "help" }), permissions: [] },
         ],
     },
@@ -286,7 +291,15 @@ export const helpChapters: readonly HelpChapter[] = [
         title: msg({ message: "Адміністрування", context: "help" }),
         icon: Shield,
         summary: msg({ message: "Користувачі, імпорт та експорт, ролі й дозволи, структура, звернення, журнал аудиту.", context: "help" }),
-        permissions: ["users.view", "roles.manage", "structure.manage", "news.manage", "audit.view", "tickets.manage"],
+        permissions: [
+            "users.view",
+            "roles.manage",
+            "structure.manage",
+            "news.manage",
+            "audit.view",
+            "tickets.manage",
+            "administration.all",
+        ],
         topics: [
             { id: "admin-overview", title: msg({ message: "Панель адміністрування", context: "help" }), permissions: [] },
             {
@@ -314,6 +327,11 @@ export const helpChapters: readonly HelpChapter[] = [
             { id: "admin-import", title: msg({ message: "Імпорт користувачів", context: "help" }), permissions: ["users.import"] },
             { id: "admin-export", title: msg({ message: "Експорт користувачів", context: "help" }), permissions: ["users.export"] },
             { id: "admin-roles", title: msg({ message: "Ролі та матриця дозволів", context: "help" }), permissions: ["roles.manage"] },
+            {
+                id: "admin-organizations",
+                title: msg({ message: "Організації: бази, призупинення, видалення", context: "help" }),
+                permissions: ["administration.all"],
+            },
             { id: "admin-requests", title: msg({ message: "Опрацювання звернень", context: "help" }), permissions: ["tickets.manage"] },
             { id: "admin-audit", title: msg({ message: "Журнал аудиту", context: "help" }), permissions: ["audit.view"] },
             { id: "admin-hierarchy", title: msg({ message: "Межі повноважень адміністраторів", context: "help" }), permissions: [] },

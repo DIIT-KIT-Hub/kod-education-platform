@@ -120,10 +120,13 @@ tests/ODC.IntegrationTests  The real host over HTTP (WebApplicationFactory) on a
 ### Databases (master + organizations)
 
 The plan (`docs`: the published "Бази організацій ODC" page) moves every organization into a database of its own.
-Phases 2–6 are done: two contexts, the registry and routing (every organization has its own database), the client
-(addresses `/o/:code/…`, the switcher, lists gathered from all organizations), the work across organizations, and the
-maintenance (roles and secrets per database, encrypted files per organization, suspension and deletion, the migrator,
-backups). Phases 7 (the isolation matrix) and 8 (the user's guide) follow.
+All phases are done (2–8): two contexts, the registry and routing (every organization has its own database), the
+client (addresses `/o/:code/…`, the switcher, lists gathered from all organizations), the work across organizations,
+the maintenance (roles and secrets per database, encrypted files per organization, suspension and deletion, the
+migrator, backups), the isolation tests (`IsolationMatrixTests`, `OrganizationLifecycleTests`,
+`TenancyArchitectureTests`) and the guides (README for the operator, the manual's "intro-organizations" and
+"admin-organizations"). A new endpoint that takes an identifier answers 404 for one of another organization (it is not
+in this database) — add it to the matrix of `IsolationMatrixTests`.
 
 - **Registry** (master): `organizations` (`Organization`: code, name, `DatabaseName`, `State` (Creating / Active /
   Suspended / Deleting), `SchemaVersion`, the encrypted passwords of its roles and key of its files) and `memberships`

@@ -34,8 +34,14 @@ export function Content() {
                 </li>
             </ul>
             <p>
-                A person can hold positions in different organizations at the same time. News belongs to an organization or to the whole
-                cabinet, and everyone can read it. Roles, the unit type catalog and the audit log are shared by the whole cabinet.
+                Every top-level organization has <strong>its own database and an encrypted file storage</strong>: its documents, chats, news
+                and notifications never mix with the data of other organizations. Nested organizations are kept with their “parent”.
+            </p>
+            <p>
+                A person can hold positions in different organizations at the same time and switch between them (see “
+                <Ref to="intro-organizations">Organizations: the switcher and work in several organizations</Ref>”). News belongs to an
+                organization or to the whole cabinet; the news of the whole cabinet is visible in every organization. Roles, the unit type
+                catalog and the audit log are shared by the whole cabinet.
             </p>
         </>
     );

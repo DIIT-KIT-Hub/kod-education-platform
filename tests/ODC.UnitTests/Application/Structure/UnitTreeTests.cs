@@ -111,10 +111,9 @@ public sealed class UnitTreeTests : IDisposable
     }
 
     [Fact]
-    public async Task An_unknown_unit_has_no_staff()
+    public async Task The_staff_of_an_unknown_unit_is_not_found()
     {
-        var staff = (await _world.As(_world.StewardA).SendAsync(new ListUnitStaff.Query(Guid.NewGuid(), new PageRequest()))).Ok();
-
-        Assert.Empty(staff.Items);
+        // A unit of another organization is not in this database either: the same answer.
+        Assert.Equal(ErrorType.NotFound, (await _world.As(_world.StewardA).SendAsync(new ListUnitStaff.Query(Guid.NewGuid(), new PageRequest()))).Failure());
     }
 }

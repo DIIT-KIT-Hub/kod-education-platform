@@ -3497,6 +3497,16 @@ msgstr "Organizations, their units and staff."
 msgid "Організації, структурою яких Ви керуєте, та їхні підрозділи."
 msgstr "Organizations whose structure you manage, and their units."
 
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Організації: бази, призупинення, видалення"
+msgstr "Organizations: databases, suspension, deletion"
+
+#: src/features/help/contents.ts
+msgctxt "help"
+msgid "Організації: перемикач і робота в кількох організаціях"
+msgstr "Organizations: the switcher and work in several organizations"
+
 #: src/features/admin/pages/OrganizationsPage.tsx
 msgid "Організацій ще немає"
 msgstr "No organizations yet"

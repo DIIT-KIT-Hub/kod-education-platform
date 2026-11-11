@@ -36,6 +36,13 @@ public static class ListUnitStaff
         public async Task<Result<PagedResult<UnitStaffItem>>> HandleAsync(Query request, CancellationToken cancellationToken)
         {
             ArgumentNullException.ThrowIfNull(request);
+
+            // A unit of another organization is not in this database: the same answer as for one that never existed.
+            if (!await db.OrganizationUnits.AnyAsync(u => u.Id == request.UnitId, cancellationToken))
+            {
+                return UnitTree.NotFound();
+            }
+
             var roles = await catalog.RolesAsync(cancellationToken);
             var leaders = roles.Values.Where(static r => r.IsLeadership).Select(static r => r.Id).ToList();
             var positions = db.StaffPositions.AsNoTracking().Where(p => p.OrganizationUnitId == request.UnitId && p.Member!.IsActive);
