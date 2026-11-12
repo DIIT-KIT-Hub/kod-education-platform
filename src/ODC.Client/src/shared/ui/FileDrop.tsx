@@ -21,6 +21,8 @@ export interface FileDropProps {
     readonly disabled?: boolean;
     /** The input id (a field label may point to it). */
     readonly id?: string;
+    /** One low row instead of the large area (e.g. once a file is chosen and shown above it). */
+    readonly compact?: boolean;
     /** Called with the chosen files. */
     readonly onFiles: (files: readonly File[]) => void;
 }
@@ -30,12 +32,13 @@ export interface FileDropProps {
  * @param props The props.
  * @returns The drop zone.
  */
-export function FileDrop({ icon, title, hint, accept, multiple, disabled, id, onFiles }: FileDropProps) {
+export function FileDrop({ icon, title, hint, accept, multiple, disabled, id, compact, onFiles }: FileDropProps) {
     const [over, setOver] = useState(false);
     return (
         <label
             className={styles.drop}
             data-dragover={over || undefined}
+            data-compact={compact || undefined}
             onDragEnter={() => setOver(true)}
             onDragLeave={() => setOver(false)}
             onDrop={() => setOver(false)}
@@ -53,8 +56,10 @@ export function FileDrop({ icon, title, hint, accept, multiple, disabled, id, on
                 }}
             />
             <Icon icon={icon} />
-            <span className={styles.title}>{title}</span>
-            {hint && <span className={styles.hint}>{hint}</span>}
+            <span className={styles.text}>
+                <span className={styles.title}>{title}</span>
+                {hint && <span className={styles.hint}>{hint}</span>}
+            </span>
         </label>
     );
 }

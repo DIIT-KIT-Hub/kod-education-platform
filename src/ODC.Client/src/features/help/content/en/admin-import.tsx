@@ -126,7 +126,7 @@ export function Content() {
             </ul>
             <p>
                 If sending email is not configured in the cabinet, the report warns about it — tell the users to activate their accounts
-                with the <Ui>Activate account</Ui> button on the sign-in page.
+                with the <Ui>Activate</Ui> button on the sign-in page.
             </p>
             <p>Blocking through import ends the sign-ins of the blocked users within a few minutes.</p>
         </>

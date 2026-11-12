@@ -64,11 +64,7 @@ export function LoginPage() {
 
     return (
         <>
-            <AuthHeader
-                title={t`Вхід до кабінету`}
-                pageTitle={t`Вхід`}
-                text={t`Увійдіть за обліковим записом, виданим адміністратором Вашої організації.`}
-            />
+            <AuthHeader title={t`Вхід до кабінету`} pageTitle={t`Вхід`} text={t`Обліковий запис видає адміністратор Вашої організації.`} />
 
             <form className={styles.form} noValidate onSubmit={handleSubmit(signIn)}>
                 <Field label={t`Електронна пошта`} error={formState.errors.email?.message}>
@@ -98,16 +94,14 @@ export function LoginPage() {
             <div className={styles.firstTime}>
                 <div>
                     <strong>{t`Вперше в КОД?`}</strong>
-                    <p>{t`Адміністратор створив Вам обліковий запис? Підтвердьте пошту кодом і задайте власний пароль.`}</p>
+                    <p>{t`Або пароль скинуто? Підтвердьте пошту кодом і задайте новий.`}</p>
                 </div>
-                <ButtonLink to="/account/activate" variant="secondary" icon={UserCheck} block>
-                    {t`Активувати обліковий запис`}
+                <ButtonLink to="/account/activate" variant="secondary" size="sm" icon={UserCheck}>
+                    {t`Активувати`}
                 </ButtonLink>
             </div>
 
-            <p className={styles.note}>
-                {t`Забули пароль? Зверніться до адміністратора: після скидання пароля Ви задасте новий через активацію.`}
-            </p>
+            <p className={styles.note}>{t`Забули пароль? Попросіть адміністратора скинути його.`}</p>
         </>
     );
 }

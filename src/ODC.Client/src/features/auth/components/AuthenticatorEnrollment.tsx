@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useLingui } from "@lingui/react/macro";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { ShieldCheck } from "lucide-react";
+import { ShieldCheck, Smartphone } from "lucide-react";
 import type { ReactNode } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
@@ -76,46 +76,47 @@ export function LinkAuthenticator({ badge, rememberMe, onEnrolled }: LinkAuthent
         <>
             <AuthHeader
                 badge={badge}
+                icon={Smartphone}
                 title={t`Захистіть вхід`}
                 pageTitle={t`Підключення автентифікатора`}
-                text={t`Для кожного облікового запису обов'язкова двофакторна автентифікація. Прив'яжіть застосунок-автентифікатор — це займе хвилину.`}
+                text={t`Двофакторна автентифікація обов'язкова для всіх.`}
             />
 
-            <ol className={styles.steps}>
-                <li>
+            <div className={styles.enroll}>
+                <div className={styles.qr}>
+                    {key.isPending && (
+                        <SkeletonGroup>
+                            <Skeleton shape="block" width="9rem" height="9rem" />
+                        </SkeletonGroup>
+                    )}
+                    {key.data && (
+                        <img
+                            src={`data:image/svg+xml;charset=utf-8,${encodeURIComponent(key.data.qrCodeSvg)}`}
+                            alt={t`QR-код для автентифікатора`}
+                        />
+                    )}
+                </div>
+                <ol className={styles.steps}>
                     {/* Plain text: static elements inside <Trans> are hoisted by the React Compiler and break the message id. */}
-                    <span>{t`Встановіть Google Authenticator, Microsoft Authenticator або інший TOTP-застосунок.`}</span>
-                </li>
-                <li>
-                    <div className={layout.stackSm}>
-                        <span>{t`Відскануйте QR-код або введіть ключ вручну:`}</span>
-                        {key.isPending && (
-                            <SkeletonGroup>
-                                <Skeleton shape="block" width="15rem" height="15rem" />
-                            </SkeletonGroup>
-                        )}
-                        {key.data && (
-                            <>
-                                <div className={styles.qr}>
-                                    <img
-                                        src={`data:image/svg+xml;charset=utf-8,${encodeURIComponent(key.data.qrCodeSvg)}`}
-                                        alt={t`QR-код для автентифікатора`}
-                                    />
-                                </div>
-                                <div className={[layout.row, layout.cluster].join(" ")}>
-                                    <code className={styles.key}>{key.data.formattedKey}</code>
-                                    <CopyButton value={key.data.sharedKey} variant="ghost" size="sm">
-                                        {t`Копіювати`}
-                                    </CopyButton>
-                                </div>
-                            </>
-                        )}
+                    <li>
+                        <span>{t`Встановіть Google чи Microsoft Authenticator.`}</span>
+                    </li>
+                    <li>
+                        <span>{t`Відскануйте QR-код або введіть ключ нижче.`}</span>
+                    </li>
+                    <li>
+                        <span>{t`Введіть 6-значний код із застосунку.`}</span>
+                    </li>
+                </ol>
+                {key.data && (
+                    <div className={styles.keyRow}>
+                        <code className={styles.key}>{key.data.formattedKey}</code>
+                        <CopyButton value={key.data.sharedKey} variant="ghost" size="sm">
+                            {t`Копіювати`}
+                        </CopyButton>
                     </div>
-                </li>
-                <li>
-                    <span>{t`Введіть 6-значний код, який показує застосунок.`}</span>
-                </li>
-            </ol>
+                )}
+            </div>
 
             <form className={styles.form} noValidate onSubmit={submit}>
                 <Field label={t`Код з застосунку`} error={formState.errors.code?.message}>
@@ -173,9 +174,9 @@ export function RecoveryCodes({ codes, badge, children }: RecoveryCodesProps) {
         <>
             <AuthHeader
                 badge={badge}
-                bigIcon={ShieldCheck}
+                doneIcon={ShieldCheck}
                 title={t`Автентифікатор підключено`}
-                text={t`Збережіть резервні коди в надійному місці. Вони знадобляться, якщо Ви втратите доступ до телефону. Кожен код діє один раз.`}
+                text={t`Збережіть резервні коди в надійному місці: вони знадобляться, якщо Ви втратите телефон. Кожен код діє один раз.`}
             />
             <ul className={[styles.codes, layout.stagger].join(" ")}>
                 {codes.map((code) => (

@@ -34,6 +34,22 @@
     cursor: pointer;
 }
 
+.text {
+    display: grid;
+    gap: var(--ds-space-2);
+}
+
+/* One row: the icon beside the name and the hint. */
+.drop[data-compact] {
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: var(--ds-space-3);
+    padding: var(--ds-space-3) var(--ds-space-4);
+    text-align: start;
+}
+.drop[data-compact] .text {
+    gap: 0;
+}
+
 .title {
     font-weight: 750;
     overflow-wrap: anywhere;

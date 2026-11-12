@@ -1,5 +1,17 @@
+/*
+ * The vertical rhythm of the sign-in pages follows the height of the screen, within rem bounds: generous on a tall
+ * screen, tight on a laptop, so every step fits without scrolling down to about 650px of height; a shorter screen
+ * scrolls (min-height, never a fixed height). svh, the small viewport, stays stable while mobile toolbars slide; the
+ * vh line before it is the fallback of browsers without the new units (web.dev "The large, small, and dynamic
+ * viewport units"). The pages use --auth-space between blocks and --auth-space-sm inside a form.
+ */
 .shell {
-    min-height: 100dvh;
+    --auth-space: clamp(var(--ds-space-3), 2.5vh, var(--ds-space-6));
+    --auth-space: clamp(var(--ds-space-3), 2.5svh, var(--ds-space-6));
+    --auth-space-sm: clamp(var(--ds-space-3), 2vh, var(--ds-space-5));
+    --auth-space-sm: clamp(var(--ds-space-3), 2svh, var(--ds-space-5));
+    min-height: 100vh;
+    min-height: 100svh;
     display: grid;
     background: var(--ds-color-bg);
 }
@@ -8,30 +20,50 @@
     display: none;
 }
 
-/* The language and theme switches are the first row, so a tall card (the authenticator setup) never slides under them. */
+/* The bar (the brand on small screens, the language and theme switches) is the first row, so a tall card never slides
+   under it. */
 .main {
     display: grid;
     grid-template-rows: auto 1fr;
     place-items: center;
-    gap: var(--ds-space-4);
-    padding: var(--ds-space-4) var(--ds-gutter) var(--ds-space-8);
+    gap: var(--ds-space-3);
+    padding: var(--ds-space-3) var(--ds-gutter) var(--auth-space);
 }
 
+/* The photo frame is capped by the height of the screen too, so the photo step fits a short one. */
 .card {
+    --photo-frame-size: min(16rem, 70vw, 24vh);
+    --photo-frame-size: min(16rem, 70vw, 24svh);
     grid-row: 2;
     width: min(100%, 28rem);
     display: grid;
-    gap: var(--ds-space-6);
+    gap: var(--auth-space);
+    container-type: inline-size;
     animation: var(--ds-anim-fade-up);
 }
 
-.tools {
+/* A short screen (a laptop with the browser's toolbars): headings one step smaller. Media queries measure real pixels. */
+@media (max-height: 760px) {
+    .card h1 {
+        font-size: var(--ds-fs-2xl);
+    }
+}
+
+.bar {
     grid-row: 1;
-    justify-self: end;
+    justify-self: stretch;
     align-self: start;
+    display: flex;
+    gap: var(--ds-space-3);
+    align-items: center;
+    justify-content: space-between;
+}
+
+.tools {
     display: flex;
     gap: var(--ds-space-1);
     align-items: center;
+    margin-inline-start: auto;
 }
 .mobileBrand {
     display: flex;

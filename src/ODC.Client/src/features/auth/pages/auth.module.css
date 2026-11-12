@@ -1,24 +1,36 @@
-/* Shared parts of the sign-in pages. */
+/* Shared parts of the sign-in pages (the spacing follows the screen height: AuthLayout). */
 .form {
     display: grid;
-    gap: var(--ds-space-5);
+    gap: var(--auth-space-sm);
+}
+
+/* A multi-step page: its blocks keep the rhythm of the card. */
+.flow {
+    display: grid;
+    gap: var(--auth-space);
 }
 .note {
     color: var(--ds-color-text-muted);
     font-size: var(--ds-fs-sm);
 }
-/* "First time here?" under the sign-in form: the way into the account activation. */
+/* "First time here?" under the sign-in form: the way into the account activation, one row beside its button. */
 .firstTime {
-    display: grid;
+    display: flex;
+    flex-wrap: wrap;
     gap: var(--ds-space-3);
-    padding: var(--ds-space-4);
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--ds-space-3) var(--ds-space-4);
     border: 1px solid var(--ds-color-border);
     border-radius: var(--ds-radius-lg);
     background: var(--ds-color-surface-2);
 }
 
+.firstTime > div {
+    flex: 1 1 9rem;
+}
+
 .firstTime p {
-    margin-top: var(--ds-space-1);
     color: var(--ds-color-text-muted);
     font-size: var(--ds-fs-sm);
 }
@@ -28,6 +40,45 @@
     flex-wrap: wrap;
     gap: var(--ds-space-2);
     align-items: center;
+}
+
+/* The authenticator setup: the QR code beside the steps on a card wide enough, under them otherwise. */
+.enroll {
+    display: grid;
+    gap: var(--ds-space-3);
+    align-items: start;
+}
+
+.enroll > .qr {
+    order: 1;
+}
+
+.enroll > .keyRow {
+    order: 2;
+}
+
+@container (min-width: 26rem) {
+    .enroll {
+        grid-template-columns: auto minmax(0, 1fr);
+        align-items: center;
+    }
+    .enroll > .qr {
+        order: 0;
+    }
+}
+
+/* The key for typing by hand, across the whole card under the QR code and the steps (one line beside its button). */
+.keyRow .key {
+    font-size: var(--ds-fs-xs);
+}
+
+.keyRow {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--ds-space-2);
+    align-items: center;
+    justify-content: space-between;
 }
 
 .steps {
@@ -43,7 +94,7 @@
     display: grid;
     grid-template-columns: 2rem 1fr;
     gap: var(--ds-space-3);
-    align-items: start;
+    align-items: center;
     counter-increment: step;
 }
 
@@ -63,7 +114,7 @@
 .qr {
     display: grid;
     place-items: center;
-    padding: var(--ds-space-4);
+    padding: var(--ds-space-2);
     border-radius: var(--ds-radius-lg);
     background: #fff;
     width: fit-content;
@@ -72,14 +123,14 @@
 }
 
 .qr img {
-    width: 13rem;
-    height: 13rem;
+    width: 9rem;
+    height: 9rem;
 }
 
 .key {
     font-family: var(--ds-font-mono);
     font-size: var(--ds-fs-sm);
-    padding: 0.15em 0.45em;
+    padding: 0.3em 0.6em;
     border-radius: 0.4rem;
     background: var(--ds-color-surface-3);
     overflow-wrap: anywhere;
@@ -95,7 +146,7 @@
 }
 
 .codes li {
-    padding: var(--ds-space-3);
+    padding: var(--ds-space-2);
     border-radius: var(--ds-radius-sm);
     background: var(--ds-color-surface-3);
     font-family: var(--ds-font-mono);

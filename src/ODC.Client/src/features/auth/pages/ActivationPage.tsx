@@ -170,7 +170,7 @@ export function ActivationPage() {
     }
 
     return (
-        <div className={layout.stack}>
+        <div className={styles.flow}>
             <StepProgress label={t`Кроки активації`} steps={steps} current={stepIndex[stage.kind]} />
 
             {stage.kind === "email" && (
@@ -215,7 +215,7 @@ export function ActivationPage() {
                             icon={Smartphone}
                             title={t`Код з автентифікатора`}
                             pageTitle={t`Активація облікового запису`}
-                            text={t`Пароль збережено. До облікового запису вже підключено автентифікатор — введіть 6-значний код із застосунку.`}
+                            text={t`Пароль збережено. Введіть 6-значний код із застосунку-автентифікатора.`}
                         />
                         <AuthenticatorCodeForm rememberMe={false} submitText={t`Підтвердити`} onVerified={afterSignIn} />
                         <p className={styles.note}>
@@ -244,7 +244,7 @@ export function ActivationPage() {
                         icon={Camera}
                         title={t`Додайте фото профілю`}
                         pageTitle={t`Активація облікового запису`}
-                        text={t`Останній крок. Колеги бачать Ваше фото в документах, новинах і структурі. Без фото кабінетом користуватися не можна.`}
+                        text={t`Останній крок: колеги бачать Ваше фото в документах, новинах і структурі.`}
                     />
                     <PhotoForm onSaved={finish} />
                 </>
@@ -295,7 +295,7 @@ function EmailStep({ onSent }: EmailStepProps) {
             <AuthHeader
                 icon={Mail}
                 title={t`Активація облікового запису`}
-                text={t`Адміністратор уже створив Ваш обліковий запис. Вкажіть робочу електронну пошту — надішлемо на неї одноразовий код, щоб підтвердити, що це Ви.`}
+                text={t`Вкажіть робочу пошту, на яку адміністратор створив обліковий запис: надішлемо на неї одноразовий код.`}
             />
             <form className={styles.form} noValidate onSubmit={handleSubmit(send)}>
                 <Field label={t`Електронна пошта`} error={formState.errors.email?.message}>
@@ -425,8 +425,8 @@ function CodeStep({ email, resendAt, expired: expiredAtStart, onResent, onVerifi
                 pageTitle={t`Активація облікового запису`}
                 text={
                     <Trans>
-                        Якщо обліковий запис <strong>{email}</strong> очікує активації, на цю адресу надіслано лист із 6-значним кодом. Код
-                        діє кілька хвилин і підходить лише один раз.
+                        Якщо обліковий запис <strong>{email}</strong> очікує активації, на цю адресу надіслано 6-значний код. Він діє кілька
+                        хвилин і лише один раз.
                     </Trans>
                 }
             />
@@ -481,9 +481,7 @@ function CodeStep({ email, resendAt, expired: expiredAtStart, onResent, onVerifi
                 </Button>
             </div>
 
-            <p className={styles.note}>
-                {t`Лист не прийшов? Перевірте папку «Спам» і правильність адреси. Якщо обліковий запис ще не створено, зверніться до адміністратора.`}
-            </p>
+            <p className={styles.note}>{t`Лист не прийшов? Перевірте «Спам» і адресу або зверніться до адміністратора.`}</p>
         </>
     );
 }
@@ -549,7 +547,7 @@ function PasswordStep({ account, onSaved, onExpired }: PasswordStepProps) {
                 icon={KeyRound}
                 title={name ? t`Вітаємо, ${name}!` : t`Придумайте пароль`}
                 pageTitle={t`Активація облікового запису`}
-                text={t`Пошту підтверджено. Придумайте пароль — його знатимете лише Ви: адміністратори його не бачать і не надсилають.`}
+                text={t`Пошту підтверджено. Пароль знатимете лише Ви: адміністратори його не бачать.`}
             />
             <form className={styles.form} noValidate onSubmit={handleSubmit(save)}>
                 <Field

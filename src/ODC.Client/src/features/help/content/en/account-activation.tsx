@@ -22,8 +22,8 @@ export function Content() {
             />
             <p>
                 As soon as the account is created, an email “Your ODC account has been created” with an <Ui>Activate the account</Ui> button
-                arrives at your work address. If there is no email, open the sign-in page and click <Ui>Activate account</Ui> in the “New to
-                ODC?” block — the result is the same.
+                arrives at your work address. If there is no email, open the sign-in page and click <Ui>Activate</Ui> in the “New to ODC?”
+                block — the result is the same.
             </p>
             <p>
                 Have a smartphone ready with an authenticator app: <strong>Google Authenticator</strong>,{" "}

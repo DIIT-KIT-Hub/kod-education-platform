@@ -40,10 +40,17 @@ describe("AuthHeader", () => {
         expect(container.querySelector("header")?.children).toHaveLength(1);
     });
 
-    it("shows the icon, the large icon and the badge", () => {
-        const { container } = renderWithI18n(<AuthHeader title="Заголовок" icon={KeyRound} bigIcon={ShieldCheck} badge="Крок 2" />);
+    it("shows the icon and the badge", () => {
+        const { container } = renderWithI18n(<AuthHeader title="Заголовок" icon={KeyRound} badge="Крок 2" />);
 
-        expect(container.querySelectorAll("svg")).toHaveLength(2);
+        expect(container.querySelectorAll("svg")).toHaveLength(1);
         expect(screen.getByText("Крок 2")).toBeInTheDocument();
+    });
+
+    it("shows the icon of a finished step in place of the icon", () => {
+        const { container } = renderWithI18n(<AuthHeader title="Заголовок" icon={KeyRound} doneIcon={ShieldCheck} />);
+
+        expect(container.querySelectorAll("svg")).toHaveLength(1);
+        expect(container.querySelector("svg")?.getAttribute("class")).toContain("shield");
     });
 });

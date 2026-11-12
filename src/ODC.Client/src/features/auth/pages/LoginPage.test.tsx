@@ -109,6 +109,6 @@ describe("LoginPage", () => {
     it("links to the account activation", async () => {
         renderLogin();
 
-        expect(await screen.findByRole("link", { name: /Активувати обліковий запис/ })).toHaveAttribute("href", "/account/activate");
+        expect(await screen.findByRole("link", { name: /Активувати/ })).toHaveAttribute("href", "/account/activate");
     });
 });

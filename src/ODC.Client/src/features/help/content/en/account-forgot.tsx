@@ -14,9 +14,9 @@ export function Content() {
             <ul>
                 <li>
                     <strong>Forgot your password</strong> — contact the HR department or the system administrator. After the password is
-                    reset, you receive the email “Your ODC password has been reset”. Open it (or click <Ui>Activate account</Ui> on the
-                    sign-in page) and go through the activation: email → code from the email → new password → authenticator code (it stays
-                    linked) — and you are in the cabinet (see “<Ref to="account-activation">Account activation</Ref>”).
+                    reset, you receive the email “Your ODC password has been reset”. Open it (or click <Ui>Activate</Ui> on the sign-in
+                    page) and go through the activation: email → code from the email → new password → authenticator code (it stays linked) —
+                    and you are in the cabinet (see “<Ref to="account-activation">Account activation</Ref>”).
                 </li>
                 <li>
                     <strong>Changed or lost your phone</strong> — sign in with a recovery code and ask the administrator to reset your

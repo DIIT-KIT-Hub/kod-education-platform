@@ -14,8 +14,8 @@ export function Content() {
                         <p>
                             There is no self-registration. Contact the HR department or the system administrator — they will create an
                             account for you, and an invitation email will arrive at your work address. You choose the password yourself:
-                            click the button in the email (or <Ui>Activate account</Ui> in the “New to ODC?” block on the sign-in page).
-                            Then see “<Ref to="account-activation">Account activation</Ref>”.
+                            click the button in the email (or <Ui>Activate</Ui> in the “New to ODC?” block on the sign-in page). Then see “
+                            <Ref to="account-activation">Account activation</Ref>”.
                         </p>
                     </div>
                 </details>

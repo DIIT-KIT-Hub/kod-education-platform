@@ -5,11 +5,22 @@
 .header p {
     color: var(--ds-color-text-muted);
 }
+
+/* The icon stands beside the heading, which is then one step smaller, so a step keeps its height low. */
+.title {
+    display: flex;
+    align-items: center;
+    gap: var(--ds-space-3);
+}
+.title:has(.icon, .doneIcon) h1 {
+    font-size: var(--ds-fs-2xl);
+}
 .badge {
     justify-self: start;
 }
 
 .icon {
+    flex: none;
     display: grid;
     place-items: center;
     width: 2.75rem;
@@ -19,11 +30,12 @@
     animation: var(--ds-anim-pop);
 }
 
-.bigIcon {
+.doneIcon {
+    flex: none;
     display: grid;
     place-items: center;
-    width: 5rem;
-    height: 5rem;
+    width: 2.75rem;
+    height: 2.75rem;
     border-radius: 50%;
     background: var(--ds-color-inverse);
     color: var(--ds-color-on-inverse);

@@ -189,6 +189,13 @@ there is none, `GET login/pending` (password already set → the authenticator s
   Do not use CSS `zoom`, `transform: scale` or `vw`-only font sizes; check new layouts at 1366, 1920 and 2560 px.
 - Steppers: `Wizard` (`shared/ui`) for forms the user moves through freely (Back / Next); `StepProgress` for flows the
   server drives one step at a time (activation). Both share the same look.
+- **Sign-in pages fit the screen** (every step from 1366 × 650 and 375 × 667 up, checked by measuring): `AuthLayout`
+  sets the vertical rhythm from the screen height within rem bounds (`--auth-space` between blocks, `--auth-space-sm`
+  inside forms: `clamp(rem, svh, rem)` with a `vh` line before it as the fallback), caps the photo frame
+  (`--photo-frame-size`, read by `PhotoPicker`) by `svh`, makes headings one step smaller under `max-height: 760px`, and
+  keeps `min-height: 100svh` so a shorter screen scrolls. Icons stand beside the heading (`AuthHeader`), the QR code
+  beside the steps (container query on the card), the chosen photo's drop zone turns compact (`FileDrop compact`).
+  A new step or text must keep fitting: measure it at 1366 × 650.
 
 ## Tests
 

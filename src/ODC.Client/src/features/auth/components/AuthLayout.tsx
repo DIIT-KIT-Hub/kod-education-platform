@@ -45,15 +45,17 @@ export function AuthLayout() {
                 </div>
             </section>
             <main className={styles.main}>
-                <div className={styles.card}>
+                <div className={styles.bar}>
                     <div className={styles.mobileBrand}>
                         <BrandMark compact /> {t`КОД`}
                     </div>
-                    <Outlet />
+                    <div className={styles.tools}>
+                        <LanguageSwitch />
+                        <ThemeToggle labelled />
+                    </div>
                 </div>
-                <div className={styles.tools}>
-                    <LanguageSwitch />
-                    <ThemeToggle labelled />
+                <div className={styles.card}>
+                    <Outlet />
                 </div>
             </main>
         </div>

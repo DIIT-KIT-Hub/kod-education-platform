@@ -281,7 +281,12 @@ export function PhotoPicker({ onChange, disabled }: PhotoPickerProps) {
                 accept={imageAccept}
                 disabled={disabled}
                 title={file?.name ?? t`Оберіть або перетягніть фото`}
-                hint={t`JPEG, PNG, WebP, AVIF або GIF до 15 МБ. Фото буде стиснуто, метадані (зокрема геолокацію) видалено.`}
+                hint={
+                    url
+                        ? t`Натисніть або перетягніть інше фото, щоб замінити.`
+                        : t`JPEG, PNG, WebP, AVIF або GIF до 15 МБ. Фото буде стиснуто, метадані (зокрема геолокацію) видалено.`
+                }
+                compact={url !== null}
                 onFiles={(files) => void choose(files)}
             />
         </div>

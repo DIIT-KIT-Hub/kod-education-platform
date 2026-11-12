@@ -14,10 +14,10 @@ export interface AuthHeaderProps {
     readonly pageTitle?: string;
     /** The explanation under the heading. */
     readonly text?: ReactNode;
-    /** An icon above the heading. */
+    /** An icon beside the heading. */
     readonly icon?: LucideIcon;
-    /** A large icon above the heading (a finished step). */
-    readonly bigIcon?: LucideIcon;
+    /** The icon of a finished step beside the heading, on an inverse circle (in place of {@link icon}). */
+    readonly doneIcon?: LucideIcon;
     /** A badge above the heading (e.g. the step). */
     readonly badge?: ReactNode;
 }
@@ -27,22 +27,24 @@ export interface AuthHeaderProps {
  * @param props The props.
  * @returns The header.
  */
-export function AuthHeader({ title, pageTitle, text, icon, bigIcon, badge }: AuthHeaderProps) {
+export function AuthHeader({ title, pageTitle, text, icon, doneIcon, badge }: AuthHeaderProps) {
     return (
         <header className={styles.header}>
             <DocumentTitle>{pageTitle ?? title}</DocumentTitle>
-            {icon && (
-                <span className={styles.icon}>
-                    <Icon icon={icon} />
-                </span>
-            )}
-            {bigIcon && (
-                <span className={styles.bigIcon}>
-                    <Icon icon={bigIcon} size="xl" />
-                </span>
-            )}
             {badge && <span className={styles.badge}>{badge}</span>}
-            <h1 tabIndex={-1}>{title}</h1>
+            <div className={styles.title}>
+                {icon && !doneIcon && (
+                    <span className={styles.icon}>
+                        <Icon icon={icon} />
+                    </span>
+                )}
+                {doneIcon && (
+                    <span className={styles.doneIcon}>
+                        <Icon icon={doneIcon} />
+                    </span>
+                )}
+                <h1 tabIndex={-1}>{title}</h1>
+            </div>
             {text && <p>{text}</p>}
         </header>
     );

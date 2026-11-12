@@ -1,11 +1,13 @@
+/* A page can set --photo-frame-size (the sign-in pages follow the height of the screen). */
 .picker {
+    --_frame: var(--photo-frame-size, min(16rem, 70vw));
     display: grid;
-    gap: var(--ds-space-5);
+    gap: var(--ds-space-3);
 }
 .stage {
     display: grid;
     justify-items: center;
-    gap: var(--ds-space-3);
+    gap: var(--ds-space-2);
     text-align: center;
 }
 .stage[data-ready="false"] {
@@ -14,7 +16,7 @@
 
 .frame {
     position: relative;
-    width: min(16rem, 70vw);
+    width: var(--_frame);
     aspect-ratio: 1;
     overflow: hidden;
     border-radius: 50%;
@@ -48,7 +50,7 @@
     display: flex;
     align-items: center;
     gap: var(--ds-space-2);
-    width: min(16rem, 70vw);
+    width: var(--_frame);
     color: var(--ds-color-text-muted);
 }
 .zoom input {

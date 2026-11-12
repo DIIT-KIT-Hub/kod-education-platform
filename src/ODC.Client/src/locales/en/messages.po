@@ -210,6 +210,10 @@ msgstr "QR code for the authenticator"
 msgid "SHA-256 файлу збігається з зареєстрованим у системі."
 msgstr "The file's SHA-256 matches the one registered in the system."
 
+#: src/features/auth/pages/LoginPage.tsx
+msgid "Або пароль скинуто? Підтвердьте пошту кодом і задайте новий."
+msgstr "Or was your password reset? Confirm your e-mail with a code and set a new one."
+
 #: src/features/chats/pages/ChatsPage.tsx
 msgid "Або почніть нову розмову з колегою чи групою."
 msgstr "Or start a new conversation with a colleague or a group."
@@ -253,14 +257,6 @@ msgstr "Author of the post"
 #: src/app/layout/OrganizationSwitcher.tsx
 msgid "Адміністратор платформи"
 msgstr "Platform administrator"
-
-#: src/features/auth/pages/LoginPage.tsx
-msgid "Адміністратор створив Вам обліковий запис? Підтвердьте пошту кодом і задайте власний пароль."
-msgstr "Has an administrator created an account for you? Confirm your e-mail with a code and set your own password."
-
-#: src/features/auth/pages/ActivationPage.tsx
-msgid "Адміністратор уже створив Ваш обліковий запис. Вкажіть робочу електронну пошту — надішлемо на неї одноразовий код, щоб підтвердити, що це Ви."
-msgstr "An administrator has already created your account. Enter your work e-mail — we will send a one-time code to it to confirm that it is you."
 
 #: src/app/layout/navigation.ts
 #: src/features/admin/pages/AdminPage.tsx
@@ -332,8 +328,8 @@ msgid "Активні"
 msgstr "Active"
 
 #: src/features/auth/pages/LoginPage.tsx
-msgid "Активувати обліковий запис"
-msgstr "Activate account"
+msgid "Активувати"
+msgstr "Activate"
 
 #: src/features/news/pages/NewsEditorPage.tsx
 msgid "Анонс"
@@ -466,8 +462,8 @@ msgid "Введіть 6 цифр із застосунку-автентифік�
 msgstr "Enter the 6 digits from the authenticator app."
 
 #: src/features/auth/components/AuthenticatorEnrollment.tsx
-msgid "Введіть 6-значний код, який показує застосунок."
-msgstr "Enter the 6-digit code shown in the app."
+msgid "Введіть 6-значний код із застосунку."
+msgstr "Enter the 6-digit code from the app."
 
 #: src/features/auth/pages/ActivationPage.tsx
 msgid "Введіть код із листа"
@@ -843,8 +839,8 @@ msgid "Відповісти"
 msgstr "Reply"
 
 #: src/features/auth/components/AuthenticatorEnrollment.tsx
-msgid "Відскануйте QR-код або введіть ключ вручну:"
-msgstr "Scan the QR code or enter the key manually:"
+msgid "Відскануйте QR-код або введіть ключ нижче."
+msgstr "Scan the QR code or enter the key below."
 
 #: src/shared/i18n/display.ts
 msgid "Відхилено"
@@ -922,6 +918,10 @@ msgstr "Enter the reason for declining."
 msgid "Вкажіть прізвище."
 msgstr "Enter the last name."
 
+#: src/features/auth/pages/ActivationPage.tsx
+msgid "Вкажіть робочу пошту, на яку адміністратор створив обліковий запис: надішлемо на неї одноразовий код."
+msgstr "Enter the work e-mail your administrator created the account for: we will send a one-time code to it."
+
 #: src/features/tickets/pages/NewTicketPage.tsx
 msgid "Вкажіть тему."
 msgstr "Enter the subject."
@@ -967,8 +967,8 @@ msgid "Вражає"
 msgstr "Wow"
 
 #: src/features/auth/components/AuthenticatorEnrollment.tsx
-msgid "Встановіть Google Authenticator, Microsoft Authenticator або інший TOTP-застосунок."
-msgstr "Install Google Authenticator, Microsoft Authenticator or another TOTP app."
+msgid "Встановіть Google чи Microsoft Authenticator."
+msgstr "Install Google or Microsoft Authenticator."
 
 #: src/features/auth/pages/LoginPage.tsx
 msgid "Вхід"
@@ -1061,6 +1061,10 @@ msgstr "data inside the signature"
 msgid "Двофакторна автентифікація"
 msgstr "Two-factor authentication"
 
+#: src/features/auth/components/AuthenticatorEnrollment.tsx
+msgid "Двофакторна автентифікація обов'язкова для всіх."
+msgstr "Two-factor authentication is required for everyone."
+
 #: src/features/admin/pages/UnitsPage.tsx
 msgid "Дерево"
 msgstr "Tree"
@@ -1100,10 +1104,6 @@ msgstr "For all users"
 #: src/features/profile/pages/SecurityPage.tsx
 msgid "Для входу без телефону. Кожен код діє один раз."
 msgstr "For signing in without your phone. Each code works once."
-
-#: src/features/auth/components/AuthenticatorEnrollment.tsx
-msgid "Для кожного облікового запису обов'язкова двофакторна автентифікація. Прив'яжіть застосунок-автентифікатор — це займе хвилину."
-msgstr "Two-factor authentication is required for every account. Link an authenticator app — it takes a minute."
 
 #: src/features/admin/pages/UserEditorPage.tsx
 msgid "Для кожної посади оберіть підрозділ і роль."
@@ -1527,8 +1527,8 @@ msgid "Забули пароль або змінили телефон"
 msgstr "Forgot your password or changed your phone"
 
 #: src/features/auth/pages/LoginPage.tsx
-msgid "Забули пароль? Зверніться до адміністратора: після скидання пароля Ви задасте новий через активацію."
-msgstr "Forgot your password? Contact your administrator: after a reset you will set a new one through the activation."
+msgid "Забули пароль? Попросіть адміністратора скинути його."
+msgstr "Forgot your password? Ask an administrator to reset it."
 
 #: src/shared/ui/Progress.tsx
 #: src/shared/ui/Skeleton.tsx
@@ -1719,8 +1719,8 @@ msgid "Зберегти чернетку"
 msgstr "Save draft"
 
 #: src/features/auth/components/AuthenticatorEnrollment.tsx
-msgid "Збережіть резервні коди в надійному місці. Вони знадобляться, якщо Ви втратите доступ до телефону. Кожен код діє один раз."
-msgstr "Keep your recovery codes in a safe place. You'll need them if you lose access to your phone. Each code works only once."
+msgid "Збережіть резервні коди в надійному місці: вони знадобляться, якщо Ви втратите телефон. Кожен код діє один раз."
+msgstr "Keep the recovery codes in a safe place: you will need them if you lose your phone. Each code works once."
 
 #: src/features/help/components/Manual.tsx
 msgid "Збільшити зображення: {alt}"
@@ -2379,8 +2379,8 @@ msgid "Лист"
 msgstr "Letter"
 
 #: src/features/auth/pages/ActivationPage.tsx
-msgid "Лист не прийшов? Перевірте папку «Спам» і правильність адреси. Якщо обліковий запис ще не створено, зверніться до адміністратора."
-msgstr "No e-mail? Check the Spam folder and the address. If your account has not been created yet, contact your administrator."
+msgid "Лист не прийшов? Перевірте «Спам» і адресу або зверніться до адміністратора."
+msgstr "No e-mail? Check the spam folder and the address, or contact your administrator."
 
 #: src/features/admin/pages/UnitEditorPage.tsx
 #: src/features/admin/pages/UnitTypeEditorPage.tsx
@@ -2709,6 +2709,10 @@ msgstr "Next month"
 #: src/shared/ui/DatePicker.tsx
 msgid "Наступний рік"
 msgstr "Next year"
+
+#: src/shared/ui/PhotoPicker.tsx
+msgid "Натисніть або перетягніть інше фото, щоб замінити."
+msgstr "Click or drop another photo to replace it."
 
 #: src/features/admin/pages/OrganizationsPage.tsx
 msgid "Не вдалося видалити організацію."
@@ -3339,6 +3343,10 @@ msgstr "Account"
 msgid "Обліковий запис активовано. Ласкаво просимо до КОД!"
 msgstr "Your account is activated. Welcome to ODC!"
 
+#: src/features/auth/pages/LoginPage.tsx
+msgid "Обліковий запис видає адміністратор Вашої організації."
+msgstr "Your account is issued by the administrator of your organization."
+
 #: src/features/chats/components/MembersDialog.tsx
 msgid "Обліковий запис заблоковано"
 msgstr "The account is blocked"
@@ -3606,8 +3614,8 @@ msgid "Останній вхід: {0}"
 msgstr "Last sign-in: {0}"
 
 #: src/features/auth/pages/ActivationPage.tsx
-msgid "Останній крок. Колеги бачать Ваше фото в документах, новинах і структурі. Без фото кабінетом користуватися не можна."
-msgstr "The last step. Colleagues see your photo in documents, news and the structure. The cabinet cannot be used without a photo."
+msgid "Останній крок: колеги бачать Ваше фото в документах, новинах і структурі."
+msgstr "The last step: colleagues see your photo in documents, news and the structure."
 
 #: src/features/tickets/pages/TicketsAdminPage.tsx
 msgid "Остання відповідь — від автора"
@@ -3703,8 +3711,8 @@ msgid "Пароль захисту ключа"
 msgstr "Key password"
 
 #: src/features/auth/pages/ActivationPage.tsx
-msgid "Пароль збережено. До облікового запису вже підключено автентифікатор — введіть 6-значний код із застосунку."
-msgstr "Your password is saved. An authenticator is already linked to the account — enter the 6-digit code from the app."
+msgid "Пароль збережено. Введіть 6-значний код із застосунку-автентифікатора."
+msgstr "Password saved. Enter the 6-digit code from your authenticator app."
 
 #: src/features/auth/pages/ChangePasswordPage.tsx
 msgid "Пароль змінено."
@@ -4422,8 +4430,8 @@ msgid "Пошта"
 msgstr "E-mail"
 
 #: src/features/auth/pages/ActivationPage.tsx
-msgid "Пошту підтверджено. Придумайте пароль — його знатимете лише Ви: адміністратори його не бачать і не надсилають."
-msgstr "Your e-mail is confirmed. Choose a password — only you will know it: administrators neither see nor send it."
+msgid "Пошту підтверджено. Пароль знатимете лише Ви: адміністратори його не бачать."
+msgstr "E-mail confirmed. Only you will know the password: administrators never see it."
 
 #: src/features/structure/pages/UnitPage.tsx
 msgid "Пошук працівника"
@@ -5385,10 +5393,6 @@ msgstr "Entire cabinet"
 msgid "Увесь кабінет (усі організації)"
 msgstr "Entire cabinet (all organizations)"
 
-#: src/features/auth/pages/LoginPage.tsx
-msgid "Увійдіть за обліковим записом, виданим адміністратором Вашої організації."
-msgstr "Sign in with the account issued by your organization's administrator."
-
 #: src/features/auth/pages/RecoveryPage.tsx
 #: src/features/auth/pages/TwoFactorPage.tsx
 msgid "Увійти"
@@ -5840,5 +5844,5 @@ msgid "Якщо доступ потрібен для роботи, зверні�
 msgstr "If you need access for your work, contact your unit manager or system administrator."
 
 #: src/features/auth/pages/ActivationPage.tsx
-msgid "Якщо обліковий запис <0>{email}</0> очікує активації, на цю адресу надіслано лист із 6-значним кодом. Код діє кілька хвилин і підходить лише один раз."
-msgstr "If the account <0>{email}</0> is awaiting activation, an e-mail with a 6-digit code has been sent to this address. The code is valid for a few minutes and works only once."
+msgid "Якщо обліковий запис <0>{email}</0> очікує активації, на цю адресу надіслано 6-значний код. Він діє кілька хвилин і лише один раз."
+msgstr "If the account <0>{email}</0> is awaiting activation, a 6-digit code has been sent to this address. It works for a few minutes and only once."

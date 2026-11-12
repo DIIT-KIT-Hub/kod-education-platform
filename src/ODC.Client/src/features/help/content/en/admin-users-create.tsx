@@ -38,7 +38,7 @@ export function Content() {
             <p>
                 If the email got lost, click <Ui>Send the invitation again</Ui> in the “Account security” card (see “
                 <Ref to="admin-users-security">Account security: blocking, password, 2FA, sessions</Ref>”). The account can also be
-                activated without the email — with the <Ui>Activate account</Ui> button on the sign-in page.
+                activated without the email — with the <Ui>Activate</Ui> button on the sign-in page.
             </p>
             <p>
                 Possible errors: “A user with this email already exists.”, “Enter a valid email address.”, “Select a unit and a role for
