@@ -9,6 +9,7 @@
     border-radius: var(--ds-radius-lg);
     background: var(--ds-color-surface);
     min-width: 0;
+    container: organization-bar / inline-size;
 }
 
 .tile {
@@ -24,7 +25,7 @@
 
 .text {
     display: grid;
-    flex: 1 1 14rem;
+    flex: 0 1 auto;
     gap: 0.125rem;
     min-width: 0;
 }
@@ -42,6 +43,7 @@
     white-space: nowrap;
 }
 
+/* The short name and the code (in the text's own font: the code is a name here, not something to type). */
 .meta {
     display: flex;
     flex-wrap: wrap;
@@ -52,31 +54,57 @@
 }
 
 .code {
-    font-family: var(--ds-font-mono);
+    font-weight: 650;
+    letter-spacing: 0.04em;
 }
 
+/* How the user works here, the switch and the registry: one row of controls of the same height, on the right. It shares
+   the line with the name, which keeps its width, and takes the rest; its basis (34rem) is what the controls need at
+   least, so the line wraps before they could slide under the name. */
 .actions {
     display: flex;
+    flex: 1 1 34rem;
     flex-wrap: nowrap;
     align-items: center;
-    gap: var(--ds-space-2);
+    justify-content: flex-end;
+    gap: var(--ds-space-3);
+    min-width: 0;
     margin-left: auto;
 }
 
-.switch {
-    width: 20rem;
-    min-width: 0;
+.actions > * {
+    flex: none;
 }
 
-@media (max-width: 1100px) {
+/* The switch takes what is left, up to 20rem; a long name is cut with an ellipsis inside the select. */
+.actions > .switch {
+    display: flex;
+    flex: 0 1 20rem;
+    min-width: 9rem;
+}
+
+/* A narrow bar (the content area, not the window: the sidebar takes its part): the controls go to a row of their own,
+   then each one to a line of its own. */
+@container organization-bar (max-width: 48rem) {
+    .text {
+        flex: 1 1 0;
+    }
     .actions {
-        flex-wrap: wrap;
+        flex: 1 1 100%;
+        margin-left: 0;
+    }
+    .actions > .switch {
+        flex: 1 1 auto;
     }
 }
 
-@media (max-width: 640px) {
-    .actions,
-    .switch {
-        width: 100%;
+@container organization-bar (max-width: 30rem) {
+    .actions {
+        flex-wrap: wrap;
+        justify-content: flex-start;
+    }
+    .actions > .switch,
+    .actions > a {
+        flex: 1 1 100%;
     }
 }

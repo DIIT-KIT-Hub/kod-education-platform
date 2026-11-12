@@ -46,12 +46,12 @@ export function OrganizationSwitcher() {
                 <span className={styles.meta}>
                     {organization.shortName && <span>{organization.shortName}</span>}
                     <span className={styles.code}>{organization.code}</span>
-                    {accessNames[organization.access] && (
-                        <Badge tone={organization.access === "Member" ? "outline" : "inverse"}>{accessNames[organization.access]}</Badge>
-                    )}
                 </span>
             </div>
             <div className={styles.actions}>
+                {accessNames[organization.access] && (
+                    <Badge tone={organization.access === "Member" ? "outline" : "inverse"}>{accessNames[organization.access]}</Badge>
+                )}
                 {organizations.length > 1 && (
                     <div className={styles.switch}>
                         <Select
@@ -68,7 +68,7 @@ export function OrganizationSwitcher() {
                     </div>
                 )}
                 {platform && (
-                    <ButtonLink to="/admin/organizations" variant="secondary" size="sm" iconEnd={ArrowRight}>
+                    <ButtonLink to="/admin/organizations" variant="secondary" iconEnd={ArrowRight}>
                         {t`Усі організації`}
                     </ButtonLink>
                 )}
