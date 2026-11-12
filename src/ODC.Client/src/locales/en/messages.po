@@ -251,8 +251,8 @@ msgid "Автор публікації"
 msgstr "Author of the post"
 
 #: src/app/layout/OrganizationSwitcher.tsx
-msgid "адміністратор платформи"
-msgstr "platform administrator"
+msgid "Адміністратор платформи"
+msgstr "Platform administrator"
 
 #: src/features/auth/pages/LoginPage.tsx
 msgid "Адміністратор створив Вам обліковий запис? Підтвердьте пошту кодом і задайте власний пароль."
@@ -505,6 +505,10 @@ msgstr "Take it"
 #: src/features/chats/components/MembersDialog.tsx
 msgid "Ви"
 msgstr "You"
+
+#: src/app/layout/OrganizationSwitcher.tsx
+msgid "Ви тут працюєте"
+msgstr "You work here"
 
 #: src/features/chats/display.ts
 msgid "Ви: {content}"
@@ -1018,8 +1022,8 @@ msgid "Галерея фото"
 msgstr "Photo gallery"
 
 #: src/app/layout/OrganizationSwitcher.tsx
-msgid "гість"
-msgstr "guest"
+msgid "Гість"
+msgstr "Guest"
 
 #: src/app/layout/navigation.ts
 #: src/features/home/HomePage.tsx
@@ -4363,6 +4367,10 @@ msgstr "React"
 msgid "Поточна версія бібліотеки підтримує лише файлові ключі. Токени (Алмаз-1К, Кристал-1), хмарні ключі та «Дія.Підпис» потребують окремих компонентів надавачів — підключіть їх, коли вони знадобляться Вашій організації."
 msgstr "The current library version supports file keys only. Hardware tokens (Almaz-1K, Krystal-1), cloud keys and Diia.Signature require separate provider components — connect them when your organization needs them."
 
+#: src/app/layout/OrganizationSwitcher.tsx
+msgid "Поточна організація"
+msgstr "Current organization"
+
 #: src/features/auth/pages/ChangePasswordPage.tsx
 msgid "Поточний пароль"
 msgstr "Current password"
@@ -5428,6 +5436,7 @@ msgstr "All my permissions ({0})"
 msgid "Усі новини"
 msgstr "All news"
 
+#: src/app/layout/OrganizationSwitcher.tsx
 #: src/features/admin/pages/UnitsPage.tsx
 msgid "Усі організації"
 msgstr "All organizations"

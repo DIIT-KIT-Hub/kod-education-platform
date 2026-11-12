@@ -53,8 +53,10 @@ is the user's default organization). `shared/api/organization.ts` reads the code
 `api.GET("/api/v1/…")` stay as they are. Links the browser fetches itself (files, exports) go through `apiUrl(path)`.
 The auth context carries `organization` (the page's) and `organizations` (where the user may go: `Member`, `Guest`,
 `Platform`); `useOrganization()` / `useOrganizationNames()` in `shared/session`. `OrganizationSwitcher` (app
-layout, sidebar and drawer) shows the current organization and switches by loading the cabinet again at the other
-address (`openInOrganization`: a fresh cache for another database). Lists gathered from several organizations
+layout: a bar at the top of every page of the shell) shows the current organization (name, short name, code, how the
+user works there), switches by loading the cabinet again at the other address (`openInOrganization`: a fresh cache for
+another database) and leads a platform administrator to `/admin/organizations`. The manual's screenshots
+`organization-bar` and `admin-organizations` show them. Lists gathered from several organizations
 (notifications, the home page, chats, news of the whole cabinet) carry `organizationCode`: `linkTo` /
 `OrganizationLink` open an item of another organization with a full load there, and calls about such an item pass
 `baseUrl: organizationApi(code)` (notifications). The unread count of a live notification is that of its organization

@@ -1,66 +1,78 @@
 import { useLingui } from "@lingui/react/macro";
-import { Building2 } from "lucide-react";
+import { ArrowRight, Building2 } from "lucide-react";
 import { openInOrganization } from "@/shared/api/organization";
-import { useAuthContext } from "@/shared/session/session";
-import layout from "@/shared/styles/layout.module.css";
+import type { OrganizationAccess } from "@/shared/api/schema";
+import { hasPermission, Permissions, useAuthContext, useCurrentUser } from "@/shared/session/session";
+import { Badge } from "@/shared/ui/Badge";
+import { ButtonLink } from "@/shared/ui/Button";
 import { Icon } from "@/shared/ui/Icon";
 import { Select } from "@/shared/ui/Select";
 import styles from "./OrganizationSwitcher.module.css";
 
 /**
- * Props of {@link OrganizationSwitcher}.
+ * The bar of the organization the cabinet works in, at the top of every page: its full name, short name and code, why
+ * the user is there (works there, a guest, the platform's administrator), the switch to another organization (the
+ * cabinet loads again at that organization's address) and, for a platform administrator, the registry of all of them.
+ * @returns The bar, or nothing without an organization.
  */
-export interface OrganizationSwitcherProps {
-    /** Whether the sidebar is an icon rail (only the icon shows, the name is its tooltip). */
-    readonly rail?: boolean;
-}
-
-/**
- * The organization the cabinet works in now, and the switch to another one the user works in, takes part in as a guest
- * or (a platform administrator) may open. Switching loads the cabinet again at the other organization's address.
- * @param props The props.
- * @returns The block, or nothing without an organization.
- */
-export function OrganizationSwitcher({ rail = false }: OrganizationSwitcherProps) {
+export function OrganizationSwitcher() {
     const { t } = useLingui();
     const { organization, organizations } = useAuthContext();
+    const platform = hasPermission(useCurrentUser(), Permissions.administrationAll);
     if (!organization) {
         return null;
     }
 
-    const name = organization.shortName ?? organization.name;
-    if (rail) {
-        return (
-            <div className={styles.rail} title={organization.name}>
-                <Icon icon={Building2} />
-            </div>
-        );
-    }
+    const accessNames: Record<OrganizationAccess, string> = {
+        Member: t`Ви тут працюєте`,
+        Guest: t`Гість`,
+        Platform: t`Адміністратор платформи`,
+        System: "",
+        Anonymous: "",
+    };
+    const label = (code: string, name: string, shortName: string | null, access: OrganizationAccess) =>
+        [shortName ? `${shortName} — ${name}` : name, access === "Member" ? "" : accessNames[access], code].filter(Boolean).join(" · ");
 
-    const access: Record<string, string> = { Member: "", Guest: t`гість`, Platform: t`адміністратор платформи` };
     return (
-        <div className={styles.block}>
-            <span className={[layout.textXs, layout.muted].join(" ")}>{t`Організація`}</span>
-            {organizations.length > 1 ? (
-                <Select
-                    compact
-                    aria-label={t`Перейти до іншої організації`}
-                    value={organization.code}
-                    options={organizations.map((o) => ({
-                        value: o.code,
-                        label: access[o.access] ? `${o.shortName ?? o.name} · ${access[o.access]}` : (o.shortName ?? o.name),
-                    }))}
-                    onChange={(code) => {
-                        if (code !== organization.code) {
-                            openInOrganization(code, "/");
-                        }
-                    }}
-                />
-            ) : (
-                <span className={[layout.strong, layout.truncate].join(" ")} title={organization.name}>
-                    {name}
+        <section className={styles.bar} aria-label={t`Поточна організація`}>
+            <span className={styles.tile} aria-hidden="true">
+                <Icon icon={Building2} />
+            </span>
+            <div className={styles.text}>
+                <span className={styles.eyebrow}>{t`Організація`}</span>
+                <strong className={styles.name} title={organization.name}>
+                    {organization.name}
+                </strong>
+                <span className={styles.meta}>
+                    {organization.shortName && <span>{organization.shortName}</span>}
+                    <span className={styles.code}>{organization.code}</span>
+                    {accessNames[organization.access] && (
+                        <Badge tone={organization.access === "Member" ? "outline" : "inverse"}>{accessNames[organization.access]}</Badge>
+                    )}
                 </span>
-            )}
-        </div>
+            </div>
+            <div className={styles.actions}>
+                {organizations.length > 1 && (
+                    <div className={styles.switch}>
+                        <Select
+                            compact
+                            aria-label={t`Перейти до іншої організації`}
+                            value={organization.code}
+                            options={organizations.map((o) => ({ value: o.code, label: label(o.code, o.name, o.shortName, o.access) }))}
+                            onChange={(code) => {
+                                if (code !== organization.code) {
+                                    openInOrganization(code, "/");
+                                }
+                            }}
+                        />
+                    </div>
+                )}
+                {platform && (
+                    <ButtonLink to="/admin/organizations" variant="secondary" size="sm" iconEnd={ArrowRight}>
+                        {t`Усі організації`}
+                    </ButtonLink>
+                )}
+            </div>
+        </section>
     );
 }

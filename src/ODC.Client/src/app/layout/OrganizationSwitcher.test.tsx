@@ -1,8 +1,8 @@
-import { screen } from "@testing-library/react";
+import { screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { choose } from "@/features/admin/testing";
-import { authContextQuery } from "@/shared/session/session";
-import { makeAuthContext, makeOrganization } from "@/test/factories";
+import { authContextQuery, Permissions } from "@/shared/session/session";
+import { makeAuthContext, makeOrganization, makeUser } from "@/test/factories";
 import { renderPage } from "@/test/render";
 import { OrganizationSwitcher } from "./OrganizationSwitcher";
 
@@ -11,12 +11,16 @@ describe("OrganizationSwitcher", () => {
         vi.restoreAllMocks();
     });
 
-    it("shows the organization the cabinet works in", async () => {
-        renderPage(<OrganizationSwitcher />);
+    it("shows the organization the cabinet works in with its short name and code", async () => {
+        renderPage(<OrganizationSwitcher />, { user: makeUser({ permissions: [Permissions.documentsView] }) });
 
-        expect(await screen.findByText("Організація")).toBeInTheDocument();
-        expect(screen.getByText("МО")).toHaveAttribute("title", "Моя організація");
-        expect(screen.queryByRole("combobox")).not.toBeInTheDocument();
+        const bar = await screen.findByRole("region", { name: "Поточна організація" });
+        expect(within(bar).getByText("Моя організація")).toBeInTheDocument();
+        expect(within(bar).getByText("МО")).toBeInTheDocument();
+        expect(within(bar).getByText("ORG")).toBeInTheDocument();
+        expect(within(bar).getByText("Ви тут працюєте")).toBeInTheDocument();
+        expect(within(bar).queryByRole("combobox")).not.toBeInTheDocument();
+        expect(within(bar).queryByRole("link", { name: /Усі організації/ })).not.toBeInTheDocument();
     });
 
     it("switches to another organization by loading the cabinet at its address", async () => {
@@ -31,15 +35,18 @@ describe("OrganizationSwitcher", () => {
             ],
         });
 
-        await choose(user, await screen.findByRole("combobox", { name: "Перейти до іншої організації" }), "Благодійний фонд · гість");
+        await choose(
+            user,
+            await screen.findByRole("combobox", { name: "Перейти до іншої організації" }),
+            "Благодійний фонд · Гість · FUND",
+        );
 
         expect(assign).toHaveBeenCalledWith("/o/FUND/");
     });
 
-    it("shows only an icon on the collapsed sidebar", () => {
-        const { container } = renderPage(<OrganizationSwitcher rail />);
+    it("leads a platform administrator to the registry of all organizations", async () => {
+        renderPage(<OrganizationSwitcher />, { user: makeUser({ permissions: [Permissions.administrationAll] }) });
 
-        expect(container.querySelector("[title='Моя організація']")).not.toBeNull();
-        expect(screen.queryByText("Організація")).not.toBeInTheDocument();
+        expect(await screen.findByRole("link", { name: /Усі організації/ })).toHaveAttribute("href", "/admin/organizations");
     });
 });

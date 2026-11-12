@@ -1,4 +1,5 @@
-import { Note, Ref, Steps, Table, Ui } from "../../components/Manual";
+import organizationBarImage from "../../images/en/organization-bar.webp";
+import { Figure, Note, Ref, Steps, Table, Ui } from "../../components/Manual";
 
 /**
  * The manual page "intro-organizations" (English).
@@ -14,15 +15,18 @@ export function Content() {
             </p>
             <h2>The current organization and the switcher</h2>
             <p>
-                At the top of the side menu (on a phone, in the menu opened by its button) the <Ui>Organization</Ui> block shows which
-                organization you are working in. The structure, the document register, the organization's news and the administration are
+                At the top of every page the <Ui>Organization</Ui> bar shows which organization you are working in: its full name, short
+                name, code and how you work there. The structure, the document register, the organization's news and the administration are
                 about this one.
             </p>
+            <Figure
+                src={organizationBarImage}
+                alt="The bar of the current organization"
+                caption="The current organization, the switcher and (for a platform administrator) the way to all organizations."
+            />
             <Steps>
-                <li>
-                    Click the <Ui>Organization</Ui> block.
-                </li>
-                <li>Choose another organization in the list.</li>
+                <li>Open the list on the right of the bar (it is there when several organizations are open to you).</li>
+                <li>Choose another organization.</li>
                 <li>The cabinet opens again in it: the menu, the pages and the permissions are those of that organization.</li>
             </Steps>
             <p>

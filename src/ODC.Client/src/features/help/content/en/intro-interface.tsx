@@ -36,6 +36,10 @@ export function Content() {
                     in the browser.
                 </li>
                 <li>
+                    <strong>At the top of every page</strong> is the bar of the current organization: its name, code and the switch to other
+                    organizations (see “<Ref to="intro-organizations">Organizations: the switcher and work in several organizations</Ref>”).
+                </li>
+                <li>
                     <strong>On a phone</strong> there is a quick navigation bar at the bottom of the screen: <Ui>Home</Ui>,{" "}
                     <Ui>Documents</Ui>, <Ui>Chats</Ui>, <Ui>News</Ui>, <Ui>Profile</Ui>. The other items are in the <Icon icon={Menu} />{" "}
                     menu in the top-right corner.

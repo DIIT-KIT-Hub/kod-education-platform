@@ -90,7 +90,6 @@ export function AppShell() {
                             </small>
                         </span>
                     </Link>
-                    <OrganizationSwitcher rail={collapsed} />
                     <nav className={styles.nav}>
                         <NavLinks
                             items={[navigation.home]}
@@ -147,7 +146,6 @@ export function AppShell() {
                             {t`Закрити меню`}
                         </Button>
                     </div>
-                    <OrganizationSwitcher />
                     <nav className={styles.nav}>
                         <NavLinks
                             items={[navigation.home]}
@@ -167,6 +165,7 @@ export function AppShell() {
 
                 <main id="main" className={styles.main} tabIndex={-1}>
                     <div className={styles.page}>
+                        <OrganizationSwitcher />
                         <Outlet />
                     </div>
                 </main>

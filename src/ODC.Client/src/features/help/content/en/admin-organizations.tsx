@@ -1,4 +1,5 @@
-import { Access, Ref, Steps, Ui, Warning } from "../../components/Manual";
+import adminOrganizationsImage from "../../images/en/admin-organizations.webp";
+import { Access, Figure, Ref, Steps, Ui, Warning } from "../../components/Manual";
 
 /**
  * The manual page "admin-organizations" (English).
@@ -25,6 +26,11 @@ export function Content() {
                     <Ui>Staff</Ui>: how many people hold positions in the organization.
                 </li>
             </ul>
+            <p>
+                You can also get here with the <Ui>All organizations</Ui> button in the bar of the current organization at the top of every
+                page.
+            </p>
+            <Figure src={adminOrganizationsImage} alt="The Organizations page" caption="Every organization: state, database and actions." />
             <h2>A new organization</h2>
             <p>
                 The <Ui>New organization</Ui> button opens the unit form: choose a type marked as an organization and leave the parent unit

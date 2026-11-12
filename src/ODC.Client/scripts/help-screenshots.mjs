@@ -446,6 +446,8 @@ function shots(ids) {
         { name: "admin-units", path: "/admin/units", ready: { uk: "Підрозділи", en: "Units" } },
         { name: "admin-unit-types", path: "/admin/unit-types", ready: { uk: "Типи підрозділів", en: "Unit types" } },
         { name: "admin-audit", path: "/admin/audit", ready: { uk: "Журнал аудиту", en: "Audit log" } },
+        { name: "admin-organizations", path: "/admin/organizations", ready: { uk: "odc_", en: "odc_" } },
+        { name: "organization-bar", path: "/", ready: { uk: "Усі організації", en: "All organizations" }, crop: "#main > div > section" },
     ];
 }
 

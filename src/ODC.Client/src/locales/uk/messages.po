@@ -251,8 +251,8 @@ msgid "Автор публікації"
 msgstr "Автор публікації"
 
 #: src/app/layout/OrganizationSwitcher.tsx
-msgid "адміністратор платформи"
-msgstr "адміністратор платформи"
+msgid "Адміністратор платформи"
+msgstr "Адміністратор платформи"
 
 #: src/features/auth/pages/LoginPage.tsx
 msgid "Адміністратор створив Вам обліковий запис? Підтвердьте пошту кодом і задайте власний пароль."
@@ -505,6 +505,10 @@ msgstr "Взяти собі"
 #: src/features/chats/components/MembersDialog.tsx
 msgid "Ви"
 msgstr "Ви"
+
+#: src/app/layout/OrganizationSwitcher.tsx
+msgid "Ви тут працюєте"
+msgstr "Ви тут працюєте"
 
 #: src/features/chats/display.ts
 msgid "Ви: {content}"
@@ -1018,8 +1022,8 @@ msgid "Галерея фото"
 msgstr "Галерея фото"
 
 #: src/app/layout/OrganizationSwitcher.tsx
-msgid "гість"
-msgstr "гість"
+msgid "Гість"
+msgstr "Гість"
 
 #: src/app/layout/navigation.ts
 #: src/features/home/HomePage.tsx
@@ -4363,6 +4367,10 @@ msgstr "Поставити реакцію"
 msgid "Поточна версія бібліотеки підтримує лише файлові ключі. Токени (Алмаз-1К, Кристал-1), хмарні ключі та «Дія.Підпис» потребують окремих компонентів надавачів — підключіть їх, коли вони знадобляться Вашій організації."
 msgstr "Поточна версія бібліотеки підтримує лише файлові ключі. Токени (Алмаз-1К, Кристал-1), хмарні ключі та «Дія.Підпис» потребують окремих компонентів надавачів — підключіть їх, коли вони знадобляться Вашій організації."
 
+#: src/app/layout/OrganizationSwitcher.tsx
+msgid "Поточна організація"
+msgstr "Поточна організація"
+
 #: src/features/auth/pages/ChangePasswordPage.tsx
 msgid "Поточний пароль"
 msgstr "Поточний пароль"
@@ -5428,6 +5436,7 @@ msgstr "Усі мої дозволи ({0})"
 msgid "Усі новини"
 msgstr "Усі новини"
 
+#: src/app/layout/OrganizationSwitcher.tsx
 #: src/features/admin/pages/UnitsPage.tsx
 msgid "Усі організації"
 msgstr "Усі організації"

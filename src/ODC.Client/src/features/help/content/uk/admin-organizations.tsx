@@ -1,4 +1,5 @@
-import { Access, Ref, Steps, Ui, Warning } from "../../components/Manual";
+import adminOrganizationsImage from "../../images/uk/admin-organizations.webp";
+import { Access, Figure, Ref, Steps, Ui, Warning } from "../../components/Manual";
 
 /**
  * The manual page "admin-organizations" (Ukrainian).
@@ -25,6 +26,10 @@ export function Content() {
                     <Ui>Працівників</Ui>: скільки людей обіймають посади в організації.
                 </li>
             </ul>
+            <p>
+                Перейти сюди можна також кнопкою <Ui>Усі організації</Ui> у смузі поточної організації вгорі кожної сторінки.
+            </p>
+            <Figure src={adminOrganizationsImage} alt="Сторінка «Організації»" caption="Усі організації: стан, база даних і дії." />
             <h2>Нова організація</h2>
             <p>
                 Кнопка <Ui>Нова організація</Ui> відкриває форму підрозділу: виберіть тип, позначений як організація, і не вказуйте
